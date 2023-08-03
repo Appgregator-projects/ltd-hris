@@ -1,2 +1,2 @@
-# ltd-hris
-Life time design HRIS Web
+# ltd-hris-webapp
+HRIS WEBAPP
