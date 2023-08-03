@@ -7,7 +7,7 @@ import { BrowserRouter } from "react-router-dom";
 import { store } from "./redux/store";
 import { Provider } from "react-redux";
 
-// ** ThemeColors Context
+// ** ThemeColors Contexts
 
 import { ThemeContext } from "./utility/context/ThemeColors";
 
