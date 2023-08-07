@@ -8,10 +8,8 @@ export default function LeaveCategoryForm({item, close, onSubmit}){
 
   const ItemSchema = yup.object().shape({
       name: yup.string().required(),
-      balance: yup.number().required(),
+      initial_balance: yup.number().required(),
   	})
-
-  // console.log(item,"item formcategory")
 
 	const {
 		setValue,
@@ -22,15 +20,13 @@ export default function LeaveCategoryForm({item, close, onSubmit}){
   // console.log(errors, "error.message")
 
   const onSubmitForm = (arg) => {
-    console.log(arg,"arg categories")
       onSubmit(arg)
   }
 
   useEffect(() => {
-    console.log(item, "item useefet")
     if(item){
       setValue('name', item.name)
-      setValue('initial_balance', item.initial_balance)
+      setValue('initial_balance', item.balance)
     }
   }, [item])
 
@@ -50,15 +46,15 @@ export default function LeaveCategoryForm({item, close, onSubmit}){
               {errors.name && <FormFeedback>{errors.name.message}</FormFeedback>}
             </Col>
             <Col md='12' sm='12' className='mb-1'>
-              <Label className='form-label' for='initial_balance'>Initial Balance</Label>
+              <Label className='form-label' for='balance'>Initial Balance</Label>
               <Controller
-                  name='balance'
-                  defaultValue=''
+                  name='initial_balance'
+                  defaultValue='0'
                   control={control}
-                  render={({ field }) => <Input type='number' {...field} name='balance' invalid={errors.balance && true}/>
+                  render={({ field }) => <Input type='number' {...field} name='initial_balance' invalid={errors.initial_balance && true}/>
                 }
               />
-              {errors.balance && <FormFeedback>{errors.balance.message}</FormFeedback>}
+              {errors.initial_balance && <FormFeedback>{errors.initial_balance.message}</FormFeedback>}
             </Col>
             <Col>
               <Button type="button" size="md" color='danger' onClick={close}>Cancel</Button>

@@ -18,16 +18,23 @@ export default function EmployeeDetail(){
 		const id = useParams()
 
 		const [toggleModal, setToggleModal] = useState(false)
-		const [user, setUser] = useState(null)
+		const [user, setUser] = useState([])
 		const [balance, setBalance] = useState([])
+		const [userBalance, setUserBalance] = useState([])
 		const [usersDivision, setUsersDivision] = useState([])
 		const [leaveCategories, setLaeveCategories] = useState([])
 		const [isLoading, setIsLoading] = useState(false)
+
+
+		// console.log(leaveCategories, "leaveCategory")
+		// console.log(user, "user")
+		// console.log(balance, "balance")
 
 		const fetchUser = async() => {
 			try {
 				const data = await Api.get(`/hris/employee/${id.uid}`)
 				setUser(data)
+				setBalance([...data.leave_balances])
 			} catch (error) {
 				throw error
 				
@@ -39,7 +46,6 @@ export default function EmployeeDetail(){
 		},[])
 
 		const fetchUsersDivision = async() => {
-			// return console.log(id.uid,"user division")
 			try {
 				const dataUsers = await Api.get(`/hris/employee/${id.uid}/division`)
 				setUsersDivision(dataUsers.division)
@@ -52,23 +58,12 @@ export default function EmployeeDetail(){
 			fetchUsersDivision()
 		},[])
 
-		// const dataUsers 
-
-		// console.log(usersDivision?.length, "length")
-
-		// const fetchUserBalance = async(userId) => {
-		// 	try {
-		// 		const {data} = await Api.get(`/api/leave/user-balance/${userId}`)
-		// 		setBalance([...data])
-		// 	} catch (error) {
-		// 		throw error
-		// 	}
-		// }
-
 		const fetchLeaveCategories = async() => {
 			try {
 				const data = await Api.get(`/hris/leave-category`)
+				// console.log(data, "data leave category")
 				setLaeveCategories([...data])
+
 			} catch (error) {
 				throw error
 			}
@@ -126,17 +121,18 @@ export default function EmployeeDetail(){
 		}
 
 		const onEditLeave = () => {
-			console.log("ini onleave yey")
+			// return console.log("is it work?")
 			setToggleModal(true)
 		}
 
 		const postLeave = async(arg) => {
-			console.log(arg, "arg postleave")
 			try {
-				arg.users = [user.id]
-				console.log(arg.users,"users")
+				arg.users = user.id
+				// return console.log(arg, "arg postleave")
 				setIsLoading(true)
-				const status = await Api.post(`/hris/leave-request`, arg)
+				const status = await Api.post(`/hris/employee/${id.uid}/assign-leave`,arg)
+				// setUserBalance(status)
+				console.log(status, "status")
 				setIsLoading(false)
 				if(!status) return toast.error(data, {
 					position: 'top-center'
@@ -154,6 +150,9 @@ export default function EmployeeDetail(){
 				throw error
 			}
 		}
+
+		console.log(userBalance, "userBalance")
+
 
 		return (
 			<>
@@ -253,11 +252,11 @@ export default function EmployeeDetail(){
 										</thead>
 										<tbody>
 											{
-												balance.length ? 
-													balance.map(x => (
+												leaveCategories.length? 
+													leaveCategories.map(x => (
 														<tr key={x.id}>
-															<td>{x.leave ? x.leave.name : '-'}</td>
-															<td>{x.balance} days</td>
+															<td>{x ? x.name : '-'}</td>
+															<td>{x.balance? x.balance : "0"} days</td>
 														</tr>
 													)) : <>
 														<tr>
@@ -327,7 +326,7 @@ export default function EmployeeDetail(){
 								balance={balance} 
 								onSubmit={postLeave}
 								isLoading={isLoading}
-								// close={() => setToggleModal(!toggleModal)}
+								close={() => setToggleModal(!toggleModal)}
 							/>
           </ModalBody>
       	</Modal>

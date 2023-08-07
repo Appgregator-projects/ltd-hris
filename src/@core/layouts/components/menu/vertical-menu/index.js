@@ -30,6 +30,8 @@ const Sidebar = (props) => {
   const [companies, setCompanies] = useState([])
   const [selectCompany, setSelect] = useState([])
 
+  // console.log(companies, "companies index sidebar")
+
   // ** Menu Hover State
   const [menuHover, setMenuHover] = useState(false)
 
@@ -44,7 +46,7 @@ const Sidebar = (props) => {
   const fetchCompany = async() => {
     try {
       const data = await Api.get(`/hris/company`)
-      data.push({id : "all", name: "ALL COMPANY"})
+      data.splice(0,0,{id : "all", name: "ALL COMPANY"})
       setCompanies([...data])
     } catch (error) {
       throw error

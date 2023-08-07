@@ -4,7 +4,6 @@ import {
     Modal,ModalBody, ModalHeader
 } from "reactstrap";
 import { Edit, Trash, User, Plus, Lock, UserPlus } from 'react-feather'
-// import api from '../../plugins/api'
 import Avatar from '@components/avatar'
 import { Link } from 'react-router-dom'
 import DivisionForm from "./DivisionForm";
@@ -60,7 +59,7 @@ export default function DivisionIndex(){
     const fetchDivision = async() => {
         try {
             const data = await Api.get('/hris/division')
-            setDivisions([...data])
+            setDivisions(data.filter((x) => x.deletedAt === null))
         } catch (error) {
             throw error
         }
@@ -161,6 +160,7 @@ export default function DivisionIndex(){
     }
 
     const postDelete = (id) => {
+        // return console.log(id, "ini id delete")
 		return new Promise((resolve, reject) => {
 		Api.delete(`/hris/division/${id}`)
 			.then(res => resolve(res))
@@ -169,6 +169,7 @@ export default function DivisionIndex(){
 	}
 
     const onDelete = (item, index) => {
+        // return console.log(item, "item delete")
 		MySwal.fire({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",

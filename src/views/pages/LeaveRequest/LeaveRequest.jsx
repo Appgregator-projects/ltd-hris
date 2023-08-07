@@ -187,11 +187,11 @@ export default function CorrectionIndex() {
               <ul className="list-none padding-none">
                 <li className="d-flex justify-content-between pb-1">
                   <span className="fw-bold">Employee Name</span>
-                  <span className="capitalize">{selectItem.userReq.name}</span>
+                  <span className="capitalize">{selectItem.userReq?.name }</span>
                 </li>
                 <li className="d-flex justify-content-between pb-1">
                   <span className="fw-bold">Employee Email</span>
-                  <span>{selectItem.userReq.email}</span>
+                  <span>{selectItem.userReq?.email}</span>
                 </li>
                 <li className="d-flex justify-content-between pb-1">
                   <span className="fw-bold">Created At</span>

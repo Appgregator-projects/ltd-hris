@@ -176,7 +176,7 @@ export default function OfficeIndex(){
 		// return console.log(item, "ini item")
 		try {
 			const data = await Api.get(`/hris/office/${item.id}`)
-			console.log(data,' dat');
+			console.log(data,' data');
 			setModal({
 				title:'Office detail',
 				mode:'detail',

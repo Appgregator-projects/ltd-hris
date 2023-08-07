@@ -21,7 +21,7 @@ export default function LeaveCategoryIndex(){
     item:null
   })
 
-  // console.log(categories, "ini categories")
+  console.log(categories, "ini categories")
 
   const fetchCategories = async() => {
     try {
@@ -112,7 +112,6 @@ export default function LeaveCategoryIndex(){
   }
   
   const onEdit = (item) => {
-    // return console.log(item, "ini modal yg dicari")
     setModal({
       title:'Leave Form',
       mode:'edit',
@@ -122,7 +121,7 @@ export default function LeaveCategoryIndex(){
   }
 
   const postUpdate = async(arg) => {
-    return console.log(arg, "arg category index")
+    // return console.log(modal.item.id, "arg category index")
     try {
       const status = await Api.put(`/hris/leave-category/${modal.item.id}`, arg)
       if(!status) return toast.error(`Error : ${data}`, {
@@ -172,7 +171,7 @@ export default function LeaveCategoryIndex(){
                     categories.map((x,index) => (
                       <tr key={x.id}>
                         <td>{x.name}</td>
-                        <td>{x.intial_balance}</td>
+                        <td>{x.initial_balance}</td>
                         <td>
                           <div className="pointer">
                             <Trash className='me-50' size={15} onClick={() => onDelete(x, index)}/> <span className='align-middle'></span>

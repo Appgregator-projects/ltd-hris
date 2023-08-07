@@ -11,7 +11,7 @@ export default function DivisionForm({close, onSubmit, item, userSelect, users})
 
     const ItemSchema = yup.object().shape({
 		name: yup.string().required(),
-        manager_id :  yup.string().required()
+        // manager_id :  yup.string().required()
         
   	})
 
@@ -23,16 +23,16 @@ export default function DivisionForm({close, onSubmit, item, userSelect, users})
 	} = useForm({ mode: 'onChange', resolver: yupResolver(ItemSchema) })
 
     const onSubmitForm = async (arg) => {
-        // console.log(arg, " ini arg")
+        console.log(arg, " ini arg")
         onSubmit(arg)
     }
 
     useEffect(() => {
-        // console.log(item.manager, "item ni isi apa")
+        // console.log(item, "item ni isi apa")
         if(item){
             setValue('name', item.name)
             setValue('parent', item && item.parent? item.parent : item.name)
-            setValue('manager_id', item.manager.email)
+            setValue('manager_id', item? item.manager : "-")
         }
     },[item])
 

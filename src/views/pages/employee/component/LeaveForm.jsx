@@ -2,17 +2,22 @@ import { useEffect,useState } from "react"
 import { Form,Row,Col,Button,Input,Table } from "reactstrap"
 import ButtonSpinner from "../../components/ButtonSpinner"
 
-export default function LeaveForm ({leave,balance, close,onSubmit, isLoading}) {
+export default function LeaveForm ({leave, close, balance, onSubmit, isLoading}) {
 
   const [formLeave, setFormLeave] = useState([])
+
+  console.log(leave, "leave")
+  console.log(balance, "balance")
 
   const generateForm = () => {
     if(leave.length && balance.length){
       const g = leave.map(x => {
+        // console.log(x.name, "x")
         x.defaultValue = 0
-        const check = balance.find(y => y.leave_id == x.id)
+        const check = balance.find(y => y.leave_id == x.id) 
         if(check){
           x.defaultValue = check.balance
+          console.log(check.balance , "isinya apa")
         }
         return x
       })
@@ -29,20 +34,24 @@ export default function LeaveForm ({leave,balance, close,onSubmit, isLoading}) {
 
   const onChangeBalance = (e, index) => {
     const value = e.target.value
+    // return console.log(value, "value onchange")
     const old = formLeave
     old[index].defaultValue = value
     return setFormLeave([...old])
   }
 
   const onSubmitForm = (arg) => {
+    // return console.log(arg, "arg employee detail postleave")
     const params = {
-      balance:formLeave.map(x => {
+      leaves:formLeave.map(x => {
         return{
           leave_id:x.id,
           balance:x.defaultValue
         }
       })
     }
+    console.log(formLeave, "formleaves on submit form")
+    console.log(params, "params on submit form")
     return onSubmit(params)
   }
 
@@ -57,7 +66,11 @@ export default function LeaveForm ({leave,balance, close,onSubmit, isLoading}) {
                     <tr key={x.id}>
                       <td>{x.name}</td>
                       <td>
-                        <Input type="number" defaultValue={x.defaultValue} min={0} onChange={(e)=>onChangeBalance(e,index)}/>
+                        <Input 
+                        type="number" 
+                        defaultValue={x.balance} 
+                        min={0} 
+                        onChange={(e)=>onChangeBalance(e,index)}/>
                       </td>
                     </tr>
                   ))
