@@ -1,8 +1,20 @@
-import { Mail, Home, User, Slack, Calendar, Chrome, Hash, MessageCircle, Twitch } from "react-feather";
+import {
+  Mail,
+  Home,
+  User,
+  Slack,
+  Calendar,
+  Chrome,
+  Hash,
+  MessageCircle,
+  Twitch,
+  BookOpen,
+  Users,
+} from "react-feather";
 
 export default [
   {
-    header: 'Dashboard'
+    header: "Dashboard",
   },
   {
     id: "home",
@@ -29,7 +41,22 @@ export default [
     navLink: "/leave-request",
   },
   {
-    header: 'Master data'
+    header: "e-Learning",
+  },
+  {
+    id: "courses",
+    title: "Courses",
+    icon: <BookOpen size={20} />,
+    navLink: "/courses",
+  },
+  {
+    id: "group",
+    title: "Group",
+    icon: <Users size={20} />,
+    navLink: "/groups",
+  },
+  {
+    header: "Master data",
   },
   {
     id: "employee",

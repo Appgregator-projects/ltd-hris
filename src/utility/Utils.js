@@ -72,8 +72,11 @@ export const menuAbility = () => {
     // "company",
     "division",
     "leave-category",
-    "forgot-password"
+    "forgot-password",
+    "lms-courses",
+    "lms-groups",
   ];
+
   const userCookie = getUserData();
   if (userCookie) {
     const user = JSON.parse(getUserData());

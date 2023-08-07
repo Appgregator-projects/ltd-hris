@@ -13,8 +13,10 @@ import PrivateRoute from "../../@core/components/routes/PrivateRoute";
 
 // ** Utils
 import { isObjEmpty } from "@utils";
-import AuthRoutes from "./auth";
 import { menuAbility } from "../../utility/Utils";
+
+import AuthRoutes from "./auth";
+import LmsRoutes from "./lms";
 
 const getLayout = {
   blank: <BlankLayout />,
@@ -23,7 +25,7 @@ const getLayout = {
 };
 
 // ** Document title
-const TemplateTitle = "%s - Vuexy React Admin Template";
+const TemplateTitle = "%s - HRIS portal";
 
 // ** Default Route
 const DefaultRoute = "/home";
@@ -161,6 +163,8 @@ const Routes = [
       layout: "blank",
     },
   },
+  ...LmsRoutes,
+
   // {
   //   path: "/company",
   //   element: <Company/>,
