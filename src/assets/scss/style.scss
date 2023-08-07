@@ -1,0 +1,119 @@
+/*================================================================================
+	Item Name: Vuexy - Vuejs, HTML & Laravel Admin Dashboard Template
+	Version: 2.0
+	Author: PIXINVENT
+	Author URL: http://www.themeforest.net/user/pixinvent
+================================================================================
+
+NOTE:
+------
+PLACE HERE YOUR OWN SCSS CODES AND IF NEEDED, OVERRIDE THE STYLES FROM THE OTHER STYLESHEETS.
+WE WILL RELEASE FUTURE UPDATES SO IN ORDER TO NOT OVERWRITE YOUR STYLES IT'S BETTER LIKE THIS.  */
+.preloader{
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(179, 167, 167, 0.09);
+	z-index: 13;
+	top: 0;
+	left: 0;
+	flex-direction: column;
+
+	&-asset{
+		width: 70px;
+	}
+}
+
+.pointer{
+	cursor: pointer;
+}
+
+.w{
+	&-full{
+		width: 100%;
+	}
+	&-50{
+		width: 50%;
+	}
+}
+.padding-none{
+	padding: 0;
+}
+
+.margin-none{
+	margin: 0;
+}
+
+
+.project-card-action{
+    position: absolute;
+    top: 1rem;
+    z-index: 1;
+    right: 0;
+}
+
+.list-none{
+	list-style: none;
+}
+
+.uppercase{
+	text-transform: uppercase;
+}
+
+.capitalize{
+	text-transform: capitalize;
+}
+
+.text{
+	&-right{
+		text-align: right;
+	}
+
+	&-left{
+		text-align: left;
+	}
+
+	&-xs{
+		font-size: 11px;
+	}
+}
+
+.calendar{
+	margin: 0;
+	padding:0rem;
+	margin-top: 1rem;
+	li{
+		border: 1px solid #ddd;
+		text-align: center;
+		width: 14.2%;
+		font-weight: bold;
+		padding:0.5rem 1.5rem;
+		border-bottom: 0
+	}
+
+	&-date{
+		margin: 0;
+		padding:0rem;
+		li{
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			flex-direction: column;
+			text-align: center;
+			width: 14.2%;
+			padding:1rem 1rem;
+			border:1px solid #ddd;
+			cursor: pointer;
+			background-color: #fff;
+			transition: all .2s;
+			&.is_previous{
+				color: rgba(51, 48, 60, 0.28) !important;
+			}
+
+			&:hover{
+				background-color:rgba(51, 48, 60, 0.1);
+			}
+		}
+	}
+}
