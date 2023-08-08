@@ -34,10 +34,10 @@ const LessonAccordion = ({ data }) => {
       <AccordionItem>
         <Row>
           <Col className="pt-1 ms-1">
-            <h5>
-              <Play size={14} className="me-1" />
+            <h6>
+              <Play size={22} className="me-1 handle" />
               {data.lesson_title}
-            </h5>
+            </h6>
           </Col>
 
           <Col className="d-flex justify-content-end">

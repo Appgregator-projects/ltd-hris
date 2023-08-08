@@ -15,25 +15,42 @@ import {
   Form,
   Input,
   Label,
+  ListGroupItem,
   Row,
 } from "reactstrap";
 // ** Styles
 import "@styles/react/apps/app-users.scss";
 import "@styles/react/libs/react-select/_react-select.scss";
 
-import avatar1 from "@src/assets/images/portrait/small/avatar-s-5.jpg";
-import { Plus, Save, Settings, X } from "react-feather";
+// ** Third Party Components
+import { ReactSortable } from "react-sortablejs";
+
+import { Edit, List, Plus, Save, X } from "react-feather";
 import SectionAccordion from "./sectionAccordion";
 import { useParams } from "react-router-dom";
 
 import data from "../course.json";
 
+// ** Styles
+import "@styles/react/libs/drag-and-drop/drag-and-drop.scss";
+import { FaSort } from "react-icons/fa";
+
 const CourseDetailPage = () => {
   const param = useParams();
 
-  const [sectionData, setSectionData] = useState([{}, {}, {}, {}, {}]);
-  const [courseData, setCourseData] = useState({});
+  const getCourseDetail = (type) => {
+    const courseDetail = data.find((item) => item.id === parseInt(param.id));
 
+    if (type === "course") {
+      return courseDetail;
+    } else if (type === "section") {
+      return courseDetail.course_section;
+    }
+  };
+
+  const [courseData, setCourseData] = useState(getCourseDetail("course"));
+  let sectionListData = [...courseData.course_section];
+  const [sectionList, setSectionList] = useState([...sectionListData]);
   const [isAddSection, setIsAddSection] = useState(false);
   const [newSection, setNewSection] = useState({
     section_title: "",
@@ -59,15 +76,18 @@ const CourseDetailPage = () => {
     }
   };
 
-  const getCourseDetail = () => {
-    const courseDetail = data.find((item) => item.id === parseInt(param.id));
-    setCourseData(courseDetail);
+  const handleSectionIndex = (data) => {
+    setSectionList([...data]);
   };
 
   useEffect(() => {
-    getCourseDetail();
     return () => {};
-  }, [courseData]);
+  }, [sectionList]);
+
+  console.log(
+    "🚀 ~ file: index.js:54 ~ CourseDetailPage ~ sectionList:",
+    sectionList
+  );
 
   return (
     <Fragment>
@@ -78,8 +98,8 @@ const CourseDetailPage = () => {
           { title: courseData.course_title },
         ]}
         rightMenu={
-          <Button.Ripple className="btn-icon" color={"primary"} outline>
-            <Settings size={14} />
+          <Button.Ripple className="btn-icon" color={"warning"}>
+            <Edit size={14} />
           </Button.Ripple>
         }
       />
@@ -169,13 +189,30 @@ const CourseDetailPage = () => {
               </Col> */}
             </Row>
 
-            {courseData.course_section?.map((item, index) => {
-              return (
-                <Card className="mb-1" key={index}>
-                  <SectionAccordion data={item} />
-                </Card>
-              );
-            })}
+            <Row id="dd-with-handle" className="pl-1">
+              <Col>
+                <ReactSortable
+                  tag="ul"
+                  className="list-group"
+                  handle=".handle"
+                  list={sectionList}
+                  setList={(e) => handleSectionIndex(e)}
+                >
+                  {sectionList?.map((item, index) => {
+                    return (
+                      <ListGroupItem
+                        key={item.id}
+                        className="ml-1 p-0 border-0 mb-1"
+                      >
+                        <Card className="mb-0 w-full" key={item.id}>
+                          <SectionAccordion data={item} />
+                        </Card>
+                      </ListGroupItem>
+                    );
+                  })}
+                </ReactSortable>
+              </Col>
+            </Row>
 
             {isAddSection && (
               <Card className="mb-1">

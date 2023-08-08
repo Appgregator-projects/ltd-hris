@@ -11,7 +11,7 @@ import {
   Modal,
   ModalBody,
   ModalHeader,
-  Row
+  Row,
 } from "reactstrap";
 
 // ** Third Party Components
@@ -56,6 +56,16 @@ const defaultValues = {
 const EditLesson = () => {
   // ** States
   const [show, setShow] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const iconHoverStyle = {
+    backgroundColor: "#EEEEEE", // Set the desired background color on hover
+    cursor: "pointer", // Optional: Change the cursor to a pointer on hover
+  };
+
+  const iconStyle = {
+    backgroundColor: "#FFFFFF",
+  };
 
   // ** Hooks
   const {
@@ -82,7 +92,12 @@ const EditLesson = () => {
   return (
     <Fragment>
       <div className="py-1" onClick={() => setShow(true)}>
-        <Edit size={16} />
+        <Edit
+          size={16}
+          style={isHovered ? iconHoverStyle : iconStyle}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        />
       </div>
 
       <Modal
