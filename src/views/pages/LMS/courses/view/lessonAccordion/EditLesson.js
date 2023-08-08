@@ -59,7 +59,7 @@ const EditLesson = () => {
   const [isHovered, setIsHovered] = useState(false);
 
   const iconHoverStyle = {
-    backgroundColor: "#EEEEEE", // Set the desired background color on hover
+    // Set the desired background color on hover
     cursor: "pointer", // Optional: Change the cursor to a pointer on hover
   };
 
@@ -93,7 +93,7 @@ const EditLesson = () => {
     <Fragment>
       <div className="py-1" onClick={() => setShow(true)}>
         <Edit
-          size={16}
+          size={isHovered ? 18 : 15}
           style={isHovered ? iconHoverStyle : iconStyle}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
