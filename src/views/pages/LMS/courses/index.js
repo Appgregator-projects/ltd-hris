@@ -40,6 +40,9 @@ import { FaUserCircle } from "react-icons/fa";
 import { HiOutlineUserGroup } from "react-icons/hi";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import CourseCard from "./CourseCard";
+
+import data from "./course.json";
 
 const MySwal = withReactContent(Swal);
 
@@ -65,17 +68,6 @@ const avatarGroupData2 = [
 ];
 
 const CoursesPage = () => {
-  const data = [
-    { id: 1 },
-    { id: 2 },
-    { id: 3 },
-    { id: 4 },
-    { id: 5 },
-    { id: 6 },
-    { id: 7 },
-    { id: 8 },
-  ];
-
   const navigate = useNavigate();
   const [active, setActive] = useState("1");
 
@@ -117,12 +109,41 @@ const CoursesPage = () => {
 
   return (
     <Fragment>
-      <Breadcrumbs title="Courses" data={[{ title: "Courses" }]} />
+      <Breadcrumbs
+        title="Courses"
+        data={[{ title: "Courses" }]}
+        rightMenu={
+          <Col className="d-flex justify-content-end">
+            <ButtonGroup className={"me-1"}>
+              <Button
+                outline={active !== "1" ? true : false}
+                color="primary"
+                onClick={() => {
+                  toggle("1");
+                }}
+              >
+                <Square size={15} />
+              </Button>
+              <Button
+                outline={active !== "2" ? true : false}
+                color="primary"
+                onClick={() => {
+                  toggle("2");
+                }}
+              >
+                <List size={15} />
+              </Button>
+            </ButtonGroup>
 
-      <Card>
+            <AddCourse />
+          </Col>
+        }
+      />
+
+      {/* <Card>
         <CardBody className="px-1">
           <Row>
-            <Col lg="4" md="12">
+            <Col lg="6" md="12">
               <InputGroup>
                 <InputGroupText>Search</InputGroupText>
                 <Input />
@@ -132,7 +153,7 @@ const CoursesPage = () => {
               </InputGroup>
             </Col>
 
-            <Col lg="4" md="12">
+            <Col lg="6" md="12">
               <InputGroup>
                 <InputGroupText>Search</InputGroupText>
                 <Input />
@@ -140,85 +161,16 @@ const CoursesPage = () => {
                   <Search size={12} />
                 </Button>
               </InputGroup>
-            </Col>
-
-            <Col lg="4" md="12" className="d-flex justify-content-end">
-              <ButtonGroup className={"me-1"}>
-                <Button
-                  outline={active !== "1" ? true : false}
-                  color="primary"
-                  onClick={() => {
-                    toggle("1");
-                  }}
-                >
-                  <Square size={15} />
-                </Button>
-                <Button
-                  outline={active !== "2" ? true : false}
-                  color="primary"
-                  onClick={() => {
-                    toggle("2");
-                  }}
-                >
-                  <List size={15} />
-                </Button>
-              </ButtonGroup>
-
-              <AddCourse />
             </Col>
           </Row>
         </CardBody>
-      </Card>
+      </Card> */}
 
       <TabContent className="py-50" activeTab={active}>
         <TabPane tabId="1">
           <Row className="match-height">
             {data.map((item, index) => {
-              return (
-                <Col
-                  lg="3"
-                  md="6"
-                  key={index}
-                  onClick={() => navigate(`/courses/${index}`)}
-                >
-                  <Card>
-                    <CardBody>
-                      <CardTitle tag="h4">Card Title</CardTitle>
-
-                      <CardSubtitle className="text-muted">
-                        <Row className="mb-0">
-                          <Col lg={3} xs={6} className="mb-0">
-                            <h6 className="pb-0 mb-0">
-                              <FaUserCircle size={16} className="me-1" />
-                              25
-                            </h6>
-                          </Col>
-
-                          <Col xs={6} className="pb-0">
-                            <h6 className="pb-0 mb-0">
-                              <HiOutlineUserGroup size={16} className="me-1" />5
-                            </h6>
-                          </Col>
-                        </Row>
-                      </CardSubtitle>
-                      <img
-                        className="img-fluid my-2"
-                        src={img3}
-                        alt="Card cap"
-                      />
-                      <CardText>
-                        Bear claw sesame snaps gummies chocolate.
-                      </CardText>
-                      <CardLink href="/" onClick={(e) => e.preventDefault()}>
-                        Card Link
-                      </CardLink>
-                      <CardLink href="/" onClick={(e) => e.preventDefault()}>
-                        Another Link
-                      </CardLink>
-                    </CardBody>
-                  </Card>
-                </Col>
-              );
+              return <CourseCard key={index} item={item} index={index} />;
             })}
           </Row>
         </TabPane>
@@ -228,50 +180,54 @@ const CoursesPage = () => {
             <Table responsive>
               <thead>
                 <tr>
-                  <th>Group</th>
-                  <th>Client</th>
-                  <th>Members</th>
-                  <th>Status</th>
+                  <th>Course Title</th>
+                  <th>Description</th>
+                  <th>Enrolled</th>
+                  <th>Tag</th>
                   <th>Actions</th>
                 </tr>
               </thead>
-              {/* <tbody>
+              <tbody>
                 {data.map((item, index2) => {
                   return (
                     <tr key={index2}>
                       <td>
-                        <img
+                        {/* <img
                           className="me-75"
                           src={react}
                           alt="react"
                           height="20"
                           width="20"
-                        />
+                        /> */}
                         <span className="align-middle fw-bold">
-                          React Project
+                          {item.course_title}
                         </span>
                       </td>
-                      <td>Ronald Frest</td>
+
+                      <td>{item.course_description}</td>
+
                       <td>
                         <AvatarGroup data={avatarGroupData2} />
                       </td>
+
                       <td>
                         <Badge pill color="light-success" className="me-1">
-                          Completed
+                          {item.course_tag}
                         </Badge>
                       </td>
+
                       <td width={210}>
                         <Button.Ripple
-                          className={"btn-icon me-1"}
+                          className="btn-icon me-1"
                           color={"primary"}
-                          onClick={() => navigate(`/courses/${item.id}`)}
+                          onClick={() => navigate(`/courses/${index2}`)}
                         >
                           <Eye size={14} />
                         </Button.Ripple>
 
                         <Button.Ripple
-                          className={"btn-icon me-1"}
-                          color={"warning"}
+                          className="btn-icon me-1"
+                          color="warning"
                         >
                           <Edit size={14} />
                         </Button.Ripple>
@@ -287,7 +243,7 @@ const CoursesPage = () => {
                     </tr>
                   );
                 })}
-              </tbody> */}
+              </tbody>
             </Table>
           </Card>
         </TabPane>

@@ -25,7 +25,7 @@ import {
 
 const BreadCrumbs = (props) => {
   // ** Props
-  const { data, title } = props;
+  const { data, title, rightMenu } = props;
 
   const renderBreadCrumbs = () => {
     return data.map((item, index) => {
@@ -68,7 +68,8 @@ const BreadCrumbs = (props) => {
         </div>
       </div>
       <div className="content-header-right text-md-end col-md-3 col-12 d-md-block d-none">
-        <div className="breadcrumb-right dropdown">
+        {rightMenu}
+        {/* <div className="breadcrumb-right dropdown">
           <UncontrolledButtonDropdown>
             <DropdownToggle
               color="primary"
@@ -95,7 +96,7 @@ const BreadCrumbs = (props) => {
               </DropdownItem>
             </DropdownMenu>
           </UncontrolledButtonDropdown>
-        </div>
+        </div> */}
       </div>
     </div>
   );

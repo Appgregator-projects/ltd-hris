@@ -11,7 +11,7 @@ import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 import AddLesson from "./AddLesson";
 import ManageLesson from "./ManageLesson";
 
-const SectionAccordion = () => {
+const SectionAccordion = ({ data }) => {
   let courseData = [{}, {}, {}];
 
   const [open, setOpen] = useState("1");
@@ -33,7 +33,7 @@ const SectionAccordion = () => {
           <Col className="pt-1">
             <h5>
               <List size={15} className="me-1 ms-1" />
-              Section Item 1
+              {data.section_title}
             </h5>
           </Col>
 
@@ -52,8 +52,8 @@ const SectionAccordion = () => {
           </Col>
         </Row>
         <AccordionBody accordionId="1">
-          {courseData.map((item, index) => {
-            return <LessonAccordion key={index} />;
+          {data?.lesson_list.map((item, index) => {
+            return <LessonAccordion key={index} data={item} />;
           })}
         </AccordionBody>
       </AccordionItem>

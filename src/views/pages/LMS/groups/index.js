@@ -86,12 +86,16 @@ const GroupsPage = () => {
 
   return (
     <Fragment>
-      <Breadcrumbs title="Groups" data={[{ title: "Groups" }]} />
+      <Breadcrumbs
+        title="Groups"
+        data={[{ title: "Groups" }]}
+        rightMenu={<AddGroup />}
+      />
 
-      <Card>
+      {/* <Card>
         <CardBody className="px-1">
           <Row>
-            <Col lg="5" md="12">
+            <Col lg="6" md="12">
               <InputGroup>
                 <InputGroupText>Search</InputGroupText>
                 <Input />
@@ -101,7 +105,7 @@ const GroupsPage = () => {
               </InputGroup>
             </Col>
 
-            <Col lg="5" md="12">
+            <Col lg="6" md="12">
               <InputGroup>
                 <InputGroupText>Search</InputGroupText>
                 <Input />
@@ -109,14 +113,10 @@ const GroupsPage = () => {
                   <Search size={12} />
                 </Button>
               </InputGroup>
-            </Col>
-
-            <Col lg="2" md="12" className="d-flex justify-content-end">
-              <AddGroup />
             </Col>
           </Row>
         </CardBody>
-      </Card>
+      </Card> */}
 
       <Card>
         <Table responsive>
@@ -129,7 +129,7 @@ const GroupsPage = () => {
               <th>Actions</th>
             </tr>
           </thead>
-          {/* <tbody>
+          <tbody>
             {data.map((item, index) => (
               <tr key={index}>
                 <td>
@@ -169,7 +169,7 @@ const GroupsPage = () => {
                 </td>
               </tr>
             ))}
-          </tbody> */}
+          </tbody>
         </Table>
       </Card>
     </Fragment>

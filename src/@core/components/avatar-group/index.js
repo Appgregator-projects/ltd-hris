@@ -20,36 +20,35 @@ const AvatarGroup = (props) => {
 
   // ** Render Data
   const renderData = () => {
-    // return console.log(tag, "data mapping")
     return data.map((item, i) => {
-      // const ItemTag = item.tag ? item.tag : "div";
+      const ItemTag = item.tag ? item.tag : "div";
       return (
         <Fragment key={i}>
           {item.title ? (
             <UncontrolledTooltip
-              // placement={item.placement}
-              // target={item.title.split(" ").join("-")}
+              placement={item.placement}
+              target={item.title.split(" ").join("-")}
             >
               {item.title}
             </UncontrolledTooltip>
           ) : null}
           {!item.meta ? (
             <Avatar
-              // tag={ItemTag}
-              // className={classnames("pull-up", {
-              //   [item.className]: item.className,
-              // })}
-              {...(item.title ? { id: item.title } : {})}
+              tag={ItemTag}
+              className={classnames("pull-up", {
+                [item.className]: item.className,
+              })}
+              {...(item.title ? { id: item.title.split(" ").join("-") } : {})}
               {...item}
               title={undefined}
               meta={undefined}
             />
           ) : null}
-          {/* {item.meta ? (
+          {item.meta ? (
             <ItemTag className="d-flex align-items-center ps-1">
               {item.meta}
             </ItemTag>
-          ) : null} */}
+          ) : null}
         </Fragment>
       );
     });

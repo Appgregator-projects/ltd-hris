@@ -1,6 +1,13 @@
 // ** Reactstrap Imports
 import { Play } from "react-feather";
-import { Accordion, AccordionBody, AccordionItem, Col, Row } from "reactstrap";
+import {
+  Accordion,
+  AccordionBody,
+  AccordionItem,
+  Col,
+  Label,
+  Row,
+} from "reactstrap";
 
 // ** Third Party Components
 import Prism from "prismjs";
@@ -8,7 +15,7 @@ import { useEffect, useState } from "react";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 import EditLesson from "./EditLesson";
 
-const LessonAccordion = () => {
+const LessonAccordion = ({ data }) => {
   const [open, setOpen] = useState("0");
 
   const toggle = (id) => {
@@ -29,7 +36,7 @@ const LessonAccordion = () => {
           <Col className="pt-1 ms-1">
             <h5>
               <Play size={14} className="me-1" />
-              Lesson Item 1
+              {data.lesson_title}
             </h5>
           </Col>
 
@@ -52,7 +59,7 @@ const LessonAccordion = () => {
               <iframe
                 // width="300"
                 // height="180"
-                src={`https://www.youtube-nocookie.com/embed/Zj4liOF8LpU`}
+                src={`https://www.youtube-nocookie.com/embed/${data.lesson_video}`}
                 title="YouTube video player"
                 frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -60,11 +67,10 @@ const LessonAccordion = () => {
               ></iframe>
             </Col>
             <Col md={7} xs={12}>
-              <strong>This is the first item's accordion body.</strong> You can
-              modify any of this with custom CSS or overriding our default
-              variables. It's also worth noting that just about any HTML can go
-              within the <code>&lt;AccordionBody&gt;</code>, though the
-              transition does limit overflow.
+              <Row>
+                <Label>Description</Label>
+                <p>{data.lesson_description}</p>
+              </Row>
             </Col>
           </Row>
         </AccordionBody>

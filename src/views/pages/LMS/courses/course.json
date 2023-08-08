@@ -1,0 +1,312 @@
+[
+  {
+    "id": 1,
+    "course_title": "Introduction to Web Development",
+    "course_description": "Learn the fundamentals of web development with HTML, CSS, and JavaScript.",
+    "course_thumbnail": "https://i.ytimg.com/vi/w__n0BvkqB4/maxresdefault.jpg",
+    "course_tag": "web-development",
+    "course_author": "John Doe",
+    "course_section": [
+      {
+        "id": 1,
+        "course_id": 1,
+        "section_title": "Getting Started",
+        "section_description": "Introduction and setup for the course.",
+        "lesson_list": [
+          {
+            "section_id": 1,
+            "lesson_title": "Setting Up Development Environment",
+            "lesson_description": "Learn how to set up your development environment.",
+            "lesson_video": "BMtG52U3cEY"
+          },
+          {
+            "section_id": 1,
+            "lesson_title": "Introduction to HTML",
+            "lesson_description": "An overview of HTML and its structure.",
+            "lesson_video": "BvJYXl2ywUE"
+          },
+          {
+            "section_id": 1,
+            "lesson_title": "Introduction to CSS",
+            "lesson_description": "Explore the basics of CSS for styling web pages.",
+            "lesson_video": "giOoA3xTqYs"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "course_id": 1,
+        "section_title": "HTML Basics",
+        "section_description": "Learn the fundamentals of HTML.",
+        "lesson_list": [
+          {
+            "section_id": 2,
+            "lesson_title": "HTML Tags and Elements",
+            "lesson_description": "Learn about various HTML tags and elements.",
+            "lesson_video": "8CVcjUR_rWI"
+          },
+          {
+            "section_id": 2,
+            "lesson_title": "HTML Forms",
+            "lesson_description": "Explore how to create HTML forms.",
+            "lesson_video": "3NuTg5YluTo"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "course_id": 1,
+        "section_title": "CSS Fundamentals",
+        "section_description": "Explore the basics of CSS for styling web pages.",
+        "lesson_list": [
+          {
+            "section_id": 3,
+            "lesson_title": "CSS Selectors",
+            "lesson_description": "Learn about CSS selectors and how to use them.",
+            "lesson_video": "QgxkYbGr2II"
+          },
+          {
+            "section_id": 3,
+            "lesson_title": "CSS Box Model",
+            "lesson_description": "Understand the CSS box model.",
+            "lesson_video": "L9khsrjMwKw"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "course_id": 1,
+        "section_title": "JavaScript Introduction",
+        "section_description": "Introduction to JavaScript and its uses in web development.",
+        "lesson_list": [
+          {
+            "section_id": 4,
+            "lesson_title": "Introduction to JavaScript",
+            "lesson_description": "An introduction to JavaScript programming.",
+            "lesson_video": "upDLs1sn7g4"
+          },
+          {
+            "section_id": 4,
+            "lesson_title": "Data Types in JavaScript",
+            "lesson_description": "Explore different data types in JavaScript.",
+            "lesson_video": "UmSpfdxu3ro"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "course_title": "Python for Beginners",
+    "course_description": "A beginner-friendly course to learn Python programming language.",
+    "course_thumbnail": "https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F549550559%2F1234433154323%2F1%2Foriginal.20230706-115709?w=1000&auto=format%2Ccompress&q=75&sharp=10&rect=0%2C0%2C2160%2C1080&s=84e3c74c34b060e7d28ccef3f6a5a6ec",
+    "course_tag": "python",
+    "course_author": "Jane Smith",
+    "course_section": [
+      {
+        "id": 5,
+        "course_id": 2,
+        "section_title": "Introduction to Python",
+        "section_description": "Getting started with Python programming language.",
+        "lesson_list": [
+          {
+            "section_id": 5,
+            "lesson_title": "Python Variables",
+            "lesson_description": "Learn about variables in Python.",
+            "lesson_video": "https://example.com/lesson12_video.mp4"
+          },
+          {
+            "section_id": 5,
+            "lesson_title": "Python Data Structures",
+            "lesson_description": "Explore common data structures in Python.",
+            "lesson_video": "https://example.com/lesson13_video.mp4"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "course_id": 2,
+        "section_title": "Basic Syntax",
+        "section_description": "Learn the basic syntax of Python.",
+        "lesson_list": [
+          {
+            "section_id": 6,
+            "lesson_title": "Python Control Flow",
+            "lesson_description": "Understand Python control flow statements.",
+            "lesson_video": "https://example.com/lesson14_video.mp4"
+          },
+          {
+            "section_id": 6,
+            "lesson_title": "Python Functions",
+            "lesson_description": "Learn how to define and use functions in Python.",
+            "lesson_video": "https://example.com/lesson15_video.mp4"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "course_id": 2,
+        "section_title": "Conditional Statements",
+        "section_description": "Understand conditional statements in Python.",
+        "lesson_list": [
+          {
+            "section_id": 7,
+            "lesson_title": "Data Preprocessing",
+            "lesson_description": "Learn techniques to preprocess data for analysis.",
+            "lesson_video": "https://example.com/lesson16_video.mp4"
+          },
+          {
+            "section_id": 7,
+            "lesson_title": "Data Visualization with Matplotlib",
+            "lesson_description": "Visualize data using Matplotlib library in Python.",
+            "lesson_video": "https://example.com/lesson17_video.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "course_title": "React.js Crash Course",
+    "course_description": "Get up to speed with React.js and build modern web applications.",
+    "course_thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqrgfrwbac7118tMFPTg1nNkY6-kCMuS9Ojg&usqp=CAU",
+    "course_tag": "react-js",
+    "course_author": "Emily Brown",
+    "course_section": [
+      {
+        "id": 10,
+        "course_id": 3,
+        "section_title": "React.js Basics",
+        "section_description": "Introduction to React.js and its core concepts.",
+        "lesson_list": [
+          {
+            "section_id": 10,
+            "lesson_title": "React Components and Props",
+            "lesson_description": "Understand React components and their properties.",
+            "lesson_video": "https://example.com/lesson18_video.mp4"
+          },
+          {
+            "section_id": 10,
+            "lesson_title": "State and Lifecycle",
+            "lesson_description": "Learn how to manage component state and lifecycle.",
+            "lesson_video": "https://example.com/lesson19_video.mp4"
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "course_id": 3,
+        "section_title": "Building Components",
+        "section_description": "Learn to build reusable components in React.js.",
+        "lesson_list": [
+          {
+            "section_id": 11,
+            "lesson_title": "Reusable Components",
+            "lesson_description": "Create reusable components in React.js.",
+            "lesson_video": "https://example.com/lesson20_video.mp4"
+          },
+          {
+            "section_id": 11,
+            "lesson_title": "Component Composition",
+            "lesson_description": "Compose components to build complex UIs.",
+            "lesson_video": "https://example.com/lesson21_video.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "course_title": "Machine Learning Basics",
+    "course_description": "Learn the basics of machine learning and its applications.",
+    "course_thumbnail": "https://i.ytimg.com/vi/hjh1ikznScg/maxresdefault.jpg",
+    "course_tag": "machine-learning",
+    "course_author": "Michael Lee",
+    "course_section": [
+      {
+        "id": 12,
+        "course_id": 4,
+        "section_title": "Introduction to Machine Learning",
+        "section_description": "An introduction to the field of machine learning.",
+        "lesson_list": [
+          {
+            "section_id": 12,
+            "lesson_title": "Machine Learning Concepts",
+            "lesson_description": "An overview of key machine learning concepts.",
+            "lesson_video": "https://example.com/lesson22_video.mp4"
+          },
+          {
+            "section_id": 12,
+            "lesson_title": "Machine Learning Algorithms",
+            "lesson_description": "Explore common machine learning algorithms.",
+            "lesson_video": "https://example.com/lesson23_video.mp4"
+          }
+        ]
+      },
+      {
+        "id": 13,
+        "course_id": 4,
+        "section_title": "Supervised Learning",
+        "section_description": "Learn about supervised learning algorithms.",
+        "lesson_list": [
+          {
+            "section_id": 13,
+            "lesson_title": "Linear Regression",
+            "lesson_description": "Understand linear regression in supervised learning.",
+            "lesson_video": "https://example.com/lesson24_video.mp4"
+          },
+          {
+            "section_id": 13,
+            "lesson_title": "Decision Trees",
+            "lesson_description": "Learn about decision trees in supervised learning.",
+            "lesson_video": "https://example.com/lesson25_video.mp4"
+          },
+          {
+            "section_id": 13,
+            "lesson_title": "K-Means Clustering",
+            "lesson_description": "Learn about K-Means clustering in unsupervised learning.",
+            "lesson_video": "https://example.com/lesson26_video.mp4"
+          },
+          {
+            "section_id": 13,
+            "lesson_title": "Principal Component Analysis (PCA)",
+            "lesson_description": "Explore Principal Component Analysis in unsupervised learning.",
+            "lesson_video": "https://example.com/lesson27_video.mp4"
+          }
+        ]
+      },
+      {
+        "id": 14,
+        "course_id": 4,
+        "section_title": "Unsupervised Learning",
+        "section_description": "Explore unsupervised learning techniques.",
+        "lesson_list": [
+          {
+            "section_id": 13,
+            "lesson_title": "Support Vector Machines (SVM)",
+            "lesson_description": "Learn about Support Vector Machines in supervised learning.",
+            "lesson_video": "https://example.com/lesson28_video.mp4"
+          },
+          {
+            "section_id": 13,
+            "lesson_title": "Random Forest",
+            "lesson_description": "Explore Random Forest algorithm in supervised learning.",
+            "lesson_video": "https://example.com/lesson29_video.mp4"
+          },
+          {
+            "section_id": 14,
+            "lesson_title": "Hierarchical Clustering",
+            "lesson_description": "Learn about Hierarchical Clustering in unsupervised learning.",
+            "lesson_video": "https://example.com/lesson30_video.mp4"
+          },
+          {
+            "section_id": 14,
+            "lesson_title": "Gaussian Mixture Model (GMM)",
+            "lesson_description": "Explore Gaussian Mixture Model in unsupervised learning.",
+            "lesson_video": "https://example.com/lesson31_video.mp4"
+          }
+        ]
+      }
+    ]
+  }
+]
