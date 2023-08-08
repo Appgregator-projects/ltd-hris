@@ -1,18 +1,11 @@
-import Avatar from '@components/avatar'
-import { 
-    CardText
-} from 'reactstrap'
-import { User,Trash } from 'react-feather'
-import { readMore } from '../../../Helper/index'
+import React from 'react'
 
-export default function OfficeDetail({item, onDeleteUser}){
-
-    console.log(item, "item office detail")
-    return (
-        <>
+function AttandanceDetail() {
+  return (
+    <>
         <div className="">
-            <p className="h3 text-center">{item.office?.name}</p>
-            <p className='text-center'>{item.office?.address}</p>
+            <p className="h3 text-center">{item.office.name}</p>
+            <p className='text-center'>{item.office.address}</p>
             <div className='d-flex align-items-center justify-content-center'>
             <Avatar color="light-info" icon={<User size={24} />} className='me-1' />
             <h4 className='fw-bolder mb-0 me-1'>{item.employees.length}</h4>
@@ -34,8 +27,8 @@ export default function OfficeDetail({item, onDeleteUser}){
                         content={x.employee.name}
                     />
                     <div className='d-flex flex-column'>
-                        <span className='fw-bolder'>{readMore(x.employee?.name, 20)}</span>
-                        <small className='text-truncate text-muted mb-0'>{readMore(x.employee?.email, 20)}</small>
+                        <span className='fw-bolder'>{readMore(x.employee.name, 20)}</span>
+                        <small className='text-truncate text-muted mb-0'>{readMore(x.employee.email, 20)}</small>
                         <Trash className='me-50 text-primary pointer' size={13} onClick={() => onDeleteUser(x, index)}/> <span className='align-middle'></span>
                     </div>
                 </div>
@@ -45,5 +38,7 @@ export default function OfficeDetail({item, onDeleteUser}){
         </ul>
         { !item.employees ?  (<p className='text-center text-warning'>No Employee on this office</p>) : <></> }
         </>
-    )
+  )
 }
+
+export default AttandanceDetail

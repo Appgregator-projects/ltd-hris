@@ -47,7 +47,7 @@ const Division = lazy(() => import("../../views/pages/Division/DivisionIndex"));
 const LeaveCategory = lazy(() =>
   import("../../views/pages/LeaveCategory/LeaveCategoryIndex")
 );
-const Attendance = lazy(() => import("../../views/pages/Attendance"));
+const Attendance = lazy(() => import("../../views/pages/Attendance/AttendanceIndex"));
 const CorrectionRequest = lazy(() =>
   import("../../views/pages/CorrectionRequest")
 );

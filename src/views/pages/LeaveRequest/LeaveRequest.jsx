@@ -37,11 +37,17 @@ export default function CorrectionIndex() {
   const [nestedToggle, setNestedToggle] = useState(false)
   const [close, setCloseAll] = useState(false)
   const [selectItem, setSelectItem] = useState(null);
+  const obj ="userReq.name"
+
+  console.log(obj,"obj")
+  console.log(corrections.obj,"corrections")
 
   const fetchLeave = async () => {
     try {
       const data = await Api.get("hris/leave-request");
       setCorrection([...data]);
+      // obj =[...data.]
+      
     } catch (error) {
       throw error;
     }
@@ -109,13 +115,13 @@ export default function CorrectionIndex() {
   };
 
   const renderStatus = (arg) => {
-    if (!arg.current_status)
+    if (!arg.status)
       return <Badge color="light-warning">Requested</Badge>;
-    if (arg.current_status === "requested")
+    if (arg.status === "requested")
       return <Badge color="light-primary">Requested</Badge>;
-    if (arg.current_status === "Approved")
+    if (arg.status === "Approved")
       return <Badge color="light-success">Approved</Badge>;
-    if (arg.current_status === "Rejected")
+    if (arg.status === "Rejected")
       return <Badge color="light-danger">Rejected</Badge>;
     return <Badge color="light-info">Processed</Badge>;
   };
@@ -143,10 +149,10 @@ export default function CorrectionIndex() {
                 <tbody>
                   {corrections.map((x, index) => (
                     <tr key={index}>
-                      <td>{x.userReq ? x.userReq.name : "-"}</td>
+                      <td>{obj["x.userReq.name"]}</td>
                       <td>{dateFormat(x.start_date)}</td>
                       <td>{dateFormat(x.end_date)}</td>
-                      <td>{renderStatus(x)}</td>
+                      <td>{renderStatus(x.status)}</td>
                       <td>{dateTimeFormat(x.createdAt)}</td>
                       <td>
                         <div className="column-action d-flex align-items-center">

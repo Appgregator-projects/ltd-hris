@@ -122,10 +122,10 @@ export default function DivisionIndex(){
     }
 
     const onSubmit = async(params) => {
-        // return console.log(modal.item, "isi params")
         try {
             if(modal.item) return postUpdate(params)
-            const status = await Api.post('/hris/division', params)
+            const status = await Api.post(`/hris/division`, params)
+            // return console.log(status, "isi params")
             if(!status) return toast.error(`Error : ${data}`, {
 				position: 'top-center'
 			})
@@ -143,7 +143,7 @@ export default function DivisionIndex(){
 
     const submitLeader = async() => {
         try {
-            const {status} = await Api.patch(`hris/division/${modal.item.id}/set-leader`, {leader:userSelect.value})
+            const {status} = await Api.put(`hris/division/${modal.item.id}/set-leader`, {leader:userSelect.value})
             if(!status) return toast.error(`Error : ${data}`, {
 				position: 'top-center'
 			})
@@ -160,7 +160,6 @@ export default function DivisionIndex(){
     }
 
     const postDelete = (id) => {
-        // return console.log(id, "ini id delete")
 		return new Promise((resolve, reject) => {
 		Api.delete(`/hris/division/${id}`)
 			.then(res => resolve(res))
@@ -186,7 +185,6 @@ export default function DivisionIndex(){
             const data = await postDelete(item.id)
             // return console.log(data, "jkbdfkb")
 			if (data) {
-                console.log(data, "ni isinya apa y")
                 const oldCom = divisions
                 oldCom.splice(index, 1)
                 setDivisions([...oldCom])

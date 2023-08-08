@@ -2,8 +2,8 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { Alert, Card, CardBody, Col, Row, Button, Label, Modal,ModalHeader,ModalBody } from "reactstrap";
 import { ChevronLeft, ChevronRight,ChevronDown } from 'react-feather'
-import FormUserAssign from "./Components/FormUserAssign";
-import Api from '../../sevices/Api'
+import FormUserAssign from "../Components/FormUserAssign";
+import Api from '../../../sevices/Api'
 import toast from 'react-hot-toast'
 
 export default function AttendanceIndex(){
@@ -16,27 +16,41 @@ export default function AttendanceIndex(){
 		const [userSelect, setUserSelect] = useState(null)
 		const [attendanceLog, setAttendanceLog] = useState([])
 		const [late, setLate] = useState([])
+		const [modal, setModal] = useState({
+			title: "User assign",
+			mode: "get",
+			item: null
+		})
 
-	// 	const fetchUser = async() => {
-	// 	try {
-	// 	const {data,status} = await Api.get('/hris/attendance')
-	// 			if(status){
-	// 				const userData = data.map(x => {
-	// 					return {
-	// 						value:x.user_id,
-	// 						label: x.user.email
-	// 					}
-	// 				})
-	// 				setUsers([...userData])
-	// 			}
-	// 	} catch (error) {
-	// 		throw error
-	// 	}
-	// }
+		const fetchUser = async() => {
+		try {
+		const data = await Api.get('/hris/employee')
+				if(data){
+					const userData = data.map(x => {
+						return {
+							value:x.id,
+							label:x.email
+						}
+					})
+					setUsers([...userData])
+				}
+		} catch (error) {
+			throw error
+		}
+	}
 
 		useEffect(() => {
-				// fetchUser()
+			fetchUser()
 		},[])
+
+		const onDetail = () => {
+			setModal({
+				title: "Detail attendance",
+				mode: "detail",
+				item: "null"
+			})
+			setToggleModal(true)
+		}
 
 		const generateCalendarData = (month = '') => {
 				const params = []
@@ -114,7 +128,8 @@ export default function AttendanceIndex(){
 
 		const fetchAttendance = async(arg, date) => {
 				try {
-						const {data} = await Api.get(`/hris/attendance`)
+						const data = await Api.get(`/hris/attendance`)
+						console.log(data, "data attendance")
 						setToggleModal(false)
 						generateCalendarEvent(data)
 						toast.success('Attendance has loaded', {
@@ -207,9 +222,10 @@ export default function AttendanceIndex(){
 						className={`modal-dialog-centered modal-lg`}
 						>
 						<ModalHeader toggle={() => setToggleModal(!toggleModal)}>
-								Employee Form
+							{modal.title}
 						</ModalHeader>
 						<ModalBody>
+							{modal.mode == "User assign"? 
 								<FormUserAssign 
 										options={users}
 										multiple={false}
@@ -218,7 +234,8 @@ export default function AttendanceIndex(){
 												setUserSelect(arg)
 												fetchAttendance(arg, initalDate)
 										}}
-								/> 
+								/> : <></>}
+							{modal.mode == "Detail attendance"? <></> : <></>}
 								<Col>
 										<Button type="button" size="md" color='danger' onClick={() => setToggleModal(!toggleModal)}>Cancel</Button>
 								</Col>

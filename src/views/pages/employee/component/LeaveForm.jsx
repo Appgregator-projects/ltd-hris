@@ -6,21 +6,20 @@ export default function LeaveForm ({leave, close, balance, onSubmit, isLoading})
 
   const [formLeave, setFormLeave] = useState([])
 
-  console.log(leave, "leave")
-  console.log(balance, "balance")
 
   const generateForm = () => {
-    if(leave.length && balance.length){
+    if(balance.length){
+
       const g = leave.map(x => {
-        // console.log(x.name, "x")
         x.defaultValue = 0
         const check = balance.find(y => y.leave_id == x.id) 
         if(check){
           x.defaultValue = check.balance
-          console.log(check.balance , "isinya apa")
+          console.log(x.defaultValue , "isinya apa")
         }
         return x
       })
+
       return setFormLeave([...g])
     }
     setFormLeave([...leave.map(x => {
@@ -34,14 +33,15 @@ export default function LeaveForm ({leave, close, balance, onSubmit, isLoading})
 
   const onChangeBalance = (e, index) => {
     const value = e.target.value
-    // return console.log(value, "value onchange")
     const old = formLeave
+    console.log(old, "old")
     old[index].defaultValue = value
     return setFormLeave([...old])
   }
 
+
   const onSubmitForm = (arg) => {
-    // return console.log(arg, "arg employee detail postleave")
+    // console.log(arg, "onsubmitform")
     const params = {
       leaves:formLeave.map(x => {
         return{
@@ -50,8 +50,7 @@ export default function LeaveForm ({leave, close, balance, onSubmit, isLoading})
         }
       })
     }
-    console.log(formLeave, "formleaves on submit form")
-    console.log(params, "params on submit form")
+    console.log(params, "onsubmitform")
     return onSubmit(params)
   }
 
@@ -68,7 +67,7 @@ export default function LeaveForm ({leave, close, balance, onSubmit, isLoading})
                       <td>
                         <Input 
                         type="number" 
-                        defaultValue={x.balance} 
+                        defaultValue={x.defaultValue} 
                         min={0} 
                         onChange={(e)=>onChangeBalance(e,index)}/>
                       </td>

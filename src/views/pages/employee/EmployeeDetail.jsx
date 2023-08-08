@@ -47,12 +47,14 @@ export default function EmployeeDetail(){
 
 		const fetchUsersDivision = async() => {
 			try {
-				const dataUsers = await Api.get(`/hris/employee/${id.uid}/division`)
-				setUsersDivision(dataUsers.division)
+				const dataUsers = await Api.get(`/hris/employee/${id.uid}`)
+				console.log([...dataUsers.leave_balances],'datausers')
+				setUsersDivision([...dataUsers.leave_balances])
 			} catch (error) {
 				throw error
 			}
 		}
+		console.log(usersDivision, "userdivision")
 
 		useEffect(() => {
 			fetchUsersDivision()
@@ -128,10 +130,9 @@ export default function EmployeeDetail(){
 		const postLeave = async(arg) => {
 			try {
 				arg.users = user.id
-				// return console.log(arg, "arg postleave")
 				setIsLoading(true)
 				const status = await Api.post(`/hris/employee/${id.uid}/assign-leave`,arg)
-				// setUserBalance(status)
+				setUserBalance(status)
 				console.log(status, "status")
 				setIsLoading(false)
 				if(!status) return toast.error(data, {
@@ -151,7 +152,6 @@ export default function EmployeeDetail(){
 			}
 		}
 
-		console.log(userBalance, "userBalance")
 
 
 		return (
@@ -252,11 +252,11 @@ export default function EmployeeDetail(){
 										</thead>
 										<tbody>
 											{
-												leaveCategories.length? 
-													leaveCategories.map(x => (
+												usersDivision.length? 
+													usersDivision.map(x => (
 														<tr key={x.id}>
-															<td>{x ? x.name : '-'}</td>
-															<td>{x.balance? x.balance : "0"} days</td>
+															<td>{x ? x.category.name : '-'}</td>
+															<td>{x.balance	? x.balance : "0"} days</td>
 														</tr>
 													)) : <>
 														<tr>
@@ -287,7 +287,7 @@ export default function EmployeeDetail(){
 									</div>
 									<div className='d-flex justify-content-between align-items-end mt-1 pt-25'>
 										<div className='role-heading'>
-										<h4 className='fw-bolder'>{usersDivision.title}</h4>
+										<h4 className='fw-bolder'>{usersDivision.category?.name}</h4>
 										<Link
 											to='/'
 											className='role-edit-modal'
@@ -324,6 +324,7 @@ export default function EmployeeDetail(){
 							<LeaveForm 
 								leave={leaveCategories} 
 								balance={balance} 
+								userBalance={userBalance}
 								onSubmit={postLeave}
 								isLoading={isLoading}
 								close={() => setToggleModal(!toggleModal)}
