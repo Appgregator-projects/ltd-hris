@@ -12,7 +12,7 @@ const PublicRoute = ({ children, route }) => {
     const restrictedRoute = route.meta && route.meta.restricted;
 
     if (user && restrictedRoute) {
-      return <Navigate to={getHomeRouteForLoggedInUser(user.role)} />;
+      return <Navigate to={getHomeRouteForLoggedInUser(user)} />;
     }
   }
 

@@ -103,6 +103,7 @@ const checkForVisibleChild = (arr, ability) => {
 
 export const canViewMenuGroup = (item) => {
   const ability = useContext(AbilityContext);
+
   // ! This same logic is used in canViewHorizontalNavMenuGroup and canViewHorizontalNavMenuHeaderGroup. So make sure to update logic in them as well
   const hasAnyVisibleChild =
     item.children && checkForVisibleChild(item.children, ability);

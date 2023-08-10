@@ -1,4 +1,3 @@
-import Cookies from "js-cookie";
 import { DefaultRoute } from "../router/routes";
 
 // ** Checks if an object is empty (returns boolean)
@@ -55,38 +54,9 @@ export const formatDateToMonthShort = (value, toTimeForCurrentDay = true) => {
  ** This is completely up to you and how you want to store the token in your frontend application
  *  ? e.g. If you are using cookies to store the application please update this function
  */
-export const isUserLoggedIn = () => Cookies.get("accessToken");
-export const getUserData = () => Cookies.get("userData");
+export const isUserLoggedIn = () => localStorage.getItem("userData");
+export const getUserData = () => localStorage.getItem("userData");
 
-export const menuAbility = () => {
-  let menu = [
-    "home",
-    "attendance",
-    "correction-request",
-    "attendance",
-    "leave-request",
-    "employee",
-    "office",
-    "office-detail",
-    "employee-detail",
-    // "company",
-    "division",
-    "leave-category",
-    "forgot-password",
-    "lms-courses",
-    "lms-groups",
-  ];
-
-  const userCookie = getUserData();
-  if (userCookie) {
-    const user = JSON.parse(getUserData());
-    const { role } = user;
-    if (role === "staff" || role === "team_leader") {
-      menu = ["home", "transaction", "company", "project", "notification"];
-    }
-  }
-  return [...menu, "login"];
-};
 /**
  ** This function is used for demo purpose route navigation
  ** In real app you won't need this function because your app will navigate to same route for each users regardless of ability
@@ -95,11 +65,12 @@ export const menuAbility = () => {
  * ? NOTE: If you have different pages to navigate based on user ability then this function can be useful. However, you need to update it.
  * @param {String} userRole Role of user
  */
-export const getHomeRouteForLoggedInUser = (userRole) => {
-  return DefaultRoute;
-  if (userRole === "admin") return DefaultRoute;
-  if (userRole === "client") return "/access-control";
-  return "/login";
+export const getHomeRouteForLoggedInUser = (profile) => {
+  if (profile !== undefined) {
+    return DefaultRoute;
+  } else {
+    return "/login";
+  }
 };
 
 // ** React Select Theme Colors
@@ -114,10 +85,3 @@ export const selectThemeColors = (theme) => ({
     neutral30: "#ededed", // for input hover border-color
   },
 });
-
-/**
- * This custom component will check the condition and render its children if it is true
- */
-export const RenderIf = ({ children, isTrue }) => {
-  return isTrue ? children : null;
-};

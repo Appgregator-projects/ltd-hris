@@ -1,6 +1,7 @@
 // ** React Imports
 import { useSkin } from "@hooks/useSkin";
 import { Link, useNavigate } from "react-router-dom";
+import { useContext } from "react";
 
 // ** Custom Components
 import InputPasswordToggle from "@components/input-password-toggle";
@@ -25,7 +26,14 @@ import { auth } from "../configs/firebase";
 import { handleCompany } from "../redux/authentication";
 import ButtonSpinner from "./pages/components/ButtonSpinner";
 
+// ** API GET TOKEN
+import { Me } from "../apis/services/Services";
+
+// ** Context
+import { AbilityContext } from "@src/utility/context/Can";
+
 const Login = () => {
+  const ability = useContext(AbilityContext);
   const { skin } = useSkin();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -88,13 +96,54 @@ const Login = () => {
       // const {status, data} = await fetchMe(token)
       const accessToken = await token.getIdToken(true);
       token.access_token = accessToken;
+
       if ((token, checkCompany)) {
         console.log(checkCompany, "checkCompany");
         if (checkCompany) {
           // 1. ambil api dari backend
           // 2. dapet permissiom
-          // 3. 
-          dispatch(handleLogin(token));
+          // 3.
+          const userAbility = await Me(accessToken);
+          let arrList = [];
+          userAbility["data"]["permissions"][0]["role_permissions"].map(
+            (item, index) => {
+              if (item["create"] === 1) {
+                arrList.push({
+                  action: "create",
+                  subject: item["permission_name"]["name"],
+                });
+              }
+              if (item["read"] === 1) {
+                arrList.push({
+                  action: "read",
+                  subject: item["permission_name"]["name"],
+                });
+              }
+              if (item["update"] === 1) {
+                arrList.push({
+                  action: "update",
+                  subject: item["permission_name"]["name"],
+                });
+              }
+              if (item["delete"] === 1) {
+                arrList.push({
+                  action: "delete",
+                  subject: item["permission_name"]["name"],
+                });
+              }
+              console.log(item, "map");
+            }
+          );
+          ability.update(arrList);
+
+          dispatch(
+            handleLogin({
+              token,
+              ability: arrList,
+              ...userAbility["data"],
+              access_token: accessToken,
+            })
+          );
           dispatch(handleCompany(checkCompany));
           navigate("/home");
           toast.success("Login succes", {
@@ -177,6 +226,13 @@ const Login = () => {
                   Remember Me
                 </Label>
               </div>
+              <div className="auth-footer-btn d-flex justify-content-center">
+                <Label>
+                  Default User : Sutannataputra@gmail.com , Default Pwd :
+                  user123
+                </Label>
+              </div>
+
               <ButtonSpinner
                 isLoading={isLoading}
                 color="primary"
