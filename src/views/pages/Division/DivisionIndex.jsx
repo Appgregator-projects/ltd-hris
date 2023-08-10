@@ -25,7 +25,7 @@ const renderClient = row => {
             initials
             className='me-1 text-uppercase'
             color={row.avatarColor || 'light-primary'}
-            content={row.manager.name || 'John Doe'}
+            content={row.manager_name || 'John Doe'}
             />
           <div className='d-flex flex-column'>
             <Link
@@ -33,9 +33,9 @@ const renderClient = row => {
               className='user_name text-truncate text-body'
               onClick={() => console.log}
             >
-              <span className='fw-light text-capitalize'>{row.manager.name}</span>
+              <span className='fw-light text-capitalize'>{row.manager_name}</span>
             </Link>
-            <small className='text-truncate text-muted mb-0'>{row.manager.email}</small>
+            <small className='text-truncate text-muted mb-0'>{row.manager_email}</small>
           </div>
         </div>
 
@@ -92,7 +92,6 @@ export default function DivisionIndex(){
     }
 
     const onEdit = (item) => {
-        // return console.log(item, "item edit")
         setModal({
             title:'Division form',
             mode:'edit',
@@ -125,7 +124,7 @@ export default function DivisionIndex(){
         try {
             if(modal.item) return postUpdate(params)
             const status = await Api.post(`/hris/division`, params)
-            // return console.log(status, "isi params")
+            return console.log(status, "params")
             if(!status) return toast.error(`Error : ${data}`, {
 				position: 'top-center'
 			})
@@ -183,7 +182,6 @@ export default function DivisionIndex(){
 		}).then(async (result) => {
 		if (result.value) {
             const data = await postDelete(item.id)
-            // return console.log(data, "jkbdfkb")
 			if (data) {
                 const oldCom = divisions
                 oldCom.splice(index, 1)
@@ -239,7 +237,7 @@ export default function DivisionIndex(){
                                         <tr key={x.id}>
                                             <td>{x.name}</td>
                                             <td>
-                                                {x.manager ? renderClient(x) : '-' }
+                                                {x.manager_name ? renderClient(x) : '-' }
                                             </td>
                                             <td>{x.total_employee}</td>
                                             {/* <td>{x.description}</td> */}

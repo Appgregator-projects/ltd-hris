@@ -48,7 +48,7 @@ export const serverSideColumns = (onDelete, onEdit) => {
       selector: (row) => row.name,
       cell: (row) => (
         <div className="d-flex justify-content-left align-items-center">
-          {renderClient(row.id)}
+          {renderClient(row)}
           <div className="d-flex flex-column">
             <Link
               to={`/employee/${row.id}`}
@@ -72,8 +72,7 @@ export const serverSideColumns = (onDelete, onEdit) => {
       sortable: true,
       name: "Division",
       minWidth: "250px",
-      selector: (row) =>
-        row.user ? row.user.name : "-",
+      selector: (row) => (row? row.division_id : "-"),
     },
     {
       sortable: true,

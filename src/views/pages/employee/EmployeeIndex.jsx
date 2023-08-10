@@ -43,19 +43,6 @@ const UsersList = () => {
   const [office, setOffice] = useState([]);
   const [employee, setEmployee] = useState([]);
 
-  //   const fetchEmployee = async() => {
-  //     try {
-  //         const data = await Api.get('/hris/employee')
-  //         setEmployee([...data])
-  //     } catch (error) {
-  //         throw error
-  //     }
-  // }
-
-  // useEffect(() => {
-  //   fetchEmployee()
-  // }, []);
-
   const fetchCompany = async () => {
     try {
       const data = await Api.get("/hris/company");
@@ -72,7 +59,7 @@ const UsersList = () => {
   const fetchDivision = async () => {
     try {
       const data = await Api.get("/hris/division");
-      setDivisions([...data]);
+      setDivisions(data.filter((x)=> x.deletedAt === null));
     } catch (error) {
       throw error;
     }
@@ -160,13 +147,9 @@ const UsersList = () => {
     // return console.log(itemActive.id, "itemActive")
     try {
       params.id = itemActive.id;
-      // return console.log(params, "ini params edit")
       dispatch(handlePreloader(true));
-      const { status, data } = await Api.put(
-        `/hris/employee/${params.id}`,
-        params
-      );
-
+      const status = await Api.put(`/hris/employee/${params.id}`,params);
+      // return console.log(status, "ini params edit")
       dispatch(handlePreloader(false));
       if (!status)
         return toast.error(`Error : ${data}`, {

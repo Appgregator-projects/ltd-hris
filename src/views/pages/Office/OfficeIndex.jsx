@@ -18,7 +18,6 @@ import { handlePreloader } from '../../../redux/layout'
 import { useDispatch } from 'react-redux'
 import OfficeDetail from "./OfficeDetail"
 import FormUserAssign from "../Components/FormUserAssign";
-// import FormUserAssign from "../components/FormUserAssign"
 
 export default function OfficeIndex(){
   const dispatch = useDispatch()
@@ -35,25 +34,25 @@ export default function OfficeIndex(){
 	const [alluser, setAllUser] = useState(false);
 
 
-	// const fetchUser = async() => {
-	// 	try {
-	// 	const {data,status} = await api.get(`${process.env.VITE_AUTH_HOST}/api/users?alluser=true`)
-	// 			if(status){
-	// 				const userData = data.map(x => {
-	// 					return {
-	// 						value:x.user_id,
-	// 						label:x.user.email
-	// 					}
-	// 				})
-	// 				setUsers([...userData])
-	// 			}
-	// 	} catch (error) {
-	// 		throw error
-	// 	}
-	// }
+	const fetchUser = async() => {
+		try {
+		const data = await Api.get(`/hris/employee`)
+				if(data){
+					const userData = data.map(x => {
+						return {
+							value:x.user_id,
+							label:x.email
+						}
+					})
+					setUsers([...userData])
+				}
+		} catch (error) {
+			throw error
+		}
+	}
 
 	useEffect(() => {
-		// fetchUser()
+		fetchUser()
 	}, [])
 	
 	const fetchOffice = async() => {

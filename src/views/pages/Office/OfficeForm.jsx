@@ -20,6 +20,7 @@ export default function OfficeForm({close, onSubmit, item}){
 		handleSubmit,
 		formState: { errors }
 	} = useForm({ mode: 'onChange', resolver: yupResolver(ItemSchema) })
+	console.log(errors, "error")
 
 	useEffect(() => {
 		if(item){

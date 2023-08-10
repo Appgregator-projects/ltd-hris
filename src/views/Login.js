@@ -91,6 +91,9 @@ const Login = () => {
       if ((token, checkCompany)) {
         console.log(checkCompany, "checkCompany");
         if (checkCompany) {
+          // 1. ambil api dari backend
+          // 2. dapet permissiom
+          // 3. 
           dispatch(handleLogin(token));
           dispatch(handleCompany(checkCompany));
           navigate("/home");
