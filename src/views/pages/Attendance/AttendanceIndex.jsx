@@ -1,10 +1,11 @@
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { Alert, Card, CardBody, Col, Row, Button, Label, Modal,ModalHeader,ModalBody } from "reactstrap";
-import { ChevronLeft, ChevronRight,ChevronDown } from 'react-feather'
+import { Alert, Card, CardBody, Col, Row, Button, Label, Modal,ModalHeader,ModalBody, NavLink } from "reactstrap";
+import { ChevronLeft, ChevronRight,ChevronDown, Link } from 'react-feather'
 import FormUserAssign from "../Components/FormUserAssign";
 import Api from '../../../sevices/Api'
 import toast from 'react-hot-toast'
+import AttandanceDetail from "./AttendanceDetail";
 
 export default function AttendanceIndex(){
 
@@ -16,6 +17,7 @@ export default function AttendanceIndex(){
 		const [userSelect, setUserSelect] = useState(null)
 		const [attendanceLog, setAttendanceLog] = useState([])
 		const [late, setLate] = useState([])
+		const [attendance, setAttendance] = useState([])
 		const [modal, setModal] = useState({
 			title: "User assign",
 			mode: "get",
@@ -39,15 +41,17 @@ export default function AttendanceIndex(){
 		}
 	}
 
+	// console.log(users, "userData")
+
 		useEffect(() => {
 			fetchUser()
 		},[])
 
-		const onDetail = () => {
+		const onPick = () => {
 			setModal({
-				title: "Detail attendance",
-				mode: "detail",
-				item: "null"
+				title: "User assign",
+				mode : "get",
+				item: users
 			})
 			setToggleModal(true)
 		}
@@ -127,9 +131,13 @@ export default function AttendanceIndex(){
 		}
 
 		const fetchAttendance = async(arg, date) => {
+			let month = date.slice(5,7)
+			let year = date.slice(0,4)
+			// console.log(year, "month")
 				try {
-						const data = await Api.get(`/hris/attendance`)
+						const data = await Api.get(`/hris/attendance/${arg.value}?month=${month}&year=${year}`)
 						console.log(data, "data attendance")
+						setAttendance([...data])
 						setToggleModal(false)
 						generateCalendarEvent(data)
 						toast.success('Attendance has loaded', {
@@ -143,6 +151,16 @@ export default function AttendanceIndex(){
 				}
 		}
 
+		const onDetail = (arg) => {
+			console.log(arg,"ondetail")
+			setModal({
+				title: "Detail attendance",
+				mode: "detail",
+				item: arg
+			})
+			setToggleModal(true)
+		}
+
 		return(
 			<>
 				<Row>
@@ -152,7 +170,7 @@ export default function AttendanceIndex(){
 												<Row>
 														<Col lg='3' sm='12'>
 																<div className="mt-3">
-																		<Button color="warning" outline className="w-full" onClick={() => setToggleModal(true)}>
+																		<Button color="warning" outline className="w-full" onClick={onPick}>
 																				{userSelect ? userSelect.label : 'Pick employee'}
 																				<ChevronDown size={15}/>
 																		</Button>
@@ -192,11 +210,11 @@ export default function AttendanceIndex(){
 																<ul className="d-flex flex-row list-none calendar-date flex-wrap">
 																		{
 																				calendar.map((x,index) => (
-																						<li key={index} className={x.is_previous ? x.is_previous : ''}>
+																						<li key={index} className={x.is_previous ? x.is_previous : ''} onClick={() => onDetail(x)}>
 																								<span>{x.date}</span>
 																								{
 																										x.is_filled ? <div className="fs-6 mt-2">
-																												<Alert color='success'>
+																												<Alert outline="false" color='success'>
 																														<span className="text-xs">Clock in: {x.clock_in}</span>
 																												</Alert>
 																												<Alert color='primary'>
@@ -225,9 +243,10 @@ export default function AttendanceIndex(){
 							{modal.title}
 						</ModalHeader>
 						<ModalBody>
-							{modal.mode == "User assign"? 
+							{modal.mode === "get"? 
 								<FormUserAssign 
 										options={users}
+										close = {() => setToggleModal(false)}
 										multiple={false}
 										disable={true}
 										onSelect={(arg) => {
@@ -235,7 +254,8 @@ export default function AttendanceIndex(){
 												fetchAttendance(arg, initalDate)
 										}}
 								/> : <></>}
-							{modal.mode == "Detail attendance"? <></> : <></>}
+							{modal.mode === "detail"? 
+							<AttandanceDetail attendance={modal.item}  close={() => setToggleModal(false)}/> : <></>}
 								<Col>
 										<Button type="button" size="md" color='danger' onClick={() => setToggleModal(!toggleModal)}>Cancel</Button>
 								</Col>

@@ -36,8 +36,8 @@ import { Badge, Table } from "reactstrap";
 
 // ** Third Party Components
 import { Eye, List, Search, Square, Edit, Trash } from "react-feather";
-import { FaUserCircle } from "react-icons/fa";
-import { HiOutlineUserGroup } from "react-icons/hi";
+// import { FaUserCircle } from "react-icons/fa";
+// import { HiOutlineUserGroup } from "react-icons/hi";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import CourseCard from "./CourseCard";

@@ -21,6 +21,7 @@ export default function DivisionForm({close, onSubmit, item, userSelect, users})
 		handleSubmit,
 		formState: { errors }
 	} = useForm({ mode: 'onChange', resolver: yupResolver(ItemSchema) })
+    console.log(errors, "error")
 
     const onSubmitForm = async (arg) => {
         console.log(arg, " ini arg")
@@ -28,7 +29,7 @@ export default function DivisionForm({close, onSubmit, item, userSelect, users})
     }
 
     useEffect(() => {
-        // console.log(item, "item ni isi apa")
+        console.log(item, "item ni isi apa")
         if(item){
             setValue('name', item.name)
             setValue('parent', item && item.parent? item.parent : item.name)

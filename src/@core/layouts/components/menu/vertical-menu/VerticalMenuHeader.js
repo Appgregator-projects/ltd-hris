@@ -60,9 +60,9 @@ const VerticalMenuHeader = (props) => {
             to={user ? getHomeRouteForLoggedInUser(user.role) : "/"}
             className="navbar-brand"
           >
-            <span className="brand-logo">
+            {/* <span className="brand-logo">
               <img src={themeConfig.app.appLogoImage} alt="logo" />
-            </span>
+            </span> */}
             <h2 className="brand-text mb-0">{themeConfig.app.appName}</h2>
           </NavLink>
         </li>
@@ -70,7 +70,7 @@ const VerticalMenuHeader = (props) => {
           <div className="nav-link modern-nav-toggle cursor-pointer">
             <Toggler />
             <X
-              onClick={() => setMenuVisibility(false)}
+              onClick={() => setMenuVisibility(true)}
               className="toggle-icon icon-x d-block d-xl-none"
               size={20}
             />

@@ -33,7 +33,6 @@ export default function FormEmployee({
   const [isLoading, setIsLoading] = useState(false);
   const [file, setFile] = useState(null);
   // console.log(company, "company")
-  console.log(item, "item props")
 
   const ItemSchema = yup.object().shape({
     name: yup.string().required(),
@@ -61,16 +60,15 @@ export default function FormEmployee({
     handleSubmit,
     formState: { errors },
   } = useForm({ mode: "onChange", resolver: yupResolver(ItemSchema) });
-  console.log(errors);
+  console.log(errors, "error");
 
   useEffect(() => {
-    // console.log(item, 'item');
+    console.log(item, 'item');
     if (item) {
       setValue("name", item.name);
       setValue("email", item.email);
       setValue("nip", item.nip);
-      // setValue("phone", item.phone);
-      // setValue("role", item.role_id);
+      setValue("role", item.role_id);
       setValue("division", item.division_id);
       setValue("company", item.company_id);
       setValue("title", item.title);
@@ -78,7 +76,7 @@ export default function FormEmployee({
       setValue("phone", item.phone);
       setValue("user_id", item.id)
       if (item.company){
-        setValue("company", item.company.id)
+        setValue("company", item.company.name)
       }
 
       if (item.employee_attribute) {

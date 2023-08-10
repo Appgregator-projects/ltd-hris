@@ -37,16 +37,12 @@ export default function CorrectionIndex() {
   const [nestedToggle, setNestedToggle] = useState(false)
   const [close, setCloseAll] = useState(false)
   const [selectItem, setSelectItem] = useState(null);
-  const obj ="userReq.name"
-
-  console.log(obj,"obj")
-  console.log(corrections.obj,"corrections")
 
   const fetchLeave = async () => {
     try {
       const data = await Api.get("hris/leave-request");
       setCorrection([...data]);
-      // obj =[...data.]
+      // console.log(data[0]['userReq.name'],'data')
       
     } catch (error) {
       throw error;
@@ -149,7 +145,7 @@ export default function CorrectionIndex() {
                 <tbody>
                   {corrections.map((x, index) => (
                     <tr key={index}>
-                      <td>{obj["x.userReq.name"]}</td>
+                      <td>{x['userReq.name']}</td>
                       <td>{dateFormat(x.start_date)}</td>
                       <td>{dateFormat(x.end_date)}</td>
                       <td>{renderStatus(x.status)}</td>
@@ -193,11 +189,11 @@ export default function CorrectionIndex() {
               <ul className="list-none padding-none">
                 <li className="d-flex justify-content-between pb-1">
                   <span className="fw-bold">Employee Name</span>
-                  <span className="capitalize">{selectItem.userReq?.name }</span>
+                  <span className="capitalize">{selectItem['userReq.name'] }</span>
                 </li>
                 <li className="d-flex justify-content-between pb-1">
                   <span className="fw-bold">Employee Email</span>
-                  <span>{selectItem.userReq?.email}</span>
+                  <span>{selectItem['userReq.email']}</span>
                 </li>
                 <li className="d-flex justify-content-between pb-1">
                   <span className="fw-bold">Created At</span>

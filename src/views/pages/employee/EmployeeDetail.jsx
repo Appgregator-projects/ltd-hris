@@ -13,6 +13,7 @@ import toast from 'react-hot-toast'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 import AvatarGroup from "./component/AvatarGroup";
+import UserTimeline from "./view/UserTimeline";
 
 export default function EmployeeDetail() {
 	const id = useParams()
@@ -41,6 +42,7 @@ export default function EmployeeDetail() {
 		}
 	}
 
+	console.log(user, "user")
 
 	useEffect(() => {
 		fetchUser()
@@ -49,13 +51,11 @@ export default function EmployeeDetail() {
 	const fetchUsersDivision = async () => {
 		try {
 			const dataUsers = await Api.get(`/hris/employee/${id.uid}`)
-			console.log([...dataUsers.leave_balances], 'datausers')
 			setUsersDivision([...dataUsers.leave_balances])
 		} catch (error) {
 			throw error
 		}
 	}
-	console.log(usersDivision, "userdivision")
 
 	useEffect(() => {
 		fetchUsersDivision()
@@ -188,7 +188,7 @@ export default function EmployeeDetail() {
 										</li>
 										<li className='mb-75  d-flex justify-content-between'>
 											<span className='fw-bolder me-25'>Division</span>
-											<span>{user.user ? user.user.name : '-'}</span>
+											<span>{user.division ? user.division.name : '-'}</span>
 										</li>
 										<li className='mb-75 d-flex justify-content-between'>
 											<span className='fw-bolder me-25'>Status</span>
@@ -298,7 +298,6 @@ export default function EmployeeDetail() {
 												// setShow(true)
 											}}
 										>
-											<small className='fw-bolder'>Edit Role</small>
 										</Link>
 									</div>
 									<Link to='' className='text-body' onClick={e => e.preventDefault()}>
@@ -309,6 +308,11 @@ export default function EmployeeDetail() {
 							<CardFooter>
 							</CardFooter>
 						</Card>
+					</Col>
+					<Col>
+					<Card>
+						<UserTimeline/>
+					</Card>
 					</Col>
 				</Col>
 			</Row>
