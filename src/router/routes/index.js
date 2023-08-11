@@ -37,27 +37,16 @@ const Register = lazy(() => import("../../views/Register"));
 const ForgotPassword = lazy(() => import("../../views/ForgotPassword"));
 const Error = lazy(() => import("../../views/Error"));
 const Employee = lazy(() => import("../../views/pages/employee/EmployeeIndex"));
-const EmployeeDetail = lazy(() =>
-  import("../../views/pages/employee/EmployeeDetail")
-);
+const EmployeeDetail = lazy(() =>import("../../views/pages/employee/EmployeeDetail"));
 const Office = lazy(() => import("../../views/pages/Office/OfficeIndex"));
-const OfficeDetail = lazy(() =>
-  import("../../views/pages/Office/OfficeDetail")
-);
+const OfficeDetail = lazy(() =>import("../../views/pages/Office/OfficeDetail"));
 // const Shift = lazy(() => import("../../views/pages/Shift/ShiftIndex"));
 const Division = lazy(() => import("../../views/pages/Division/DivisionIndex"));
-const LeaveCategory = lazy(() =>
-  import("../../views/pages/LeaveCategory/LeaveCategoryIndex")
-);
-const Attendance = lazy(() =>
-  import("../../views/pages/Attendance/AttendanceIndex")
-);
-const CorrectionRequest = lazy(() =>
-  import("../../views/pages/CorrectionRequest")
-);
-const LeaveRequest = lazy(() =>
-  import("../../views/pages/LeaveRequest/LeaveRequest")
-);
+const LeaveCategory = lazy(() =>import("../../views/pages/LeaveCategory/LeaveCategoryIndex"));
+const Attendance = lazy(() =>import("../../views/pages/Attendance/AttendanceIndex"));
+const CorrectionRequest = lazy(() =>import("../../views/pages/CorrectionRequest"));
+const LeaveRequest = lazy(() =>import("../../views/pages/LeaveRequest/LeaveRequest"));
+const CompanyIndex = lazy(() =>import("../../views/pages/Company/CompanyIndex"))
 
 // ** Merge Routes
 const Routes = [
@@ -137,6 +126,14 @@ const Routes = [
     meta: {
       action: "read",
       resource: "DIVISIONS",
+    },
+  },
+  {
+    path: "/company",
+    element: <CompanyIndex />,
+    meta: {
+      action: "read",
+      resource: "COMPANIES",
     },
   },
   {

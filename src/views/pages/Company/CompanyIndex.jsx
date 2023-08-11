@@ -15,7 +15,7 @@ import withReactContent from 'sweetalert2-react-content'
 const MySwal = withReactContent(Swal)
 import { handlePreloader } from '../../../redux/layout'
 import { useDispatch } from 'react-redux'
-import EditCompany from "./EditCompany"
+import EditCompany from "./CompanyForm"
 // import FormUserAssign from "../components/FormUserAssign"
 
 export default function OfficeIndex(){
@@ -24,7 +24,7 @@ export default function OfficeIndex(){
 	const [offices, setOffices] = useState([])
 	const [modalToggle, setModalToggle] = useState(false)
 	const [modal, setModal] = useState({
-		title:'Office Form',
+		title:'Company Form',
 		mode:'add',
 		item:null
 	})
@@ -136,6 +136,7 @@ export default function OfficeIndex(){
 	}
 
 	const postUpdate = async(params) => {
+		return console.log(params, "params")
 		try {
 			dispatch(handlePreloader(true))
 			const status = await Api.put(`/hris/company/${modal.item.id}`, params)
@@ -161,6 +162,7 @@ export default function OfficeIndex(){
 	}
 
 	const onEdit = (item, index) => {
+		console.log(item, "item edit")
 		setModal({
 			title:'Edit Office',
 			mode:'edit',
@@ -239,7 +241,7 @@ export default function OfficeIndex(){
 					<Fragment>
 						<Button.Ripple size="sm" color='warning' onClick={onAdd}>
 							<Plus size={14} />
-							<span className='align-middle ms-25'>Add Office</span>
+							<span className='align-middle ms-25'>Add Company</span>
 						</Button.Ripple>
 					</Fragment>
 				</Col>

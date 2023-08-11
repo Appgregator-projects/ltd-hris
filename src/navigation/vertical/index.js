@@ -10,6 +10,7 @@ import {
   Twitch,
   BookOpen,
   Users,
+  Target
 } from "react-feather";
 
 export default [
@@ -64,12 +65,12 @@ export default [
     icon: <User size={20} />,
     navLink: "/employee",
   },
-  // {
-  //   id: "company",
-  //   title: "Company",
-  //   icon: <Slack size={20} />,
-  //   navLink: "/company",
-  // },
+  {
+    id: "company",
+    title: "Company",
+    icon: <Target size={20} />,
+    navLink: "/company",
+  },
   {
     id: "office",
     title: "Office",
