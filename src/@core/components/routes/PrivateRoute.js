@@ -1,29 +1,27 @@
 // ** React Imports
 import { Navigate } from "react-router-dom";
-import { Suspense, useState } from "react";
+import { useContext, Suspense } from "react";
 
 // ** Context Imports
-// import { AbilityContext } from "@src/utility/context/Can"
+import { AbilityContext } from "@src/utility/context/Can";
 
 // ** Spinner Import
-import Cookies from "js-cookie";
-import ComponentSpinner from "../spinner/Loading-spinner";
-// import { auth } from "../../configs/firebase"
-// import { signInWithEmailAndPassword } from "firebase/auth"
+import Spinner from "../spinner/Loading-spinner";
 
 const PrivateRoute = ({ children, route }) => {
   // ** Hooks & Vars
-  // const ability = useContext(AbilityContext)
-  const user = Cookies.get("userData");
+  const ability = useContext(AbilityContext);
+  const user = JSON.parse(localStorage.getItem("userData"));
+  console.log(ability, "GET LIST ABILITY");
 
   if (route) {
-    // let action = null
-    // let resource = null
+    let action = null;
+    let resource = null;
     let restrictedRoute = false;
 
     if (route.meta) {
-      // action = route.meta.action
-      // resource = route.meta.resource
+      action = route.meta.action;
+      resource = route.meta.resource;
       restrictedRoute = route.meta.restricted;
     }
     if (!user) {
@@ -32,16 +30,17 @@ const PrivateRoute = ({ children, route }) => {
     if (user && restrictedRoute) {
       return <Navigate to="/" />;
     }
-    if (user && restrictedRoute && user.role === "client") {
-      return <Navigate to="/access-control" />;
-    }
-    // if (user && !ability.can(action || "read", resource)) {
-    //   return <Navigate to="/misc/not-authorized" replace />
+    // if (user && restrictedRoute && user.role === "client") {
+    //   return <Navigate to="/access-control" />;
     // }
+
+    if (user && !ability.can(action, resource)) {
+      return <Navigate to="/misc/not-authorized" replace />;
+    }
   }
 
   return (
-    <Suspense fallback={<ComponentSpinner className="content-loader" />}>
+    <Suspense fallback={<Spinner className="content-loader" />}>
       {children}
     </Suspense>
   );

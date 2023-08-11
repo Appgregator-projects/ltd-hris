@@ -4,8 +4,6 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 
-
-
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -16,8 +14,8 @@ const firebaseConfig = {
   projectId: "lifetime-design-erp",
   storageBucket: "lifetime-design-erp.appspot.com",
   messagingSenderId: "683829372227",
-  appId: "1:683829372227:web:f1612fc4497e2f2701fbf6",
-  measurementId: "G-X61RSHGQWY"
+  appId: "1:683829372227:web:40fd151188de595e01fbf6",
+  measurementId: "G-N53JXQN2CG",
 };
 
 // Initialize Firebase

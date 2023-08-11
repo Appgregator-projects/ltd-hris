@@ -36,27 +36,39 @@ export const authSlice = createSlice({
   },
   reducers: {
     handlePermission: (state, action) => {
-      state.can = action.payload;
-      Cookies.set("userPermissions", JSON.stringify(action.payload), {
-        expires: 1,
-      });
+      state.can = action;
+      Cookies.set(
+        "userPermissions",
+        JSON.stringify(action.payload.permissions),
+        {
+          expires: 1,
+        }
+      );
     },
     handleLogin: (state, action) => {
       const params = {
-        // id:action.payload.id,
-        name: action.payload.displayName,
+        id: action.payload.profile.token.uid,
+        name: action.payload.profile.token.name,
         email: action.payload.email,
-        // role:action.payload.role,
+        ability: action.payload.ability,
+        role_id: action.payload.permissions[0].id,
+        role_name: action.payload.permissions[0].name,
+        access_token: action.payload.access_token,
+
         // company_default_id:action.payload.company_default_id,
         // company_default_name:action.payload.company_default_name,
       };
       state.userData = params;
       state.accessToken = action.payload.access_token;
-      state.can = { ...state.can, ...action.payload.permission };
+      state.can = {
+        ...state.can,
+        ...action.payload.permissions[0].role_permissions,
+      };
       Cookies.set("userData", JSON.stringify(params), { expires: 1 });
       Cookies.set("accessToken", action.payload.access_token, {
         expires: 1,
       });
+      localStorage.setItem("userData", JSON.stringify(params));
     },
     handleCompany: (state, action) => {
       console.log(action.payload, "handleCompany");
@@ -69,6 +81,7 @@ export const authSlice = createSlice({
       state.token = null;
       Cookies.remove("userData");
       Cookies.remove("accessToken");
+      localStorage.removeItem("userData");
     },
   },
 });

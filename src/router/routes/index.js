@@ -13,7 +13,7 @@ import PrivateRoute from "../../@core/components/routes/PrivateRoute";
 
 // ** Utils
 import { isObjEmpty } from "@utils";
-import { menuAbility } from "../../utility/Utils";
+// import { menuAbility } from "../../utility/Utils";
 
 import AuthRoutes from "./auth";
 import LmsRoutes from "./lms";
@@ -49,7 +49,9 @@ const Division = lazy(() => import("../../views/pages/Division/DivisionIndex"));
 const LeaveCategory = lazy(() =>
   import("../../views/pages/LeaveCategory/LeaveCategoryIndex")
 );
-const Attendance = lazy(() => import("../../views/pages/Attendance/AttendanceIndex"));
+const Attendance = lazy(() =>
+  import("../../views/pages/Attendance/AttendanceIndex")
+);
 const CorrectionRequest = lazy(() =>
   import("../../views/pages/CorrectionRequest")
 );
@@ -69,98 +71,112 @@ const Routes = [
     path: "/home",
     element: <Home />,
     meta: {
-      name: "home",
+      action: "read",
+      resource: "MENU HOME",
     },
   },
   {
     path: "/attendance",
     element: <Attendance />,
     meta: {
-      name: "attendance",
+      action: "read",
+      resource: "MENU ATTENDANCE",
     },
   },
   {
     path: "/correction-request",
     element: <CorrectionRequest />,
     meta: {
-      name: "correction-request",
+      action: "read",
+      resource: "MENU CORRECTION REQUEST",
     },
   },
   {
     path: "/leave-request",
     element: <LeaveRequest />,
     meta: {
-      name: "leave-request",
+      action: "read",
+      resource: "MENU LEAVE REQUEST",
     },
   },
   {
     path: "/employee",
     element: <Employee />,
     meta: {
-      name: "employee",
+      action: "read",
+      resource: "MENU EMPLOYEE",
     },
   },
   {
     path: "/employee/:uid",
     element: <EmployeeDetail />,
     meta: {
-      name: "employee-detail",
+      action: "read",
+      resource: "MENU EMPLOYEE",
     },
   },
   {
     path: "/office",
     element: <Office />,
     meta: {
-      name: "office",
+      action: "read",
+      resource: "BRANCHES",
     },
   },
   {
     path: "/office/:office_id",
     element: <OfficeDetail />,
     meta: {
-      name: "office-detail",
+      action: "read",
+      resource: "BRANCHES",
     },
   },
   {
     path: "/division",
     element: <Division />,
     meta: {
-      name: "division",
+      action: "read",
+      resource: "DIVISIONS",
     },
   },
   {
     path: "/leave-category",
     element: <LeaveCategory />,
     meta: {
-      name: "leave-category",
+      action: "read",
+      resource: "LEAVE CATEGORY",
     },
   },
-  {
-    path: "/login",
-    element: <Login />,
-    meta: {
-      layout: "blank",
-    },
-  },
+  // {
+  //   path: "/login",
+  //   element: <Login />,
+  //   meta: {
+  //     action: "read",
+  //     resource: "MENU HOME",
+  //   },
+  // },
   {
     path: "/register",
     element: <Register />,
     meta: {
-      layout: "blank",
+      action: "read",
+      resource: "MENU HOME",
     },
   },
   {
     path: "/forgot-password",
     element: <ForgotPassword />,
     meta: {
-      layout: "blank",
+      action: "read",
+      resource: "MENU HOME",
     },
   },
   {
     path: "/error",
     element: <Error />,
     meta: {
-      layout: "blank",
+      action: "read",
+      resource: "MENU HOME",
     },
   },
   ...LmsRoutes,
@@ -187,6 +203,7 @@ const getRouteMeta = (route) => {
 // ** Return Filtered Array of Routes & Paths
 const MergeLayoutRoutes = (layout, defaultLayout) => {
   const LayoutRoutes = [];
+  console.log(Routes, "MergeLayoutRoutes");
 
   if (Routes) {
     Routes.filter((route) => {
@@ -197,15 +214,18 @@ const MergeLayoutRoutes = (layout, defaultLayout) => {
         ((route.meta === undefined || route.meta.layout === undefined) &&
           defaultLayout === layout)
       ) {
-        let RouteTag = PublicRoute;
+        let RouteTag = PrivateRoute;
 
         // ** Check for public or private route
         if (route.meta) {
+          console.log(route, "private route meta");
+
           route.meta.layout === "blank" ? (isBlank = true) : (isBlank = false);
+
           RouteTag = route.meta.publicRoute ? PublicRoute : PrivateRoute;
         }
-
         if (route.element) {
+          console.log(getRouteMeta(route), "route.elements");
           const Wrapper =
             // eslint-disable-next-line multiline-ternary
             isObjEmpty(route.element.props) && isBlank === false
@@ -226,10 +246,7 @@ const MergeLayoutRoutes = (layout, defaultLayout) => {
       return LayoutRoutes;
     });
   }
-  // return LayoutRoutes;
-  return LayoutRoutes.filter((x) => {
-    return menuAbility().includes(x.meta ? x.meta.name : "default");
-  });
+  return LayoutRoutes;
 };
 
 const getRoutes = (layout) => {

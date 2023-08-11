@@ -11,21 +11,24 @@ const LmsRoutes = [
     path: "/courses",
     element: <CoursesPage />,
     meta: {
-      name: "lms-courses",
+      action: "read",
+      resource: "COURSE",
     },
   },
   {
     path: "/courses/:id",
     element: <CourseDetailPage />,
     meta: {
-      name: "lms-courses",
+      action: "read",
+      resource: "COURSE",
     },
   },
   {
     path: "/groups",
     element: <GroupsPage />,
     meta: {
-      name: "lms-groups",
+      action: "read",
+      resource: "COURSE GROUP",
     },
   },
 ];
