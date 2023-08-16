@@ -111,7 +111,6 @@ const UsersList = () => {
       const { uid } = user;
       params.uid = uid;
       const status = await Api.post(`/hris/employee`, params);
-      // const {status2, data2} = await Api.post
       console.log(status, "data submitform");
 
       dispatch(handlePreloader(false));

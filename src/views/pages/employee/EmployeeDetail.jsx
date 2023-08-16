@@ -42,8 +42,6 @@ export default function EmployeeDetail() {
 		}
 	}
 
-	console.log(user, "user")
-
 	useEffect(() => {
 		fetchUser()
 	}, [])

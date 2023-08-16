@@ -20,6 +20,7 @@ export default function DivisionForm({
     name: yup.string().required(),
     // manager_id :  yup.string().required()
   });
+  
   const Option = users?.map((e) => ({ value: e.id, label: e.email }));
   const DivitionOption = selectDivison?.map((e) => ({
     value: e.id,

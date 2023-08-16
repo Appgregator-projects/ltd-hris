@@ -71,6 +71,7 @@ export default function DivisionIndex() {
   const fetchDivision = async () => {
     try {
       const data = await Api.get("/hris/division");
+      // console.log(data, "data division")
       const result = getNestedChildren(data, null);
       setDivisions(result.filter((x) => x.deletedAt === null));
       setSelectDevision(data.filter((x) => x.deletedAt === null));
@@ -115,8 +116,15 @@ export default function DivisionIndex() {
   };
 
   const postUpdate = async (params) => {
+    // return console.log(params, "params division")
+    const itemUpdate = {
+      name : params.name,
+      parent : params.parent,
+      manager_id : params.manager_id.value
+    }
     try {
-      const status = await Api.put(`/hris/division/${modal.item.id}`, params);
+      const status = await Api.put(`/hris/division/${modal.item.id}`, itemUpdate);
+      console.log(status, "has updated")
       if (!status)
         return toast.error(`Error : ${status}`, {
           position: "top-center",
@@ -135,32 +143,14 @@ export default function DivisionIndex() {
   };
 
   const onSubmit = async (params) => {
+    const itemPost = {
+      name : params.name,
+      parent : params.parent,
+      manager_id : params.manager_id.value
+    }
     try {
       if (modal.item) return postUpdate(params);
-      const status = await Api.post(`/hris/division`, params);
-      return console.log(status, "params");
-      if (!status)
-        return toast.error(`Error : ${data}`, {
-          position: "top-center",
-        });
-      fetchDivision();
-      toast.success("Division has updated", {
-        position: "top-center",
-      });
-      setToggleModal(false);
-    } catch (error) {
-      toast.error(`Error : ${error.message}`, {
-        position: "top-center",
-      });
-    }
-  };
-
-  const submitLeader = async () => {
-    try {
-      const { status } = await Api.put(
-        `hris/division/${modal.item.id}/set-leader`,
-        { leader: userSelect.value }
-      );
+      const status = await Api.post(`/hris/division`, itemPost);
       if (!status)
         return toast.error(`Error : ${data}`, {
           position: "top-center",
@@ -249,7 +239,7 @@ export default function DivisionIndex() {
                 </tr>
               </thead>
               <tbody>
-                {divisions.map((x, index) => (
+                {selectDivison.map((x, index) => (
                   <>
                     <tr key={x.id}>
                       <td>{x.name}</td>

@@ -200,7 +200,7 @@ const getRouteMeta = (route) => {
 // ** Return Filtered Array of Routes & Paths
 const MergeLayoutRoutes = (layout, defaultLayout) => {
   const LayoutRoutes = [];
-  console.log(Routes, "MergeLayoutRoutes");
+  // console.log(Routes, "MergeLayoutRoutes");
 
   if (Routes) {
     Routes.filter((route) => {
@@ -215,14 +215,14 @@ const MergeLayoutRoutes = (layout, defaultLayout) => {
 
         // ** Check for public or private route
         if (route.meta) {
-          console.log(route, "private route meta");
+          // console.log(route, "private route meta");
 
           route.meta.layout === "blank" ? (isBlank = true) : (isBlank = false);
 
           RouteTag = route.meta.publicRoute ? PublicRoute : PrivateRoute;
         }
         if (route.element) {
-          console.log(getRouteMeta(route), "route.elements");
+          // console.log(getRouteMeta(route), "route.elements");
           const Wrapper =
             // eslint-disable-next-line multiline-ternary
             isObjEmpty(route.element.props) && isBlank === false

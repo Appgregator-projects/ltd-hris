@@ -44,7 +44,7 @@ export const serverSideColumns = (onDelete, onEdit) => {
     {
       sortable: true,
       name: "Full Name",
-      minWidth: "225px",
+      minWidth: "300px",
       selector: (row) => row.name,
       cell: (row) => (
         <div className="d-flex justify-content-left align-items-center">
@@ -65,14 +65,14 @@ export const serverSideColumns = (onDelete, onEdit) => {
     {
       sortable: true,
       name: "Title",
-      minWidth: "250px",
+      minWidth: "225px",
       selector: (row) => (row ? row.title : "-"),
     },
     {
       sortable: true,
       name: "Division",
       minWidth: "250px",
-      selector: (row) => (row? row.division_id : "-"),
+      selector: (row) => (row?.division_id),
     },
     {
       sortable: true,
