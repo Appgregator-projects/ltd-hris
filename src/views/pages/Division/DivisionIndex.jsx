@@ -86,12 +86,14 @@ export default function DivisionIndex() {
 
   const fetchUser = async () => {
     try {
-      const data = await Api.get(`/hris/employee`);
+      const data = await Api.get(`/hris/employee?no_paginate=true`);
       setUsers([...data]);
     } catch (error) {
       throw error;
     }
   };
+
+  console.log(users, "users division")
 
   useEffect(() => {
     fetchUser();
@@ -143,6 +145,7 @@ export default function DivisionIndex() {
   };
 
   const onSubmit = async (params) => {
+    // return console.log(params, "params")  
     const itemPost = {
       name : params.name,
       parent : params.parent,
@@ -151,6 +154,7 @@ export default function DivisionIndex() {
     try {
       if (modal.item) return postUpdate(params);
       const status = await Api.post(`/hris/division`, itemPost);
+      // return console.log(status, "status submit division")
       if (!status)
         return toast.error(`Error : ${data}`, {
           position: "top-center",

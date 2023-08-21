@@ -69,8 +69,8 @@ export default function FormEmployee({
       setValue("email", item.email);
       setValue("nip", item.nip);
       setValue("role", item.role_id);
-      setValue("division", item.division_id);
-      setValue("company", item.company_id);
+      setValue("division", item.division);
+      // setValue("company", item.company_id);
       setValue("title", item.title);
       setValue("attachment", item.attachment)
       setValue("phone", item.phone);
@@ -254,7 +254,7 @@ export default function FormEmployee({
             <FormFeedback>{errors.gender.message}</FormFeedback>
           )}
         </Col>
-        <Col md="6" sm="12" className="mb-1">
+        {/* <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="user_id">
             User ID
           </Label>
@@ -274,7 +274,7 @@ export default function FormEmployee({
           {errors.user_id && (
             <FormFeedback>{errors.user_id.message}</FormFeedback>
           )}
-        </Col>
+        </Col> */}
         <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="nip">
             NIP
@@ -399,6 +399,7 @@ export default function FormEmployee({
                 type="select"
                 {...field}
                 name="company_id"
+                disabled={item?.company_id}
                 invalid={errors.company_id && true}
               >
                 <option value="">Select company</option>

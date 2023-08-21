@@ -114,33 +114,6 @@ export default function DivisionForm({
               <FormFeedback>{errors.parent.message}</FormFeedback>
             )}
           </Col>
-          {/* <Col md="12" sm="12" className="mb-1">
-            <Label className="form-label" for="manager">
-              Select Division Leader
-            </Label>
-            <Controller
-              name="manager_id"
-              defaultValue=""
-              control={control}
-              render={({ field }) => (
-                <Input
-                  type="select"
-                  {...field}
-                  name="division_leader"
-                  invalid={errors.manager && true}>
-                  <option value="">Select manager</option>
-                  {users?.map((x) => (
-                    <option key={x.value} value={x.id}>
-                      {x.email}
-                    </option>
-                  ))}
-                </Input>
-              )}
-            />
-            {errors.manager_id && (
-              <FormFeedback>{errors.manager_id.message}</FormFeedback>
-            )}
-          </Col> */}
           <Col md="12" sm="12" className="mb-1">
             <Label className="form-label" for="manager">
               Select Division Leader

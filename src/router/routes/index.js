@@ -47,6 +47,7 @@ const Attendance = lazy(() =>import("../../views/pages/Attendance/AttendanceInde
 const CorrectionRequest = lazy(() =>import("../../views/pages/CorrectionRequest"));
 const LeaveRequest = lazy(() =>import("../../views/pages/LeaveRequest/LeaveRequest"));
 const CompanyIndex = lazy(() =>import("../../views/pages/Company/CompanyIndex"))
+const Payroll = lazy(() => import("../../views/pages/Payroll/PayrollIndex"))
 
 // ** Merge Routes
 const Routes = [
@@ -142,6 +143,14 @@ const Routes = [
     meta: {
       action: "read",
       resource: "LEAVE CATEGORY",
+    },
+  },
+  {
+    path: "/payroll",
+    element: <Payroll />,
+    meta: {
+      action: "read",
+      resource: "PAYROLL",
     },
   },
   // {

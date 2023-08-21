@@ -10,7 +10,8 @@ import {
   Twitch,
   BookOpen,
   Users,
-  Target
+  Target,
+  CreditCard
 } from "react-feather";
 
 export default [
@@ -64,6 +65,12 @@ export default [
     title: "Users",
     icon: <User size={20} />,
     navLink: "/employee",
+  },
+  {
+    id: "payroll",
+    title: "Payroll",
+    icon: <CreditCard size={20} />,
+    navLink: "/payroll",
   },
   {
     id: "company",
