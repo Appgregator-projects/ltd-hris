@@ -145,10 +145,10 @@ export default function DivisionIndex() {
   };
 
   const onSubmit = async (params) => {
-    // return console.log(params, "params")  
+    // return console.log(params.parent, "params")  
     const itemPost = {
       name : params.name,
-      parent : params.parent,
+      parent_id : params.parent.value,
       manager_id : params.manager_id.value
     }
     try {
