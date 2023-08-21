@@ -37,27 +37,17 @@ const Register = lazy(() => import("../../views/Register"));
 const ForgotPassword = lazy(() => import("../../views/ForgotPassword"));
 const Error = lazy(() => import("../../views/Error"));
 const Employee = lazy(() => import("../../views/pages/employee/EmployeeIndex"));
-const EmployeeDetail = lazy(() =>
-  import("../../views/pages/employee/EmployeeDetail")
-);
+const EmployeeDetail = lazy(() =>import("../../views/pages/employee/EmployeeDetail"));
 const Office = lazy(() => import("../../views/pages/Office/OfficeIndex"));
-const OfficeDetail = lazy(() =>
-  import("../../views/pages/Office/OfficeDetail")
-);
+const OfficeDetail = lazy(() =>import("../../views/pages/Office/OfficeDetail"));
 // const Shift = lazy(() => import("../../views/pages/Shift/ShiftIndex"));
 const Division = lazy(() => import("../../views/pages/Division/DivisionIndex"));
-const LeaveCategory = lazy(() =>
-  import("../../views/pages/LeaveCategory/LeaveCategoryIndex")
-);
-const Attendance = lazy(() =>
-  import("../../views/pages/Attendance/AttendanceIndex")
-);
-const CorrectionRequest = lazy(() =>
-  import("../../views/pages/CorrectionRequest")
-);
-const LeaveRequest = lazy(() =>
-  import("../../views/pages/LeaveRequest/LeaveRequest")
-);
+const LeaveCategory = lazy(() =>import("../../views/pages/LeaveCategory/LeaveCategoryIndex"));
+const Attendance = lazy(() =>import("../../views/pages/Attendance/AttendanceIndex"));
+const CorrectionRequest = lazy(() =>import("../../views/pages/CorrectionRequest"));
+const LeaveRequest = lazy(() =>import("../../views/pages/LeaveRequest/LeaveRequest"));
+const CompanyIndex = lazy(() =>import("../../views/pages/Company/CompanyIndex"))
+const Payroll = lazy(() => import("../../views/pages/Payroll/PayrollIndex"))
 
 // ** Merge Routes
 const Routes = [
@@ -140,11 +130,27 @@ const Routes = [
     },
   },
   {
+    path: "/company",
+    element: <CompanyIndex />,
+    meta: {
+      action: "read",
+      resource: "COMPANIES",
+    },
+  },
+  {
     path: "/leave-category",
     element: <LeaveCategory />,
     meta: {
       action: "read",
       resource: "LEAVE CATEGORY",
+    },
+  },
+  {
+    path: "/payroll",
+    element: <Payroll />,
+    meta: {
+      action: "read",
+      resource: "PAYROLL",
     },
   },
   // {
@@ -203,7 +209,7 @@ const getRouteMeta = (route) => {
 // ** Return Filtered Array of Routes & Paths
 const MergeLayoutRoutes = (layout, defaultLayout) => {
   const LayoutRoutes = [];
-  console.log(Routes, "MergeLayoutRoutes");
+  // console.log(Routes, "MergeLayoutRoutes");
 
   if (Routes) {
     Routes.filter((route) => {
@@ -218,14 +224,14 @@ const MergeLayoutRoutes = (layout, defaultLayout) => {
 
         // ** Check for public or private route
         if (route.meta) {
-          console.log(route, "private route meta");
+          // console.log(route, "private route meta");
 
           route.meta.layout === "blank" ? (isBlank = true) : (isBlank = false);
 
           RouteTag = route.meta.publicRoute ? PublicRoute : PrivateRoute;
         }
         if (route.element) {
-          console.log(getRouteMeta(route), "route.elements");
+          // console.log(getRouteMeta(route), "route.elements");
           const Wrapper =
             // eslint-disable-next-line multiline-ternary
             isObjEmpty(route.element.props) && isBlank === false

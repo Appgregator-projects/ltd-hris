@@ -56,10 +56,11 @@ const UsersList = () => {
     fetchCompany();
   }, []);
 
-  const fetchDivision = async () => {
+  const fetchDivision = async (params) => {
     try {
-      const data = await Api.get("/hris/division");
-      setDivisions(data.filter((x)=> x.deletedAt === null));
+      const data = await Api.get(`/hris/division`);
+      // return console.log(data)
+      setDivisions([...data]);
     } catch (error) {
       throw error;
     }
@@ -107,13 +108,12 @@ const UsersList = () => {
         params.email,
         params.password
       );
-      // console.log(user, "ini userid");
+      // return console.log(user, "ini userid");
       const { uid } = user;
       params.uid = uid;
-      const status = await Api.post(`/hris/employee`, params);
-      // const {status2, data2} = await Api.post
-      console.log(status, "data submitform");
-
+      console.log(params.uid, "data submitform");
+      const status = await Api.post(`/hris/employee`, params, params.user_id = uid);
+      console.log(status, "status")
       dispatch(handlePreloader(false));
       if (!status)
         return toast.error(`Error : ${data}`, {
@@ -144,12 +144,12 @@ const UsersList = () => {
   };
 
   const postEdit = async (params) => {
-    // return console.log(itemActive.id, "itemActive")
+    return console.log(params, "itemActive")
     try {
       params.id = itemActive.id;
       dispatch(handlePreloader(true));
       const status = await Api.put(`/hris/employee/${params.id}`,params);
-      // return console.log(status, "ini params edit")
+      return console.log(status, "ini params edit")
       dispatch(handlePreloader(false));
       if (!status)
         return toast.error(`Error : ${data}`, {

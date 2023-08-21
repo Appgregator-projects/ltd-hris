@@ -14,6 +14,9 @@ import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 import AvatarGroup from "./component/AvatarGroup";
 import UserTimeline from "./view/UserTimeline";
+import { useDispatch, useSelector } from "react-redux";
+import { getUser } from "./store/index";
+import HealthForm from "./component/HealthForm";
 
 export default function EmployeeDetail() {
 	const id = useParams()
@@ -25,11 +28,12 @@ export default function EmployeeDetail() {
 	const [usersDivision, setUsersDivision] = useState([])
 	const [leaveCategories, setLaeveCategories] = useState([])
 	const [isLoading, setIsLoading] = useState(false)
-
-
-	// console.log(leaveCategories, "leaveCategory")
-	// console.log(user, "user")
-	// console.log(balance, "balance")
+	const [assurance, setAssurance] = useState([])
+	const [modal, setModal] =useState({
+		title: "Leave Balances",
+		mode: "get leave",
+		item: null
+	})
 
 	const fetchUser = async () => {
 		try {
@@ -41,8 +45,6 @@ export default function EmployeeDetail() {
 
 		}
 	}
-
-	console.log(user, "user")
 
 	useEffect(() => {
 		fetchUser()
@@ -75,6 +77,21 @@ export default function EmployeeDetail() {
 	useEffect(() => {
 		fetchLeaveCategories()
 	}, [])
+
+	const fetchAssurance = async () => {
+		try {
+		  const data = await Api.get(`/hris/bpjs-rule`)
+		  setAssurance(data[0])
+		} catch (error) {
+		  throw error
+		}
+	  }
+	
+	useEffect(() =>{
+		fetchAssurance()
+	},[])
+
+	console.log(assurance,"bojas")
 
 	const renderUserImg = () => {
 		if (!user) return <Avatar
@@ -124,8 +141,24 @@ export default function EmployeeDetail() {
 	}
 
 	const onEditLeave = () => {
-		// return console.log("is it work?")
+		console.log("is it work?")
+		setModal({
+			title: null,
+			mode: "leave",
+			item: null
+		})
 		setToggleModal(true)
+	}
+
+	const onEditAssurance = () => {
+		console.log("button bpjs")
+		setModal({
+			title: "BPJS Kesehatan",
+			mode: "bpjs",
+			item: null
+		})
+		setToggleModal(true)
+
 	}
 
 	const postLeave = async (arg) => {
@@ -153,6 +186,26 @@ export default function EmployeeDetail() {
 		}
 	}
 
+	const UserView = () => {
+		// ** Store Vars
+		const store = useSelector(state => state.users)
+		const dispatch = useDispatch()
+		console.log(store, "store useSelector")
+	  
+		// ** Get suer on mount
+		useEffect(() => {
+		  dispatch(getUser(parseInt(id)))
+		}, [dispatch])
+	  
+		const [active, setActive] = useState('1')
+	  
+		const toggleTab = tab => {
+		  if (active !== tab) {
+			setActive(tab)
+		  }
+		}
+
+	}
 
 
 	return (
@@ -238,6 +291,19 @@ export default function EmployeeDetail() {
 					</Card>
 				</Col>
 				<Col>
+				<Col>
+					<Card>
+						<CardHeader>
+							<CardTitle>{assurance.name}</CardTitle>
+						</CardHeader>
+						<CardBody>
+							<Button size="sm" type="button" color='warning'>
+								<Edit size={13} />
+								<span className='align-middle ms-25' onClick={() => onEditAssurance()}>Edit</span>
+							</Button>
+						</CardBody>
+					</Card>
+					</Col>
 					<Col>
 						<Card>
 							<CardHeader>
@@ -271,7 +337,7 @@ export default function EmployeeDetail() {
 							<CardFooter>
 								<Button size="sm" type="button" color='warning'>
 									<Edit size={13} />
-									<span className='align-middle ms-25' onClick={onEditLeave}>Edit</span>
+									<span className='align-middle ms-25' onClick={() => onEditLeave()}>Edit</span>
 								</Button>
 							</CardFooter>
 						</Card>
@@ -314,6 +380,7 @@ export default function EmployeeDetail() {
 						<UserTimeline/>
 					</Card>
 					</Col>
+					
 				</Col>
 			</Row>
 
@@ -323,9 +390,10 @@ export default function EmployeeDetail() {
 				className={`modal-dialog-centered modal-lg`}
 			>
 				<ModalHeader toggle={() => setToggleModal(!toggleModal)}>
-					Leave form
+					{modal.title}
 				</ModalHeader>
 				<ModalBody>
+					{modal.mode === "leave"?
 					<LeaveForm
 						leave={leaveCategories}
 						balance={balance}
@@ -333,9 +401,24 @@ export default function EmployeeDetail() {
 						onSubmit={postLeave}
 						isLoading={isLoading}
 						close={() => setToggleModal(!toggleModal)}
-					/>
+					/>: <></>}
+					{modal.mode === "bpjs"? 
+					<HealthForm
+						isLoading={isLoading}
+						close={() => setToggleModal(!toggleModal)}
+						assurance={assurance}
+						/> :<></>}
 				</ModalBody>
 			</Modal>
 		</>
-	)
+	) 
+	// : 
+	// (
+	// 	<Alert color='danger'>
+	// 	  <h4 className='alert-heading'>User not found</h4>
+	// 	  <div className='alert-body'>
+	// 		User with id: {id} doesn't exist. Check list of all Users: <Link to='/apps/user/list'>Users List</Link>
+	// 	  </div>
+	// 	</Alert>
+	// )
 }   

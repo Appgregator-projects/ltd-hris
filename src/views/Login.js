@@ -59,12 +59,13 @@ const Login = () => {
     try {
       const data = await Api.get(`/hris/company`);
       const selectedCompany = data[0];
-      // console.log(selectedCompany,"selectedCompany")
+      console.log(data[0],"selectedCompany")
       return selectedCompany;
     } catch (error) {
       throw error;
     }
   };
+
 
   useEffect(() => {
     fetchCompany();
@@ -90,16 +91,17 @@ const Login = () => {
       setIsloading(false);
       const token = submitLogin.user;
       const checkCompany = await fetchCompany();
-      console.log(token.accessToken, "token");
-
+      
       // const userDetail = await submitLogin.user
       // const {status, data} = await fetchMe(token)
       const accessToken = await token.getIdToken(true);
+      console.log(checkCompany, "checkCompany");
       token.access_token = accessToken;
 
       if ((token, checkCompany)) {
-        console.log(checkCompany, "checkCompany");
+        console.log(token.access_token, "token")
         if (checkCompany) {
+          // return console.log(checkCompany, "checkCompany");
           // 1. ambil api dari backend
           // 2. dapet permissiom
           // 3.
@@ -131,7 +133,7 @@ const Login = () => {
                   subject: item["permission_name"]["name"],
                 });
               }
-              console.log(item, "map");
+              // console.log(item, "map");
             }
           );
           ability.update(arrList);
@@ -151,6 +153,7 @@ const Login = () => {
           });
         }
       } else {
+        // const errorMessage = error.message
         toast.error(`Error : ${data}`, {
           position: "top-center",
         });

@@ -44,7 +44,7 @@ export const serverSideColumns = (onDelete, onEdit) => {
     {
       sortable: true,
       name: "Full Name",
-      minWidth: "225px",
+      minWidth: "300px",
       selector: (row) => row.name,
       cell: (row) => (
         <div className="d-flex justify-content-left align-items-center">
@@ -65,14 +65,14 @@ export const serverSideColumns = (onDelete, onEdit) => {
     {
       sortable: true,
       name: "Title",
-      minWidth: "250px",
+      minWidth: "225px",
       selector: (row) => (row ? row.title : "-"),
     },
     {
       sortable: true,
       name: "Division",
       minWidth: "250px",
-      selector: (row) => (row? row.division_id : "-"),
+      selector: (row) => (row?.division_id),
     },
     {
       sortable: true,
@@ -113,35 +113,27 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
   const [rowsPerPage, setRowsPerPage] = useState(15);
   const [searchValue, setSearchValue] = useState("");
 
-  const fetchEmployee = async () => {
+  const fetchEmployee = async (params) => {
+    console.log(params, "params")
     try {
-      const data = await Api.get(`/hris/employee`);
-      setEmployees(data);
-      // setEmployeeTotal(data.total)
+      const data = await Api.get(`/hris/employee?page=${params.page}&limit=${params.perPage}&search=${params.key}`);
+      setEmployees([...data.rows]);
+      setEmployeeTotal(data.pagination.totalItems)
     } catch (error) {
       throw error.message;
     }
   };
 
   useEffect(() => {
-    // if (isRefresh) {
-    fetchEmployee();
-    // }
+    if (isRefresh) {
+    fetchEmployee({page:currentPage, perPage:rowsPerPage, key:''});
+    }
   }, [isRefresh]);
 
-  // const fetchUsersDivision = async() => {
-  //   try {
-  //     const dataUsers = await Api.apply(`/hris/employee/${params.uid}/division`)
-  //     console.log(dataUsers)
-  //     setUserDivision(dataUsers)
-  //   } catch (error) {
-  //     throw error
-  //   }
-  // }
-
-  // useEffect(() => {
-  //   fetchUsersDivision()
-  // },[])
+    // ** Get data on mount
+    useEffect(() => {
+      fetchEmployee({page:currentPage, perPage:rowsPerPage, key:''})
+    }, [])
 
   // ** Function to handle filter
   const handleFilter = (e) => {
@@ -154,53 +146,53 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
   };
 
   // ** Function to handle Pagination and get data
-  // const handlePagination = page => {
-  //   fetchEmployee({
-  //     page: page.selected + 1,
-  //     perPage: rowsPerPage,
-  //     key: searchValue
-  //   })
-  //   setCurrentPage(page.selected + 1)
-  // }
+  const handlePagination = page => {
+    fetchEmployee({
+      page: page.selected + 1,
+      perPage: rowsPerPage,
+      key: searchValue
+    })
+    setCurrentPage(page.selected + 1)
+  }
 
   // ** Function to handle per page
-  // const handlePerPage = e => {
-  //   fetchEmployee({
-  //     page: currentPage,
-  //     perPage: parseInt(e.target.value),
-  //     key: searchValue
-  //   })
-  //   setRowsPerPage(parseInt(e.target.value))
-  // }
+  const handlePerPage = e => {
+    fetchEmployee({
+      page: currentPage,
+      perPage: parseInt(e.target.value),
+      key: searchValue
+    })
+    setRowsPerPage(parseInt(e.target.value))
+  }
 
   // ** Custom Pagination
-  // const CustomPagination = () => {
-  //   const count = Math.ceil(employeeTotal / rowsPerPage)
-  //   return (
-  //     <ReactPaginate
-  //       previousLabel={''}
-  //       nextLabel={''}
-  //       breakLabel='...'
-  //       pageCount={Math.ceil(count) || 1}
-  //       marginPagesDisplayed={2}
-  //       pageRangeDisplayed={2}
-  //       activeClassName='active'
-  //       forcePage={currentPage !== 0 ? currentPage - 1 : 0}
-  //       onPageChange={page => handlePagination(page)}
-  //       pageClassName='page-item'
-  //       breakClassName='page-item'
-  //       nextLinkClassName='page-link'
-  //       pageLinkClassName='page-link'
-  //       breakLinkClassName='page-link'
-  //       previousLinkClassName='page-link'
-  //       nextClassName='page-item next-item'
-  //       previousClassName='page-item prev-item'
-  //       containerClassName={
-  //         'pagination react-paginate separated-pagination pagination-sm justify-content-end pe-1 mt-1'
-  //       }
-  //     />
-  //   )
-  // }
+  const CustomPagination = () => {
+    const count = Math.ceil(employeeTotal / rowsPerPage)
+    return (
+      <ReactPaginate
+        previousLabel={''}
+        nextLabel={''}
+        breakLabel='...'
+        pageCount={Math.ceil(count) || 1}
+        marginPagesDisplayed={2}
+        pageRangeDisplayed={2}
+        activeClassName='active'
+        forcePage={currentPage !== 0 ? currentPage - 1 : 0}
+        onPageChange={page => handlePagination(page)}
+        pageClassName='page-item'
+        breakClassName='page-item'
+        nextLinkClassName='page-link'
+        pageLinkClassName='page-link'
+        breakLinkClassName='page-link'
+        previousLinkClassName='page-link'
+        nextClassName='page-item next-item'
+        previousClassName='page-item prev-item'
+        containerClassName={
+          'pagination react-paginate separated-pagination pagination-sm justify-content-end pe-1 mt-1'
+        }
+      />
+    )
+  }
 
   // ** Table data to render
   const dataToRender = () => {
@@ -216,8 +208,8 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
       return employees;
     } else if (employees.length === 0 && isFiltered) {
       return [];
-      // } else {
-      //   return employees.slice(0, rowsPerPage)
+        } else {
+          return employees.slice(0, rowsPerPage)
     }
   };
 
@@ -235,8 +227,8 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
                 className="mx-50"
                 type="select"
                 id="rows-per-page"
-                // value={rowsPerPage}
-                // onChange={handlePerPage}
+                value={rowsPerPage}
+                onChange={handlePerPage}
                 style={{ width: "5rem" }}
               >
                 <option value="15">15</option>
@@ -271,7 +263,7 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
             className="react-dataTable"
             columns={serverSideColumns(onDelete, onEdit)}
             sortIcon={<ChevronDown size={10} />}
-            // paginationComponent={CustomPagination}
+            paginationComponent={CustomPagination}
             data={dataToRender()}
           />
         </div>
