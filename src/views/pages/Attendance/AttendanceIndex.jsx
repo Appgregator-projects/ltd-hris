@@ -131,12 +131,11 @@ export default function AttendanceIndex(){
 		}
 
 		const fetchAttendance = async(arg, date) => {
-			console.log(date, "attendance")
-			let month = date.slice(5,7)
+			let month = date.slice(6,7)
 			let year = date.slice(0,4)
-			// console.log(year, "month")
+			// return console.log(year, "attendance")
 				try {
-						const data = await Api.get(`/hris/attendance/employee?month=&year=&day=${arg.periode}`)
+						const data = await Api.get(`/hris/attendance/employee?month=${month}&year=${year}&day=&uid=${arg.value}`)
 						console.log(data, "data attendance")
 						setAttendance([...data])
 						setToggleModal(false)
@@ -161,6 +160,8 @@ export default function AttendanceIndex(){
 			})
 			setToggleModal(true)
 		}
+
+		console.log(attendance, "attendance")
 
 		return(
 			<>
