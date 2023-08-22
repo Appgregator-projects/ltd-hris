@@ -11,14 +11,12 @@ export default function DivisionForm({
   close,
   onSubmit,
   item,
-  userSelect,
   users,
   divisions,
   selectDivison,
 }) {
   const ItemSchema = yup.object().shape({
     name: yup.string().required(),
-    // manager_id :  yup.string().required()
   });
   
   const Option = users?.map((e) => ({ value: e.id, label: e.email }));
@@ -26,6 +24,11 @@ export default function DivisionForm({
     value: e.id,
     label: e.name,
   }));
+
+  const filterParent = DivitionOption.filter((e) => e.value === item.parent_id)[0]
+  const filterManager =  Option.filter((e) => e.value === item.manager_id)[0]
+
+  console.log(filterManager, "filterparent")
 
   const {
     setValue,
@@ -39,9 +42,10 @@ export default function DivisionForm({
   };
 
   useEffect(() => {
+    console.log(item, "item setvalue ")
     if (item) {
       setValue("name", item.name);
-      setValue("parent", item && item.parent ? item.parent : item.name);
+      setValue("parent", item.parent_id);
       setValue("manager_id", item ? item.manager : "-");
     }
   }, [item]);
@@ -69,27 +73,6 @@ export default function DivisionForm({
             />
             {errors.name && <FormFeedback>{errors.name.message}</FormFeedback>}
           </Col>
-          {/* <Col md="12" sm="12" className="mb-1">
-            <Label className="form-label" for="parent">
-              Division Parent
-            </Label>
-            <Controller
-              name="parent"
-              defaultValue=""
-              control={control}
-              render={({ field }) => (
-                <Input
-                  type="text"
-                  {...field}
-                  name="parent"
-                  invalid={errors.parent && true}
-                />
-              )}
-            />
-            {errors.parent && (
-              <FormFeedback>{errors.parent.message}</FormFeedback>
-            )}
-          </Col> */}
           <Col md="12" sm="12" className="mb-1">
             <Label className="form-label" for="manager">
               Division Parent
@@ -107,6 +90,7 @@ export default function DivisionForm({
                   placeholder={"Select Division"}
                   options={DivitionOption}
                   invalid={errors.parent && true}
+                  value={filterParent}
                 />
               )}
             />
@@ -131,6 +115,7 @@ export default function DivisionForm({
                   placeholder={"Select manager"}
                   options={Option}
                   invalid={errors.manager && true}
+                  value={filterManager}
                 />
               )}
             />

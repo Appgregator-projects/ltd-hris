@@ -91,7 +91,7 @@ export default function EmployeeDetail() {
 		fetchAssurance()
 	},[])
 
-	console.log(assurance,"bojas")
+	console.log(assurance,"bpjs")
 
 	const renderUserImg = () => {
 		if (!user) return <Avatar
@@ -150,12 +150,12 @@ export default function EmployeeDetail() {
 		setToggleModal(true)
 	}
 
-	const onEditAssurance = () => {
+	const onEditAssurance = (assurance) => {
 		console.log("button bpjs")
 		setModal({
 			title: "BPJS Kesehatan",
 			mode: "bpjs",
-			item: null
+			item: assurance
 		})
 		setToggleModal(true)
 
@@ -408,6 +408,9 @@ export default function EmployeeDetail() {
 						close={() => setToggleModal(!toggleModal)}
 						assurance={assurance}
 						/> :<></>}
+					{/* <Col>
+						<Button type="button" size="md" color="danger" onClick={() => setToggleModal(!toggleModal)}></Button>
+					</Col> */}
 				</ModalBody>
 			</Modal>
 		</>
