@@ -109,6 +109,7 @@ export default function DivisionIndex() {
   };
 
   const onEdit = (item) => {
+    // return console.log(item, "item")
     setModal({
       title: "Division form",
       mode: "edit",
@@ -118,12 +119,12 @@ export default function DivisionIndex() {
   };
 
   const postUpdate = async (params) => {
-    // return console.log(params, "params division")
     const itemUpdate = {
       name : params.name,
-      parent : params.parent,
+      parent : params.parent.value,
       manager_id : params.manager_id.value
     }
+    // return console.log(itemUpdate, params , "params division")
     try {
       const status = await Api.put(`/hris/division/${modal.item.id}`, itemUpdate);
       console.log(status, "has updated")
@@ -148,7 +149,7 @@ export default function DivisionIndex() {
     // return console.log(params.parent, "params")  
     const itemPost = {
       name : params.name,
-      parent_id : params.parent.value,
+      parent_id : params.parent,
       manager_id : params.manager_id.value
     }
     try {
