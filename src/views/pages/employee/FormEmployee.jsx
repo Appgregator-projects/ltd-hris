@@ -444,7 +444,7 @@ export default function FormEmployee({
           )}
         </Col>
         <Col md="6" sm="12" className="mb-1">
-          <Label className="form-label" for="status">
+          <Label className="form-label" for="religion">
             Religion
           </Label>
           <Controller
