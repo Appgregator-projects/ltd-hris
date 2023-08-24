@@ -54,6 +54,9 @@ export default function FormEmployee({
     // }),
   });
 
+  const divisionSelect = division?.map((e) => ({value: e.id, label:e.name}))
+  const roleSelect = role?.map((e) => ({value:e.id, label:e.name}))
+
   const {
     setValue,
     control,
@@ -70,11 +73,9 @@ export default function FormEmployee({
       setValue("nip", item.nip);
       setValue("role", item.role_id);
       setValue("division", item.division);
-      // setValue("company", item.company_id);
       setValue("title", item.title);
       setValue("attachment", item.attachment)
       setValue("phone", item.phone);
-      setValue("user_id", item.id)
       if (item.company){
         setValue("company", item.company.name)
       }
@@ -242,6 +243,7 @@ export default function FormEmployee({
                 type="select"
                 {...field}
                 name="gender"
+                value={item?.employee_attribute.gender}
                 invalid={errors.gender && true}
               >
                 <option value="">Select gender</option>
@@ -344,6 +346,7 @@ export default function FormEmployee({
             name="status"
             defaultValue=""
             control={control}
+            value={item?.employee_attribute.status}
             render={({ field }) => (
               <Input
                 type="select"
@@ -423,6 +426,7 @@ export default function FormEmployee({
             name="division_id"
             defaultValue=""
             control={control}
+            value={divisionSelect}
             render={({ field }) => (
               <Input
                 type="select"
@@ -456,6 +460,7 @@ export default function FormEmployee({
                 type="select"
                 {...field}
                 name="religion"
+                value={item?.employee_attribute.religion}
                 invalid={errors.religion && true}
               >
                 <option value="">Select religion</option>
@@ -485,6 +490,7 @@ export default function FormEmployee({
                 type="select"
                 {...field}
                 name="role_id"
+                value={roleSelect}
                 invalid={errors.role_id && true}
               >
                 <option value="">Select role</option>

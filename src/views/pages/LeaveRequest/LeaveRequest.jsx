@@ -31,17 +31,22 @@ import { error } from "jquery";
 import { yupResolver } from "@hookform/resolvers/yup";
 const MySwal = withReactContent(Swal);
 
-export default function CorrectionIndex() {
-  const [corrections, setCorrection] = useState([]);
+export default function LeaveRequestIndex() {
+  const [request, setRequest] = useState([]);
   const [toggleModal, setToggleModal] = useState(false);
   const [nestedToggle, setNestedToggle] = useState(false)
   const [close, setCloseAll] = useState(false)
   const [selectItem, setSelectItem] = useState(null);
+  const [modal, setModal] = useState({
+    title: "",
+    mode: "detail",
+    item: null
+  })
 
   const fetchLeave = async () => {
     try {
       const data = await Api.get("hris/leave-request");
-      setCorrection([...data]);
+      setRequest([...data]);
       // console.log(data[0]['userReq.name'],'data')
       
     } catch (error) {
@@ -54,6 +59,11 @@ export default function CorrectionIndex() {
   }, []);
 
   const onDetail = (arg) => {
+    setModal({
+      title: "Detail Request",
+      mode: "detail",
+      item: arg
+    })
     setSelectItem(arg);
     setToggleModal(true);
   };
@@ -68,13 +78,14 @@ export default function CorrectionIndex() {
     setCloseAll(true)
   }
 
-  const onApproval = async (arg) => {
+  const onApproval = async (arg, param) => {
+    // return console.log(arg, "arg leave request")
     return MySwal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: `Yes, ${arg} it!`,
+      confirmButtonText: `Yes, ${param} it!`,
       customClass: {
         confirmButton: "btn btn-primary",
         cancelButton: "btn btn-outline-danger ms-1",
@@ -82,14 +93,12 @@ export default function CorrectionIndex() {
       buttonsStyling: false,
     }).then(async (result) => {
       if (result.value) {
+        return console.log(arg, "post leave request")
         try {
           const params = {
             status: arg,
           };
-          const status = await Api.post(
-            `/hris/leave-request/${selectItem.id}/approval`,
-            params
-          );
+          const status = await Api.post(`/hris/leave-request`,params);
           if (!status)
             return toast.error(`Error : ${data}`, {
               position: "top-center",
@@ -143,7 +152,7 @@ export default function CorrectionIndex() {
                   </tr>
                 </thead>
                 <tbody>
-                  {corrections.map((x, index) => (
+                  {request.map((x, index) => (
                     <tr key={index}>
                       <td>{x['userReq.name']}</td>
                       <td>{dateFormat(x.start_date)}</td>
@@ -267,7 +276,7 @@ export default function CorrectionIndex() {
                     <ModalFooter>
                       <Button color="danger" onClick={() =>  onCloseAll()}>
                         Cancel
-                      </Button>{' '}
+                      </Button>
                       <Button color="primary" onClick={() => onReject()}>
                         Send
                       </Button>
@@ -280,7 +289,7 @@ export default function CorrectionIndex() {
                 size="md"
                 color="primary"
                 className="m-1"
-                onClick={() => onApproval("approved")}
+                onClick={() => onApproval(request, "approved")}
               >
                 Approv
               </Button>
