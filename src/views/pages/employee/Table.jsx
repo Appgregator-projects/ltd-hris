@@ -109,14 +109,14 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
   const [employeeTotal, setEmployeeTotal] = useState(0);
 
   // ** States
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(15);
   const [searchValue, setSearchValue] = useState("");
 
   const fetchEmployee = async (params) => {
     console.log(params, "params")
     try {
-      const data = await Api.get(`/hris/employee?page=${params.page}&limit=${params.perPage}&search=${params.key}`);
+      const data = await Api.get(`/hris/employee?page=${params.page}&limit=${params.perPage}&search=${params.search}`);
       setEmployees([...data.rows]);
       setEmployeeTotal(data.pagination.totalItems)
     } catch (error) {
@@ -126,13 +126,13 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
 
   useEffect(() => {
     if (isRefresh) {
-    fetchEmployee({page:currentPage, perPage:rowsPerPage, key:''});
+    fetchEmployee({page:currentPage, perPage:rowsPerPage, search:''});
     }
   }, [isRefresh]);
 
     // ** Get data on mount
     useEffect(() => {
-      fetchEmployee({page:currentPage, perPage:rowsPerPage, key:''})
+      fetchEmployee({page:currentPage, perPage:rowsPerPage, search:''})
     }, [])
 
   // ** Function to handle filter
@@ -141,7 +141,7 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
     fetchEmployee({
       page: currentPage,
       perPage: rowsPerPage,
-      key: e.target.value,
+      search: e.target.value,
     });
   };
 
@@ -150,7 +150,7 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
     fetchEmployee({
       page: page.selected + 1,
       perPage: rowsPerPage,
-      key: searchValue
+      search: searchValue
     })
     setCurrentPage(page.selected + 1)
   }
@@ -160,7 +160,7 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
     fetchEmployee({
       page: currentPage,
       perPage: parseInt(e.target.value),
-      key: searchValue
+      search: searchValue
     })
     setRowsPerPage(parseInt(e.target.value))
   }

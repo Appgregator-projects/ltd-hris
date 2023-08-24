@@ -16,7 +16,8 @@ import AvatarGroup from "./component/AvatarGroup";
 import UserTimeline from "./view/UserTimeline";
 import { useDispatch, useSelector } from "react-redux";
 import { getUser } from "./store/index";
-import HealthForm from "./component/HealthForm";
+import HealthForm from "./component/IncomeForm";
+import IncomeForm from "./component/IncomeForm";
 
 export default function EmployeeDetail() {
 	const id = useParams()
@@ -28,7 +29,7 @@ export default function EmployeeDetail() {
 	const [usersDivision, setUsersDivision] = useState([])
 	const [leaveCategories, setLaeveCategories] = useState([])
 	const [isLoading, setIsLoading] = useState(false)
-	const [assurance, setAssurance] = useState([])
+	const [income, setIncome] = useState([])
 	const [modal, setModal] =useState({
 		title: "Leave Balances",
 		mode: "get leave",
@@ -78,20 +79,18 @@ export default function EmployeeDetail() {
 		fetchLeaveCategories()
 	}, [])
 
-	const fetchAssurance = async () => {
+	const fetchIncome = async () => {
 		try {
-		  const data = await Api.get(`/hris/bpjs-rule`)
-		  setAssurance(data[0])
+		  const data = await Api.get(`/hris/employee-income/${id.uid}`)
+		  setIncome(data)
 		} catch (error) {
 		  throw error
 		}
 	  }
 	
 	useEffect(() =>{
-		fetchAssurance()
+		fetchIncome()
 	},[])
-
-	console.log(assurance,"bpjs")
 
 	const renderUserImg = () => {
 		if (!user) return <Avatar
@@ -141,21 +140,20 @@ export default function EmployeeDetail() {
 	}
 
 	const onEditLeave = () => {
-		console.log("is it work?")
 		setModal({
-			title: null,
+			title: "Leave Form",
 			mode: "leave",
 			item: null
 		})
 		setToggleModal(true)
 	}
 
-	const onEditAssurance = (assurance) => {
-		console.log("button bpjs")
+	const onEditIncome = (x) => {
+		console.log(x,"button income")
 		setModal({
-			title: "BPJS Kesehatan",
-			mode: "bpjs",
-			item: assurance
+			title: "Employee Income",
+			mode: "income",
+			item: x
 		})
 		setToggleModal(true)
 
@@ -183,6 +181,25 @@ export default function EmployeeDetail() {
 				position: 'top-center'
 			})
 			throw error
+		}
+	}
+
+	const postIncome = async(params) => {
+		try {
+			const status = await Api.post(`/hris/employee-income/${id.uid}`, params)
+			if (!status)
+			return toast.error(`Error : ${data}`, {
+			  position: "top-center",
+			});
+			fetchIncome();
+			toast.success("Income has updated", {
+				position: "top-center",
+			});
+			setToggleModal(false);
+		} catch (error) {
+			toast.error(`Error : ${error.message}`, {
+				position: "top-center",
+			});
 		}
 	}
 
@@ -294,12 +311,12 @@ export default function EmployeeDetail() {
 				<Col>
 					<Card>
 						<CardHeader>
-							<CardTitle>{assurance.name}</CardTitle>
+							<CardTitle>Employee Income</CardTitle>
 						</CardHeader>
 						<CardBody>
 							<Button size="sm" type="button" color='warning'>
 								<Edit size={13} />
-								<span className='align-middle ms-25' onClick={() => onEditAssurance()}>Edit</span>
+								<span className='align-middle ms-25' onClick={() => onEditIncome(income)}>Edit</span>
 							</Button>
 						</CardBody>
 					</Card>
@@ -402,15 +419,13 @@ export default function EmployeeDetail() {
 						isLoading={isLoading}
 						close={() => setToggleModal(!toggleModal)}
 					/>: <></>}
-					{modal.mode === "bpjs"? 
-					<HealthForm
+					{modal.mode === "income"? 
+					<IncomeForm
 						isLoading={isLoading}
 						close={() => setToggleModal(!toggleModal)}
-						assurance={assurance}
+						income={modal.item}
+						onSubmit={postIncome}
 						/> :<></>}
-					{/* <Col>
-						<Button type="button" size="md" color="danger" onClick={() => setToggleModal(!toggleModal)}></Button>
-					</Col> */}
 				</ModalBody>
 			</Modal>
 		</>
