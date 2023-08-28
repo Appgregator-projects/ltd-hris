@@ -93,8 +93,6 @@ export default function DivisionIndex() {
     }
   };
 
-  console.log(users, "users division")
-
   useEffect(() => {
     fetchUser();
   }, []);
@@ -109,7 +107,7 @@ export default function DivisionIndex() {
   };
 
   const onEdit = (item) => {
-    // return console.log(item, "item")
+    // return console.log(item, "edit button")
     setModal({
       title: "Division form",
       mode: "edit",
@@ -121,13 +119,11 @@ export default function DivisionIndex() {
   const postUpdate = async (params) => {
     const itemUpdate = {
       name : params.name,
-      parent : params.parent.value,
+      parent_id : params.parent.value,
       manager_id : params.manager_id.value
     }
-    // return console.log(itemUpdate, params , "params division")
     try {
       const status = await Api.put(`/hris/division/${modal.item.id}`, itemUpdate);
-      console.log(status, "has updated")
       if (!status)
         return toast.error(`Error : ${status}`, {
           position: "top-center",
@@ -146,16 +142,14 @@ export default function DivisionIndex() {
   };
 
   const onSubmit = async (params) => {
-    // return console.log(params.parent, "params")  
     const itemPost = {
       name : params.name,
-      parent_id : params.parent,
+      parent_id : params.parent.value,
       manager_id : params.manager_id.value
     }
     try {
       if (modal.item) return postUpdate(params);
       const status = await Api.post(`/hris/division`, itemPost);
-      // return console.log(status, "status submit division")
       if (!status)
         return toast.error(`Error : ${data}`, {
           position: "top-center",
@@ -292,6 +286,8 @@ export default function DivisionIndex() {
               close={() => setToggleModal(false)}
               divisions={divisions}
               selectDivison={selectDivison}
+              item={modal.item}
+              type={"add"}
             />
           ) : (
             <></>
@@ -304,6 +300,7 @@ export default function DivisionIndex() {
               close={() => setToggleModal(false)}
               divisions={divisions}
               selectDivison={selectDivison}
+              type="edit"
             />
           ) : (
             <></>

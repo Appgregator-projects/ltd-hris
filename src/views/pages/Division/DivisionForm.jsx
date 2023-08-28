@@ -14,6 +14,7 @@ export default function DivisionForm({
   users,
   divisions,
   selectDivison,
+  type
 }) {
   const ItemSchema = yup.object().shape({
     name: yup.string().required(),
@@ -25,11 +26,13 @@ export default function DivisionForm({
     label: e.name,
   }));
 
-  const filterParent = DivitionOption.filter((e) => e.value === item.parent_id)[0]
-  const filterManager =  Option.filter((e) => e.value === item.manager_id)[0]
-
-  console.log(filterManager, "filterparent")
-
+  const handleModal = () => {
+    const filterParent = DivitionOption.filter((e) => e.value === item.parent_id)[0]
+    const filterManager =  Option.filter((e) => e.value === item.manager_id)[0]
+    setValue("name", item.name);
+    setValue("parent", filterParent);
+    setValue("manager_id", filterManager);
+  }
   const {
     setValue,
     control,
@@ -43,10 +46,11 @@ export default function DivisionForm({
 
   useEffect(() => {
     console.log(item, "item setvalue ")
+    // return console.log(DivitionOption.filter((e) => e.value === item.parent_id)[0],"blabla")
     if (item) {
-      setValue("name", item.name);
-      setValue("parent", item.parent_id);
-      setValue("manager_id", item ? item.manager : "-");
+      setValue("name", item.name)
+      setValue("parent", item == undefined? item.parent_id : DivitionOption.filter((e) => e.value === item.parent_id)[0]) 
+      setValue("manager_id", item == undefined? item.manager_id : Option.filter((e) => e.value === item.manager_id)[0])
     }
   }, [item]);
 
@@ -60,7 +64,7 @@ export default function DivisionForm({
             </Label>
             <Controller
               name="name"
-              defaultValue=""
+              defaultValue={null}
               control={control}
               render={({ field }) => (
                 <Input
@@ -79,7 +83,7 @@ export default function DivisionForm({
             </Label>
             <Controller
               name="parent"
-              defaultValue=""
+              defaultValue=''
               control={control}
               render={({ field }) => (
                 <Select
@@ -87,10 +91,9 @@ export default function DivisionForm({
                   classNamePrefix="select"
                   name="parent"
                   {...field}
-                  placeholder={"Select Division"}
+                  placeholder={"Select Parent Division"}
                   options={DivitionOption}
                   invalid={errors.parent && true}
-                  value={filterParent}
                 />
               )}
             />
@@ -104,7 +107,7 @@ export default function DivisionForm({
             </Label>
             <Controller
               name="manager_id"
-              defaultValue=""
+              defaultValue=''
               control={control}
               render={({ field }) => (
                 <Select
@@ -112,10 +115,9 @@ export default function DivisionForm({
                   classNamePrefix="select"
                   id="label"
                   {...field}
-                  placeholder={"Select manager"}
+                  placeholder={"Select Manager"}
                   options={Option}
                   invalid={errors.manager && true}
-                  value={filterManager}
                 />
               )}
             />

@@ -57,6 +57,8 @@ export default function FormEmployee({
   const divisionSelect = division?.map((e) => ({value: e.id, label:e.name}))
   const roleSelect = role?.map((e) => ({value:e.id, label:e.name}))
 
+  console.log(divisionSelect, "divisionSelect")
+
   const {
     setValue,
     control,
@@ -76,9 +78,6 @@ export default function FormEmployee({
       setValue("title", item.title);
       setValue("attachment", item.attachment)
       setValue("phone", item.phone);
-      if (item.company){
-        setValue("company", item.company.name)
-      }
 
       if (item.employee_attribute) {
         setValue("dob", dayjs(item.employee_attribute.dob).format("YYYY-MM-DD"));
@@ -243,7 +242,7 @@ export default function FormEmployee({
                 type="select"
                 {...field}
                 name="gender"
-                value={item?.employee_attribute.gender}
+                // value={item?.employee_attribute.gender}
                 invalid={errors.gender && true}
               >
                 <option value="">Select gender</option>
@@ -402,7 +401,7 @@ export default function FormEmployee({
                 type="select"
                 {...field}
                 name="company_id"
-                disabled={item?.company_id}
+                // disabled={item?.company_id}
                 invalid={errors.company_id && true}
               >
                 <option value="">Select company</option>
@@ -490,7 +489,7 @@ export default function FormEmployee({
                 type="select"
                 {...field}
                 name="role_id"
-                value={roleSelect}
+                // value={roleSelect}
                 invalid={errors.role_id && true}
               >
                 <option value="">Select role</option>
