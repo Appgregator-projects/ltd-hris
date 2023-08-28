@@ -111,7 +111,7 @@ const UsersList = () => {
       // return console.log(user, "ini userid");
       const { uid } = user;
       params.uid = uid;
-      console.log(params.uid, "data submitform");
+      console.log(params, "data submitform");
       const status = await Api.post(`/hris/employee`, params, params.user_id = uid);
       console.log(status, "status")
       dispatch(handlePreloader(false));
@@ -144,7 +144,7 @@ const UsersList = () => {
   };
 
   const postEdit = async (params) => {
-    return console.log(params, "itemActive")
+    // return console.log(params, "itemActive")
     try {
       params.id = itemActive.id;
       dispatch(handlePreloader(true));

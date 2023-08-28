@@ -136,7 +136,6 @@ export default function OfficeIndex(){
 	}
 
 	const postUpdate = async(params) => {
-		return console.log(params, "params")
 		try {
 			dispatch(handlePreloader(true))
 			const status = await Api.put(`/hris/company/${modal.item.id}`, params)

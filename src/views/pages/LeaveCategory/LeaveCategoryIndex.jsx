@@ -121,8 +121,7 @@ export default function LeaveCategoryIndex(){
   }
 
   const postUpdate = async(arg) => {
-    // return console.log(modal.item.id, "arg category index")
-    try {
+      try {
       const status = await Api.put(`/hris/leave-category/${modal.item.id}`, arg)
       if(!status) return toast.error(`Error : ${data}`, {
 				position: 'top-center'

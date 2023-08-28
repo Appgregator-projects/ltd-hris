@@ -7,7 +7,7 @@ import Avatar from '@components/avatar'
 import Api from '../../../sevices/Api'
 import { Link, useParams } from 'react-router-dom'
 import { capitalize, dateFormat } from "../../../Helper/index";
-import { Copy, Edit } from "react-feather";
+import { Copy, Edit, Trash } from "react-feather";
 import LeaveForm from "./component/LeaveForm";
 import toast from 'react-hot-toast'
 import Swal from 'sweetalert2'
@@ -18,6 +18,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { getUser } from "./store/index";
 import HealthForm from "./component/IncomeForm";
 import IncomeForm from "./component/IncomeForm";
+const MySwal = withReactContent(Swal);
+
 
 export default function EmployeeDetail() {
 	const id = useParams()
@@ -82,13 +84,13 @@ export default function EmployeeDetail() {
 	const fetchIncome = async () => {
 		try {
 		  const data = await Api.get(`/hris/employee-income/${id.uid}`)
-		  setIncome(data)
+		  setIncome([...data])
 		} catch (error) {
 		  throw error
 		}
 	  }
-	
-	useEffect(() =>{
+
+	  useEffect(() =>{
 		fetchIncome()
 	},[])
 
@@ -203,6 +205,43 @@ export default function EmployeeDetail() {
 		}
 	}
 
+	const onDelete = (x) => {
+		console.log(x,"test delete")
+		return MySwal.fire({
+			title: "Are you sure?",
+			text: "You won't be able to revert this!",
+			icon: "warning",      
+			showCancelButton: true,
+			confirmButtonText: "Yes, delete it!",
+			customClass: {
+			  confirmButton: "btn btn-primary",
+			  cancelButton: "btn btn-outline-danger ms-1",
+			},
+			buttonsStyling: false,
+		  }).then(async (result) => {
+			if (result.value) {
+			  try {
+				const status = await Api.delete(`/hris/employee-income/${x.id}`);
+				return console.log(status, "ini params")
+				if (!status)
+				  return toast.error(`Error : ${data}`, {
+					position: "top-center",
+				  });
+				setIsRefresh(true);
+				toast.success("Successfully updated employee!", {
+				  position: "top-center",
+				});
+			  } catch (error) {
+				toast.error(`Error : ${error.message}`, {
+				  position: "top-center",
+				});
+			  }
+			}
+		  });
+
+
+	}
+
 	const UserView = () => {
 		// ** Store Vars
 		const store = useSelector(state => state.users)
@@ -314,11 +353,35 @@ export default function EmployeeDetail() {
 							<CardTitle>Employee Income</CardTitle>
 						</CardHeader>
 						<CardBody>
+							<Table responsive>
+								<thead>
+									<tr className="text-xs">
+										<th className="fs-6">Name</th>
+										<th className="fs-6">Amount</th>
+										<th className="fs-6">Flag</th>
+										<th className="fs-6">Action</th>
+									</tr>
+								</thead>
+								<tbody>
+									{income.map((x) => (
+										<tr key={x.id}>
+											<td>{x.name}</td>
+											<td>{x.amount}</td>
+											<td>{x.flag}</td>
+											<td>
+												<Trash className="me-50 pointer" size={15} onClick={() => onDelete(x)}></Trash>
+											</td>
+										</tr>
+									))}
+								</tbody>
+							</Table>
+						</CardBody>
+						<CardFooter>
 							<Button size="sm" type="button" color='warning'>
 								<Edit size={13} />
 								<span className='align-middle ms-25' onClick={() => onEditIncome(income)}>Edit</span>
 							</Button>
-						</CardBody>
+						</CardFooter>
 					</Card>
 					</Col>
 					<Col>
@@ -339,7 +402,7 @@ export default function EmployeeDetail() {
 											usersDivision.length ?
 												usersDivision.map(x => (
 													<tr key={x.id}>
-														<td>{x ? x.category.name : '-'}</td>
+														<td>{x.category? x.category.name : '-'}</td>
 														<td>{x.balance ? x.balance : "0"} days</td>
 													</tr>
 												)) : <>

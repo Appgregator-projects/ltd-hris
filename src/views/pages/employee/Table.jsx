@@ -66,19 +66,19 @@ export const serverSideColumns = (onDelete, onEdit) => {
       sortable: true,
       name: "Title",
       minWidth: "225px",
-      selector: (row) => (row ? row.title : "-"),
+      selector: row => row ? row.title : "-",
     },
     {
       sortable: true,
       name: "Division",
       minWidth: "250px",
-      selector: (row) => (row?.division_id),
+      selector: row => row.division ? row.division.name : "-",
     },
     {
       sortable: true,
       name: "Register At",
       minWidth: "250px",
-      selector: (row) => dateTimeFormat(row.createdAt),
+      selector: row => dateTimeFormat(row.createdAt),
     },
     {
       sortable: false,
