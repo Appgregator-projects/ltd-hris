@@ -27,6 +27,7 @@ import Api from "../../../sevices/Api";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useDispatch } from "react-redux";
+import Cookies from "js-cookie";
 const MySwal = withReactContent(Swal);
 
 // console.log(auth, 'ini auth siapa ya')
@@ -42,6 +43,8 @@ const UsersList = () => {
   const [roles, setRoles] = useState([]);
   const [office, setOffice] = useState([]);
   const [employee, setEmployee] = useState([]);
+
+  const company_id = Cookies.get("company_id")
 
   const fetchCompany = async () => {
     try {
@@ -111,7 +114,7 @@ const UsersList = () => {
       // return console.log(user, "ini userid");
       const { uid } = user;
       params.uid = uid;
-      console.log(params.uid, "data submitform");
+      console.log(params, "data submitform");
       const status = await Api.post(`/hris/employee`, params, params.user_id = uid);
       console.log(status, "status")
       dispatch(handlePreloader(false));
@@ -144,7 +147,7 @@ const UsersList = () => {
   };
 
   const postEdit = async (params) => {
-    return console.log(params, "itemActive")
+    // return console.log(params, "itemActive")
     try {
       params.id = itemActive.id;
       dispatch(handlePreloader(true));
@@ -270,6 +273,7 @@ const UsersList = () => {
             division={divisions}
             role={roles}
             office={office}
+            companyId={company_id}
           />
         </ModalBody>
       </Modal>

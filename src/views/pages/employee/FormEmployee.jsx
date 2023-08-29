@@ -28,6 +28,7 @@ export default function FormEmployee({
   division,
   role,
   office,
+  companyId
 }) {
   const [attachment, setAttachment] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -54,6 +55,11 @@ export default function FormEmployee({
     // }),
   });
 
+  const divisionSelect = division?.map((e) => ({value: e.id, label:e.name}))
+  const roleSelect = role?.map((e) => ({value:e.id, label:e.name}))
+
+  console.log(divisionSelect, "divisionSelect")
+
   const {
     setValue,
     control,
@@ -70,15 +76,10 @@ export default function FormEmployee({
       setValue("nip", item.nip);
       setValue("role", item.role_id);
       setValue("division", item.division);
-      // setValue("company", item.company_id);
       setValue("title", item.title);
       setValue("attachment", item.attachment)
       setValue("phone", item.phone);
-      setValue("user_id", item.id)
-      if (item.company){
-        setValue("company", item.company.name)
-      }
-
+      setValue("company_id", companyId === "all"? item.company_id : companyId )
       if (item.employee_attribute) {
         setValue("dob", dayjs(item.employee_attribute.dob).format("YYYY-MM-DD"));
         setValue(
@@ -208,7 +209,6 @@ export default function FormEmployee({
             <FormFeedback>{errors.join_date.message}</FormFeedback>
           )}
         </Col>
-
         <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="title">
             Title
@@ -242,6 +242,7 @@ export default function FormEmployee({
                 type="select"
                 {...field}
                 name="gender"
+                value={item?.employee_attribute.gender}
                 invalid={errors.gender && true}
               >
                 <option value="">Select gender</option>
@@ -254,27 +255,6 @@ export default function FormEmployee({
             <FormFeedback>{errors.gender.message}</FormFeedback>
           )}
         </Col>
-        {/* <Col md="6" sm="12" className="mb-1">
-          <Label className="form-label" for="user_id">
-            User ID
-          </Label>
-          <Controller
-            name="user_id"
-            defaultValue=""
-            control={control}
-            render={({ field }) => (
-              <Input
-                type="text"
-                {...field}
-                name="user_id"
-                invalid={errors.user_id && true}
-              />
-            )}
-          />
-          {errors.user_id && (
-            <FormFeedback>{errors.user_id.message}</FormFeedback>
-          )}
-        </Col> */}
         <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="nip">
             NIP
@@ -344,6 +324,7 @@ export default function FormEmployee({
             name="status"
             defaultValue=""
             control={control}
+            value={item?.employee_attribute.status}
             render={({ field }) => (
               <Input
                 type="select"
@@ -399,7 +380,7 @@ export default function FormEmployee({
                 type="select"
                 {...field}
                 name="company_id"
-                disabled={item?.company_id}
+                disabled={companyId === "all"? item?.company_id : "-"}
                 invalid={errors.company_id && true}
               >
                 <option value="">Select company</option>
@@ -423,6 +404,7 @@ export default function FormEmployee({
             name="division_id"
             defaultValue=""
             control={control}
+            value={divisionSelect}
             render={({ field }) => (
               <Input
                 type="select"
@@ -456,6 +438,7 @@ export default function FormEmployee({
                 type="select"
                 {...field}
                 name="religion"
+                value={item?.employee_attribute.religion}
                 invalid={errors.religion && true}
               >
                 <option value="">Select religion</option>
@@ -485,6 +468,7 @@ export default function FormEmployee({
                 type="select"
                 {...field}
                 name="role_id"
+                // value={roleSelect}
                 invalid={errors.role_id && true}
               >
                 <option value="">Select role</option>

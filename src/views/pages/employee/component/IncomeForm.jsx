@@ -3,21 +3,27 @@ import { Button, Col, Form, FormFeedback, FormGroup, Input, Label, Row } from 'r
 import ButtonSpinner from '../../components/ButtonSpinner'
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from "yup";
 import Api from "../../../../sevices/Api";
 
 
 export default function IncomeForm({isLoading, close, income, onSubmit}) {
+
+    const ItemSchema = yup.object().shape({
+        name: yup.string().required(),
+        amount: yup.string().required(),
+        flag: yup.string().required()
+    })
     const {
         setValue,
         control,
         handleSubmit,
         formState: { errors },
-      } = useForm({ mode: "onChange"});
-      console.log(errors, "error");
+      } = useForm({ mode: "onChange", resolver: yupResolver(ItemSchema)});
 
-    useEffect(() => {
-        return console.log(income, "assurance")
-    },[income])
+    // useEffect(() => {
+    //     return console.log(income, "income")
+    // },[income])
 
     const onSubmitIncome = async (arg) => {
         onSubmit(arg)
@@ -75,11 +81,15 @@ export default function IncomeForm({isLoading, close, income, onSubmit}) {
             control={control}
             render={({field}) => (
                 <Input
-                type="text"
+                type="select"
                 {...field}
                 defaultValue={0}
                 name='flag'
-                />
+                placeholder='select flag'
+                >
+                    <option value='gaji pokok'>Gaji pokok</option>
+                    <option value='tunjangan'>Tunjangan</option>
+                </Input>
             )}/>
             {errors.flag && <FormFeedback>{errors.flag.message}</FormFeedback>}
             </FormGroup>

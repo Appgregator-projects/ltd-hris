@@ -17,7 +17,6 @@ export default function CompanyForm({close, onSubmit, item}){
 		handleSubmit,
 		formState: { errors }
 	} = useForm({ mode: 'onChange', resolver: yupResolver(ItemSchema) })
-	console.log(errors, "errors")
 
 	useEffect(() => {
 		if(item){
