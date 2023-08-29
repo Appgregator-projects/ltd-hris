@@ -114,7 +114,6 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
   const [searchValue, setSearchValue] = useState("");
 
   const fetchEmployee = async (params) => {
-    console.log(params, "params")
     try {
       const data = await Api.get(`/hris/employee?page=${params.page}&limit=${params.perPage}&search=${params.search}`);
       setEmployees([...data.rows]);

@@ -16,6 +16,7 @@ const MySwal = withReactContent(Swal)
 import { handlePreloader } from '../../../redux/layout'
 import { useDispatch } from 'react-redux'
 import EditCompany from "./CompanyForm"
+import CompanyDetail from "./CompanyDetail";
 // import FormUserAssign from "../components/FormUserAssign"
 
 export default function OfficeIndex(){
@@ -110,6 +111,11 @@ export default function OfficeIndex(){
 	}
 
 	const onAdd = () => {
+		setModal({
+			title: "Add Company",
+			mode: "add",
+			item: null
+		})
 		setModalToggle(true)
 	}
 	
@@ -193,45 +199,6 @@ export default function OfficeIndex(){
 		setModalToggle(true)
 	}
 
-	// const assignUser = async() => {
-	// 	const params = userSelect.map(x => x.value)
-	// 	try {
-	// 		const {status, data} = await Api.post(`/hris/company-ass/${modal.item.id}`,{
-	// 			employees:params.length ? params : ['all'],
-	// 			is_all:alluser
-	// 		})
-	// 		if(!status) return toast.error(`Error : ${data}`, {
-	// 			position: 'top-center'
-	// 		}) 
-	// 		fetchOffice()
-	// 		toast.success('Office has updated', {
-	// 			position: 'top-center'
-	// 		})
-	// 		setModalToggle(false)
-	// 	} catch (error) {
-	// 		return toast.error(`Error : ${error.message}`, {
-	// 			position: 'top-center'
-	// 		})
-	// 	}
-	// }
-
-	// const onDeleteUser = async(arg) => {
-	// 	try {
-	// 		const params = {
-	// 			employee:arg.user_id
-	// 		}
-	// 		const {status} = await Api.post(`api/office/${arg.company_office_id}/removed-user`, params)
-	// 		setModalToggle(false)
-	// 		fetchOffice()
-	// 		toast.success('Office has updated', {
-	// 			position: 'top-center'
-	// 		})
-	// 	} catch (error) {
-	// 		return toast.error(`Error : ${error.message}`, {
-	// 			position: 'top-center'
-	// 		})
-	// 	}		
-	// }
 
 	return(
 		<>
@@ -273,9 +240,6 @@ export default function OfficeIndex(){
 								<div className="pointer">
 									<Trash className='me-50' size={15} onClick={() => onDelete(x, index)}/> <span className='align-middle'></span>
 								</div>
-								<div className="pointer">
-									<UserPlus className='me-50' size={15} onClick={() => onAddUser(x)}/> <span className='align-middle'></span>
-								</div>
               </div>
             </Col>
           ))
@@ -294,35 +258,7 @@ export default function OfficeIndex(){
         <ModalBody>
 					{modal.mode === 'add' ? <EditCompany onSubmit={postForm} close={() => setModalToggle(false)}/> : <></>}
 					{modal.mode === 'edit' ? <EditCompany onSubmit={postForm} close={() => setModalToggle(false)} item={modal.item}/> : <></>}
-					{modal.mode === 'detail' ? <OfficeDetail item={modal.item} onDeleteUser={onDeleteUser}/> : <></>}
-					{
-						modal.mode == 'assign' ? 
-						<>
-						 <FormGroup switch>
-							<Input
-								type="switch"
-								checked={alluser}
-								onChange={() => {
-									setAllUser(!alluser);
-								}}
-							/>
-							<Label check>Assign all employee to this office ?</Label>
-						</FormGroup>
-						<FormUserAssign
-							disabled={alluser}
-							options={users}
-							multiple={true}
-							disable={true}
-							onSelect={(arg) => {
-								setUserSelect([...arg])
-							}}/>
-							<Col>
-								<Button type="button" size="md" color='danger' onClick={()=>setModalToggle(false)}>Cancel</Button>
-								<Button type="submit" size="md" color='primary' className="m-1" onClick={assignUser}>Submit</Button>
-							</Col>
-						</>
-						: <></>
-						}
+					{modal.mode === 'detail' ? <CompanyDetail item={modal.item}/> : <></>}
 				</ModalBody>
 			</Modal>
 		</>

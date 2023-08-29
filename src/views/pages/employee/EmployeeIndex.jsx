@@ -27,6 +27,7 @@ import Api from "../../../sevices/Api";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useDispatch } from "react-redux";
+import Cookies from "js-cookie";
 const MySwal = withReactContent(Swal);
 
 // console.log(auth, 'ini auth siapa ya')
@@ -42,6 +43,8 @@ const UsersList = () => {
   const [roles, setRoles] = useState([]);
   const [office, setOffice] = useState([]);
   const [employee, setEmployee] = useState([]);
+
+  const company_id = Cookies.get("company_id")
 
   const fetchCompany = async () => {
     try {
@@ -270,6 +273,7 @@ const UsersList = () => {
             division={divisions}
             role={roles}
             office={office}
+            companyId={company_id}
           />
         </ModalBody>
       </Modal>

@@ -101,10 +101,6 @@ const Login = () => {
       if ((token, checkCompany)) {
         console.log(token.access_token, "token")
         if (checkCompany) {
-          // return console.log(checkCompany, "checkCompany");
-          // 1. ambil api dari backend
-          // 2. dapet permissiom
-          // 3.
           const userAbility = await Me(accessToken);
           let arrList = [];
           userAbility["data"]["permissions"][0]["role_permissions"].map(

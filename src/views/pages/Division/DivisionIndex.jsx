@@ -150,6 +150,7 @@ export default function DivisionIndex() {
     try {
       if (modal.item) return postUpdate(params);
       const status = await Api.post(`/hris/division`, itemPost);
+      // return console.log(status,"post divisio")
       if (!status)
         return toast.error(`Error : ${data}`, {
           position: "top-center",

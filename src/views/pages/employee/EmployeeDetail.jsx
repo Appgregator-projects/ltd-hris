@@ -29,6 +29,7 @@ export default function EmployeeDetail() {
 	const [balance, setBalance] = useState([])
 	const [userBalance, setUserBalance] = useState([])
 	const [usersDivision, setUsersDivision] = useState([])
+  	const [logUser, setLogUser] = useState([])
 	const [leaveCategories, setLaeveCategories] = useState([])
 	const [isLoading, setIsLoading] = useState(false)
 	const [income, setIncome] = useState([])
@@ -94,6 +95,20 @@ export default function EmployeeDetail() {
 		fetchIncome()
 	},[])
 
+ 	const fecthLogUser= async () => {
+		try {
+			const data = await Api.get(`/auth/log/${id.uid}`)
+			setLogUser([...data])
+			console.log(data, "fetch userlog")
+		} catch (error) {
+			throw error
+		}
+  	}
+
+  	useEffect(() => {
+  	  fecthLogUser()
+  }	, [])
+
 	const renderUserImg = () => {
 		if (!user) return <Avatar
 			initials
@@ -151,7 +166,6 @@ export default function EmployeeDetail() {
 	}
 
 	const onEditIncome = (x) => {
-		console.log(x,"button income")
 		setModal({
 			title: "Employee Income",
 			mode: "income",
@@ -457,7 +471,7 @@ export default function EmployeeDetail() {
 					</Col>
 					<Col>
 					<Card>
-						<UserTimeline/>
+						<UserTimeline userLog={logUser}/>
 					</Card>
 					</Col>
 					
