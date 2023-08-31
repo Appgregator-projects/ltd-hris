@@ -16,7 +16,7 @@ import {
 } from "reactstrap";
 
 // ** Third Party Components
-import { Link, Settings, Trash, Users } from "react-feather";
+import { Link, Edit, Trash, Users } from "react-feather";
 import Select, { components } from "react-select";
 
 // ** Utils
@@ -143,96 +143,106 @@ const ManageLesson = () => {
           text: "Your file has been deleted.",
           customClass: {
             confirmButton: "btn btn-success",
-          },
+          },  
         });
       }
     });
   };
 
   return (
-    <Fragment>
-      <div className="py-1" onClick={() => setShow(true)}>
-        <Settings size={20} />
-      </div>
+		<Fragment>
+			<div className="py-1" onClick={() => setShow(true)}>
+				<Edit size={20} />
+			</div>
 
-      <Modal
-        isOpen={show}
-        toggle={() => setShow(!show)}
-        className="modal-dialog-centered modal-lg"
-      >
-        <ModalHeader
-          className="bg-transparent"
-          toggle={() => setShow(!show)}
-        ></ModalHeader>
-        <ModalBody className="px-sm-5 mx-50 pb-4">
-          <h1 className="text-center mb-1">Group Courses</h1>
-          <p className="text-center">Share project with a team members</p>
-          <Label
-            for="addMemberSelect"
-            className="form-label fw-bolder font-size font-small-4 mb-50"
-          >
-            Add Members
-          </Label>
-          <Select
-            options={options}
-            isClearable={false}
-            id="addMemberSelect"
-            theme={selectThemeColors}
-            className="react-select"
-            classNamePrefix="select"
-            components={{
-              Option: OptionComponent,
-            }}
-          />
-          <p className="fw-bolder pt-50 mt-2">12 Members</p>
-          <ListGroup flush className="mb-2">
-            {data.map((item) => {
-              return (
-                <ListGroupItem
-                  key={item.name}
-                  className="d-flex align-items-start border-0 px-0"
-                >
-                  <Avatar
-                    className="me-75"
-                    img={item.img}
-                    imgHeight={38}
-                    imgWidth={38}
-                  />
-                  <div className="d-flex align-items-center justify-content-between w-100">
-                    <div className="me-1">
-                      <h5 className="mb-25">{item.name}</h5>
-                      <span>{item.username}</span>
-                    </div>
+			<Modal
+				isOpen={show}
+				toggle={() => setShow(!show)}
+				className="modal-dialog-centered modal-lg"
+			>
+				<ModalHeader
+					className="bg-transparent"
+					toggle={() => setShow(!show)}
+				></ModalHeader>
+				<ModalBody className="px-sm-5 mx-50 pb-4">
+					<h1 className="text-center mb-1">Group Courses</h1>
+					<p className="text-center">
+						Share project with a team members
+					</p>
+					<Label
+						for="addMemberSelect"
+						className="form-label fw-bolder font-size font-small-4 mb-50"
+					>
+						Add Members
+					</Label>
+					<Select
+						options={options}
+						isClearable={false}
+						id="addMemberSelect"
+						theme={selectThemeColors}
+						className="react-select"
+						classNamePrefix="select"
+						components={{
+							Option: OptionComponent,
+						}}
+					/>
+					<p className="fw-bolder pt-50 mt-2">12 Members</p>
+					<ListGroup flush className="mb-2">
+						{data.map((item) => {
+							return (
+								<ListGroupItem
+									key={item.name}
+									className="d-flex align-items-start border-0 px-0"
+								>
+									<Avatar
+										className="me-75"
+										img={item.img}
+										imgHeight={38}
+										imgWidth={38}
+									/>
+									<div className="d-flex align-items-center justify-content-between w-100">
+										<div className="me-1">
+											<h5 className="mb-25">
+												{item.name}
+											</h5>
+											<span>
+												{item.username}
+											</span>
+										</div>
 
-                    <Button.Ripple
-                      className={"btn-icon"}
-                      color={"danger"}
-                      onClick={() => handleConfirmText()}
-                    >
-                      <Trash size={15} />
-                    </Button.Ripple>
-                  </div>
-                </ListGroupItem>
-              );
-            })}
-          </ListGroup>
-          <div className="d-flex align-content-center justify-content-between flex-wrap">
-            <div className="d-flex align-items-center me-2">
-              <Users className="font-medium-2 me-50" />
-              <p className="fw-bolder mb-0">Public to Vuexy - Pixinvent</p>
-            </div>
-            <a
-              className="fw-bolder"
-              href="#"
-              onClick={(e) => e.preventDefault()}
-            >
-              <Link className="font-medium-2 me-50" />
-              <span>Copy project link</span>
-            </a>
-          </div>
-        </ModalBody>
-      </Modal>
-    </Fragment>
+										<Button.Ripple
+											className={"btn-icon"}
+											color={"danger"}
+											onClick={() =>
+												handleConfirmText()
+											}
+										>
+											<Trash size={15} />
+										</Button.Ripple>
+									</div>
+								</ListGroupItem>
+							);
+						})}
+					</ListGroup>
+					<div className="d-flex align-content-center justify-content-between flex-wrap">
+						<div className="d-flex align-items-center me-2">
+							<Users className="font-medium-2 me-50" />
+							<p className="fw-bolder mb-0">
+								Public to Vuexy - Pixinvent
+							</p>
+						</div>
+						<a
+							className="fw-bolder"
+							href="#"
+							onClick={(e) => e.preventDefault()}
+						>
+							<Link className="font-medium-2 me-50" />
+							<span>Copy project link</span>
+						</a>
+					</div>
+				</ModalBody>
+			</Modal>
+		</Fragment>
   );
 };
 

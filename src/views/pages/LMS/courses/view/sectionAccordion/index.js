@@ -24,6 +24,7 @@ const SectionAccordion = ({ data }) => {
   let courseData = [{}, {}, {}];
 
   const [lessonList, setLessonList] = useState([...data.lesson_list]);
+  console.log(lessonList)
 
   const [open, setOpen] = useState("1");
   const toggle = (id) => {
@@ -49,7 +50,7 @@ const SectionAccordion = ({ data }) => {
           </Col>
 
           <Col className="d-flex justify-content-end">
-            <AddLesson />
+            <AddLesson title={data.section_title} />
 
             <ManageLesson />
 
