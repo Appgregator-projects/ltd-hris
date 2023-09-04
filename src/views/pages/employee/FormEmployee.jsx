@@ -36,29 +36,26 @@ export default function FormEmployee({
   // console.log(company, "company")
 
   const ItemSchema = yup.object().shape({
-    name: yup.string().required(),
-    email: yup.string().email().required(),
-    title: yup.string().required(),
-    dob: yup.string().required(),
-    join_date: yup.string().required(),
-    id_number: yup.string().required(),
-    phone: yup.string().required(),
-    id_tax_number: yup.string(),
-    gender: yup.string().required(),
-    status: yup.string().required(),
-    religion: yup.string().required(),
-    division_id: yup.string().required(),
-    role_id: yup.string().required(),
+    name: yup.string().required("Name is required"),
+    email: yup.string().email().required("Email is required"),
+    title: yup.string().required("Title is required"),
+    dob: yup.string().required("Date of birthday is required"),
+    join_date: yup.string().required("Join date is required"),
+    id_number: yup.string().required("ID number is required"),
+    phone: yup.string().required("Phone number is required"),
+    gender: yup.string().required("Gender is required"),
+    status: yup.string().required("Status is required"),
+    religion: yup.string().required("Religion is required"),
+    division_id: yup.string().required("Division is required"),
+    role_id: yup.string().required("Role is required"),
+    marital_status: yup.string().required("Marital status is required"),
+    dependents: yup.string().required("Dependents is required"),
     // password: yup.string().when([],{
     //   is:item ? true : false,
     //   then:yup.string().required("Password is required")
     // }),
   });
 
-  const divisionSelect = division?.map((e) => ({value: e.id, label:e.name}))
-  const roleSelect = role?.map((e) => ({value:e.id, label:e.name}))
-
-  console.log(divisionSelect, "divisionSelect")
 
   const {
     setValue,
@@ -69,30 +66,30 @@ export default function FormEmployee({
   console.log(errors, "error");
 
   useEffect(() => {
-    console.log(item, 'item');
     if (item) {
       setValue("name", item.name);
       setValue("email", item.email);
       setValue("nip", item.nip);
-      setValue("role", item.role_id);
+      setValue("role_id", item.role_id);
       setValue("division", item.division);
       setValue("title", item.title);
       setValue("attachment", item.attachment)
       setValue("phone", item.phone);
-      setValue("company_id", companyId === "all"? item.company_id : companyId )
+      setValue("company_id", item.company_id)
+      setValue("division_id", item.division_id)  
       if (item.employee_attribute) {
         setValue("dob", dayjs(item.employee_attribute.dob).format("YYYY-MM-DD"));
-        setValue(
-          "join_date",
-          dayjs(item.employee_attribute.join_date).format("YYYY-MM-DD")
-        );
+        setValue("join_date", dayjs(item.employee_attribute.join_date).format("YYYY-MM-DD"));
         setValue("id_number", item.employee_attribute.id_number);
         setValue("id_tax_number", item.employee_attribute.id_tax_number);
         setValue("gender", item.employee_attribute.gender);
         setValue("religion", item.employee_attribute.religion);
         setValue("status", item.employee_attribute.status);
+        setValue("marital_status", item.employee_attribute.marital_status)
+        setValue("dependents", item.employee_attribute.dependents)
       }
     }
+    setValue("company_id", companyId)
   }, [item]);
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -168,7 +165,6 @@ export default function FormEmployee({
           />
           {errors.email && <FormFeedback>{errors.email.message}</FormFeedback>}
         </Col>
-
         <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="dob">
             Date Of Birth
@@ -380,12 +376,12 @@ export default function FormEmployee({
                 type="select"
                 {...field}
                 name="company_id"
-                disabled={companyId === "all"? item?.company_id : "-"}
+                disabled={companyId !== undefined }
                 invalid={errors.company_id && true}
               >
                 <option value="">Select company</option>
                 {company.map((x) => (
-                  <option key={x.id} value={x.id}>
+                  <option key={x.name} value={x.id}>
                     {x.name}
                   </option>
                 ))}
@@ -404,7 +400,7 @@ export default function FormEmployee({
             name="division_id"
             defaultValue=""
             control={control}
-            value={divisionSelect}
+            // value={divisionSelect}
             render={({ field }) => (
               <Input
                 type="select"
@@ -468,7 +464,6 @@ export default function FormEmployee({
                 type="select"
                 {...field}
                 name="role_id"
-                // value={roleSelect}
                 invalid={errors.role_id && true}
               >
                 <option value="">Select role</option>
@@ -502,6 +497,63 @@ export default function FormEmployee({
             )}
           />
           {errors.phone && <FormFeedback>{errors.phone.message}</FormFeedback>}
+        </Col>
+        <Col md="6" sm="12" className="mb-1">
+          <Label className="form-label" for="marital_status">
+            Marital Status
+          </Label>
+          <Controller
+            name="marital_status"
+            defaultValue=""
+            control={control}
+            render={({ field }) => (
+              <Input
+                type="select"
+                {...field}
+                name="marital_status"
+                // value={item?.employee_attribute.religion}
+                invalid={errors.marital_status && true}
+              >
+                <option value="">Select status</option>
+                <option value="married">Married</option>
+                <option value="single">Single</option>
+                <option value="widow">Widow/widower</option>
+              </Input>
+            )}
+          />
+          {errors.marital_status && (
+            <FormFeedback>{errors.marital_status.message}</FormFeedback>
+          )}
+        </Col>
+        <Col md="6" sm="12" className="mb-1">
+          <Label className="form-label" for="dependents">
+            Dependents
+          </Label>
+          <Controller
+            name="dependents"
+            defaultValue=""
+            control={control}
+            render={({ field }) => (
+              <Input
+                type="select"
+                {...field}
+                name="dependents"
+                // value={item?.employee_attribute.religion}
+                invalid={errors.religion && true}
+              >
+                <option value="">Select dependents</option>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value=">5">more than 4</option>
+              </Input>
+            )}
+          />
+          {errors.dependents && (
+            <FormFeedback>{errors.dependents.message}</FormFeedback>
+          )}
         </Col>
         <Col md="12" sm="12" className="mb-1">
           <Label className="form-label">Profile Picture</Label>

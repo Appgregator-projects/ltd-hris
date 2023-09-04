@@ -25,6 +25,7 @@ export default function EmployeeDetail() {
 	const id = useParams()
 
 	const [toggleModal, setToggleModal] = useState(false)
+	const [isRefresh, setIsRefresh] = useState(false)
 	const [user, setUser] = useState([])
 	const [balance, setBalance] = useState([])
 	const [userBalance, setUserBalance] = useState([])
@@ -99,7 +100,7 @@ export default function EmployeeDetail() {
 		try {
 			const data = await Api.get(`/auth/log/${id.uid}`)
 			setLogUser([...data])
-			console.log(data, "fetch userlog")
+			// console.log(data, "fetch userlog")
 		} catch (error) {
 			throw error
 		}
@@ -201,8 +202,10 @@ export default function EmployeeDetail() {
 	}
 
 	const postIncome = async(params) => {
+		return console.log(params, "params postincome")
 		try {
 			const status = await Api.post(`/hris/employee-income/${id.uid}`, params)
+			return console.log(status, "status")
 			if (!status)
 			return toast.error(`Error : ${data}`, {
 			  position: "top-center",
@@ -236,7 +239,7 @@ export default function EmployeeDetail() {
 			if (result.value) {
 			  try {
 				const status = await Api.delete(`/hris/employee-income/${x.id}`);
-				return console.log(status, "ini params")
+				// return console.log(status, "ini params")
 				if (!status)
 				  return toast.error(`Error : ${data}`, {
 					position: "top-center",
@@ -348,7 +351,6 @@ export default function EmployeeDetail() {
 										<li className='mb-75 d-flex justify-content-between'>
 											<span className='fw-bolder me-25'>Out Date</span>
 											<span>{user && user.employee_attribute ? dateFormat(user.employee_attribute.out_date) : '-'}</span>
-
 										</li>
 										<li className='mb-75 d-flex flex-column'>
 											<span className='fw-bolder me-25'>Address</span>

@@ -17,6 +17,8 @@ import {
   ModalFooter,
   Input,
   Label,
+  Form,
+  FormFeedback,
 } from "reactstrap";
 import Api from "../../../sevices/Api";
 import { dateFormat, dateTimeFormat } from "../../../Helper/index";
@@ -43,6 +45,11 @@ export default function LeaveRequestIndex() {
     item: null
   })
 
+  const {
+    setValue, control, handleSubmit, formState: {errors}
+  } = useForm({ mode: "onChange"});
+  console.log(errors, "error");
+
   const fetchLeave = async () => {
     try {
       const data = await Api.get("hris/leave-request");
@@ -68,9 +75,15 @@ export default function LeaveRequestIndex() {
     setToggleModal(true);
   };
 
-  const onReject = () => {
-    console.log("i am rejected");
+  const onReject = (param) => {
+    console.log(param, "Rejected");
     setNestedToggle(true)
+    return onSubmit(param, "Rejected")
+  };
+
+  const onApproval = () => {
+    console.log("Approved");
+    return onSubmit(null,"Approved")
   };
 
   const onCloseAll = () => {  
@@ -78,14 +91,14 @@ export default function LeaveRequestIndex() {
     setCloseAll(true)
   }
 
-  const onApproval = async (arg, param) => {
-    // return console.log(arg, "arg leave request")
+  const onSubmit = async (x, y) => {
+    // return console.log(x, y, "arg leave request")
     return MySwal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: `Yes, ${param} it!`,
+      confirmButtonText: `Yes, ${y} it!`,
       customClass: {
         confirmButton: "btn btn-primary",
         cancelButton: "btn btn-outline-danger ms-1",
@@ -93,12 +106,14 @@ export default function LeaveRequestIndex() {
       buttonsStyling: false,
     }).then(async (result) => {
       if (result.value) {
-        return console.log(arg, "post leave request")
         try {
-          const params = {
-            status: arg,
+          const itemPut = {
+            status: y,
+            note: x? x.rejected_note : " "
           };
-          const status = await Api.post(`/hris/leave-request`,params);
+
+          const status = await Api.put(`/hris/leave-approval-status`,itemPut);
+          return console.log(status, "put leave request")
           if (!status)
             return toast.error(`Error : ${data}`, {
               position: "top-center",
@@ -172,7 +187,7 @@ export default function LeaveRequestIndex() {
                             placement="top"
                             target={`pw-tooltip-${x.leave_category_id}`}
                           >
-                            Preview Correction
+                            Preview Request
                           </UncontrolledTooltip>
                         </div>
                       </td>
@@ -190,7 +205,7 @@ export default function LeaveRequestIndex() {
         className={`modal-dialog-centered modal-lg`}
       >
         <ModalHeader toggle={() => setToggleModal(!toggleModal)}>
-          Correction Detail
+          Request Detail
         </ModalHeader>
         <ModalBody>
           {selectItem ? (
@@ -263,24 +278,34 @@ export default function LeaveRequestIndex() {
 
                     // onClosed={close}
                   >
+                    <Form onSubmit={handleSubmit(onReject)}>
                     <ModalHeader>Note</ModalHeader>
                     <ModalBody>
                       <Label for="rejected_note"
                       >Rejected Note</Label>
-                      <Input
-                      id="rejected_note"
+                      <Controller
                       name="rejected_note"
-                      type="textarea"/>
-                      
+                      defaultValue=""
+                      control={control}
+                      render={({field}) => (
+                        <Input
+                        id="rejected_note"
+                        {...field}
+                        name="rejected_note"
+                        type="textarea"
+                        invalid={errors.rejected_note && true}/>
+                      )}/>
+                      {errors.rejected_note && <FormFeedback>{errors.rejected_note.message}</FormFeedback>}
                     </ModalBody>
                     <ModalFooter>
                       <Button color="danger" onClick={() =>  onCloseAll()}>
                         Cancel
                       </Button>
-                      <Button color="primary" onClick={() => onReject()}>
+                      <Button color="primary" type="submit" size="md">
                         Send
                       </Button>
                     </ModalFooter>
+                    </Form>
                   </Modal>  
                 Reject
               </Button>
@@ -289,9 +314,9 @@ export default function LeaveRequestIndex() {
                 size="md"
                 color="primary"
                 className="m-1"
-                onClick={() => onApproval(request, "approved")}
+                onClick={() => onApproval()}
               >
-                Approv
+                Approve
               </Button>
             </div>
           ) : (

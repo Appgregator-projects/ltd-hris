@@ -15,6 +15,8 @@ import {
   AccordionItem,
   AccordionBody,
   AccordionHeader,
+  Label,
+  Input,
 } from "reactstrap";
 import { Edit, Trash, User, Plus, Lock, UserPlus, Circle } from "react-feather";
 import Avatar from "@components/avatar";
@@ -59,19 +61,20 @@ const renderClient = (row) => {
 export default function DivisionIndex() {
   const [divisions, setDivisions] = useState([]);
   const [toggleModal, setToggleModal] = useState(false);
+  const [isRefresh, setIsRefresh] = useState(false)
   const [users, setUsers] = useState([]);
   const [userSelect, setUserSelect] = useState(null);
   const [selectDivison, setSelectDevision] = useState([]);
+  const [searchValue, setSearchValue] = useState("")
   const [modal, setModal] = useState({
     title: "Division form",
     mode: "add",
     item: null,
   });
 
-  const fetchDivision = async () => {
+  const fetchDivision = async (params) => {
     try {
-      const data = await Api.get("/hris/division");
-      // console.log(data, "data division")
+      const data = await Api.get(`/hris/division?search=${params.search}`);
       const result = getNestedChildren(data, null);
       setDivisions(result.filter((x) => x.deletedAt === null));
       setSelectDevision(data.filter((x) => x.deletedAt === null));
@@ -81,8 +84,21 @@ export default function DivisionIndex() {
   };
 
   useEffect(() => {
-    fetchDivision();
-  }, []);
+    if (isRefresh) {
+      fetchDivision({search:''});
+    }
+  }, [isRefresh]);
+
+  useEffect(() => {
+    fetchDivision({search: ""})
+  }, [])
+
+  const handleFilter = (e) => {
+    setSearchValue(e.target.value);
+    fetchDivision({
+      search: e.target.value
+    })
+  }
 
   const fetchUser = async () => {
     try {
@@ -150,7 +166,7 @@ export default function DivisionIndex() {
     try {
       if (modal.item) return postUpdate(params);
       const status = await Api.post(`/hris/division`, itemPost);
-      // return console.log(status,"post divisio")
+      console.log(status,"post divisio")
       if (!status)
         return toast.error(`Error : ${data}`, {
           position: "top-center",
@@ -226,6 +242,22 @@ export default function DivisionIndex() {
         <Card>
           <CardHeader>
             <CardTitle>Divisions</CardTitle>
+            <Col
+            className="d-flex align-items-center justify-content-sm-end mt-sm-0 mt-1"
+            sm="3"
+          >
+            <Label className="me-1" for="search-input">
+              Search
+            </Label>
+            <Input
+              className="dataTable-filter"
+              type="text"
+              bsSize="sm"
+              id="search-input"
+              value={searchValue}
+              onChange={handleFilter}
+            />
+          </Col>
           </CardHeader>
           <CardBody>
             <Table responsive>

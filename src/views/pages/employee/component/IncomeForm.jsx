@@ -10,8 +10,8 @@ import Api from "../../../../sevices/Api";
 export default function IncomeForm({isLoading, close, income, onSubmit}) {
 
     const ItemSchema = yup.object().shape({
-        name: yup.string().required(),
-        amount: yup.string().required(),
+        name: yup.string().required("Name is required"),
+        amount: yup.string().required("Amount is required"),
         flag: yup.string().required()
     })
     const {
@@ -23,18 +23,19 @@ export default function IncomeForm({isLoading, close, income, onSubmit}) {
 
     // useEffect(() => {
     //     return console.log(income, "income")
+    //     setValue("name", )
     // },[income])
 
-    const onSubmitIncome = async (arg) => {
+    const onSubmitIncome = (arg) => {
+        // return console.log(arg, "arg")
         onSubmit(arg)
     }
 
   return (
     <>
     <Form onSubmit={handleSubmit(onSubmitIncome)}>
-    <div className='py-1'>
-        <Col>
-        <FormGroup>
+    <div className='py-2'>
+        <Col sm='12' className='mb-1'>
             <Label for="form-label">
             Name
             </Label>
@@ -51,12 +52,9 @@ export default function IncomeForm({isLoading, close, income, onSubmit}) {
                 />
             )}/>
             {errors.name && <FormFeedback>{errors.name.message}</FormFeedback>}
-
-        </FormGroup>
         </Col>
-        <Row className='mb-1'>
-        <Col md='6' sm='12' className='mb-1'>
-            <FormGroup>
+        <Row className='my-2'>
+        <Col md='6' sm='12' >
             <Label className='form-label'>Amount (Rp)</Label>
             <Controller
             name='amount'
@@ -70,10 +68,8 @@ export default function IncomeForm({isLoading, close, income, onSubmit}) {
                 />
             )}/>
             {errors.amount && <FormFeedback>{errors.amount.message}</FormFeedback>}
-            </FormGroup>
         </Col>
         <Col md='6' sm='12' className='mb-1'>
-            <FormGroup>
             <Label className='form-label'>Flag</Label>
             <Controller
             name='flag'
@@ -92,13 +88,12 @@ export default function IncomeForm({isLoading, close, income, onSubmit}) {
                 </Input>
             )}/>
             {errors.flag && <FormFeedback>{errors.flag.message}</FormFeedback>}
-            </FormGroup>
         </Col>
 
-        </Row>
-        <Col>
+        </Row >
+        <Col className='mt-2'>
             <Button type='button' size='md' color='danger' className='mx-1' onClick={close}>Cancel</Button>
-            <ButtonSpinner label="Submit" type="submit" className="m-1"/>
+            <ButtonSpinner label="Submit" type="submit" className="mx-1"/>
         </Col>
 
     </div>

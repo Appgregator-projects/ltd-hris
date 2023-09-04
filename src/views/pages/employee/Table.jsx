@@ -136,6 +136,7 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
 
   // ** Function to handle filter
   const handleFilter = (e) => {
+    console.log(e.target.value, "search users")
     setSearchValue(e.target.value);
     fetchEmployee({
       page: currentPage,

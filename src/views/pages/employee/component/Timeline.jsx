@@ -6,7 +6,7 @@ const Timeline = props => {
   // ** Props
   const { userLog, tag, className } = props
 
-  console.log(userLog,"data")
+  // console.log(userLog,"data")
 
   // ** Custom Tagg
   const Tag = tag ? tag : 'ul'

@@ -7,10 +7,10 @@ import { useEffect } from 'react'
 export default function OfficeForm({close, onSubmit, item}){
 
 	const ItemSchema = yup.object().shape({
-		name: yup.string().required(),
-		address: yup.string().required(),
-		latitude: yup.number().required(),
-		longitude: yup.number().required(),
+		name: yup.string().required("office name is required"),
+		address: yup.string().required("address is required"),
+		latitude: yup.number().transform((value) => (isNaN(value) ? undefined : value)).nullable().required("latitude is required"),
+		longitude: yup.number().transform((value) => (isNaN(value) ? undefined : value)).nullable().required("longitude is required"),
 		radius: yup.number()
   	})
 
@@ -20,6 +20,7 @@ export default function OfficeForm({close, onSubmit, item}){
 		handleSubmit,
 		formState: { errors }
 	} = useForm({ mode: 'onChange', resolver: yupResolver(ItemSchema) })
+	console.log(errors, "error ")
 
 	useEffect(() => {
 		if(item){
@@ -84,7 +85,7 @@ export default function OfficeForm({close, onSubmit, item}){
 							{errors.longitude && <FormFeedback>{errors.longitude.message}</FormFeedback>}
 					</Col>
 					<Col md='12' sm='12' className='mb-1'>
-						<Label className='form-label' for='longitude'>Address</Label>
+						<Label className='form-label' for='address'>Address</Label>
 						<Controller
 								name='address'
 								defaultValue=''

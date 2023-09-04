@@ -22,7 +22,7 @@ import CompanyDetail from "./CompanyDetail";
 export default function OfficeIndex(){
   const dispatch = useDispatch()
 
-	const [offices, setOffices] = useState([])
+	const [companies, setCompanies] = useState([])
 	const [modalToggle, setModalToggle] = useState(false)
 	const [modal, setModal] = useState({
 		title:'Company Form',
@@ -32,39 +32,18 @@ export default function OfficeIndex(){
 	const [users, setUsers] = useState([])
   	const [userSelect, setUserSelect] = useState([])
 	const [alluser, setAllUser] = useState(false);
-
-	// const fetchUser = async() => {
-	// 	try {
-	// 	const {data,status} = await api.get(`${process.env.VITE_AUTH_HOST}/api/users?alluser=true`)
-	// 			if(status){
-	// 				const userData = data.map(x => {
-	// 					return {
-	// 						value:x.user_id,
-	// 						label:x.user.email
-	// 					}
-	// 				})
-	// 				setUsers([...userData])
-	// 			}
-	// 	} catch (error) {
-	// 		throw error
-	// 	}
-	// }
-
-	useEffect(() => {
-		// fetchUser()
-	}, [])
 	
-	const fetchOffice = async() => {
+	const fetchCompanies = async() => {
 		try {
 			const data = await Api.get('/hris/company')
-			setOffices([...data])
+			setCompanies([...data])
 		} catch (error) {
 			throw error
 		}
 	}
 
 	useEffect(() => {
-		fetchOffice()
+		fetchCompanies()
 	},[])
 
 	const postDelete = (id) => {
@@ -91,13 +70,13 @@ export default function OfficeIndex(){
 			if (result.value) {
 				const status = await postDelete(item.id)
 				if (status) {
-				const oldCom = offices
+				const oldCom = companies
 				oldCom.splice(index, 1)
-				setOffices([...oldCom])
+				setCompanies([...oldCom])
 				return  MySwal.fire({
 					icon: 'success',
 					title: 'Deleted!',
-					text: 'Office has deleted.',
+					text: 'Company has been deleted.',
 					customClass: {
 					confirmButton: 'btn btn-success'
 					}
@@ -124,12 +103,12 @@ export default function OfficeIndex(){
 			if(modal.item) return postUpdate(params)
 			dispatch(handlePreloader(true))
 			const status = await Api.post('/hris/company', params)
-			// return console.log(status, 'params post office')
+			// return console.log(status, 'params post companies')
 			dispatch(handlePreloader(false))
 			if(!status) return toast.error(`Error : ${data}`, {
 				position: 'top-center'
 			})
-			fetchOffice()
+			fetchCompanies()
 			toast.success('Office has saved', {
         position: 'top-center'
       })
@@ -145,6 +124,7 @@ export default function OfficeIndex(){
 		try {
 			dispatch(handlePreloader(true))
 			const status = await Api.put(`/hris/company/${modal.item.id}`, params)
+			// return console.log(status, params, "put company")
 			dispatch(handlePreloader(false))
 			setModal({
 				title:'Office Form',
@@ -154,7 +134,7 @@ export default function OfficeIndex(){
 			if(!status) return toast.error(`Error : ${data}`, {
 				position: 'top-center'
 			})
-			fetchOffice()
+			fetchCompanies()
 			toast.success('Office has updated', {
 				position: 'top-center'
 			})
@@ -190,16 +170,6 @@ export default function OfficeIndex(){
 		}
 	}
 
-	const onAddUser = (item) => {
-		setModal({
-			title:'Assign employee',
-			mode:'assign',
-			item:item
-		})
-		setModalToggle(true)
-	}
-
-
 	return(
 		<>
 			<Row className='d-flex justify-content-between'>
@@ -214,7 +184,7 @@ export default function OfficeIndex(){
 			</Row>
 			<Row>
         {
-          offices.map((x, index) => (
+          companies.map((x, index) => (
             <Col md="4" key={index} className="position-relative">
               <Card>
                 <CardBody>
@@ -222,7 +192,7 @@ export default function OfficeIndex(){
                     <CardTitle tag='h4' className='my-0'>
                       {readMore(x.name,18)}
                     </CardTitle>
-                    <p className='text-body-tertiary pb-1 my-0'><small>Company office</small></p>
+                    <p className='text-body-tertiary pb-1 my-0'><small>Company</small></p>
                   </div>
                   <div className='d-flex align-items-center pointer'>
                     <Avatar color="light-info" icon={<User size={24} />} className='me-2' />
@@ -244,7 +214,7 @@ export default function OfficeIndex(){
             </Col>
           ))
         }
-        {!offices.length ? <div className="text-center">No Office found</div> : <></>}
+        {!companies.length ? <div className="text-center">No Office found</div> : <></>}
       </Row>
 
 			<Modal
