@@ -3,32 +3,39 @@ import { Button, Col, Form, FormFeedback, FormGroup, Input, Label, Row } from 'r
 import ButtonSpinner from '../../components/ButtonSpinner'
 import { Controller, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from "yup";
 import Api from "../../../../sevices/Api";
 
 
 export default function IncomeForm({isLoading, close, income, onSubmit}) {
+
+    const ItemSchema = yup.object().shape({
+        name: yup.string().required("Name is required"),
+        amount: yup.string().required("Amount is required"),
+        flag: yup.string().required()
+    })
     const {
         setValue,
         control,
         handleSubmit,
         formState: { errors },
-      } = useForm({ mode: "onChange"});
-      console.log(errors, "error");
+      } = useForm({ mode: "onChange", resolver: yupResolver(ItemSchema)});
 
-    useEffect(() => {
-        return console.log(income, "assurance")
-    },[income])
+    // useEffect(() => {
+    //     return console.log(income, "income")
+    //     setValue("name", )
+    // },[income])
 
-    const onSubmitIncome = async (arg) => {
+    const onSubmitIncome = (arg) => {
+        // return console.log(arg, "arg")
         onSubmit(arg)
     }
 
   return (
     <>
     <Form onSubmit={handleSubmit(onSubmitIncome)}>
-    <div className='py-1'>
-        <Col>
-        <FormGroup>
+    <div className='py-2'>
+        <Col sm='12' className='mb-1'>
             <Label for="form-label">
             Name
             </Label>
@@ -45,12 +52,9 @@ export default function IncomeForm({isLoading, close, income, onSubmit}) {
                 />
             )}/>
             {errors.name && <FormFeedback>{errors.name.message}</FormFeedback>}
-
-        </FormGroup>
         </Col>
-        <Row className='mb-1'>
-        <Col md='6' sm='12' className='mb-1'>
-            <FormGroup>
+        <Row className='my-2'>
+        <Col md='6' sm='12' >
             <Label className='form-label'>Amount (Rp)</Label>
             <Controller
             name='amount'
@@ -64,10 +68,8 @@ export default function IncomeForm({isLoading, close, income, onSubmit}) {
                 />
             )}/>
             {errors.amount && <FormFeedback>{errors.amount.message}</FormFeedback>}
-            </FormGroup>
         </Col>
         <Col md='6' sm='12' className='mb-1'>
-            <FormGroup>
             <Label className='form-label'>Flag</Label>
             <Controller
             name='flag'
@@ -75,20 +77,23 @@ export default function IncomeForm({isLoading, close, income, onSubmit}) {
             control={control}
             render={({field}) => (
                 <Input
-                type="text"
+                type="select"
                 {...field}
                 defaultValue={0}
                 name='flag'
-                />
+                placeholder='select flag'
+                >
+                    <option value='gaji pokok'>Gaji pokok</option>
+                    <option value='tunjangan'>Tunjangan</option>
+                </Input>
             )}/>
             {errors.flag && <FormFeedback>{errors.flag.message}</FormFeedback>}
-            </FormGroup>
         </Col>
 
-        </Row>
-        <Col>
+        </Row >
+        <Col className='mt-2'>
             <Button type='button' size='md' color='danger' className='mx-1' onClick={close}>Cancel</Button>
-            <ButtonSpinner label="Submit" type="submit" className="m-1"/>
+            <ButtonSpinner label="Submit" type="submit" className="mx-1"/>
         </Col>
 
     </div>

@@ -41,8 +41,6 @@ export default function AttendanceIndex(){
 		}
 	}
 
-	// console.log(users, "userData")
-
 		useEffect(() => {
 			fetchUser()
 		},[])
@@ -108,17 +106,20 @@ export default function AttendanceIndex(){
 		} 
 
 		const generateCalendarEvent = (arg) => {
+			// console.log(arg, "generateCalendarEvent arg")
 				const attendances = arg
 				const late = arg.filter(x => parseFloat(x.late_count) > 0)
+				// console.log(late, "generateCalendarEvent late")
 				setLate([...late])
 				setAttendanceLog([...attendances])
 
 				let calendarArr = JSON.stringify(calendar)
 				calendarArr = JSON.parse(calendarArr)
-
+				// console.log(calendarArr, "generateCalendarEvent calendarArr")
 				const result = []
 				calendarArr.forEach(x => {
-						const find = attendances.find(y => y.periode === x.periode)
+						const find = attendances.find(y => dayjs(y.periode).format("YYYY-MM-DD") === x.periode)
+						// console.log(find, "generateCalendarEvent find")
 						if(find){
 								x.is_filled = true
 								x.clock_in = dayjs(find.clock_in).format('HH:mm')
@@ -160,8 +161,6 @@ export default function AttendanceIndex(){
 			})
 			setToggleModal(true)
 		}
-
-		console.log(attendance, "attendance")
 
 		return(
 			<>

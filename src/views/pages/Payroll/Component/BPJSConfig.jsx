@@ -15,10 +15,13 @@ const BPJSConfig = ({isLoading, close, item, onSubmit}) => {
       console.log(errors, "error");
 
     useEffect(() => {
+        // return console.log(item)
+        if(item !== undefined) {
         setValue("name", item.name);
         setValue("payment type", item.is_employee)
         setValue("percentage", item.percentage)
         setValue("topper", item.topper)
+        }
     },[item])
 
     const onSubmitAssurance = async (arg) => {
@@ -65,6 +68,7 @@ const BPJSConfig = ({isLoading, close, item, onSubmit}) => {
                 type="select"
                 {...field}
                 name='payment'
+                value={item?.is_employee}
                 invalid={errors.payment && true}
                 >
                 <option value=''>Select</option>                                                                  

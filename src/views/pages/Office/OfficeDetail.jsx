@@ -31,7 +31,7 @@ export default function OfficeDetail({item, onDeleteUser}){
                         initials
                         className='me-1'
                         color="light-primary"
-                        content={x.employee.name}
+                        content={x.employee?.name || ""}
                     />
                     <div className='d-flex flex-column'>
                         <span className='fw-bolder'>{readMore(x.employee?.name, 20)}</span>

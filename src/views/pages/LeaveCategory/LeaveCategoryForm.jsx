@@ -17,7 +17,6 @@ export default function LeaveCategoryForm({item, close, onSubmit}){
 		handleSubmit,
 		formState: { errors }
 	} = useForm({ mode: 'onChange', resolver: yupResolver(ItemSchema) })
-  // console.log(errors, "error.message")
 
   const onSubmitForm = (arg) => {
       onSubmit(arg)

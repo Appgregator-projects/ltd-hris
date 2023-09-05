@@ -16,12 +16,13 @@ const MySwal = withReactContent(Swal)
 import { handlePreloader } from '../../../redux/layout'
 import { useDispatch } from 'react-redux'
 import EditCompany from "./CompanyForm"
+import CompanyDetail from "./CompanyDetail";
 // import FormUserAssign from "../components/FormUserAssign"
 
 export default function OfficeIndex(){
   const dispatch = useDispatch()
 
-	const [offices, setOffices] = useState([])
+	const [companies, setCompanies] = useState([])
 	const [modalToggle, setModalToggle] = useState(false)
 	const [modal, setModal] = useState({
 		title:'Company Form',
@@ -31,39 +32,18 @@ export default function OfficeIndex(){
 	const [users, setUsers] = useState([])
   	const [userSelect, setUserSelect] = useState([])
 	const [alluser, setAllUser] = useState(false);
-
-	// const fetchUser = async() => {
-	// 	try {
-	// 	const {data,status} = await api.get(`${process.env.VITE_AUTH_HOST}/api/users?alluser=true`)
-	// 			if(status){
-	// 				const userData = data.map(x => {
-	// 					return {
-	// 						value:x.user_id,
-	// 						label:x.user.email
-	// 					}
-	// 				})
-	// 				setUsers([...userData])
-	// 			}
-	// 	} catch (error) {
-	// 		throw error
-	// 	}
-	// }
-
-	useEffect(() => {
-		// fetchUser()
-	}, [])
 	
-	const fetchOffice = async() => {
+	const fetchCompanies = async() => {
 		try {
 			const data = await Api.get('/hris/company')
-			setOffices([...data])
+			setCompanies([...data])
 		} catch (error) {
 			throw error
 		}
 	}
 
 	useEffect(() => {
-		fetchOffice()
+		fetchCompanies()
 	},[])
 
 	const postDelete = (id) => {
@@ -90,13 +70,13 @@ export default function OfficeIndex(){
 			if (result.value) {
 				const status = await postDelete(item.id)
 				if (status) {
-				const oldCom = offices
+				const oldCom = companies
 				oldCom.splice(index, 1)
-				setOffices([...oldCom])
+				setCompanies([...oldCom])
 				return  MySwal.fire({
 					icon: 'success',
 					title: 'Deleted!',
-					text: 'Office has deleted.',
+					text: 'Company has been deleted.',
 					customClass: {
 					confirmButton: 'btn btn-success'
 					}
@@ -110,6 +90,11 @@ export default function OfficeIndex(){
 	}
 
 	const onAdd = () => {
+		setModal({
+			title: "Add Company",
+			mode: "add",
+			item: null
+		})
 		setModalToggle(true)
 	}
 	
@@ -118,12 +103,12 @@ export default function OfficeIndex(){
 			if(modal.item) return postUpdate(params)
 			dispatch(handlePreloader(true))
 			const status = await Api.post('/hris/company', params)
-			// return console.log(status, 'params post office')
+			// return console.log(status, 'params post companies')
 			dispatch(handlePreloader(false))
 			if(!status) return toast.error(`Error : ${data}`, {
 				position: 'top-center'
 			})
-			fetchOffice()
+			fetchCompanies()
 			toast.success('Office has saved', {
         position: 'top-center'
       })
@@ -136,10 +121,10 @@ export default function OfficeIndex(){
 	}
 
 	const postUpdate = async(params) => {
-		return console.log(params, "params")
 		try {
 			dispatch(handlePreloader(true))
 			const status = await Api.put(`/hris/company/${modal.item.id}`, params)
+			// return console.log(status, params, "put company")
 			dispatch(handlePreloader(false))
 			setModal({
 				title:'Office Form',
@@ -149,7 +134,7 @@ export default function OfficeIndex(){
 			if(!status) return toast.error(`Error : ${data}`, {
 				position: 'top-center'
 			})
-			fetchOffice()
+			fetchCompanies()
 			toast.success('Office has updated', {
 				position: 'top-center'
 			})
@@ -185,55 +170,6 @@ export default function OfficeIndex(){
 		}
 	}
 
-	const onAddUser = (item) => {
-		setModal({
-			title:'Assign employee',
-			mode:'assign',
-			item:item
-		})
-		setModalToggle(true)
-	}
-
-	// const assignUser = async() => {
-	// 	const params = userSelect.map(x => x.value)
-	// 	try {
-	// 		const {status, data} = await Api.post(`/hris/company-ass/${modal.item.id}`,{
-	// 			employees:params.length ? params : ['all'],
-	// 			is_all:alluser
-	// 		})
-	// 		if(!status) return toast.error(`Error : ${data}`, {
-	// 			position: 'top-center'
-	// 		}) 
-	// 		fetchOffice()
-	// 		toast.success('Office has updated', {
-	// 			position: 'top-center'
-	// 		})
-	// 		setModalToggle(false)
-	// 	} catch (error) {
-	// 		return toast.error(`Error : ${error.message}`, {
-	// 			position: 'top-center'
-	// 		})
-	// 	}
-	// }
-
-	// const onDeleteUser = async(arg) => {
-	// 	try {
-	// 		const params = {
-	// 			employee:arg.user_id
-	// 		}
-	// 		const {status} = await Api.post(`api/office/${arg.company_office_id}/removed-user`, params)
-	// 		setModalToggle(false)
-	// 		fetchOffice()
-	// 		toast.success('Office has updated', {
-	// 			position: 'top-center'
-	// 		})
-	// 	} catch (error) {
-	// 		return toast.error(`Error : ${error.message}`, {
-	// 			position: 'top-center'
-	// 		})
-	// 	}		
-	// }
-
 	return(
 		<>
 			<Row className='d-flex justify-content-between'>
@@ -248,7 +184,7 @@ export default function OfficeIndex(){
 			</Row>
 			<Row>
         {
-          offices.map((x, index) => (
+          companies.map((x, index) => (
             <Col md="4" key={index} className="position-relative">
               <Card>
                 <CardBody>
@@ -256,7 +192,7 @@ export default function OfficeIndex(){
                     <CardTitle tag='h4' className='my-0'>
                       {readMore(x.name,18)}
                     </CardTitle>
-                    <p className='text-body-tertiary pb-1 my-0'><small>Company office</small></p>
+                    <p className='text-body-tertiary pb-1 my-0'><small>Company</small></p>
                   </div>
                   <div className='d-flex align-items-center pointer'>
                     <Avatar color="light-info" icon={<User size={24} />} className='me-2' />
@@ -274,14 +210,11 @@ export default function OfficeIndex(){
 								<div className="pointer">
 									<Trash className='me-50' size={15} onClick={() => onDelete(x, index)}/> <span className='align-middle'></span>
 								</div>
-								<div className="pointer">
-									<UserPlus className='me-50' size={15} onClick={() => onAddUser(x)}/> <span className='align-middle'></span>
-								</div>
               </div>
             </Col>
           ))
         }
-        {!offices.length ? <div className="text-center">No Office found</div> : <></>}
+        {!companies.length ? <div className="text-center">No Office found</div> : <></>}
       </Row>
 
 			<Modal
@@ -295,35 +228,7 @@ export default function OfficeIndex(){
         <ModalBody>
 					{modal.mode === 'add' ? <EditCompany onSubmit={postForm} close={() => setModalToggle(false)}/> : <></>}
 					{modal.mode === 'edit' ? <EditCompany onSubmit={postForm} close={() => setModalToggle(false)} item={modal.item}/> : <></>}
-					{modal.mode === 'detail' ? <OfficeDetail item={modal.item} onDeleteUser={onDeleteUser}/> : <></>}
-					{
-						modal.mode == 'assign' ? 
-						<>
-						 <FormGroup switch>
-							<Input
-								type="switch"
-								checked={alluser}
-								onChange={() => {
-									setAllUser(!alluser);
-								}}
-							/>
-							<Label check>Assign all employee to this office ?</Label>
-						</FormGroup>
-						<FormUserAssign
-							disabled={alluser}
-							options={users}
-							multiple={true}
-							disable={true}
-							onSelect={(arg) => {
-								setUserSelect([...arg])
-							}}/>
-							<Col>
-								<Button type="button" size="md" color='danger' onClick={()=>setModalToggle(false)}>Cancel</Button>
-								<Button type="submit" size="md" color='primary' className="m-1" onClick={assignUser}>Submit</Button>
-							</Col>
-						</>
-						: <></>
-						}
+					{modal.mode === 'detail' ? <CompanyDetail item={modal.item}/> : <></>}
 				</ModalBody>
 			</Modal>
 		</>
