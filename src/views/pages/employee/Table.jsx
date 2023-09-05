@@ -66,19 +66,19 @@ export const serverSideColumns = (onDelete, onEdit) => {
       sortable: true,
       name: "Title",
       minWidth: "225px",
-      selector: (row) => (row ? row.title : "-"),
+      selector: row => row ? row.title : "-",
     },
     {
       sortable: true,
       name: "Division",
       minWidth: "250px",
-      selector: (row) => (row?.division_id),
+      selector: row => row.division ? row.division.name : "-",
     },
     {
       sortable: true,
       name: "Register At",
       minWidth: "250px",
-      selector: (row) => dateTimeFormat(row.createdAt),
+      selector: row => dateTimeFormat(row.createdAt),
     },
     {
       sortable: false,
@@ -114,7 +114,6 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
   const [searchValue, setSearchValue] = useState("");
 
   const fetchEmployee = async (params) => {
-    console.log(params, "params")
     try {
       const data = await Api.get(`/hris/employee?page=${params.page}&limit=${params.perPage}&search=${params.search}`);
       setEmployees([...data.rows]);
@@ -137,6 +136,7 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
 
   // ** Function to handle filter
   const handleFilter = (e) => {
+    console.log(e.target.value, "search users")
     setSearchValue(e.target.value);
     fetchEmployee({
       page: currentPage,

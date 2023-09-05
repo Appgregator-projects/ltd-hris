@@ -15,6 +15,8 @@ import {
   AccordionItem,
   AccordionBody,
   AccordionHeader,
+  Label,
+  Input,
 } from "reactstrap";
 import { Edit, Trash, User, Plus, Lock, UserPlus, Circle } from "react-feather";
 import Avatar from "@components/avatar";
@@ -59,19 +61,20 @@ const renderClient = (row) => {
 export default function DivisionIndex() {
   const [divisions, setDivisions] = useState([]);
   const [toggleModal, setToggleModal] = useState(false);
+  const [isRefresh, setIsRefresh] = useState(false)
   const [users, setUsers] = useState([]);
   const [userSelect, setUserSelect] = useState(null);
   const [selectDivison, setSelectDevision] = useState([]);
+  const [searchValue, setSearchValue] = useState("")
   const [modal, setModal] = useState({
     title: "Division form",
     mode: "add",
     item: null,
   });
 
-  const fetchDivision = async () => {
+  const fetchDivision = async (params) => {
     try {
-      const data = await Api.get("/hris/division");
-      // console.log(data, "data division")
+      const data = await Api.get(`/hris/division?search=${params.search}`);
       const result = getNestedChildren(data, null);
       setDivisions(result.filter((x) => x.deletedAt === null));
       setSelectDevision(data.filter((x) => x.deletedAt === null));
@@ -81,8 +84,21 @@ export default function DivisionIndex() {
   };
 
   useEffect(() => {
-    fetchDivision();
-  }, []);
+    if (isRefresh) {
+      fetchDivision({search:''});
+    }
+  }, [isRefresh]);
+
+  useEffect(() => {
+    fetchDivision({search: ""})
+  }, [])
+
+  const handleFilter = (e) => {
+    setSearchValue(e.target.value);
+    fetchDivision({
+      search: e.target.value
+    })
+  }
 
   const fetchUser = async () => {
     try {
@@ -92,8 +108,6 @@ export default function DivisionIndex() {
       throw error;
     }
   };
-
-  console.log(users, "users division")
 
   useEffect(() => {
     fetchUser();
@@ -109,7 +123,7 @@ export default function DivisionIndex() {
   };
 
   const onEdit = (item) => {
-    // return console.log(item, "item")
+    // return console.log(item, "edit button")
     setModal({
       title: "Division form",
       mode: "edit",
@@ -121,13 +135,11 @@ export default function DivisionIndex() {
   const postUpdate = async (params) => {
     const itemUpdate = {
       name : params.name,
-      parent : params.parent.value,
+      parent_id : params.parent.value,
       manager_id : params.manager_id.value
     }
-    // return console.log(itemUpdate, params , "params division")
     try {
       const status = await Api.put(`/hris/division/${modal.item.id}`, itemUpdate);
-      console.log(status, "has updated")
       if (!status)
         return toast.error(`Error : ${status}`, {
           position: "top-center",
@@ -146,16 +158,15 @@ export default function DivisionIndex() {
   };
 
   const onSubmit = async (params) => {
-    // return console.log(params.parent, "params")  
     const itemPost = {
       name : params.name,
-      parent_id : params.parent,
+      parent_id : params.parent.value,
       manager_id : params.manager_id.value
     }
     try {
       if (modal.item) return postUpdate(params);
       const status = await Api.post(`/hris/division`, itemPost);
-      // return console.log(status, "status submit division")
+      console.log(status,"post divisio")
       if (!status)
         return toast.error(`Error : ${data}`, {
           position: "top-center",
@@ -231,6 +242,22 @@ export default function DivisionIndex() {
         <Card>
           <CardHeader>
             <CardTitle>Divisions</CardTitle>
+            <Col
+            className="d-flex align-items-center justify-content-sm-end mt-sm-0 mt-1"
+            sm="3"
+          >
+            <Label className="me-1" for="search-input">
+              Search
+            </Label>
+            <Input
+              className="dataTable-filter"
+              type="text"
+              bsSize="sm"
+              id="search-input"
+              value={searchValue}
+              onChange={handleFilter}
+            />
+          </Col>
           </CardHeader>
           <CardBody>
             <Table responsive>
@@ -292,6 +319,8 @@ export default function DivisionIndex() {
               close={() => setToggleModal(false)}
               divisions={divisions}
               selectDivison={selectDivison}
+              item={modal.item}
+              type={"add"}
             />
           ) : (
             <></>
@@ -304,6 +333,7 @@ export default function DivisionIndex() {
               close={() => setToggleModal(false)}
               divisions={divisions}
               selectDivison={selectDivison}
+              type="edit"
             />
           ) : (
             <></>

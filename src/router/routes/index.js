@@ -113,14 +113,14 @@ const Routes = [
       resource: "BRANCHES",
     },
   },
-  {
-    path: "/office/:office_id",
-    element: <OfficeDetail />,
-    meta: {
-      action: "read",
-      resource: "BRANCHES",
-    },
-  },
+    // {
+    //   path: "/office/:office_id",
+    //   element: <OfficeDetail />,
+    //   meta: {
+    //     action: "read",
+    //     resource: "BRANCHES",
+    //   },
+    // },
   {
     path: "/division",
     element: <Division />,

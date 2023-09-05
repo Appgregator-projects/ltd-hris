@@ -36,11 +36,11 @@ export default function PayrollIndex() {
 		fetchAssurance()
 	},[])
 
-  const onBpjsConfig = (x) => {
+  const onBpjsConfig = () => {
     setModal({
       title: "BPJS Config",
       mode: "add",
-      item: x
+      item: null
     })
     setToggleModal(true)
   }
@@ -228,7 +228,6 @@ export default function PayrollIndex() {
             <BPJSConfig
               isLoading={isLoading}
               close={() => setToggleModal(!toggleModal)}
-              // bpjsRule={modal.item}
               onSubmit={onSubmit}
               /> :<></>}
             {modal.mode === "edit"? 

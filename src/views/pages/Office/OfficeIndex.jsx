@@ -25,7 +25,7 @@ export default function OfficeIndex(){
 	const [offices, setOffices] = useState([])
 	const [modalToggle, setModalToggle] = useState(false)
 	const [modal, setModal] = useState({
-		title:'Office Form',
+		title:'Add Office',
 		mode:'add',
 		item:null
 	})
@@ -36,11 +36,12 @@ export default function OfficeIndex(){
 
 	const fetchUser = async() => {
 		try {
-		const data = await Api.get(`/hris/employee`)
+		const data = await Api.get(`hris/employee?no_paginate=true`)
+		// return console.log(data," ini data office user")
 				if(data){
 					const userData = data.map(x => {
 						return {
-							value:x.user_id,
+							value:x.id,
 							label:x.email
 						}
 					})
@@ -50,7 +51,6 @@ export default function OfficeIndex(){
 			throw error
 		}
 	}
-
 	useEffect(() => {
 		fetchUser()
 	}, [])
@@ -112,6 +112,11 @@ export default function OfficeIndex(){
 	}
 
 	const onAdd = () => {
+		setModal({
+			title:"Add Office",
+			mode: "add",
+			item: null
+		})
 		setModalToggle(true)
 	}
 	
@@ -198,11 +203,14 @@ export default function OfficeIndex(){
 
 	const assignUser = async() => {
 		const params = userSelect.map(x => x.value)
+		// return console.log(params.length, "modal")
+		const itemPatch = {
+			employee:params.length ? params : ['all'],
+			is_all:alluser
+		}
 		try {
-			const {status, data} = await Api.post(`/hris/company-ass/${modal.item.id}`,{
-				employees:params.length ? params : ['all'],
-				is_all:alluser
-			})
+			const status = await Api.patch(`/hris/office/${modal.item.id}/assign-user`,itemPatch)
+			return console.log(status, itemPatch, "params userselect")
 			if(!status) return toast.error(`Error : ${data}`, {
 				position: 'top-center'
 			}) 
@@ -219,11 +227,13 @@ export default function OfficeIndex(){
 	}
 
 	const onDeleteUser = async(arg) => {
+		// return console.log(arg, "arg ondeleeuser")
 		try {
 			const params = {
 				employee:arg.user_id
 			}
-			const {status} = await Api.post(`api/office/${arg.company_office_id}/removed-user`, params)
+			const {status} = await Api.delete(`/hris/office/${arg.office_id}/remove-user`)
+			console.log(status, "status delete user")
 			setModalToggle(false)
 			fetchOffice()
 			toast.success('Office has updated', {

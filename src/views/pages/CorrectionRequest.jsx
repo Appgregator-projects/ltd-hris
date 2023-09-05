@@ -2,68 +2,94 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { 
   Badge, Card, CardBody, CardHeader, CardTitle, Col,Row, Table,UncontrolledTooltip,
-  Modal,ModalBody,ModalHeader,Button, ModalFooter
+  Modal,ModalBody,ModalHeader,Button, ModalFooter, Form, Label, Input
 } from "reactstrap";
 // import api from '../../plugins/api'
 import {dateFormat,dateTimeFormat} from '../../Helper/index'
 import {
   Eye
 } from 'react-feather'
-
+import Api from "../../sevices/Api";
 import { Link } from "react-router-dom";
 import toast from 'react-hot-toast'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
+import { Controller, useForm } from "react-hook-form";
 const MySwal = withReactContent(Swal)
 
 export default function CorrectionIndex(){
   
   const [corrections, setCorrection] = useState([])
+  const [users, setUsers] = useState([])
   const [toggleModal, setToggleModal] = useState(false)
+  const [nestedToggle, setNestedToggle] = useState(false)
   const [selectItem, setSelectItem] = useState(null)
 
-//   const fetchCorrection = async() => {
-//     try {
-//       const {data} = await api.get('/api/correction')
-//       setCorrection([...data])
-//     } catch (error) {
-//       throw error
-//     }
-//   }
+  const {
+    setValue, control, handleSubmit, formState: {errors}
+  } = useForm({ mode: "onChange"});
+  console.log(errors, "error");
 
+  const fetchCorrection = async() => {
+    try {
+      const data = await Api.get('/hris/correction')
+      setCorrection([...data])
+    } catch (error) {
+      throw error
+    }
+  }
   useEffect(() => {
-    // fetchCorrection()
+    fetchCorrection()
   },[])
 
   const onDetail = (arg) => {
+    console.log(arg, "arg on detail")
     setSelectItem(arg)
     setToggleModal(true)
   }
 
-  const onApproval = async(arg) => {
+  const onReject = (arg) => {
+    console.log(arg, "Rejected");
+    setNestedToggle(true)
+    return onSubmit(arg, "Rejected")
+  };
+
+  const onApproval = () => {
+    console.log("Approved");
+    return onSubmit(null,"Approved")
+  };
+
+  const onCloseAll = () => {  
+    setNestedToggle(!nestedToggle)
+    setCloseAll(true)
+  }
+
+  const onSubmit = async(arg , status) => {
     return MySwal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: `Yes, ${arg} it!`,
+      confirmButtonText: `Yes, ${status} it!`,
       customClass: {
           confirmButton: 'btn btn-primary',
           cancelButton: 'btn btn-outline-danger ms-1'
       },
-      buttonsStyling: false
+      buttonsStyling: false 
     }).then(async (result) => {
       if (result.value) {
         try {
           const params = {
-            status:arg
+            status:status,
+            note: arg? arg.rejected_note : " "
           }
-          const {status,data} = await api.post(`/api/correction/${selectItem.id}/approval`, params)
+          const status = await Api.put(`/hris/correction/${selectItem.id}`, params)
+          console.log(status, params,  "status post correction")
           if(!status) return toast.error(`Error : ${data}`, {
             position: 'top-center'
           }) 
           fetchCorrection()
-          toast.success(data, {
+          toast.success(status, {
             position: 'top-center'
           })
           setToggleModal(false)
@@ -110,7 +136,7 @@ export default function CorrectionIndex(){
                   {
                     corrections.map((x,index) => (
                       <tr key={index}>
-                        <td>{x.user.email}</td>
+                        <td>{x?.users? x.users.name : "-"}</td>
                         <td>{dateFormat(x.clock_in)}</td>
                         <td>{dayjs(x.clock_in).format('HH:mm')} | { dayjs(x.clock_out).format('HH:mm')}</td>
                         <td>
@@ -151,11 +177,11 @@ export default function CorrectionIndex(){
                   <ul className="list-none padding-none">
                     <li className="d-flex justify-content-between pb-1">
                       <span className="fw-bold">Employee Name</span>
-                      <span className="capitalize">{selectItem.user.name}</span>
+                      <span className="capitalize">{selectItem.users.name}</span>
                     </li>
                     <li className="d-flex justify-content-between pb-1">
                       <span className="fw-bold">Employee Email</span>
-                      <span>{selectItem.user.email}</span>
+                      <span>{selectItem.users.email}</span>
                     </li>
                     <li className="d-flex justify-content-between pb-1">
                       <span className="fw-bold">Created At</span>
@@ -163,7 +189,7 @@ export default function CorrectionIndex(){
                     </li>
                     <li className="d-flex justify-content-between pb-1">
                       <span className="fw-bold">Current Status</span>
-                      <span>{selectItem.current_status}</span>
+                      <span>{selectItem.current_status ? selectItem.current_status : " "}</span>
                     </li>
                     <li className="d-flex justify-content-between pb-1">
                       <span className="fw-bold">Correction Date</span>
@@ -175,18 +201,18 @@ export default function CorrectionIndex(){
                     </li>
                     <li className="d-flex justify-content-between pb-1">
                       <span className="fw-bold">Clock out</span>
-                      <span>{dayjs(selectItem.clock_ou).format('HH:mm')}</span>
+                      <span>{dayjs(selectItem.clock_out).format('HH:mm')}</span>
                     </li>
-                    <li className="d-flex justify-content-between pb-1">
+                    {/* <li className="d-flex justify-content-between pb-1">
                       <span className="fw-bold">Attachment</span>
                       <span>
                         <Link to={selectItem.image} target="_blank">attachment</Link>
                       </span>
-                    </li>
-                    <li className="d-flex justify-content-between pb-1">
+                    </li> */}
+                    {/* <li className="d-flex justify-content-between pb-1">
                       <span className="fw-bold">Reason</span>
                       <span>{selectItem.reason}</span>
-                    </li>
+                    </li> */}
                 </ul>
                 </>
               : <></>
@@ -196,8 +222,46 @@ export default function CorrectionIndex(){
             {
               selectItem ? 
               <div className="">
-                <Button type="button" size="md" color='danger' disabled={!!selectItem.current_status} onClick={() => onApproval('rejected')}>Reject</Button>
-                <Button type="submit" size="md" color='primary' disabled={!!selectItem.current_status} className="m-1" onClick={() => onApproval('approved')}>Approv</Button>
+                <Button type="button" size="md" color='danger' disabled={!!selectItem.current_status} onClick={() => setNestedToggle(!nestedToggle)}>
+                <Modal
+                    isOpen={nestedToggle}
+                    toggle={onReject}
+                    className={`modal-dialog-centered modal-lg`}
+                    backdrop={"static"}
+                    // onClosed={close}
+                  >
+                  <Form onSubmit={handleSubmit(onReject)}>
+                    <ModalHeader>Note</ModalHeader>
+                    <ModalBody>
+                      <Label for="rejected_note"
+                      >Rejected Note</Label>
+                      <Controller
+                      name="rejected_note"
+                      defaultValue=""
+                      control={control}
+                      render={({field}) => (
+                        <Input
+                        id="rejected_note"
+                        {...field}
+                        name="rejected_note"
+                        type="textarea"
+                        invalid={errors.rejected_note && true}/>
+                      )}/>
+                      {errors.rejected_note && <FormFeedback>{errors.rejected_note.message}</FormFeedback>}
+                    </ModalBody>
+                    <ModalFooter>
+                      <Button color="danger" onClick={() =>  onCloseAll()}>
+                        Cancel
+                      </Button>
+                      <Button color="primary" type="submit" size="md">
+                        Send
+                      </Button>
+                    </ModalFooter>
+                  </Form>
+                </Modal>  
+                  Reject
+                </Button>
+                <Button type="submit" size="md" color='primary' disabled={!!selectItem.current_status} className="m-1" onClick={() => onApproval()}>Approve</Button>
               </div> : <></>
             }
           </ModalFooter>

@@ -27,6 +27,7 @@ import Api from "../../../sevices/Api";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useDispatch } from "react-redux";
+import Cookies from "js-cookie";
 const MySwal = withReactContent(Swal);
 
 // console.log(auth, 'ini auth siapa ya')
@@ -42,6 +43,13 @@ const UsersList = () => {
   const [roles, setRoles] = useState([]);
   const [office, setOffice] = useState([]);
   const [employee, setEmployee] = useState([]);
+  const [modal, setModal] = useState({
+    title: "",
+    mode: "",
+    item: null
+  })
+
+  const company_id = Cookies.get("company_id")
 
   const fetchCompany = async () => {
     try {
@@ -56,10 +64,10 @@ const UsersList = () => {
     fetchCompany();
   }, []);
 
-  const fetchDivision = async (params) => {
+  const fetchDivision = async () => {
+    // return console.log(params, "params")
     try {
-      const data = await Api.get(`/hris/division`);
-      // return console.log(data)
+      const data = await Api.get(`/hris/division?search=`);
       setDivisions([...data]);
     } catch (error) {
       throw error;
@@ -97,23 +105,20 @@ const UsersList = () => {
   useEffect(() => {
     fetchOffice();
   }, []);
-
+  
   const submitForm = async (params) => {
-    // return console.log(params, "params");
+    // return console.log(params, itemActive, "params");
     try {
       if (itemActive) return postEdit(params);
       dispatch(handlePreloader(true));
       const { user } = await createUserWithEmailAndPassword(
-        auth,
-        params.email,
-        params.password
-      );
-      // return console.log(user, "ini userid");
-      const { uid } = user;
-      params.uid = uid;
-      console.log(params.uid, "data submitform");
-      const status = await Api.post(`/hris/employee`, params, params.user_id = uid);
-      console.log(status, "status")
+          auth,
+          params.email,
+          params.password
+        );
+        const { uid } = user;
+        params.uid = uid;
+        const status = await Api.post(`/hris/employee`, params, params.user_id = uid);
       dispatch(handlePreloader(false));
       if (!status)
         return toast.error(`Error : ${data}`, {
@@ -144,12 +149,12 @@ const UsersList = () => {
   };
 
   const postEdit = async (params) => {
-    return console.log(params, "itemActive")
+    // return console.log(params, "itemActive")
     try {
       params.id = itemActive.id;
       dispatch(handlePreloader(true));
       const status = await Api.put(`/hris/employee/${params.id}`,params);
-      return console.log(status, "ini params edit")
+      return console.log(status, params, "ini params edit")
       dispatch(handlePreloader(false));
       if (!status)
         return toast.error(`Error : ${data}`, {
@@ -167,8 +172,22 @@ const UsersList = () => {
     }
   };
 
+  const onAdd = () => {
+    setModal({
+      title: "Add Employee",
+      mode: "add",
+      item: null
+    })
+    setToggleModal(true)
+  }
+
   const onEdit = (params) => {
-    // return console.log(params, "on edit")
+    console.log(params, "on edit")
+    setModal({
+      title: "Edit Employee",
+      mode: "edit",
+      item: {...params}
+    })
     setItemActive({ ...params });
     setToggleModal(true);
   };
@@ -216,7 +235,7 @@ const UsersList = () => {
               <Button.Ripple
                 size="sm"
                 color="warning"
-                onClick={() => setToggleModal(true)}
+                onClick={onAdd}
               >
                 <UserPlus size={14} />
                 <span className="align-middle ms-25">Add Employee</span>
@@ -262,15 +281,29 @@ const UsersList = () => {
           Employee Form
         </ModalHeader>
         <ModalBody>
+          {modal.mode === "add"? 
+          <FormEmployee
+          close={() => setToggleModal(!toggleModal)}
+          onSubmit={submitForm}
+          company={companies}
+          division={divisions}
+          role={roles}
+          office={office}
+          companyId={company_id}
+
+          /> : <></>}
+          {modal.mode === "edit" ? 
           <FormEmployee
             close={() => setToggleModal(!toggleModal)}
             onSubmit={submitForm}
-            item={itemActive}
+            item={modal.item}
             company={companies}
             division={divisions}
             role={roles}
             office={office}
-          />
+            companyId={company_id}
+          /> : <></>
+          }
         </ModalBody>
       </Modal>
     </>
