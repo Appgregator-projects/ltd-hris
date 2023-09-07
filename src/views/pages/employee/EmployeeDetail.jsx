@@ -167,12 +167,13 @@ export default function EmployeeDetail() {
 	}
 
 	const onEditIncome = (x) => {
+		console.log(x, "add config")
 		setModal({
 			title: "Employee Income",
 			mode: "income",
 			item: x
 		})
-		setToggleModal(true)
+		setToggleModal(true)	
 
 	}
 
@@ -202,10 +203,10 @@ export default function EmployeeDetail() {
 	}
 
 	const postIncome = async(params) => {
-		return console.log(params, "params postincome")
+		// return console.log(params, "params postincome")
 		try {
 			const status = await Api.post(`/hris/employee-income/${id.uid}`, params)
-			return console.log(status, "status")
+			console.log(status, "status")
 			if (!status)
 			return toast.error(`Error : ${data}`, {
 			  position: "top-center",
@@ -279,7 +280,6 @@ export default function EmployeeDetail() {
 		}
 
 	}
-
 
 	return (
 		<>
@@ -393,10 +393,16 @@ export default function EmployeeDetail() {
 							</Table>
 						</CardBody>
 						<CardFooter>
-							<Button size="sm" type="button" color='warning'>
+							<Fragment>
+							<Button.Ripple
+								size="sm"
+								color="warning"
+								onClick={(e) => {e.preventDefault() ; onEditIncome(income)}}
+							>
 								<Edit size={13} />
-								<span className='align-middle ms-25' onClick={() => onEditIncome(income)}>Edit</span>
-							</Button>
+								<span className="align-middle ms-25">Add Income</span>
+							</Button.Ripple>
+							</Fragment>
 						</CardFooter>
 					</Card>
 					</Col>
@@ -431,10 +437,16 @@ export default function EmployeeDetail() {
 								</Table>
 							</CardBody>
 							<CardFooter>
-								<Button size="sm" type="button" color='warning'>
-									<Edit size={13} />
-									<span className='align-middle ms-25' onClick={() => onEditLeave()}>Edit</span>
-								</Button>
+								<Fragment>
+									<Button.Ripple
+										size="sm"
+										color="warning"
+										onClick={(e) => {e.preventDefault() ; onEditLeave()}}
+									>
+										<Edit size={13} />
+										<span className="align-middle ms-25">Edit Leave</span>
+									</Button.Ripple>
+								</Fragment>
 							</CardFooter>
 						</Card>
 					</Col>

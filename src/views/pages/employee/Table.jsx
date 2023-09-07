@@ -123,6 +123,8 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
     }
   };
 
+  console.log(employees, "employees")
+
   useEffect(() => {
     if (isRefresh) {
     fetchEmployee({page:currentPage, perPage:rowsPerPage, search:''});
