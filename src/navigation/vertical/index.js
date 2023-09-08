@@ -12,88 +12,100 @@ import {
   Users,
   Target,
   CreditCard
-} from "react-feather";
+} from "react-feather"
 
 export default [
   {
-    header: "Dashboard",
+    header: "Dashboard"
   },
   {
     id: "home",
     title: "Home",
     icon: <Home size={20} />,
-    navLink: "/home",
+    navLink: "/home"
   },
   {
     id: "attendance",
     title: "Attendance",
     icon: <Calendar size={20} />,
-    navLink: "/attendance",
+    navLink: "/attendance"
   },
   {
     id: "correction-request",
     title: "Correction Request",
     icon: <MessageCircle size={20} />,
-    navLink: "/correction-request",
+    navLink: "/correction-request"
   },
   {
     id: "leave-request",
     title: "Leave Request",
     icon: <Twitch size={20} />,
-    navLink: "/leave-request",
+    navLink: "/leave-request"
   },
   {
-    header: "e-Learning",
+    header: "e-Learning"
   },
   {
     id: "courses",
     title: "Courses",
     icon: <BookOpen size={20} />,
-    navLink: "/courses",
+    navLink: "/courses"
   },
   {
     id: "group",
     title: "Group",
     icon: <Users size={20} />,
-    navLink: "/groups",
+    navLink: "/groups"
+  },
+
+  {
+    header: "Payroll"
   },
   {
-    header: "Master data",
+    id: "Deductions",
+    title: "Deductions",
+    icon: <CreditCard size={20} />,
+    navLink: "/payroll-deduction"
+  },
+  {
+    id: "Payrolls",
+    title: "Payrolsl",
+    icon: <CreditCard size={20} />,
+    navLink: "/payroll"
+  },
+
+  {
+    header: "Master data"
   },
   {
     id: "employee",
     title: "Users",
     icon: <User size={20} />,
-    navLink: "/employee",
+    navLink: "/employee"
   },
-  {
-    id: "payroll",
-    title: "Payroll",
-    icon: <CreditCard size={20} />,
-    navLink: "/payroll",
-  },
+  
   {
     id: "company",
     title: "Company",
     icon: <Target size={20} />,
-    navLink: "/company",
+    navLink: "/company"
   },
   {
     id: "office",
     title: "Office",
     icon: <Slack size={20} />,
-    navLink: "/office",
+    navLink: "/office"
   },
   {
     id: "division",
     title: "Division",
     icon: <Chrome size={20} />,
-    navLink: "/division",
+    navLink: "/division"
   },
   {
     id: "leave-category",
     title: "Leave Category",
     icon: <Hash size={20} />,
-    navLink: "/leave-category",
-  },
-];
+    navLink: "/leave-category"
+  }
+]

@@ -1,133 +1,133 @@
 // ** React Imports
-import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useState, useEffect } from "react"
+import { useLocation } from "react-router-dom"
 
 // ** Store & Actions
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux"
 import {
   handleMenuCollapsed,
   handleContentWidth,
-  handleMenuHidden,
-} from "@store/layout";
+  handleMenuHidden
+} from "@store/layout"
 
 // ** Third Party Components
-import classnames from "classnames";
-import { ArrowUp } from "react-feather";
+import classnames from "classnames"
+import { ArrowUp } from "react-feather"
 
 // ** Reactstrap Imports
-import { Navbar, Button } from "reactstrap";
+import { Navbar, Button } from "reactstrap"
 
 // ** Configs
-import themeConfig from "@configs/themeConfig";
+import themeConfig from "@configs/themeConfig"
 
 // ** Custom Components
 
-import Customizer from "@components/customizer";
-import ScrollToTop from "@components/scrolltop";
-import FooterComponent from "./components/footer";
-import NavbarComponent from "./components/navbar";
-import SidebarComponent from "./components/menu/vertical-menu";
+import Customizer from "@components/customizer"
+import ScrollToTop from "@components/scrolltop"
+import FooterComponent from "./components/footer"
+import NavbarComponent from "./components/navbar"
+import SidebarComponent from "./components/menu/vertical-menu"
 
 // ** Custom Hooks
-import { useRTL } from "@hooks/useRTL";
-import { useSkin } from "@hooks/useSkin";
-import { useLayout } from "@hooks/useLayout";
-import { useNavbarType } from "@hooks/useNavbarType";
-import { useFooterType } from "@hooks/useFooterType";
-import { useNavbarColor } from "@hooks/useNavbarColor";
+import { useRTL } from "@hooks/useRTL"
+import { useSkin } from "@hooks/useSkin"
+import { useLayout } from "@hooks/useLayout"
+import { useNavbarType } from "@hooks/useNavbarType"
+import { useFooterType } from "@hooks/useFooterType"
+import { useNavbarColor } from "@hooks/useNavbarColor"
 
 // ** Styles
-import "@styles/base/core/menu/menu-types/vertical-menu.scss";
-import "@styles/base/core/menu/menu-types/vertical-overlay-menu.scss";
+import "@styles/base/core/menu/menu-types/vertical-menu.scss"
+import "@styles/base/core/menu/menu-types/vertical-overlay-menu.scss"
 
 const VerticalLayout = (props) => {
   // ** Props
-  const { menu, navbar, footer, children, menuData } = props;
+  const { menu, navbar, footer, children, menuData } = props
 
   // ** Hooks
-  const [isRtl, setIsRtl] = useRTL();
-  const { skin, setSkin } = useSkin();
-  const { navbarType, setNavbarType } = useNavbarType();
-  const { footerType, setFooterType } = useFooterType();
-  const { navbarColor, setNavbarColor } = useNavbarColor();
-  const { layout, setLayout, setLastLayout } = useLayout();
+  const [isRtl, setIsRtl] = useRTL()
+  const { skin, setSkin } = useSkin()
+  const { navbarType, setNavbarType } = useNavbarType()
+  const { footerType, setFooterType } = useFooterType()
+  const { navbarColor, setNavbarColor } = useNavbarColor()
+  const { layout, setLayout, setLastLayout } = useLayout()
 
   // ** States
-  const [isMounted, setIsMounted] = useState(false);
-  const [menuVisibility, setMenuVisibility] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [isMounted, setIsMounted] = useState(false)
+  const [menuVisibility, setMenuVisibility] = useState(false)
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth)
 
   // ** Vars
-  const dispatch = useDispatch();
-  const layoutStore = useSelector((state) => state.layout);
+  const dispatch = useDispatch()
+  const layoutStore = useSelector((state) => state.layout)
 
   // ** Update Window Width
   const handleWindowWidth = () => {
-    setWindowWidth(window.innerWidth);
-  };
+    setWindowWidth(window.innerWidth)
+  }
 
   // ** Vars
-  const location = useLocation();
-  const isHidden = layoutStore.menuHidden;
-  const contentWidth = layoutStore.contentWidth;
-  const menuCollapsed = layoutStore.menuCollapsed;
+  const location = useLocation()
+  const isHidden = layoutStore.menuHidden
+  const contentWidth = layoutStore.contentWidth
+  const menuCollapsed = layoutStore.menuCollapsed
 
   // ** Toggles Menu Collapsed
-  const setMenuCollapsed = (val) => dispatch(handleMenuCollapsed(val));
+  const setMenuCollapsed = (val) => dispatch(handleMenuCollapsed(val))
 
   // ** Handles Content Width
-  const setContentWidth = (val) => dispatch(handleContentWidth(val));
+  const setContentWidth = (val) => dispatch(handleContentWidth(val))
 
   // ** Handles Content Width
-  const setIsHidden = (val) => dispatch(handleMenuHidden(val));
+  const setIsHidden = (val) => dispatch(handleMenuHidden(val))
 
   //** This function will detect the Route Change and will hide the menu on menu item click
   useEffect(() => {
     if (menuVisibility && windowWidth < 1200) {
-      setMenuVisibility(false);
+      setMenuVisibility(false)
     }
-  }, [location]);
+  }, [location])
 
   //** Sets Window Size & Layout Props
   useEffect(() => {
     if (window !== undefined) {
-      window.addEventListener("resize", handleWindowWidth);
+      window.addEventListener("resize", handleWindowWidth)
     }
-  }, [windowWidth]);
+  }, [windowWidth])
 
   //** ComponentDidMount
   useEffect(() => {
-    setIsMounted(true);
-    return () => setIsMounted(false);
-  }, []);
+    setIsMounted(true)
+    return () => setIsMounted(false)
+  }, [])
 
   // ** Vars
   const footerClasses = {
     static: "footer-static",
     sticky: "footer-fixed",
-    hidden: "footer-hidden",
-  };
+    hidden: "footer-hidden"
+  }
 
   const navbarWrapperClasses = {
     floating: "navbar-floating",
     sticky: "navbar-sticky",
     static: "navbar-static",
-    hidden: "navbar-hidden",
-  };
+    hidden: "navbar-hidden"
+  }
 
   const navbarClasses = {
     floating:
       contentWidth === "boxed" ? "floating-nav container-xxl" : "floating-nav",
     sticky: "fixed-top",
     static: "navbar-static-top",
-    hidden: "d-none",
-  };
+    hidden: "d-none"
+  }
 
   const bgColorCondition =
-    navbarColor !== "" && navbarColor !== "light" && navbarColor !== "white";
+    navbarColor !== "" && navbarColor !== "light" && navbarColor !== "white"
 
   if (!isMounted) {
-    return null;
+    return null
   }
   return (
     <div
@@ -144,7 +144,7 @@ const VerticalLayout = (props) => {
           // Overlay Menu
           "vertical-overlay-menu": windowWidth < 1200,
           "menu-hide": !menuVisibility && windowWidth < 1200,
-          "menu-open": menuVisibility && windowWidth < 1200,
+          "menu-open": menuVisibility && windowWidth < 1200
         }
       )}
       {...(isHidden ? { "data-col": "1-column" } : {})}
@@ -190,7 +190,7 @@ const VerticalLayout = (props) => {
       {/* Vertical Nav Menu Overlay */}
       <div
         className={classnames("sidenav-overlay", {
-          show: menuVisibility,
+          show: menuVisibility
         })}
         onClick={() => setMenuVisibility(false)}
       ></div>
@@ -224,7 +224,7 @@ const VerticalLayout = (props) => {
         className={classnames(
           `footer footer-light ${footerClasses[footerType] || "footer-static"}`,
           {
-            "d-none": footerType === "hidden",
+            "d-none": footerType === "hidden"
           }
         )}
       >
@@ -248,7 +248,7 @@ const VerticalLayout = (props) => {
         </div>
       ) : null}
     </div>
-  );
-};
+  )
+}
 
-export default VerticalLayout;
+export default VerticalLayout

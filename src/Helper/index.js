@@ -46,8 +46,16 @@ const readMore = (val, l = 24) => {
 }
 
 const capitalize = (val) => {
-  if(!val) return ''
+  if (!val) return ''
   return val.toUpperCase()
+}
+
+const monthName = () => {
+  return [
+    'January', 'February', 'March', 'April', 'May',
+    'June', 'July', 'August', 'September', 'October',
+    'November', 'December'
+  ]
 }
 
 export {
@@ -55,5 +63,6 @@ export {
     upload,
     readMore,
     dateFormat,
-    capitalize
+    capitalize,
+    monthName
 }
