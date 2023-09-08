@@ -64,13 +64,13 @@ export default function CorrectionIndex(){
     setCloseAll(true)
   }
 
-  const onSubmit = async(arg , status) => {
+  const onSubmit = async(arg , param) => {
     return MySwal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: `Yes, ${status} it!`,
+      confirmButtonText: `Yes, ${param} it!`,
       customClass: {
           confirmButton: 'btn btn-primary',
           cancelButton: 'btn btn-outline-danger ms-1'
@@ -80,7 +80,7 @@ export default function CorrectionIndex(){
       if (result.value) {
         try {
           const params = {
-            status:status,
+            current_status:param,
             note: arg? arg.rejected_note : " "
           }
           const status = await Api.put(`/hris/correction/${selectItem.id}`, params)

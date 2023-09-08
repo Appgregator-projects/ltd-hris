@@ -19,12 +19,7 @@ export default function IncomeForm({isLoading, close, income, onSubmit}) {
         control,
         handleSubmit,
         formState: { errors },
-      } = useForm({ mode: "onChange", resolver: yupResolver(ItemSchema)});
-
-    // useEffect(() => {
-    //     return console.log(income, "income")
-    //     setValue("name", )
-    // },[income])
+      } = useForm({ mode: "onChange"});
 
     const onSubmitIncome = (arg) => {
         // return console.log(arg, "arg")
@@ -81,10 +76,11 @@ export default function IncomeForm({isLoading, close, income, onSubmit}) {
                 {...field}
                 defaultValue={0}
                 name='flag'
-                placeholder='select flag'
                 >
+                    <option value=''>Select income category</option>
                     <option value='gaji pokok'>Gaji pokok</option>
-                    <option value='tunjangan'>Tunjangan</option>
+                    <option value='tunjangan driver'>Tunjangan driver</option>
+                    <option value='tunjangan perusahaan'>Tunjangan perusahaan</option>
                 </Input>
             )}/>
             {errors.flag && <FormFeedback>{errors.flag.message}</FormFeedback>}

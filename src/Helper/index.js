@@ -1,4 +1,7 @@
 import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
+dayjs.extend(customParseFormat);
+
 // import { ref } from 'firebase/storage'
 import { storage } from "../configs/firebase"
 import {
@@ -11,8 +14,15 @@ const dateTimeFormat = (date) => {
     return date ? dayjs(date).format('DD MMM YYYY HH:mm') : '-'
 }
 
-const dateFormat = (date) => {
-  return date ? dayjs(date).format('DD MMM YYYY') : '-'
+const dateFormat = (date) => {  
+  try {
+    if(!date) return '-'
+    const arr = date.split('-')
+    const rDate = `${arr[0]}-${arr[1]}-${arr[2].slice(0, 2)}`
+    return rDate ? dayjs(rDate).format('DD MMM YYYY') : '-'
+  } catch (error) {
+    return '-'
+  }
 }
 
 const fileExtention = (filepath) => {

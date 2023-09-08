@@ -17,11 +17,13 @@ export default function CompanyForm({close, onSubmit, item}){
 		handleSubmit,
 		formState: { errors }
 	} = useForm({ mode: 'onChange', resolver: yupResolver(ItemSchema) })
+	console.log(errors, "error")
 
 	useEffect(() => {
 		if(item){
 			setValue('name', item.name)
 			setValue('address', item.address)
+			setValue('phone_number', item.phone_number)
 		}
 	}, [item])
 	
@@ -33,7 +35,7 @@ export default function CompanyForm({close, onSubmit, item}){
 		<>
 			<Form onSubmit={handleSubmit(onSubmitForm)}>
 				<Row>
-					<Col md='12' sm='12' className='mb-1'>
+					<Col md='6' sm='12' className='mb-1'>
 						<Label className='form-label' for='name'>Company Name</Label>
 						<Controller
 								name='name'
@@ -43,6 +45,17 @@ export default function CompanyForm({close, onSubmit, item}){
 							}
 						/>
 							{errors.name && <FormFeedback>{errors.name.message}</FormFeedback>}
+					</Col>
+					<Col md='6' sm='12' className='mb-1'>
+						<Label className='form-label' for='name'>Phone Number</Label>
+						<Controller
+								name='phone_number'
+								defaultValue=''
+								control={control}
+								render={({ field }) => <Input type='text' {...field} name='phone_number' invalid={errors.phone_number && true}/>
+							}
+						/>
+							{errors.phone_number && <FormFeedback>{errors.phone_number.message}</FormFeedback>}
 					</Col>
 					<Col md='12' sm='12' className='mb-1'>
 						<Label className='form-label' for='address'>Address</Label>
