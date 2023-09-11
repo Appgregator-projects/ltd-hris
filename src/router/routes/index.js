@@ -171,14 +171,14 @@ const Routes = [
       resource: "PAYROLL_FORM"
     }
   },
-  // {
-  //   path: "/login",
-  //   element: <Login />,
-  //   meta: {
-  //     action: "read",
-  //     resource: "MENU HOME",
-  //   },
-  // },
+  {
+    path: "/loans",
+    element: <PayrollForm />,
+    meta: {
+      action: "read",
+      resource: "LOANS"
+    }
+  },
   {
     path: "/register",
     element: <Register />,
