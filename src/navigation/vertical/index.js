@@ -69,7 +69,13 @@ export default [
   },
   {
     id: "Payrolls",
-    title: "Payrolsl",
+    title: "Payrolls",
+    icon: <CreditCard size={20} />,
+    navLink: "/payroll"
+  },
+  {
+    id: "Loans",
+    title: "Employee Loans",
     icon: <CreditCard size={20} />,
     navLink: "/payroll"
   },
