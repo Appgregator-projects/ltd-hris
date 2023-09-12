@@ -7,6 +7,7 @@ import Avatar from "@components/avatar";
 // ** Reactstrap Imports
 import {
   Button,
+  Col,
   Label,
   ListGroup,
   ListGroupItem,
@@ -150,76 +151,102 @@ const GroupMembers = () => {
   };
 
   return (
-    <Fragment>
-      <Button
-        color="primary"
-        className="btn-icon me-1"
-        onClick={() => setShow(true)}
-      >
-        <UserPlus size={14} />
-      </Button>
+		<Fragment>
+			<Button
+				color="primary"
+				className="btn-icon me-1"
+				onClick={() => setShow(true)}
+			>
+				<UserPlus size={14} />
+			</Button>
 
-      <Modal
-        isOpen={show}
-        toggle={() => setShow(!show)}
-        className="modal-dialog-centered modal-lg"
-      >
-        <ModalHeader
-          className="bg-transparent"
-          toggle={() => setShow(!show)}
-        ></ModalHeader>
-        <ModalBody className="px-sm-5 mx-50 pb-4">
-          <h1 className="text-center mb-1">Group Members</h1>
-          <p className="text-center">Share project with a team members</p>
-          <Label
-            for="addMemberSelect"
-            className="form-label fw-bolder font-size font-small-4 mb-50"
-          >
-            Add Members
-          </Label>
-          <Select
-            options={options}
-            isClearable={false}
-            id="addMemberSelect"
-            theme={selectThemeColors}
-            className="react-select"
-            classNamePrefix="select"
-            components={{
-              Option: OptionComponent,
-            }}
-          />
-          <p className="fw-bolder pt-50 mt-2">12 Members</p>
-          <ListGroup flush className="mb-2">
-            {data.map((item) => {
-              return (
-                <ListGroupItem
-                  key={item.name}
-                  className="d-flex align-items-start border-0 px-0"
-                >
-                  <Avatar
-                    className="me-75"
-                    img={item.img}
-                    imgHeight={38}
-                    imgWidth={38}
-                  />
-                  <div className="d-flex align-items-center justify-content-between w-100">
-                    <div className="me-1">
-                      <h5 className="mb-25">{item.name}</h5>
-                      <span>{item.username}</span>
-                    </div>
-                    <Button.Ripple
-                      className={"btn-icon"}
-                      color={"danger"}
-                      onClick={() => handleConfirmText()}
-                    >
-                      <Trash size={15} />
-                    </Button.Ripple>
-                  </div>
-                </ListGroupItem>
-              );
-            })}
-          </ListGroup>
-          <div className="d-flex align-content-center justify-content-between flex-wrap">
+			<Modal
+				isOpen={show}
+				toggle={() => setShow(!show)}
+				className="modal-dialog-centered modal-lg"
+			>
+				<ModalHeader
+					className="bg-transparent"
+					toggle={() => setShow(!show)}
+				></ModalHeader>
+				<ModalBody className="px-sm-5 mx-50 pb-4">
+					<h1 className="text-center mb-1">Group Members</h1>
+					<p className="text-center">
+						Share project with a team members
+					</p>
+					<Label
+						for="addMemberSelect"
+						className="form-label fw-bolder font-size font-small-4 mb-50"
+					>
+						Add Members
+					</Label>
+					<Select
+						options={options}
+						isClearable={false}
+            isMulti
+						id="addMemberSelect"
+						theme={selectThemeColors}
+						className="react-select"
+						classNamePrefix="select"
+						components={{
+							Option: OptionComponent,
+						}}
+					/>
+					<p className="fw-bolder pt-50 mt-2">12 Members</p>
+					<ListGroup flush className="mb-2">
+						{data.map((item) => {
+							return (
+								<ListGroupItem
+									key={item.name}
+									className="d-flex align-items-start border-0 px-0"
+								>
+									<Avatar
+										className="me-75"
+										img={item.img}
+										imgHeight={38}
+										imgWidth={38}
+									/>
+									<div className="d-flex align-items-center justify-content-between w-100">
+										<div className="me-1">
+											<h5 className="mb-25">
+												{item.name}
+											</h5>
+											<span>
+												{item.username}
+											</span>
+										</div>
+										<Button.Ripple
+											className={"btn-icon"}
+											color={"danger"}
+											onClick={() =>
+												handleConfirmText()
+											}
+										>
+											<Trash size={15} />
+										</Button.Ripple>
+									</div>
+								</ListGroupItem>
+							);
+						})}
+					</ListGroup>
+					<Col xs={12} className="text-center mt-2 pt-50">
+						<Button
+							type="submit"
+							className="me-1"
+							color="primary"
+						>
+							Submit
+						</Button>
+						<Button
+							type="reset"
+							color="secondary"
+							outline
+							onClick={() => setShow(false)}
+						>
+							Discard
+						</Button>
+					</Col>
+					{/* <div className="d-flex align-content-center justify-content-between flex-wrap">
             <div className="d-flex align-items-center me-2">
               <Users className="font-medium-2 me-50" />
               <p className="fw-bolder mb-0">Public to Vuexy - Pixinvent</p>
@@ -232,10 +259,10 @@ const GroupMembers = () => {
               <Link className="font-medium-2 me-50" />
               <span>Copy project link</span>
             </a>
-          </div>
-        </ModalBody>
-      </Modal>
-    </Fragment>
+          </div> */}
+				</ModalBody>
+			</Modal>
+		</Fragment>
   );
 };
 

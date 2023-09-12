@@ -15,45 +15,19 @@ import {
 } from "reactstrap";
 
 // ** Third Party Components
-import { Check, X } from "react-feather";
 import { Controller, useForm } from "react-hook-form";
-import Select from "react-select";
-
-// ** Utils
-import { selectThemeColors } from "@utils";
 
 // ** Styles
 import "@styles/react/libs/react-select/_react-select.scss";
 import { MdOutlineBookmarkAdd } from "react-icons/md";
 
-const statusOptions = [
-	{ value: "active", label: "Active" },
-	{ value: "inactive", label: "Inactive" },
-	{ value: "suspended", label: "Suspended" },
-];
-
-const countryOptions = [
-	{ value: "uk", label: "UK" },
-	{ value: "usa", label: "USA" },
-	{ value: "france", label: "France" },
-	{ value: "russia", label: "Russia" },
-	{ value: "canada", label: "Canada" },
-];
-
-const languageOptions = [
-	{ value: "english", label: "English" },
-	{ value: "spanish", label: "Spanish" },
-	{ value: "french", label: "French" },
-	{ value: "german", label: "German" },
-	{ value: "dutch", label: "Dutch" },
-];
-
 const defaultValues = {
-	title: "",
-	description: "",
+	lesson_title: "",
+	lesson_description: "",
+	lesson_video: "",
 };
 
-const AddLesson = ({ title }) => {
+const AddLesson = ({ section, sectionList, lessonList, setSectionList }) => {
 	// ** States
 	const [show, setShow] = useState(false);
 
@@ -63,11 +37,38 @@ const AddLesson = ({ title }) => {
 		setError,
 		handleSubmit,
 		formState: { errors },
+		reset,
 	} = useForm({ defaultValues });
 
 	const onSubmit = (data) => {
+		let newData = {
+			...data,
+			section_id: section.id,
+			chosen: false,
+			selected: false,
+		};
+
 		if (Object.values(data).every((field) => field.length > 0)) {
-			return null;
+			if (data.lesson_video.includes("?v=")) {
+				const newString = data.lesson_video.split("?v=");
+				newData.lesson_video = newString[1];
+			} else {
+				const newString = data.lesson_video.split("be/");
+				newData.lesson_video = newString[1];
+			}
+
+      console.log({section})
+			let newSection = {
+				...section,
+				lesson_list: [...lessonList, newData],
+			};
+			let arr = sectionList;
+			arr[parseInt(section.id) - 1] = newSection;
+
+			setSectionList(arr);
+			console.log({ sectionList });
+			reset(defaultValues);
+			setShow(false);
 		} else {
 			for (const key in data) {
 				if (data[key].length === 0) {
@@ -97,193 +98,98 @@ const AddLesson = ({ title }) => {
 				<ModalBody className="px-sm-5 mx-50 pb-5">
 					<div className="text-center mb-2">
 						<h1 className="mb-1">Add Lesson</h1>
-						<p>Add new lesson in section {title}.</p>
+						<p>
+							Add new lesson in section{" "}
+							{section.section_title}.
+						</p>
 					</div>
 					<Row
 						tag="form"
 						className="gy-1 pt-75"
 						onSubmit={handleSubmit(onSubmit)}
 					>
-						{/* <Col md={6} xs={12}>
-              <Label className="form-label" for="firstName">
-                First Name
-              </Label>
-              <Controller
-                control={control}
-                name="firstName"
-                render={({ field }) => {
-                  return (
-                    <Input
-                      {...field}
-                      id="firstName"
-                      placeholder="John"
-                      value={field.value}
-                      invalid={errors.firstName && true}
-                    />
-                  );
-                }}
-              />
-              {errors.firstName && (
-                <FormFeedback>Please enter a valid First Name</FormFeedback>
-              )}
-            </Col>
-            <Col md={6} xs={12}>
-              <Label className="form-label" for="lastName">
-                Last Name
-              </Label>
-              <Controller
-                name="lastName"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    id="lastName"
-                    placeholder="Doe"
-                    invalid={errors.lastName && true}
-                  />
-                )}
-              />
-              {errors.lastName && (
-                <FormFeedback>Please enter a valid Last Name</FormFeedback>
-              )}
-            </Col> */}
 						<Col xs={12}>
-							<Label className="form-label" for="title">
+							<Label
+								className="form-label"
+								for="lesson_title"
+							>
 								Title
 							</Label>
 							<Controller
-								name="title"
+								name="lesson_title"
 								control={control}
 								render={({ field }) => (
 									<Input
 										{...field}
-										id="title"
+										id="lesson_title"
 										placeholder="Introduction"
-										invalid={errors.title && true}
+										invalid={
+											errors.lesson_title &&
+											true
+										}
 									/>
 								)}
 							/>
-							{errors.title && (
+							{errors.lesson_title && (
 								<FormFeedback>
-									Please enter a valid Title
+									Please enter a valid title
 								</FormFeedback>
 							)}
 						</Col>
 						<Col xs={12}>
 							<Label
 								className="form-label"
-								for="description"
+								for="lesson_description"
 							>
 								Description
 							</Label>
-							<Input
-								type="textarea"
-								id="description"
-								placeholder={`This is introduction for ${title}`}
+							<Controller
+								name="lesson_description"
+								control={control}
+								render={({ field }) => (
+									<Input
+										{...field}
+										type="textarea"
+										id="lesson_description"
+										placeholder={`This is introduction for ${section.section_title}`}
+										invalid={
+											errors.lesson_description &&
+											true
+										}
+									/>
+								)}
 							/>
+							{errors.lesson_description && (
+								<FormFeedback>
+									Please enter a valid description
+								</FormFeedback>
+							)}
 						</Col>
-						{/* <Col md={6} xs={12}>
-              <Label className="form-label" for="status">
-                Status:
-              </Label>
-              <Select
-                id="status"
-                isClearable={false}
-                className="react-select"
-                classNamePrefix="select"
-                options={statusOptions}
-                theme={selectThemeColors}
-                defaultValue={statusOptions[0]}
-              />
-            </Col> */}
 						<Col xs={12}>
-							<Label for="basic-url" class="form-label">
+							<Label for="lesson_video" class="form-label">
 								Youtube URL
 							</Label>
-							<div class="input-group">
-								<span
-									class="input-group-text"
-									id="basic-addon3"
-								>
-									https://www.youtube.com/watch?v=
-								</span>
-								<Input
-									type="text"
-									class="form-control"
-									id="basic-url"
-									aria-describedby="basic-addon3"
-									placeholder="Tn3NELeMVmY"
-								/>
-							</div>
-						</Col>
-						{/* <Col md={6} xs={12}>
-							<Label className="form-label" for="contact">
-								Contact
-							</Label>
-							<Input
-								id="contact"
-								defaultValue="+1 609 933 4422"
-								placeholder="+1 609 933 4422"
-							/>
-						</Col>
-						<Col md={6} xs={12}>
-							<Label className="form-label" for="language">
-								Language
-							</Label>
-							<Select
-								id="language"
-								isClearable={false}
-								className="react-select"
-								classNamePrefix="select"
-								options={languageOptions}
-								theme={selectThemeColors}
-								defaultValue={languageOptions[0]}
-							/>
-						</Col>
-						<Col md={6} xs={12}>
-							<Label className="form-label" for="country">
-								Country
-							</Label>
-							<Select
-								id="country"
-								isClearable={false}
-								className="react-select"
-								classNamePrefix="select"
-								options={countryOptions}
-								theme={selectThemeColors}
-								defaultValue={countryOptions[0]}
-							/>
-						</Col>
-						<Col xs={12}>
-							<div className="d-flex align-items-center">
-								<div className="form-switch">
+							<Controller
+								name="lesson_video"
+								control={control}
+								render={({ field }) => (
 									<Input
-										type="switch"
-										defaultChecked
-										id="billing-switch"
-										name="billing-switch"
+										{...field}
+										id="lesson_video"
+										placeholder="https://youtu.be/SBmSRK3feww"
+										invalid={
+											errors.lesson_video &&
+											true
+										}
 									/>
-									<Label
-										className="form-check-label"
-										htmlFor="billing-switch"
-									>
-										<span className="switch-icon-left">
-											<Check size={14} />
-										</span>
-										<span className="switch-icon-right">
-											<X size={14} />
-										</span>
-									</Label>
-								</div>
-								<Label
-									className="form-check-label fw-bolder"
-									htmlFor="billing-switch"
-								>
-									Use as a billing address?
-								</Label>
-							</div>
+								)}
+							/>
+							{errors.lesson_video && (
+								<FormFeedback>
+									Please enter a valid URL
+								</FormFeedback>
+							)}
 						</Col>
-            */}
 						<Col xs={12} className="text-center mt-2 pt-50">
 							<Button
 								type="submit"
