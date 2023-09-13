@@ -173,14 +173,17 @@ export default function PayrollForm() {
   }
 
   const onSubmitForm = async(approved = false) => {
-    if (!userSelect) return
     const params = {
-      user:userSelect.value,
+      user:userSelect ? userSelect.value : null,
       periode:periodeRef.current.value,
       deductions,
       addjusment,
       approved
     }
+
+    if (!params.user || !params.periode || !params.deductions.length || params.addjusment.length) return toast.error(`Error : Invalid form`, {
+      position: "top-center"
+    })
     const url = id ? `/hris/payroll/${id}` : '/hris/payroll'
 
     try {
