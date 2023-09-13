@@ -128,13 +128,14 @@ export default function PayrollForm() {
     setToggleModal(false)
   }
 
-  const onSubmitForm = () => {
+  const onSubmitForm = (approved = false) => {
     if (!userSelect) return
     const params = {
       user:userSelect.value,
       periode:periodeRef.current.value,
       deductions,
-      addjusment
+      addjusment,
+      approved
     }
     console.log(params)
   }
@@ -291,8 +292,9 @@ export default function PayrollForm() {
         </Col>
        
         <Col lg="8">
-          <div className="d-flex justify-content-end">
-            <Button color="success" onClick={onSubmitForm}>Submit</Button>
+          <div className="d-flex justify-content-end gap-2">
+            <Button color="success" onClick={() => onSubmitForm(false)}>Submit</Button>
+            <Button color="primary" onClick={() => onSubmitForm(true)}>Submit & Approved</Button>
           </div>
         </Col>
       </Row>
