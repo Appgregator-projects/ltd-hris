@@ -17,6 +17,7 @@ import { isObjEmpty } from "@utils"
 
 import AuthRoutes from "./auth"
 import LmsRoutes from "./lms"
+import LoanIndex from "../../views/pages/Payroll/LoanIndex"
 
 const getLayout = {
   blank: <BlankLayout />,
@@ -173,10 +174,10 @@ const Routes = [
   },
   {
     path: "/loans",
-    element: <PayrollForm />,
+    element: <LoanIndex />,
     meta: {
       action: "read",
-      resource: "LOANS"
+      resource: "PAYROLL_FORM"
     }
   },
   {

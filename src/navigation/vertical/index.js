@@ -77,7 +77,7 @@ export default [
     id: "Loans",
     title: "Employee Loans",
     icon: <CreditCard size={20} />,
-    navLink: "/payroll"
+    navLink: "/loans"
   },
 
   {
