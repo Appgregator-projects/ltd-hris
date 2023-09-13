@@ -177,7 +177,15 @@ const Routes = [
     element: <PayrollView />,
     meta: {
       action: "read",
-      resource: "PAYROLL_INDEX"
+      resource: "PAYROLL_FORM"
+    }
+  },
+  {
+    path: "/payroll/:id/edit",
+    element: <PayrollForm />,
+    meta: {
+      action: "read",
+      resource: "PAYROLL_FORM"
     }
   },
   {

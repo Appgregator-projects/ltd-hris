@@ -9,8 +9,13 @@ import { useState, useEffect, useRef } from "react"
 import Api from "../../../sevices/Api"
 import dayjs from "dayjs"
 import FormIncome from "./Component/FormIncome"
+import { useParams, useNavigate } from "react-router-dom"
+import { toast } from 'react-hot-toast'
 
 export default function PayrollForm() {
+  const { id } = useParams()
+  const navigate = useNavigate()
+
   const [toggleModal, setToggleModal] = useState(false)
   const [modal, setModal] = useState({
     title: "User assign",
@@ -56,6 +61,45 @@ export default function PayrollForm() {
   useEffect(() => {
     periodeRef.current.value = currentMonth
     fetchUser()
+  }, [])
+
+  const fetchPayroll = async () => {
+    try {
+      if (!id) return
+      const data = await Api.get(`/hris/payroll/${id}`)
+      const addj = data.items.filter(x => x.flag === 'addjusment')
+      const deductions = data.items.filter(x => x.flag !== 'addjusment')
+      setAddjusment([
+      ...addj.map(x => {
+              x.name = x.label
+              return x
+            })
+      ])
+      setDeductions([
+      ...deductions.map(x => {
+              x.name = x.label
+              return x
+            })
+      ])
+      setTotalDeduction(
+        deductions.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
+      )
+      setTotalAddjusment(
+        addj.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
+      )
+
+      periodeRef.current.value = dayjs(data.periode).format('M')
+      setUserSelect({
+        value:data.user.id,
+        label:data.user.email
+      })
+    } catch (error) {
+      throw error
+    }
+  }
+
+  useEffect(() => {
+    fetchPayroll()
   }, [])
 
   const onPickEmployee = () => {
@@ -128,7 +172,7 @@ export default function PayrollForm() {
     setToggleModal(false)
   }
 
-  const onSubmitForm = (approved = false) => {
+  const onSubmitForm = async(approved = false) => {
     if (!userSelect) return
     const params = {
       user:userSelect.value,
@@ -137,7 +181,31 @@ export default function PayrollForm() {
       addjusment,
       approved
     }
-    console.log(params)
+    const url = id ? `/hris/payroll/${id}` : '/hris/payroll'
+
+    try {
+      
+      let data = null
+      if (id) {
+        data = await Api.put(url, params)
+      } else {
+        data = await Api.post(url, params)
+      }
+      if (typeof data.status !== 'undefined') return toast.error(`Error : ${data.data}`, {
+        position: "top-center"
+      })
+      toast.success(data, {
+        position: "top-center"
+      })
+
+      navigate(`/payroll/${id}`)
+
+    } catch (error) {
+      toast.error(`Error : ${error.message}`, {
+        position: "top-center"
+      })
+    }
+
   }
 
   const handleInputAddjusment = (e, index) => {
@@ -225,7 +293,7 @@ export default function PayrollForm() {
                       {x.name}
                     </div>
                     <div className="w-50">
-                      <Input defaultValue={x.amount} className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputDeduction(e, index)}/>
+                      <Input value={x.amount} className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputDeduction(e, index)}/>
                     </div>
                   </div>
                 ))
@@ -293,8 +361,8 @@ export default function PayrollForm() {
        
         <Col lg="8">
           <div className="d-flex justify-content-end gap-2">
+            <Button color="dark" onClick={() => onSubmitForm(true)}>Submit & Approved</Button>
             <Button color="success" onClick={() => onSubmitForm(false)}>Submit</Button>
-            <Button color="primary" onClick={() => onSubmitForm(true)}>Submit & Approved</Button>
           </div>
         </Col>
       </Row>
