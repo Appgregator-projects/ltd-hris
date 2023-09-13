@@ -76,6 +76,10 @@ export default function PayrollView() {
                     <div className="w-50 pb-1 text-xs">: {user ? user.nip : '-'}</div>
                   </div>
                   <div className="d-flex">
+                    <div className="w-50 pb-1 text-xs">Employee Name</div>
+                    <div className="w-50 pb-1 text-xs text-uppercase">: {user ? user.name : '-'}</div>
+                  </div>
+                  <div className="d-flex">
                     <div className="w-50 pb-1 text-xs">Department</div>
                     <div className="w-50 pb-1 text-xs text-uppercase">: {user ? user.division.name : '-'}</div>
                   </div>
@@ -83,16 +87,9 @@ export default function PayrollView() {
                     <div className="w-50 pb-1 text-xs">Designation</div>
                     <div className="w-50 pb-1 text-xs">: {user ? user.title : '-'}</div>
                   </div>
-                  <div className="d-flex">
-                    <div className="w-50 pb-1 text-xs">Days Worked</div>
-                    <div className="w-50 pb-1 text-xs">: Joko</div>
-                  </div>
+                 
                 </Col>
                 <Col lg="6">
-                  <div className="d-flex">
-                    <div className="w-50 pb-1 text-xs">Employee Name</div>
-                    <div className="w-50 pb-1 text-xs">: {user ? user.name : '-'}</div>
-                  </div>
                   <div className="d-flex">
                     <div className="w-50 pb-1 text-xs">Bank Name</div>
                     <div className="w-50 pb-1 text-xs">: {user ? user.employee_attribute.bank_Account : '-'}</div>
