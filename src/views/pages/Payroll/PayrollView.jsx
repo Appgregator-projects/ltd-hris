@@ -22,7 +22,7 @@ export default function PayrollView() {
   const [addjusments, setAddjusments] = useState([])
   const [totalAddjusment, setTotalAddjusment] = useState(0)
   const [totalDeduction, setTotalDeduction] = useState(0)
-
+  const [periode, setPeriode] = useState('')
   const fetchPayroll = async () => {
     try {
       const data = await Api.get(`/hris/payroll/${id}`)
@@ -37,6 +37,7 @@ export default function PayrollView() {
       setTotalAddjusment(
         addj.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
       )
+      setPeriode(data.periode)
     } catch (error) {
       throw error
     }
@@ -64,45 +65,45 @@ export default function PayrollView() {
                 12430
               </CardText>
               <CardText className="text-center w-full text-md">
-                Payslip for September 2023
+                Payslip for {periode ? dayjs(periode).format('MMMM YYYY') : '-'}
               </CardText>
             </CardHeader>
             <CardBody>
               <Row>
                 <Col lg="6">
                   <div className="d-flex">
-                    <div className="w-50 pb-1 text-sm">Employee ID</div>
-                    <div className="w-50 pb-1 text-sm">: {user ? user.nip : '-'}</div>
+                    <div className="w-50 pb-1 text-xs">Employee ID</div>
+                    <div className="w-50 pb-1 text-xs">: {user ? user.nip : '-'}</div>
                   </div>
                   <div className="d-flex">
-                    <div className="w-50 pb-1 text-sm">Department</div>
-                    <div className="w-50 pb-1 text-sm text-uppercase">: {user ? user.division.name : '-'}</div>
+                    <div className="w-50 pb-1 text-xs">Department</div>
+                    <div className="w-50 pb-1 text-xs text-uppercase">: {user ? user.division.name : '-'}</div>
                   </div>
                   <div className="d-flex">
-                    <div className="w-50 pb-1 text-sm">Designation</div>
-                    <div className="w-50 pb-1 text-sm">: {user ? user.title : '-'}</div>
+                    <div className="w-50 pb-1 text-xs">Designation</div>
+                    <div className="w-50 pb-1 text-xs">: {user ? user.title : '-'}</div>
                   </div>
                   <div className="d-flex">
-                    <div className="w-50 pb-1 text-sm">Days Worked</div>
-                    <div className="w-50 pb-1 text-sm">: Joko</div>
+                    <div className="w-50 pb-1 text-xs">Days Worked</div>
+                    <div className="w-50 pb-1 text-xs">: Joko</div>
                   </div>
                 </Col>
                 <Col lg="6">
                   <div className="d-flex">
-                    <div className="w-50 pb-1 text-sm">Employee Name</div>
-                    <div className="w-50 pb-1 text-sm">: {user ? user.name : '-'}</div>
+                    <div className="w-50 pb-1 text-xs">Employee Name</div>
+                    <div className="w-50 pb-1 text-xs">: {user ? user.name : '-'}</div>
                   </div>
                   <div className="d-flex">
-                    <div className="w-50 pb-1 text-sm">Bank Name</div>
-                    <div className="w-50 pb-1 text-sm">: </div>
+                    <div className="w-50 pb-1 text-xs">Bank Name</div>
+                    <div className="w-50 pb-1 text-xs">: </div>
                   </div>
                   <div className="d-flex">
-                    <div className="w-50 pb-1 text-sm">Bank Account Name</div>
-                    <div className="w-50 pb-1 text-sm">: Dedy dantry</div>
+                    <div className="w-50 pb-1 text-xs">Bank Account Name</div>
+                    <div className="w-50 pb-1 text-xs">: Dedy dantry</div>
                   </div>
                   <div className="d-flex">
-                    <div className="w-50 pb-1 text-sm">Bank Account Number</div>
-                    <div className="w-50 pb-1 text-sm">: 130489209350423</div>
+                    <div className="w-50 pb-1 text-xs">Bank Account Number</div>
+                    <div className="w-50 pb-1 text-xs">: 130489209350423</div>
                   </div>
                 </Col>
                 <Col lg="6 mt-2">
