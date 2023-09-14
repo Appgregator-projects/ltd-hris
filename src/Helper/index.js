@@ -56,8 +56,27 @@ const readMore = (val, l = 24) => {
 }
 
 const capitalize = (val) => {
-  if(!val) return ''
+  if (!val) return ''
   return val.toUpperCase()
+}
+
+const monthName = () => {
+  return [
+    'January', 'February', 'March', 'April', 'May',
+    'June', 'July', 'August', 'September', 'October',
+    'November', 'December'
+  ]
+}
+
+const mustNumber = () => {
+  if (!/\d/.test(event.key) && event.key !== '.' && event.key !== '-') return event.preventDefault()
+}
+
+const numberFormat = (value) => {
+  if (!value) return '0.00'
+  let val = (value / 1)
+  val = (value / 1).toFixed(2).replace(',', '.')
+  return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 
 export {
@@ -65,5 +84,8 @@ export {
     upload,
     readMore,
     dateFormat,
-    capitalize
+    capitalize,
+    monthName,
+    mustNumber,
+    numberFormat
 }

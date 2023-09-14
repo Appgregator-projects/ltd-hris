@@ -1,19 +1,16 @@
-import React from 'react'
-import { useState } from 'react'
+import { useState, useEffect, Fragment } from 'react'
 import { Edit, Edit2, Plus, Trash } from 'react-feather'
 import { Button, Card, CardBody, CardFooter, CardHeader, CardTitle, Col, Modal, ModalBody, ModalHeader, Row, Table } from 'reactstrap'
 import HealthForm from '../employee/component/IncomeForm'
 import BPJSConfig from './Component/BPJSConfig'
-import { useEffect } from 'react'
-import Api from "../../../sevices/Api";
+import Api from "../../../sevices/Api"
 import withReactContent from 'sweetalert2-react-content'
 import Swal from 'sweetalert2'
 import { toast } from 'react-hot-toast'
-import { Fragment } from 'react'
-const MySwal = withReactContent(Swal);
+const MySwal = withReactContent(Swal)
 
 
-export default function PayrollIndex() {
+export default function PayrollDeduction() {
   const [toggleModal, setToggleModal] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [bpjsRule, setBpjsRule] = useState([])
@@ -32,9 +29,9 @@ export default function PayrollIndex() {
 		}
 	  }
 	
-	useEffect(() =>{
+	useEffect(() => {
 		fetchAssurance()
-	},[])
+	}, [])
 
   const onBpjsConfig = () => {
     setModal({
@@ -53,50 +50,47 @@ export default function PayrollIndex() {
       topper : params.topper
     }
     try {
-      const status = await Api.put(`/hris/bpjs-rule/${modal.item.id}`, params);
+      const status = await Api.put(`/hris/bpjs-rule/${modal.item.id}`, params)
       console.log(status, "has updated")
-      if (!status)
-        return toast.error(`Error : ${status}`, {
-          position: "top-center",
-        });
-      fetchAssurance();
+      if (!status) return toast.error(`Error : ${status}`, {
+          position: "top-center"
+        })
+      fetchAssurance()
       toast.success("BPJS config has updated", {
-        position: "top-center",
-      });
-      setToggleModal(false);
+        position: "top-center"
+      })
+      setToggleModal(false)
     } catch (error) {
-      setToggleModal(false);
+      setToggleModal(false)
       toast.error(`Error : ${error.message}`, {
-        position: "top-center",
-      });
+        position: "top-center"
+      })
     }
-  };
+  }
 
   const onSubmit = async (params) => {
     // return console.log(params, "params")  
     try {
-      if (modal.item) return postUpdate(params);
-      const status = await Api.post(`/hris/bpjs-rule`, params);
-      if (!status)
-        return toast.error(`Error : ${data}`, {
-          position: "top-center",
-        });
-      fetchAssurance();
+      if (modal.item) return postUpdate(params)
+      const status = await Api.post(`/hris/bpjs-rule`, params)
+      if (!status) return toast.error(`Error : ${data}`, {
+          position: "top-center"
+        })
+      fetchAssurance()
       toast.success("BPJS config has updated", {
-        position: "top-center",
-      });
-      setToggleModal(false);
+        position: "top-center"
+      })
+      setToggleModal(false)
     } catch (error) {
       toast.error(`Error : ${error.message}`, {
-        position: "top-center",
-      });
+        position: "top-center"
+      })
     }
-  };
-
+  }
   
 
-  const onEdit = (x,i) => {
-    console.log(x ,"x")
+  const onEdit = (x, i) => {
+    console.log(x, "x")
     setModal({
       title : "BPJS Config",
       mode : "edit",
@@ -109,11 +103,11 @@ export default function PayrollIndex() {
     return new Promise((resolve, reject) => {
       Api.delete(`/hris/bpjs-rule/${id}`)
         .then((res) => resolve(res))
-        .catch((err) => reject(err.message));
-    });
-  };
+        .catch((err) => reject(err.message))
+    })
+  }
 
-  const onDelete = (x,i) => {
+  const onDelete = (x, i) => {
     MySwal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -122,30 +116,30 @@ export default function PayrollIndex() {
       confirmButtonText: "Yes, delete it!",
       customClass: {
         confirmButton: "btn btn-primary",
-        cancelButton: "btn btn-outline-danger ms-1",
+        cancelButton: "btn btn-outline-danger ms-1"
       },
-      buttonsStyling: false,
+      buttonsStyling: false
     }).then(async (result) => {
       if (result.value) {
-        const data = await postDelete(x.id);
+        const data = await postDelete(x.id)
         if (data) {
-          const oldCom = bpjsRule;
-          oldCom.splice(i, 1);
-          setBpjsRule([...oldCom]);
+          const oldCom = bpjsRule
+          oldCom.splice(i, 1)
+          setBpjsRule([...oldCom])
           return MySwal.fire({
             icon: "success",
             title: "Deleted!",
             text: "Division has deleted.",
             customClass: {
-              confirmButton: "btn btn-success",
-            },
-          });
+              confirmButton: "btn btn-success"
+            }
+          })
         }
         return toast.error(`Error : ${data}`, {
-          position: "top-center",
-        });
+          position: "top-center"
+        })
       }
-    });
+    })
 
   }
 
@@ -180,7 +174,7 @@ export default function PayrollIndex() {
 									</thead>
 									<tbody>
 										{
-												bpjsRule?.map((x,i) => (
+												bpjsRule?.map((x, i) => (
 													<tr key={x.id}>
 														<td>{x ? x.name : '-'}</td>
 														<td>{x.is_employee === false ? "By Company" : "By Employee"}</td>
@@ -223,19 +217,17 @@ export default function PayrollIndex() {
             {modal.title}
           </ModalHeader>
           <ModalBody>
-            {modal.mode === "add"? 
-            <BPJSConfig
+            {modal.mode === "add" ? <BPJSConfig
               isLoading={isLoading}
               close={() => setToggleModal(!toggleModal)}
               onSubmit={onSubmit}
-              /> :<></>}
-            {modal.mode === "edit"? 
-            <BPJSConfig
+              /> : <></>}
+            {modal.mode === "edit" ? <BPJSConfig
               isLoading={isLoading}
               close={() => setToggleModal(!toggleModal)}
               item={modal.item}
               onSubmit={onSubmit}
-              /> :<></>}
+              /> : <></>}
           </ModalBody>
         </Modal>
     </>
