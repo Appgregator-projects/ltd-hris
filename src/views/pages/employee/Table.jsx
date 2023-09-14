@@ -123,7 +123,7 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
     }
   };
 
-  console.log(employees, "employees")
+  // console.log(employees, "employees")
 
   useEffect(() => {
     if (isRefresh) {

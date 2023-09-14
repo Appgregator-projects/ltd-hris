@@ -77,6 +77,9 @@ export default function FormEmployee({
       setValue("phone", item.phone);
       setValue("company_id", item.company_id)
       setValue("division_id", item.division_id)  
+      setValue("bank_account", item.bank_account)  
+      setValue("bank_account_name", item.bank_account_name)  
+      setValue("bank_account_number", item.bank_account_number)  
       if (item.employee_attribute) {
         setValue("dob", dayjs(item.employee_attribute.dob).format("YYYY-MM-DD"));
         setValue("join_date", dayjs(item.employee_attribute.join_date).format("YYYY-MM-DD"));
@@ -166,23 +169,26 @@ export default function FormEmployee({
           {errors.email && <FormFeedback>{errors.email.message}</FormFeedback>}
         </Col>
         <Col md="6" sm="12" className="mb-1">
-          <Label className="form-label" for="dob">
-            Date Of Birth
+          <Label className="form-label" for="password">
+            Password
           </Label>
           <Controller
-            name="dob"
+            name="password"
             defaultValue=""
             control={control}
             render={({ field }) => (
               <Input
-                type="date"
+                type="text"
                 {...field}
-                name="dob"
-                invalid={errors.dob && true}
+                name="password"
+                disabled={!!item}
+                invalid={errors.password && true}
               />
             )}
           />
-          {errors.dob && <FormFeedback>{errors.dob.message}</FormFeedback>}
+          {errors.password && (
+            <FormFeedback>{errors.password.message}</FormFeedback>
+          )}
         </Col>
         <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="email">
@@ -205,25 +211,27 @@ export default function FormEmployee({
             <FormFeedback>{errors.join_date.message}</FormFeedback>
           )}
         </Col>
+        <Col md="12" sm="12" className="my-2 fs-5 fw-bold">
+          Employee Attribute
+        </Col>
         <Col md="6" sm="12" className="mb-1">
-          <Label className="form-label" for="title">
-            Title
+          <Label className="form-label" for="dob">
+            Date Of Birth
           </Label>
           <Controller
-            name="title"
+            name="dob"
             defaultValue=""
             control={control}
             render={({ field }) => (
               <Input
-                type="text"
+                type="date"
                 {...field}
-                name="title"
-                placeholder="Ex:Finance Staff"
-                invalid={errors.title && true}
+                name="dob"
+                invalid={errors.dob && true}
               />
             )}
           />
-          {errors.title && <FormFeedback>{errors.title.message}</FormFeedback>}
+          {errors.dob && <FormFeedback>{errors.dob.message}</FormFeedback>}
         </Col>
         <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="email">
@@ -252,23 +260,53 @@ export default function FormEmployee({
           )}
         </Col>
         <Col md="6" sm="12" className="mb-1">
-          <Label className="form-label" for="nip">
-            NIP
+          <Label className="form-label" for="religion">
+            Religion
           </Label>
           <Controller
-            name="nip"
+            name="religion"
+            defaultValue=""
+            control={control}
+            render={({ field }) => (
+              <Input
+                type="select"
+                {...field}
+                name="religion"
+                value={item?.employee_attribute.religion}
+                invalid={errors.religion && true}
+              >
+                <option value="">Select religion</option>
+                <option value="Islam">Islam</option>
+                <option value="Kristen">Kristen</option>
+                <option value="Katolik">Katolik</option>
+                <option value="Budha">Budha</option>
+                <option value="Hindu">Hindu</option>
+                <option value="Other">Other</option>
+              </Input>
+            )}
+          />
+          {errors.religion && (
+            <FormFeedback>{errors.religion.message}</FormFeedback>
+          )}
+        </Col>
+        <Col md="6" sm="12" className="mb-1">
+          <Label className="form-label" for="phone">
+            Phone Number
+          </Label>
+          <Controller
+            name="phone"
             defaultValue=""
             control={control}
             render={({ field }) => (
               <Input
                 type="text"
                 {...field}
-                name="nip"
-                invalid={errors.nip && true}
+                name="phone"
+                invalid={errors.phone && true}
               />
             )}
           />
-          {errors.nip && <FormFeedback>{errors.nip.message}</FormFeedback>}
+          {errors.phone && <FormFeedback>{errors.phone.message}</FormFeedback>}
         </Col>
         <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="id_number">
@@ -313,55 +351,64 @@ export default function FormEmployee({
           )}
         </Col>
         <Col md="6" sm="12" className="mb-1">
-          <Label className="form-label" for="status">
-            Status
+          <Label className="form-label" for="marital_status">
+            Marital Status
           </Label>
           <Controller
-            name="status"
+            name="marital_status"
             defaultValue=""
             control={control}
-            value={item?.employee_attribute.status}
             render={({ field }) => (
               <Input
                 type="select"
                 {...field}
-                name="status"
-                invalid={errors.status && true}
+                name="marital_status"
+                // value={item?.employee_attribute.religion}
+                invalid={errors.marital_status && true}
               >
                 <option value="">Select status</option>
-                <option value="probation">Probation</option>
-                <option value="internship">Internship</option>
-                <option value="contract">Contract</option>
-                <option value="fulltime">Fulltime</option>
-                <option value="non_active">Non Active</option>
+                <option value="Married">Married</option>
+                <option value="Single">Single</option>
+                <option value="Widow">Widow/widower</option>
               </Input>
             )}
           />
-          {errors.status && (
-            <FormFeedback>{errors.status.message}</FormFeedback>
+          {errors.marital_status && (
+            <FormFeedback>{errors.marital_status.message}</FormFeedback>
           )}
         </Col>
         <Col md="6" sm="12" className="mb-1">
-          <Label className="form-label" for="password">
-            Password
+          <Label className="form-label" for="dependents">
+            Dependents
           </Label>
           <Controller
-            name="password"
+            name="dependents"
             defaultValue=""
             control={control}
             render={({ field }) => (
               <Input
-                type="text"
+                type="select"
                 {...field}
-                name="password"
-                disabled={!!item}
-                invalid={errors.password && true}
-              />
+                name="dependents"
+                // value={item?.employee_attribute.religion}
+                invalid={errors.religion && true}
+              >
+                <option value="">Select dependents</option>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value=">5">more than 4</option>
+              </Input>
             )}
           />
-          {errors.password && (
-            <FormFeedback>{errors.password.message}</FormFeedback>
+          {errors.dependents && (
+            <FormFeedback>{errors.dependents.message}</FormFeedback>
           )}
+        </Col>
+        <Col md="12" sm="12" className="my-2 fs-5 fw-bold">
+          Position
         </Col>
         <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="company_id">
@@ -422,33 +469,32 @@ export default function FormEmployee({
           )}
         </Col>
         <Col md="6" sm="12" className="mb-1">
-          <Label className="form-label" for="religion">
-            Religion
+          <Label className="form-label" for="status">
+            Status
           </Label>
           <Controller
-            name="religion"
+            name="status"
             defaultValue=""
             control={control}
+            value={item?.employee_attribute.status}
             render={({ field }) => (
               <Input
                 type="select"
                 {...field}
-                name="religion"
-                value={item?.employee_attribute.religion}
-                invalid={errors.religion && true}
+                name="status"
+                invalid={errors.status && true}
               >
-                <option value="">Select religion</option>
-                <option value="Islam">Islam</option>
-                <option value="Kristen">Kristen</option>
-                <option value="Katolik">Katolik</option>
-                <option value="Budha">Budha</option>
-                <option value="Hindu">Hindu</option>
-                <option value="Other">Other</option>
+                <option value="">Select status</option>
+                <option value="probation">Probation</option>
+                <option value="internship">Internship</option>
+                <option value="contract">Contract</option>
+                <option value="fulltime">Fulltime</option>
+                <option value="non_active">Non Active</option>
               </Input>
             )}
           />
-          {errors.religion && (
-            <FormFeedback>{errors.religion.message}</FormFeedback>
+          {errors.status && (
+            <FormFeedback>{errors.status.message}</FormFeedback>
           )}
         </Col>
         <Col md="6" sm="12" className="mb-1">
@@ -480,80 +526,105 @@ export default function FormEmployee({
           )}
         </Col>
         <Col md="6" sm="12" className="mb-1">
-          <Label className="form-label" for="phone">
-            Phone Number
+          <Label className="form-label" for="title">
+            Title
           </Label>
           <Controller
-            name="phone"
+            name="title"
             defaultValue=""
             control={control}
             render={({ field }) => (
               <Input
                 type="text"
                 {...field}
-                name="phone"
-                invalid={errors.phone && true}
+                name="title"
+                placeholder="Ex:Finance Staff"
+                invalid={errors.title && true}
               />
             )}
           />
-          {errors.phone && <FormFeedback>{errors.phone.message}</FormFeedback>}
+          {errors.title && <FormFeedback>{errors.title.message}</FormFeedback>}
         </Col>
         <Col md="6" sm="12" className="mb-1">
-          <Label className="form-label" for="marital_status">
-            Marital Status
+          <Label className="form-label" for="nip">
+            NIP
           </Label>
           <Controller
-            name="marital_status"
+            name="nip"
             defaultValue=""
             control={control}
             render={({ field }) => (
               <Input
-                type="select"
+                type="text"
                 {...field}
-                name="marital_status"
-                // value={item?.employee_attribute.religion}
-                invalid={errors.marital_status && true}
-              >
-                <option value="">Select status</option>
-                <option value="married">Married</option>
-                <option value="single">Single</option>
-                <option value="widow">Widow/widower</option>
-              </Input>
+                name="nip"
+                invalid={errors.nip && true}
+              />
             )}
           />
-          {errors.marital_status && (
-            <FormFeedback>{errors.marital_status.message}</FormFeedback>
-          )}
+          {errors.nip && <FormFeedback>{errors.nip.message}</FormFeedback>}
+        </Col>
+        <Col md="12" sm="12" className="my-2 fs-5 fw-bold">
+          Bank 
         </Col>
         <Col md="6" sm="12" className="mb-1">
-          <Label className="form-label" for="dependents">
-            Dependents
+          <Label className="form-label" for="bank_account">
+            Bank Account
           </Label>
           <Controller
-            name="dependents"
+            name="bank_account"
             defaultValue=""
             control={control}
             render={({ field }) => (
               <Input
-                type="select"
+                type="text"
                 {...field}
-                name="dependents"
-                // value={item?.employee_attribute.religion}
-                invalid={errors.religion && true}
-              >
-                <option value="">Select dependents</option>
-                <option value="0">0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value=">5">more than 4</option>
-              </Input>
+                name="bank_account"
+                invalid={errors.bank_account && true}
+              />
             )}
           />
-          {errors.dependents && (
-            <FormFeedback>{errors.dependents.message}</FormFeedback>
-          )}
+          {errors.bank_account && <FormFeedback>{errors.bank_account.message}</FormFeedback>}
+        </Col>
+        <Col md="6" sm="12" className="mb-1">
+          <Label className="form-label" for="bank_account_name">
+            Bank Account Name
+          </Label>
+          <Controller
+            name="bank_account_name"
+            defaultValue=""
+            control={control}
+            render={({ field }) => (
+              <Input
+              type="text"
+              {...field}
+              name="bank_account_name"
+              invalid={errors.bank_account_name && true}
+              placeholder="Ex: Jhon Doe"
+              />
+            )}
+          />
+          {errors.bank_account_name && <FormFeedback>{errors.bank_account_name.message}</FormFeedback>}
+        </Col>
+        <Col md="6" sm="12" className="mb-1">
+          <Label className="form-label" for="bank_number">
+            Bank Account Number
+          </Label>
+          <Controller
+            name="bank_account_number"
+            defaultValue=""
+            control={control}
+            render={({ field }) => (
+              <Input
+                type="number"
+                {...field}
+                name="bank_account_number"
+                invalid={errors.bank_number && true}
+              />
+            )}
+          />
+          {errors.bank_account_number && <FormFeedback>{errors.bank_account_number.message}</FormFeedback>
+          }
         </Col>
         <Col md="12" sm="12" className="mb-1">
           <Label className="form-label">Profile Picture</Label>

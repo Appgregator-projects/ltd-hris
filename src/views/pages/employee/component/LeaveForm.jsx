@@ -18,7 +18,7 @@ export default function LeaveForm ({leave, close, balance, onSubmit, isLoading})
           console.log(x.defaultValue , "isinya apa")
         }
         return x
-      })
+      })  
 
       return setFormLeave([...g])
     }

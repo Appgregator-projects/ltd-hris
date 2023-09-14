@@ -77,13 +77,11 @@ export default function LeaveRequestIndex() {
   };
 
   const onReject = (param) => {
-    // return console.log(param, selectItem, "reject");
     setNestedToggle(true)
     return onSubmit(param, selectItem, "reject")
   };
 
   const onApproval = () => {
-    // return console.log(param,"approve" )
     return onSubmit("",selectItem,"approve")
   };
 

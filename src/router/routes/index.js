@@ -48,6 +48,7 @@ const CorrectionRequest = lazy(() =>import("../../views/pages/CorrectionRequest"
 const LeaveRequest = lazy(() =>import("../../views/pages/LeaveRequest/LeaveRequest"));
 const CompanyIndex = lazy(() =>import("../../views/pages/Company/CompanyIndex"))
 const Payroll = lazy(() => import("../../views/pages/Payroll/PayrollIndex"))
+const DaysOff = lazy(() =>  import("../../views/pages/DaysOff/DaysOffIndex"))
 
 // ** Merge Routes
 const Routes = [
@@ -151,6 +152,14 @@ const Routes = [
     meta: {
       action: "read",
       resource: "PAYROLL",
+    },
+  },
+  {
+    path: "/days-off",
+    element: <DaysOff />,
+    meta: {
+      action: "read",
+      resource: "DAYSOFF",
     },
   },
   // {

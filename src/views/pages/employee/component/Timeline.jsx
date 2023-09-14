@@ -6,8 +6,6 @@ const Timeline = props => {
   // ** Props
   const { userLog, tag, className } = props
 
-  // console.log(userLog,"data")
-
   // ** Custom Tagg
   const Tag = tag ? tag : 'ul'
 
@@ -41,7 +39,7 @@ const Timeline = props => {
                   'mb-sm-0 mb-1': item.meta
                 })}
               >
-                <h6>{item.title}</h6>
+                <h6>{item.log_name}</h6>
                 {item.meta ? (
                   <span
                     className={classnames('timeline-event-time', {
@@ -57,9 +55,9 @@ const Timeline = props => {
                   'mb-0': i === userLog.length - 1 && !item.customContent
                 })}
               >
-                {item.content}
+                {/* {item.body[0].name} */}
               </p>
-              {item.customContent ? item.customContent : null}
+              {/* {item.body[0].email ? item.body[0].email : null} */}
             </div>
           </ItemTag>
         )

@@ -137,7 +137,7 @@ export default function AttendanceIndex(){
 			// return console.log(year, "attendance")
 				try {
 						const data = await Api.get(`/hris/attendance/employee?month=${month}&year=${year}&day=&uid=${arg.value}`)
-						console.log(data, "data attendance")
+						console.log(data[1], "data attendance")
 						setAttendance([...data])
 						setToggleModal(false)
 						generateCalendarEvent(data)

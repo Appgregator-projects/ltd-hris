@@ -14,6 +14,7 @@ import Avatar from "@components/avatar";
 const AvatarGroup = (props) => {
     // ** Props
     const { data, tag, className } = props;
+    console.log(data,"data")
 
     // ** Conditional Tag
     const Tag = tag ? tag : "div";

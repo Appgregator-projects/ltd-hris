@@ -29,7 +29,7 @@ export default function EmployeeDetail() {
 	const [user, setUser] = useState([])
 	const [balance, setBalance] = useState([])
 	const [userBalance, setUserBalance] = useState([])
-	const [usersDivision, setUsersDivision] = useState([])
+	const [usersGetBalance, setUsersGetBalance] = useState([])
   	const [logUser, setLogUser] = useState([])
 	const [leaveCategories, setLaeveCategories] = useState([])
 	const [isLoading, setIsLoading] = useState(false)
@@ -45,9 +45,9 @@ export default function EmployeeDetail() {
 			const data = await Api.get(`/hris/employee/${id.uid}`)
 			setUser(data)
 			setBalance([...data.leave_balances])
+			console.log(data, "user")
 		} catch (error) {
 			throw error
-
 		}
 	}
 
@@ -55,17 +55,17 @@ export default function EmployeeDetail() {
 		fetchUser()
 	}, [])
 
-	const fetchUsersDivision = async () => {
+	const fetchUsersBalance = async () => {
 		try {
 			const dataUsers = await Api.get(`/hris/employee/${id.uid}`)
-			setUsersDivision([...dataUsers.leave_balances])
+			setUsersGetBalance([...dataUsers.leave_balances])
 		} catch (error) {
 			throw error
 		}
 	}
-
+	
 	useEffect(() => {
-		fetchUsersDivision()
+		fetchUsersBalance()
 	}, [])
 
 	const fetchLeaveCategories = async () => {
@@ -260,27 +260,6 @@ export default function EmployeeDetail() {
 
 	}
 
-	const UserView = () => {
-		// ** Store Vars
-		const store = useSelector(state => state.users)
-		const dispatch = useDispatch()
-		console.log(store, "store useSelector")
-	  
-		// ** Get suer on mount
-		useEffect(() => {
-		  dispatch(getUser(parseInt(id)))
-		}, [dispatch])
-	  
-		const [active, setActive] = useState('1')
-	  
-		const toggleTab = tab => {
-		  if (active !== tab) {
-			setActive(tab)
-		  }
-		}
-
-	}
-
 	return (
 		<>
 			<Row>
@@ -349,12 +328,20 @@ export default function EmployeeDetail() {
 											<span>{user.employee_attribute ? dateFormat(user.employee_attribute.join_date) : '-'}</span>
 										</li>
 										<li className='mb-75 d-flex justify-content-between'>
-											<span className='fw-bolder me-25'>Out Date</span>
-											<span>{user && user.employee_attribute ? dateFormat(user.employee_attribute.out_date) : '-'}</span>
+											<span className='fw-bolder me-25'>Marital status</span>
+											<span>{user && user.employee_attribute ? user.employee_attribute.marital_status === "married"? "Married" : '-' : "-"}</span>
 										</li>
-										<li className='mb-75 d-flex flex-column'>
-											<span className='fw-bolder me-25'>Address</span>
-											<span>{user.info ? user.info.address : '-'}</span>
+										<li className='mb-75 d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>Dependents</span>
+											<span>{user && user.employee_attribute ? user.employee_attribute.dependents : "0"} person</span>
+										</li>
+										<li className='mb-75 d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>Bank Account</span>
+											<span></span>
+										</li>
+										<li className='mb-75 d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>Bank Number</span>
+											<span>{user && user.employee_attribute ? user.employee_attribute.dependents : "0"} person</span>
 										</li>
 									</ul>
 								) : null}
@@ -405,9 +392,9 @@ export default function EmployeeDetail() {
 							</Fragment>
 						</CardFooter>
 					</Card>
-					</Col>
-					<Col>
-						<Card>
+				</Col>
+				<Col>
+					<Card>
 							<CardHeader>
 								<CardTitle>Leave Balances</CardTitle>
 							</CardHeader>
@@ -421,8 +408,8 @@ export default function EmployeeDetail() {
 									</thead>
 									<tbody>
 										{
-											usersDivision.length ?
-												usersDivision.map(x => (
+											usersGetBalance.length ?
+												usersGetBalance.map(x => (
 													<tr key={x.id}>
 														<td>{x.category? x.category.name : '-'}</td>
 														<td>{x.balance ? x.balance : "0"} days</td>
@@ -448,8 +435,8 @@ export default function EmployeeDetail() {
 									</Button.Ripple>
 								</Fragment>
 							</CardFooter>
-						</Card>
-					</Col>
+					</Card>
+				</Col>
 					<Col>
 						<Card>
 							<CardHeader>
@@ -458,11 +445,11 @@ export default function EmployeeDetail() {
 							<CardBody>
 								<div>
 									<span></span>
-									{/* <AvatarGroup data={usersDivision}/> */}
+									{/* <AvatarGroup/> */}
 								</div>
 								<div className='d-flex justify-content-between align-items-end mt-1 pt-25'>
 									<div className='role-heading'>
-										<h4 className='fw-bolder'>{usersDivision.category?.name}</h4>
+										<h4 className='fw-bolder'>{usersGetBalance.category?.name}</h4>
 										<Link
 											to='/'
 											className='role-edit-modal'
