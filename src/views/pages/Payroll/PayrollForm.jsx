@@ -258,7 +258,7 @@ export default function PayrollForm() {
       } else {
         const oldA  = addjusment
         oldA.splice(index, 1)
-        setDeductions([...oldA])
+        setAddjusment([...oldA])
       }
       calcualteSalary(addjusment, deductions)
     })
