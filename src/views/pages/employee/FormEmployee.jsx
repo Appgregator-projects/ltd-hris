@@ -77,9 +77,6 @@ export default function FormEmployee({
       setValue("phone", item.phone);
       setValue("company_id", item.company_id)
       setValue("division_id", item.division_id)  
-      setValue("bank_account", item.bank_account)  
-      setValue("bank_account_name", item.bank_account_name)  
-      setValue("bank_account_number", item.bank_account_number)  
       if (item.employee_attribute) {
         setValue("dob", dayjs(item.employee_attribute.dob).format("YYYY-MM-DD"));
         setValue("join_date", dayjs(item.employee_attribute.join_date).format("YYYY-MM-DD"));
@@ -90,6 +87,9 @@ export default function FormEmployee({
         setValue("status", item.employee_attribute.status);
         setValue("marital_status", item.employee_attribute.marital_status)
         setValue("dependents", item.employee_attribute.dependents)
+        setValue("bank_Account", item.employee_attribute.bank_Account)  
+        setValue("bank_Account_Name", item.employee_attribute.bank_Account_Name)  
+        setValue("bank_Account_Number", item.employee_attribute.bank_Account_Number)  
       }
     }
     setValue("company_id", companyId)
@@ -568,62 +568,62 @@ export default function FormEmployee({
           Bank 
         </Col>
         <Col md="6" sm="12" className="mb-1">
-          <Label className="form-label" for="bank_account">
+          <Label className="form-label" for="bank_Account">
             Bank Account
           </Label>
           <Controller
-            name="bank_account"
+            name="bank_Account"
             defaultValue=""
             control={control}
             render={({ field }) => (
               <Input
                 type="text"
                 {...field}
-                name="bank_account"
-                invalid={errors.bank_account && true}
+                name="bank_Account"
+                invalid={errors.bank_Account && true}
               />
             )}
           />
-          {errors.bank_account && <FormFeedback>{errors.bank_account.message}</FormFeedback>}
+          {errors.bank_Account && <FormFeedback>{errors.bank_Account.message}</FormFeedback>}
         </Col>
         <Col md="6" sm="12" className="mb-1">
-          <Label className="form-label" for="bank_account_name">
+          <Label className="form-label" for="bank_Account_Name">
             Bank Account Name
           </Label>
           <Controller
-            name="bank_account_name"
+            name="bank_Account_Name"
             defaultValue=""
             control={control}
             render={({ field }) => (
               <Input
               type="text"
               {...field}
-              name="bank_account_name"
-              invalid={errors.bank_account_name && true}
+              name="bank_Account_Name"
+              invalid={errors.bank_Account_Name && true}
               placeholder="Ex: Jhon Doe"
               />
             )}
           />
-          {errors.bank_account_name && <FormFeedback>{errors.bank_account_name.message}</FormFeedback>}
+          {errors.bank_Account_Name && <FormFeedback>{errors.bank_Account_Name.message}</FormFeedback>}
         </Col>
         <Col md="6" sm="12" className="mb-1">
-          <Label className="form-label" for="bank_number">
+          <Label className="form-label" for="bank_Account_Number">
             Bank Account Number
           </Label>
           <Controller
-            name="bank_account_number"
+            name="bank_Account_Number"
             defaultValue=""
             control={control}
             render={({ field }) => (
               <Input
                 type="number"
                 {...field}
-                name="bank_account_number"
-                invalid={errors.bank_number && true}
+                name="bank_Account_Number"
+                invalid={errors.bank_Account_Number && true}
               />
             )}
           />
-          {errors.bank_account_number && <FormFeedback>{errors.bank_account_number.message}</FormFeedback>
+          {errors.bank_Account_Number && <FormFeedback>{errors.bank_Account_Number.message}</FormFeedback>
           }
         </Col>
         <Col md="12" sm="12" className="mb-1">

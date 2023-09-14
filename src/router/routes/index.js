@@ -117,14 +117,6 @@ const Routes = [
       resource: "BRANCHES"
     }
   },
-    // {
-    //   path: "/office/:office_id",
-    //   element: <OfficeDetail />,
-    //   meta: {
-    //     action: "read",
-    //     resource: "BRANCHES",
-    //   },
-    // },
   {
     path: "/division",
     element: <Division />,
@@ -191,7 +183,7 @@ const Routes = [
   },
   {
     path: "/loans",
-    element: <PayrollForm />,
+    element: <></>,
     meta: {
       action: "read",
       resource: "LOANS"

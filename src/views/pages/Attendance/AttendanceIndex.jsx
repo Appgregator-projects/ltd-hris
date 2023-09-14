@@ -169,27 +169,6 @@ export default function AttendanceIndex() {
     }
   }
 
-		const fetchAttendance = async(arg, date) => {
-			let month = date.slice(6,7)
-			let year = date.slice(0,4)
-			// return console.log(year, "attendance")
-				try {
-						const data = await Api.get(`/hris/attendance/employee?month=${month}&year=${year}&day=&uid=${arg.value}`)
-						console.log(data[1], "data attendance")
-						setAttendance([...data])
-						setToggleModal(false)
-						generateCalendarEvent(data)
-						toast.success('Attendance has loaded', {
-				position: 'top-center'
-			})
-				} catch (error) {
-						toast.error(`Error : ${error.message}`, {
-				position: 'top-center'
-			})
-						throw error
-				}
-		}
-
   return (
     <>
       <Row>

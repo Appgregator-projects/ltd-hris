@@ -28,7 +28,7 @@ export default function PayrollForm() {
   const currentMonth = dayjs().format('M')
   const [info, setInfo] = useState(null)
   const [periode, setPeriode] = useState('')
-  const [addjusment, setAddjusment] = useState([{name:'Basic salary', amount:0}])
+  const [addjustment, setAddjustment] = useState([{name:'Basic salary', amount:0}])
   const [deductions, setDeductions] =  useState([
     {name:'Pajak Penghasilan', amount:0},
     {name:'BPJS (JHT)', amount:0},
@@ -38,7 +38,7 @@ export default function PayrollForm() {
     {name:'Potongan Keterlambatan', amount:0},
     {name:'Potongan Pinjaman', amount:0}
   ])
-  const [totalAddjusment, setTotalAddjusment] = useState(0)
+  const [totalAddjustment, setTotalAddjustment] = useState(0)
   const [totalDeduction, setTotalDeduction] = useState(0)
 
   const fetchUser = async () => {
@@ -67,9 +67,9 @@ export default function PayrollForm() {
     try {
       if (!id) return
       const data = await Api.get(`/hris/payroll/${id}`)
-      const addj = data.items.filter(x => x.flag === 'addjusment')
-      const deductions = data.items.filter(x => x.flag !== 'addjusment')
-      setAddjusment([
+      const addj = data.items.filter(x => x.flag === 'addjustment')
+      const deductions = data.items.filter(x => x.flag !== 'addjustment')
+      setAddjustment([
       ...addj.map(x => {
               x.name = x.label
               return x
@@ -84,7 +84,7 @@ export default function PayrollForm() {
       setTotalDeduction(
         deductions.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
       )
-      setTotalAddjusment(
+      setTotalAddjustment(
         addj.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
       )
 
@@ -112,10 +112,10 @@ export default function PayrollForm() {
 
   }
 
-  const calcualteSalary = (addjusmentArr = [], deductionArr = []) => {
-    const sumAddjusment = addjusmentArr.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
+  const calcualteSalary = (addjustmentArr = [], deductionArr = []) => {
+    const sumAddjustment = addjustmentArr.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
     const sumDeduction = deductionArr.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
-    setTotalAddjusment(sumAddjusment)
+    setTotalAddjustment(sumAddjustment)
     setTotalDeduction(sumDeduction)
   }
 
@@ -129,7 +129,7 @@ export default function PayrollForm() {
         setInfo(data)
         const p = `${dayjs(data.cut_off_start).format('DD-MMM')  } - ${  dayjs(data.cut_off_end).format('DD-MMM')  } ${  dayjs(data.cut_off_end).format('YYYY')}`
         setPeriode(p)
-        setAddjusment([...data.income_list])
+        setAddjustment([...data.income_list])
         calcualteSalary(data.income_list, deductions)
       } catch (error) {
         throw error
@@ -143,9 +143,9 @@ export default function PayrollForm() {
     fetchAttendance(arg.value)
   }
 
-  const onNewAddjusment = (income = true) => {
+  const onNewAddjustment = (income = true) => {
     const params = {
-      title: "Add Addjusment",
+      title: "Add Addjustment",
       mode: "income",
       item: null
     }
@@ -157,16 +157,16 @@ export default function PayrollForm() {
   }
 
   const onSubmitIncome = (arg) => {
-    if (modal.title === 'Add Addjusment') {
-      const oldIncome = addjusment
+    if (modal.title === 'Add Addjustment') {
+      const oldIncome = addjustment
       oldIncome.push(arg)
-      setAddjusment([...oldIncome])
+      setAddjustment([...oldIncome])
       calcualteSalary(oldIncome, deductions)
     } else {
       const oldDeduction = deductions
       oldDeduction.push(arg)
       setDeductions([...oldDeduction])
-      calcualteSalary(addjusment, oldDeduction)
+      calcualteSalary(addjustment, oldDeduction)
 
     }
     setToggleModal(false)
@@ -177,11 +177,13 @@ export default function PayrollForm() {
       user:userSelect ? userSelect.value : null,
       periode:periodeRef.current.value,
       deductions,
-      addjusment,
+      addjustment,
       approved
     }
 
-    if (!params.user || !params.periode || !params.deductions.length || params.addjusment.length) return toast.error(`Error : Invalid form`, {
+    console.log(params, "params")
+
+    if (!params.user || !params.periode || !params.deductions.length || !params.addjustment.length) return toast.error(`Error : Invalid form`, {
       position: "top-center"
     })
     const url = id ? `/hris/payroll/${id}` : '/hris/payroll'
@@ -211,11 +213,11 @@ export default function PayrollForm() {
 
   }
 
-  const handleInputAddjusment = (e, index) => {
+  const handleInputAddjustment = (e, index) => {
     const value = e.target.value
-    const old = addjusment
+    const old = addjustment
     old[index].amount = value
-    setAddjusment([...old])
+    setAddjustment([...old])
     calcualteSalary(old, deductions)
   }
 
@@ -224,7 +226,7 @@ export default function PayrollForm() {
     const old = deductions
     old[index].amount = value
     setDeductions([...old])
-    calcualteSalary(addjusment, old)
+    calcualteSalary(addjustment, old)
   }
  
 
@@ -264,23 +266,23 @@ export default function PayrollForm() {
         <Col lg="8">
           <Card>
             <CardHeader>
-              <CardTitle>Addjusments</CardTitle>
+              <CardTitle>Addjustments</CardTitle>
             </CardHeader>
             <CardBody>
               {
-                addjusment.map((x, index) => (
+                addjustment.map((x, index) => (
                   <div key={index} className='invoice-total-item d-flex flex-row justify-content-between align-items-center mb-2'>
                     <div className="">
                       {x.name}
                     </div>
                     <div className="w-50">
-                      <Input value={x.amount} className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputAddjusment(e, index)}/>
+                      <Input value={x.amount} className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputAddjustment(e, index)}/>
                     </div>
                   </div>
                 ))
               }
               <div className='invoice-total-item d-flex flex-row justify-content-end'>
-                <Button size="sm" onClick={onNewAddjusment}>Add</Button>
+                <Button size="sm" onClick={onNewAddjustment}>Add</Button>
               </div>
             </CardBody>
           </Card>
@@ -302,7 +304,7 @@ export default function PayrollForm() {
                 ))
               }
               <div className='invoice-total-item d-flex flex-row justify-content-end'>
-                <Button size="sm" onClick={() => onNewAddjusment(false)}>Add</Button>
+                <Button size="sm" onClick={() => onNewAddjustment(false)}>Add</Button>
               </div>
             </CardBody>
           </Card>
@@ -345,8 +347,8 @@ export default function PayrollForm() {
               <Col className='d-flex justify-content-end' md='12'>
                 <div className='invoice-total-wrapper w-100'>
                   <div className='invoice-total-item d-flex flex-row justify-content-between'>
-                    <p className='invoice-total-title'>Total Addjusment</p>
-                    <p className='invoice-total-title'>Rp {numberFormat(totalAddjusment)}</p>
+                    <p className='invoice-total-title'>Total Addjustment</p>
+                    <p className='invoice-total-title'>Rp {numberFormat(totalAddjustment)}</p>
                   </div>
                   <div className='invoice-total-item d-flex flex-row justify-content-between'>
                     <p className='invoice-total-title'>Total Deductions</p>
@@ -354,7 +356,7 @@ export default function PayrollForm() {
                   </div>
                   <div className='invoice-total-item d-flex flex-row justify-content-between'>
                     <p className='invoice-total-title fw-bold'>TOTAL SALARY</p>
-                    <p className='invoice-total-title fw-bold'>Rp {numberFormat(totalAddjusment - totalDeduction)}</p>
+                    <p className='invoice-total-title fw-bold'>Rp {numberFormat(totalAddjustment - totalDeduction)}</p>
                   </div>
                 </div>
               </Col>

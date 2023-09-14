@@ -47,6 +47,8 @@ export default function PayrollView() {
     fetchPayroll()
   }, [])
 
+  console.log(user, "user")
+
   return (
     <>
       <Row>
@@ -92,20 +94,20 @@ export default function PayrollView() {
                 <Col lg="6">
                   <div className="d-flex">
                     <div className="w-50 pb-1 text-xs">Bank Name</div>
-                    <div className="w-50 pb-1 text-xs">: {user ? user.employee_attribute.bank_Account : '-'}</div>
+                    <div className="w-50 pb-1 text-xs text-uppercase">: {user ? user.employee_attribute.bank_Account : '-'}</div>
                   </div>
                   <div className="d-flex">
                     <div className="w-50 pb-1 text-xs">Bank Account Name</div>
-                    <div className="w-50 pb-1 text-xs">: {user ? user.employee_attribute.bank_Account_Name : '-'}</div>
+                    <div className="w-50 pb-1 text-xs text-uppercase">: {user ? user.employee_attribute.bank_Account_Name : '-'}</div>
                   </div>
                   <div className="d-flex">
-                    <div className="w-50 pb-1 text-xs">Bank Account Number</div>
-                    <div className="w-50 pb-1 text-xs">: {user ? user.employee_attribute.bank_Account_Number : '-'}</div>
+                    <div className="w-50 pb-1 text-xs ">Bank Account Number</div>
+                    <div className="w-50 pb-1 text-xs ">: {user ? user.employee_attribute.bank_Account_Number : '-'}</div>
                   </div>
                 </Col>
                 <Col lg="6 mt-2">
                   <CardText className="w-full text-sm fw-bold">
-                    Addjusment
+                    Addjustments
                   </CardText>
                   <Table>
                     <thead>
@@ -132,7 +134,7 @@ export default function PayrollView() {
                 </Col>
                 <Col lg="6 mt-2">
                   <CardText className="w-full text-sm fw-bold">
-                    Deduction
+                    Deductions
                   </CardText>
                   <Table>
                     <thead>

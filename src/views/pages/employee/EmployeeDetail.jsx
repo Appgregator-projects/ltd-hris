@@ -337,11 +337,15 @@ export default function EmployeeDetail() {
 										</li>
 										<li className='mb-75 d-flex justify-content-between'>
 											<span className='fw-bolder me-25'>Bank Account</span>
-											<span></span>
+											<span>{user && user.employee_attribute? user.employee_attribute.bank_Account : "-"}</span>
+										</li>
+										<li className='mb-75 d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>Bank Account Name</span>
+											<span>{user && user.employee_attribute? user.employee_attribute.bank_Account_Name : "-"}</span>
 										</li>
 										<li className='mb-75 d-flex justify-content-between'>
 											<span className='fw-bolder me-25'>Bank Number</span>
-											<span>{user && user.employee_attribute ? user.employee_attribute.dependents : "0"} person</span>
+											<span>{user && user.employee_attribute ? user.employee_attribute.bank_Account_Number : "-"} </span>
 										</li>
 									</ul>
 								) : null}
