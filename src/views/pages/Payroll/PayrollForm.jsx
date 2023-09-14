@@ -2,7 +2,7 @@ import {
   Col, Row, Button, Input,
   Modal, ModalHeader, ModalBody, Card, CardBody, CardHeader, CardTitle
  } from "reactstrap"
-import { ChevronDown } from "react-feather"
+import { ChevronDown, Trash } from "react-feather"
 import { monthName, mustNumber, numberFormat } from "../../../Helper"
 import FormUserAssign from "../Components/FormUserAssign"
 import { useState, useEffect, useRef } from "react"
@@ -11,6 +11,9 @@ import dayjs from "dayjs"
 import FormIncome from "./Component/FormIncome"
 import { useParams, useNavigate } from "react-router-dom"
 import { toast } from 'react-hot-toast'
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+const MySwal = withReactContent(Swal)
 
 export default function PayrollForm() {
   const { id } = useParams()
@@ -68,21 +71,26 @@ export default function PayrollForm() {
       if (!id) return
       const data = await Api.get(`/hris/payroll/${id}`)
       const addj = data.items.filter(x => x.flag === 'addjusment')
-      const deductions = data.items.filter(x => x.flag !== 'addjusment')
-      setAddjusment([
-      ...addj.map(x => {
-              x.name = x.label
-              return x
-            })
-      ])
-      setDeductions([
-      ...deductions.map(x => {
-              x.name = x.label
-              return x
-            })
-      ])
+      const dedu = data.items.filter(x => x.flag !== 'addjusment')
+      if (addj.length) {
+        setAddjusment([
+        ...addj.map(x => {
+            x.name = x.label
+            return x
+          })
+        ])
+      }
+
+      if (dedu.length) {
+        setDeductions([
+        ...dedu.map(x => {
+                x.name = x.label
+                return x
+              })
+        ])
+      }
       setTotalDeduction(
-        deductions.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
+        dedu.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
       )
       setTotalAddjusment(
         addj.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
@@ -177,11 +185,11 @@ export default function PayrollForm() {
       user:userSelect ? userSelect.value : null,
       periode:periodeRef.current.value,
       deductions,
-      addjusment,
+      addjustment:addjusment,
       approved
     }
 
-    if (!params.user || !params.periode || !params.deductions.length || params.addjusment.length) return toast.error(`Error : Invalid form`, {
+    if (!params.user || !params.periode || !params.deductions.length || !params.addjustment.length) return toast.error(`Error : Invalid form`, {
       position: "top-center"
     })
     const url = id ? `/hris/payroll/${id}` : '/hris/payroll'
@@ -194,14 +202,16 @@ export default function PayrollForm() {
       } else {
         data = await Api.post(url, params)
       }
-      if (typeof data.status !== 'undefined') return toast.error(`Error : ${data.data}`, {
+      if (typeof data.status !== 'undefined' && !data.status) return toast.error(`Error : ${data.data}`, {
         position: "top-center"
       })
       toast.success(data, {
         position: "top-center"
       })
 
-      navigate(`/payroll/${id}`)
+      const lastId = data.id
+
+      navigate(`/payroll/${lastId}`)
 
     } catch (error) {
       toast.error(`Error : ${error.message}`, {
@@ -225,6 +235,33 @@ export default function PayrollForm() {
     old[index].amount = value
     setDeductions([...old])
     calcualteSalary(addjusment, old)
+  }
+
+  const onDeleteItem = (d, index) => {
+    return MySwal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, approve it!',
+      customClass: {
+        confirmButton: 'btn btn-primary',
+        cancelButton: 'btn btn-outline-danger ms-1'
+      },
+      buttonsStyling: false
+    }).then(async (result) => {
+      if (!result) return
+      if (d === 'd') {
+        const oldD  = deductions
+        oldD.splice(index, 1)
+        setDeductions([...oldD])
+      } else {
+        const oldA  = addjusment
+        oldA.splice(index, 1)
+        setDeductions([...oldA])
+      }
+      calcualteSalary(addjusment, deductions)
+    })
   }
  
 
@@ -270,11 +307,14 @@ export default function PayrollForm() {
               {
                 addjusment.map((x, index) => (
                   <div key={index} className='invoice-total-item d-flex flex-row justify-content-between align-items-center mb-2'>
-                    <div className="">
+                    <div className="" style={{width:'30%'}}>
                       {x.name}
                     </div>
                     <div className="w-50">
                       <Input value={x.amount} className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputAddjusment(e, index)}/>
+                    </div>
+                    <div className="">
+                      {addjusment.length > 1 ? <Button outline color="danger" size="sm" onClick={() => onDeleteItem('a', index)}>X</Button> : <></>}
                     </div>
                   </div>
                 ))
@@ -292,11 +332,14 @@ export default function PayrollForm() {
               {
                 deductions.map((x, index) => (
                   <div key={index} className='invoice-total-item d-flex flex-row justify-content-between align-items-center mb-2'>
-                    <div className="">
+                    <div className="" style={{width:'30%'}}>
                       {x.name}
                     </div>
                     <div className="w-50">
                       <Input value={x.amount} className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputDeduction(e, index)}/>
+                    </div>
+                    <div className="">
+                      {deductions.length > 1 ? <Button outline color="danger" size="sm" onClick={() => onDeleteItem('d', index)}>X</Button> : <></>}
                     </div>
                   </div>
                 ))
