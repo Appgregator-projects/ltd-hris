@@ -17,6 +17,7 @@ import { isObjEmpty } from "@utils"
 
 import AuthRoutes from "./auth"
 import LmsRoutes from "./lms"
+import LoanIndex from "../../views/pages/Payroll/LoanIndex"
 
 const getLayout = {
   blank: <BlankLayout />,
@@ -41,17 +42,18 @@ const EmployeeDetail = lazy(() => import("../../views/pages/employee/EmployeeDet
 const Office = lazy(() => import("../../views/pages/Office/OfficeIndex"))
 const OfficeDetail = lazy(() => import("../../views/pages/Office/OfficeDetail"))
 // const Shift = lazy(() => import("../../views/pages/Shift/ShiftIndex"));
-const Division = lazy(() => import("../../views/pages/Division/DivisionIndex"));
-const LeaveCategory = lazy(() =>import("../../views/pages/LeaveCategory/LeaveCategoryIndex"));
-const Attendance = lazy(() =>import("../../views/pages/Attendance/AttendanceIndex"));
-const CorrectionRequest = lazy(() =>import("../../views/pages/CorrectionRequest"));
-const LeaveRequest = lazy(() =>import("../../views/pages/LeaveRequest/LeaveRequest"));
-const CompanyIndex = lazy(() =>import("../../views/pages/Company/CompanyIndex"))
+const Division = lazy(() => import("../../views/pages/Division/DivisionIndex"))
+const LeaveCategory = lazy(() => import("../../views/pages/LeaveCategory/LeaveCategoryIndex"))
+const Attendance = lazy(() => import("../../views/pages/Attendance/AttendanceIndex"))
+const CorrectionRequest = lazy(() => import("../../views/pages/CorrectionRequest"))
+const LeaveRequest = lazy(() => import("../../views/pages/LeaveRequest/LeaveRequest"))
+const CompanyIndex = lazy(() => import("../../views/pages/Company/CompanyIndex"))
 const DaysOff = lazy(() =>  import("../../views/pages/DaysOff/DaysOffIndex"))
 const PayrollDeduction = lazy(() => import("../../views/pages/Payroll/PayrollDeduction"))
 const PayrollIndex = lazy(() => import("../../views/pages/Payroll/PayrolIndex"))
 const PayrollForm = lazy(() => import("../../views/pages/Payroll/PayrollForm"))
 const PayrollView = lazy(() => import("../../views/pages/Payroll/PayrollView"))
+const AssetIndex = lazy(() => import("../../views/pages/Assets/AssetIndex"))
 
 // ** Merge Routes
 const Routes = [
@@ -184,9 +186,18 @@ const Routes = [
   {
     path: "/loans",
     element: <></>,
+    element: <LoanIndex />,
     meta: {
       action: "read",
-      resource: "LOANS"
+      resource: "PAYROLL_FORM"
+    }
+  },
+  {
+    path: "/assets",
+    element: <AssetIndex />,
+    meta: {
+      action: "read",
+      resource: "PAYROLL_FORM"
     }
   },
   {
@@ -194,8 +205,8 @@ const Routes = [
     element: <DaysOff />,
     meta: {
       action: "read",
-      resource: "DAYSOFF",
-    },
+      resource: "DAYSOFF"
+    }
   },
   // {
   //   path: "/login",
