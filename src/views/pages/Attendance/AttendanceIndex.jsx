@@ -65,6 +65,15 @@ export default function AttendanceIndex() {
     setToggleModal(true)
   }
 
+  const onDetail = (x) => {
+    setModal({
+      title: "User Detail",
+      mode: "detail",
+      item: x
+    })
+    setToggleModal(true)
+  }
+
   const generateCalendarData = (month = "") => {
     const params = []
     const totalDay = dayjs(month).daysInMonth()

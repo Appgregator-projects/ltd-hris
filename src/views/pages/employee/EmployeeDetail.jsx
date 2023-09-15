@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
 import {
 	Card, CardBody, Col, Row, Badge, CardHeader, Table, CardTitle, CardFooter, Button,
-	Modal, ModalHeader, ModalBody
+	Modal, ModalHeader, ModalBody, Label
 } from "reactstrap";
 import Avatar from '@components/avatar'
 import Api from '../../../sevices/Api'
@@ -203,7 +203,6 @@ export default function EmployeeDetail() {
 	}
 
 	const postIncome = async(params) => {
-		// return console.log(params, "params postincome")
 		try {
 			const status = await Api.post(`/hris/employee-income/${id.uid}`, params)
 			console.log(status, "status")
@@ -240,7 +239,6 @@ export default function EmployeeDetail() {
 			if (result.value) {
 			  try {
 				const status = await Api.delete(`/hris/employee-income/${x.id}`);
-				// return console.log(status, "ini params")
 				if (!status)
 				  return toast.error(`Error : ${data}`, {
 					position: "top-center",
@@ -287,6 +285,46 @@ export default function EmployeeDetail() {
 											<span className='fw-bolder me-25'>Email</span>
 											<span>{user.email}</span>
 										</li>
+										<li className='mb-75 d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>Join Date</span>
+											<span>{user.employee_attribute ? dateFormat(user.employee_attribute.join_date) : '-'}</span>
+										</li>
+
+										{/* <span>Employee Attribute</span> */}
+										<li className='mb-75  d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>DOB</span>
+											<span className='text-capitalize'> {user.employee_attribute ? dateFormat(user.employee_attribute.dob) : '-'}</span>
+										</li>
+										<li className='mb-75 d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>Gender</span>
+											<span>{user.employee_attribute ? user.employee_attribute.gender : '-'}</span>
+										</li>
+										<li className='mb-75 d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>Religion</span>
+											<span>{user.employee_attribute ? user.employee_attribute.religion : '-'}</span>
+										</li>
+										<li className='mb-75 d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>Phone Number</span>
+											<span>{user? user.phone : '-'}</span>
+										</li>
+										<li className='mb-75  d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>ID Number</span>
+											<span> {user.employee_attribute ? user.employee_attribute.id_number : '-'}</span>
+										</li>
+										<li className='mb-75  d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>Tax Number</span>
+											<span> {user.employee_attribute ? user.employee_attribute.id_tax_number : '-'}</span>
+										</li>
+										<li className='mb-75 d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>Marital status</span>
+											<span>{user && user.employee_attribute ? user.employee_attribute.marital_status === "married"? "Married" : '-' : "-"}</span>
+										</li>
+										<li className='mb-75 d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>Dependents</span>
+											<span>{user && user.employee_attribute ? user.employee_attribute.dependents : "0"} person</span>
+										</li>
+
+										{/* <span>Position</span> */}
 										<li className='mb-75  d-flex justify-content-between'>
 											<span className='fw-bolder me-25'>Company</span>
 											<span>{user.company ? user.company.name : '-'}</span>
@@ -304,37 +342,15 @@ export default function EmployeeDetail() {
 											</span>
 										</li>
 										<li className='mb-75  d-flex justify-content-between'>
-											<span className='fw-bolder me-25'>DOB</span>
-											<span className='text-capitalize'> {user.employee_attribute ? dateFormat(user.employee_attribute.dob) : '-'}</span>
+											<span className='fw-bolder me-25'>Title</span>
+											<span>{user ? user.title: '-'}</span>
 										</li>
 										<li className='mb-75  d-flex justify-content-between'>
-											<span className='fw-bolder me-25'>ID Number</span>
-											<span> {user.employee_attribute ? user.employee_attribute.id_number : '-'}</span>
+											<span className='fw-bolder me-25'>NIP</span>
+											<span>{user ? user.nip : '-'}</span>
 										</li>
-										<li className='mb-75  d-flex justify-content-between'>
-											<span className='fw-bolder me-25'>Tax Number</span>
-											<span> {user.employee_attribute ? user.employee_attribute.id_tax_number : '-'}</span>
-										</li>
-										<li className='mb-75 d-flex justify-content-between'>
-											<span className='fw-bolder me-25'>Gender</span>
-											<span>{user.employee_attribute ? user.employee_attribute.gender : '-'}</span>
-										</li>
-										<li className='mb-75 d-flex justify-content-between'>
-											<span className='fw-bolder me-25'>Religion</span>
-											<span>{user.employee_attribute ? user.employee_attribute.religion : '-'}</span>
-										</li>
-										<li className='mb-75 d-flex justify-content-between'>
-											<span className='fw-bolder me-25'>Join Date</span>
-											<span>{user.employee_attribute ? dateFormat(user.employee_attribute.join_date) : '-'}</span>
-										</li>
-										<li className='mb-75 d-flex justify-content-between'>
-											<span className='fw-bolder me-25'>Marital status</span>
-											<span>{user && user.employee_attribute ? user.employee_attribute.marital_status === "married"? "Married" : '-' : "-"}</span>
-										</li>
-										<li className='mb-75 d-flex justify-content-between'>
-											<span className='fw-bolder me-25'>Dependents</span>
-											<span>{user && user.employee_attribute ? user.employee_attribute.dependents : "0"} person</span>
-										</li>
+
+										{/* <span className="justify-center">Bank</span> */}
 										<li className='mb-75 d-flex justify-content-between'>
 											<span className='fw-bolder me-25'>Bank Account</span>
 											<span>{user && user.employee_attribute? user.employee_attribute.bank_Account : "-"}</span>

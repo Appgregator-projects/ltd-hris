@@ -47,8 +47,6 @@ export default function PayrollView() {
     fetchPayroll()
   }, [])
 
-  console.log(user, "user")
-
   return (
     <>
       <Row>
@@ -87,7 +85,7 @@ export default function PayrollView() {
                   </div>
                   <div className="d-flex">
                     <div className="w-50 pb-1 text-xs">Designation</div>
-                    <div className="w-50 pb-1 text-xs">: {user ? user.title : '-'}</div>
+                    <div className="w-50 pb-1 text-xs text-uppercase">: {user ? user.title : '-'}</div>
                   </div>
                  
                 </Col>
