@@ -194,7 +194,7 @@ export default function PayrollForm() {
       user:userSelect ? userSelect.value : null,
       periode:periodeRef.current.value,
       deductions,
-      addjustment:addjustment,
+      addjustment,
       approved
     }
 

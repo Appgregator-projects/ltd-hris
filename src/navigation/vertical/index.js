@@ -13,7 +13,7 @@ import {
   Target,
   CreditCard,
   Slash
-} from "react-feather";
+} from "react-feather"
 
 export default [
   {
@@ -78,7 +78,7 @@ export default [
     id: "Loans",
     title: "Employee Loans",
     icon: <CreditCard size={20} />,
-    navLink: "/payroll"
+    navLink: "/loans"
   },
 
   {
@@ -113,12 +113,19 @@ export default [
     id: "leave-category",
     title: "Leave Category",
     icon: <Hash size={20} />,
-    navLink: "/leave-category",
+    navLink: "/leave-category"
   },
   {
     id: "Days Off",
     title: "Days Off",
     icon: <Slash size={20} />,
     navLink: "/days-off",
+    navLink: "/leave-category"
+  },
+  {
+    id: "assest",
+    title: "Assets",
+    icon: <Hash size={20} />,
+    navLink: "/assets"
   }
 ]
