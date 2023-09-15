@@ -51,6 +51,7 @@ const PayrollDeduction = lazy(() => import("../../views/pages/Payroll/PayrollDed
 const PayrollIndex = lazy(() => import("../../views/pages/Payroll/PayrolIndex"))
 const PayrollForm = lazy(() => import("../../views/pages/Payroll/PayrollForm"))
 const PayrollView = lazy(() => import("../../views/pages/Payroll/PayrollView"))
+const AssetIndex = lazy(() => import("../../views/pages/Assets/AssetIndex"))
 
 // ** Merge Routes
 const Routes = [
@@ -194,6 +195,14 @@ const Routes = [
     meta: {
       action: "read",
       resource: "LOANS"
+    }
+  },
+  {
+    path: "/assets",
+    element: <AssetIndex />,
+    meta: {
+      action: "read",
+      resource: "PAYROLL_FORM"
     }
   },
   {
