@@ -1,16 +1,6 @@
-<<<<<<< HEAD
 import { useEffect, useState } from "react"
-import { Fragment } from "react"
-import { Edit, Grid, Plus, Trash } from "react-feather"
 import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Col, Input, Label, Modal, ModalBody, ModalHeader, Row, Table } from "reactstrap"
 import Api from "../../../sevices/Api"
-import Swal from "sweetalert2"
-import withReactContent from "sweetalert2-react-content"
-const MySwal = withReactContent(Swal);
-=======
-import { Button, Card, CardBody, Col, Row, Table, Badge } from "reactstrap"
-import Api from "../../../sevices/Api"
-import { useEffect, useState } from "react"
 import { numberFormat } from "../../../Helper"
 import dayjs from "dayjs"
 import { Link } from "react-router-dom"
@@ -19,18 +9,10 @@ import toast from 'react-hot-toast'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 const MySwal = withReactContent(Swal)
->>>>>>> 05e07c3bc90c8baa45d844188ce4fda4e0fc3f95
 
 export default function PayrolIndex() {
   const [payrolls, setPayrolls] = useState([])
 
-<<<<<<< HEAD
-    return (
-        <>
-        Ini Payroll Index
-        </>
-    )
-=======
   const fetchPayroll = async () => {
     try {
       const data = await Api.get("/hris/payroll")
@@ -39,7 +21,6 @@ export default function PayrolIndex() {
       throw error
     }
   }
->>>>>>> 05e07c3bc90c8baa45d844188ce4fda4e0fc3f95
 
   useEffect(() => {
     fetchPayroll()
