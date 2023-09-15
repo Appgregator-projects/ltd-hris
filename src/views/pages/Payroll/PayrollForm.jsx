@@ -73,7 +73,7 @@ export default function PayrollForm() {
       const addj = data.items.filter(x => x.flag === 'addjusment')
       const dedu = data.items.filter(x => x.flag !== 'addjusment')
       if (addj.length) {
-        setAddjusment([
+        addjustment([
         ...addj.map(x => {
             x.name = x.label
             return x
@@ -185,7 +185,7 @@ export default function PayrollForm() {
       user:userSelect ? userSelect.value : null,
       periode:periodeRef.current.value,
       deductions,
-      addjustment:addjusment,
+      addjustment,
       approved
     }
 
@@ -205,13 +205,13 @@ export default function PayrollForm() {
       if (typeof data.status !== 'undefined' && !data.status) return toast.error(`Error : ${data.data}`, {
         position: "top-center"
       })
-      toast.success(data, {
+      toast.success(data.data, {
         position: "top-center"
       })
 
-      const lastId = data.id
+      const lastId = data.data.id
 
-      navigate(`/payroll/${lastId}`)
+      window.location.href = `/payroll/${lastId}`
 
     } catch (error) {
       toast.error(`Error : ${error.message}`, {
@@ -256,11 +256,11 @@ export default function PayrollForm() {
         oldD.splice(index, 1)
         setDeductions([...oldD])
       } else {
-        const oldA  = addjusment
+        const oldA  = addjustment
         oldA.splice(index, 1)
-        setAddjusment([...oldA])
+        setAddjustment([...oldA])
       }
-      calcualteSalary(addjusment, deductions)
+      calcualteSalary(addjustment, deductions)
     })
   }
  
@@ -314,7 +314,7 @@ export default function PayrollForm() {
                       <Input value={x.amount} className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputAddjustment(e, index)}/>
                     </div>
                     <div className="">
-                      {addjusment.length > 1 ? <Button outline color="danger" size="sm" onClick={() => onDeleteItem('a', index)}>X</Button> : <></>}
+                      {addjustment.length > 1 ? <Button outline color="danger" size="sm" onClick={() => onDeleteItem('a', index)}>X</Button> : <></>}
                     </div>
                   </div>
                 ))
