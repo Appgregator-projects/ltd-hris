@@ -18,9 +18,12 @@ import { Edit, Plus } from "react-feather";
 import { useForm } from "react-hook-form";
 
 // ** Utils
+import Api from "../../../../sevices/Api";
 
 // ** Styles
 import "@styles/react/libs/react-select/_react-select.scss";
+import { toast } from "react-hot-toast";
+import UploadSingleFile from '../../Components/UploadSingleFile'
 
 const statusOptions = [
 	{ value: "active", label: "Active" },
@@ -50,7 +53,7 @@ const defaultValues = {
 	username: "bob.dev",
 };
 
-const AddGroup = ({ type }) => {
+const AddGroup = ({ type, singleGroup, fetchDataGroup }) => {
 	// ** States
 	const [show, setShow] = useState(false);
 	const [groupData, setGroupData] = useState({
@@ -68,9 +71,30 @@ const AddGroup = ({ type }) => {
 		formState: { errors },
 	} = useForm({ defaultValues });
 
-	const onSubmit = (data) => {
+	const onSubmit = async (data) => {
+		console.log({data})
 		if (Object.values(data).every((field) => field.length > 0)) {
-			return null;
+			if (type === "Edit") {
+				const update = await Api.put(
+					`/hris/lms/lms-group/${singleGroup.id}`,
+					groupData
+				);
+				if (!update)
+					return toast.error(`Error : ${update}`, {
+						position: "top-center",
+					});
+			}else{
+				const create = await Api.post(`/hris/lms/lms-group`, groupData)
+				if (!create)
+					return toast.error(`Error : ${update}`, {
+						position: "top-center",
+					});
+			}
+			fetchDataGroup();
+			toast.success(`Group has ${type}ed`, {
+				position: "top-center",
+			});
+			setShow(false);
 		} else {
 			for (const key in data) {
 				if (data[key].length === 0) {
@@ -113,9 +137,7 @@ const AddGroup = ({ type }) => {
 				></ModalHeader>
 				<ModalBody className="px-sm-5 mx-50 pb-5">
 					<div className="text-center mb-2">
-						<h1 className="mb-1">
-							{type} Learning Group
-						</h1>
+						<h1 className="mb-1">{type} Learning Group</h1>
 						<p>
 							{type} learning group to assign multiple
 							course for specified user
@@ -126,11 +148,21 @@ const AddGroup = ({ type }) => {
 						className="gy-1 pt-75"
 						onSubmit={handleSubmit(onSubmit)}
 					>
+						<UploadSingleFile />
 						<Col md={12} xs={12}>
 							<Label className="form-label" for="lastName">
 								Name
 							</Label>
-							<Input id="lastName" placeholder="Doe" />
+							<Input
+								id="lastName"
+								placeholder="IT"
+								onChange={(e) =>
+									setGroupData({
+										...groupData,
+										group_name: e.target.value,
+									})
+								}
+							/>
 						</Col>
 
 						<Col md={12} xs={12}>
@@ -140,7 +172,14 @@ const AddGroup = ({ type }) => {
 							<Input
 								type={"textarea"}
 								id="lastName"
-								placeholder="Doe"
+								placeholder="This is group for IT Division"
+								onChange={(e) =>
+									setGroupData({
+										...groupData,
+										group_description:
+											e.target.value,
+									})
+								}
 							/>
 						</Col>
 
@@ -151,7 +190,16 @@ const AddGroup = ({ type }) => {
 							<small className="text-muted">
 								eg. <i>IT</i>
 							</small>
-							<Input id="lastName" placeholder="Doe" />
+							<Input
+								id="lastName"
+								placeholder="IT"
+								onChange={(e) =>
+									setGroupData({
+										...groupData,
+										group_tag: e.target.value,
+									})
+								}
+							/>
 						</Col>
 
 						<Col xs={12} className="text-center mt-2 pt-50">

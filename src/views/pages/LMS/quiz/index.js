@@ -176,7 +176,7 @@ const QuizPage = () => {
 										color={"warning"}
 										onClick={() =>
 											navigate(
-												"/courses/1/quiz/testing",
+												"/quiz/testing",
 												{
 													state: {
 														question:

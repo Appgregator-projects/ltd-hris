@@ -16,17 +16,11 @@ import {
 } from "react-feather";
 
 // // ** User Components
-import QuestionAnswerTabs from "./tabs/QuestionAnswerTabs";
-import LogActivityTabs from "./tabs/LogActivityTabs";
 import { useLocation } from "react-router-dom";
+import CourseSyllabusTab from "./view/tabs/CourseSyllabusTab";
+import LogActivityTab from "./view/tabs/LogActivityTab";
 
-
-const QuizTabs = ({ active, toggleTab, question }) => {
-	const location = useLocation();
-
-	const [quizList, setQuizList] = useState(
-		location?.state?.question ? [location.state.question] : []
-	);
+const CourseTabs = ({ active, toggleTab, setCourseData, courseData }) => {
 	return (
 		<Fragment>
 			<Nav pills className="mb-2">
@@ -37,7 +31,7 @@ const QuizTabs = ({ active, toggleTab, question }) => {
 					>
 						<BookOpen className="font-medium-3 me-50" />
 						<span className="fw-bold">
-							Question and Answer
+							Course Syllabus
 						</span>
 					</NavLink>
 				</NavItem>
@@ -80,18 +74,18 @@ const QuizTabs = ({ active, toggleTab, question }) => {
 			</Nav>
 			<TabContent activeTab={active}>
 				<TabPane tabId="1">
-					<QuestionAnswerTabs
-						quizList={quizList}
-						setQuizList={setQuizList}
+					<CourseSyllabusTab
+						courseData={courseData}
+						setCourseData={setCourseData}
 					/>
 					{/* <UserProjectsList />
 					<UserTimeline />
 					<InvoiceList /> */}
 				</TabPane>
 				<TabPane tabId="2">
-					<LogActivityTabs
-						quizList={quizList}
-						setQuizList={setQuizList}
+					<LogActivityTab
+						courseData={courseData}
+						setCourseData={setCourseData}
 					/>
 				</TabPane>
 				{/* <TabPane tabId="3"><BillingPlanTab /></TabPane> */}
@@ -101,4 +95,4 @@ const QuizTabs = ({ active, toggleTab, question }) => {
 		</Fragment>
 	);
 };
-export default QuizTabs;
+export default CourseTabs;

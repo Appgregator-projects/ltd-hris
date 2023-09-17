@@ -60,7 +60,7 @@ const AddQuiz = ({ lesson, course }) => {
 			Object.values(data)[1].length > 0
 		) {
 			console.log(data);
-			navigate(`/courses/${params.id}/quiz/${data.quiz_title}`, {
+			navigate(`/quiz/${data.quiz_title}`, {
 				state: {
 					quiz_title: Object.values(data)[0],
 					quiz_description: Object.values(data)[1],

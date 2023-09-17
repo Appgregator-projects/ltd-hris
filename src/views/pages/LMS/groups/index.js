@@ -1,40 +1,37 @@
 // ** React Imports
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 // ** Custom Components
 import Breadcrumbs from "@components/breadcrumbs";
 
 // ** Reactstrap Imports
-import {
-	Button,
-	Card,
-	CardBody,
-	Col,
-	Input,
-	InputGroup,
-	InputGroupText,
-	Row,
-} from "reactstrap";
-// ** Images
-import { Search } from "react-feather";
+import { Button, Card } from "reactstrap";
 
+// ** Images
 import AvatarGroup from "@components/avatar-group";
 import react from "@src/assets/images/icons/react.svg";
 import avatar1 from "@src/assets/images/portrait/small/avatar-s-5.jpg";
 import avatar2 from "@src/assets/images/portrait/small/avatar-s-6.jpg";
 import avatar3 from "@src/assets/images/portrait/small/avatar-s-7.jpg";
+
+//** Icons
 import { Edit, Trash } from "react-feather";
 import { Badge, Table } from "reactstrap";
+
+//** Folders
 import GroupCourses from "./Courses";
 import GroupMembers from "./Members";
-
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
 import AddGroup from "./AddGroup";
 
+// ** Third Party Components
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 const MySwal = withReactContent(Swal);
 
-const data = [{}, {}, {}, {}, {}, {}, {}, {}];
+//** API
+import Api from "../../../../sevices/Api";
+
+// const data = [{}, {}, {}, {}, {}, {}, {}, {}];
 
 const avatarGroupData2 = [
 	{
@@ -73,7 +70,21 @@ const thumbnailCourses = [
 ];
 
 const GroupsPage = () => {
-	const handleConfirmText = () => {
+	//** State
+	const [groupData, setGroupData] = useState([]);
+
+	//** Fetch Data
+	const fetchDataGroup = async () => {
+		try {
+			const res = await Api.get("/hris/lms/lms-group");
+			setGroupData(res.data);
+		} catch (error) {
+			throw error;
+		}
+	};
+
+	//** Handle
+	const handleConfirmText = (id) => {
 		return MySwal.fire({
 			title: "Are you sure?",
 			text: "You won't be able to revert this!",
@@ -87,24 +98,37 @@ const GroupsPage = () => {
 			buttonsStyling: false,
 		}).then(function (result) {
 			if (result.value) {
-				MySwal.fire({
-					icon: "success",
-					title: "Deleted!",
-					text: "Your file has been deleted.",
-					customClass: {
-						confirmButton: "btn btn-success",
-					},
-				});
+				const deleted = Api.delete(`/hris/lms/lms-group/${id}`);
+				if (deleted) {
+					fetchDataGroup();
+					MySwal.fire({
+						icon: "success",
+						title: "Deleted!",
+						text: "Your file has been deleted.",
+						customClass: {
+							confirmButton: "btn btn-success",
+						},
+					});
+				}
 			}
 		});
 	};
+
+	useEffect(() => {
+		fetchDataGroup();
+	}, []);
 
 	return (
 		<Fragment>
 			<Breadcrumbs
 				title="Groups"
 				data={[{ title: "Groups" }]}
-				rightMenu={<AddGroup type={"Create"} />}
+				rightMenu={
+					<AddGroup
+						type={"Create"}
+						fetchDataGroup={fetchDataGroup}
+					/>
+				}
 			/>
 
 			{/* <Card>
@@ -145,7 +169,7 @@ const GroupsPage = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{data.map((item, index) => (
+						{groupData?.map((item, index) => (
 							<tr key={index}>
 								<td>
 									<img
@@ -156,7 +180,7 @@ const GroupsPage = () => {
 										width="20"
 									/>
 									<span className="align-middle fw-bold">
-										React Project
+										{item.group_name}
 									</span>
 								</td>
 								<td>
@@ -170,7 +194,14 @@ const GroupsPage = () => {
 								</td>
 								<td>
 									<AvatarGroup
-										data={thumbnailCourses}
+										data={[
+											{
+												title: item.group_name,
+												img: item.group_thumbnail,
+												imgHeight: 26,
+												imgWidth: 26,
+											},
+										]}
 									/>
 								</td>
 								<td>
@@ -179,14 +210,22 @@ const GroupsPage = () => {
 									/>
 								</td>
 								<td width={250}>
-									<GroupMembers />
+									<GroupMembers group_id={item.id}/>
 									<GroupCourses />
-									<AddGroup type={"Edit"} />
+									<AddGroup
+										type={"Edit"}
+										singleGroup={item}
+										fetchDataGroup={
+											fetchDataGroup
+										}
+									/>
 									<Button.Ripple
 										className={"btn-icon"}
 										color={"danger"}
 										onClick={() =>
-											handleConfirmText()
+											handleConfirmText(
+												item.id
+											)
 										}
 									>
 										<Trash size={14} />

@@ -42,7 +42,7 @@ const LmsRoutes = [
 		},
 	},
 	{
-		path: "/courses/:id/quiz/:id",
+		path: "/quiz/:id",
 		element: <DetailQuiz />,
 		meta: {
 			action: "read",

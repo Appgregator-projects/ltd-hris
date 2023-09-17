@@ -95,9 +95,9 @@ const LessonAccordion = ({
 								// height="180"
 								src={`https://www.youtube-nocookie.com/embed/${lesson.lesson_video}`}
 								title="YouTube video player"
-								frameborder="0"
+								frameBorder="0"
 								allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-								allowfullscreen
+								allowFullScreen
 							></iframe>
 						</Col>
 						<Col md={7} xs={12}>

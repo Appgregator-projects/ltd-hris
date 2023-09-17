@@ -33,7 +33,7 @@ import { MdDeleteOutline } from "react-icons/md";
 import UploadMultipleFile from "../../../Components/UploadMultipleFile";
 import QuizAccordion from "../view/quizAccordion";
 
-const QuestionAnswerTabs = () => {
+const QuestionAnswerTabs = ({quizList, setQuizList}) => {
 	const location = useLocation();
 
 	const [isAddQuiz, setIsAddQuiz] = useState(false);
@@ -47,9 +47,7 @@ const QuestionAnswerTabs = () => {
 		answer: [],
 		id: null,
 	});
-	const [quizList, setQuizList] = useState(
-		location?.state?.question ? [location.state.question] : []
-	);
+
 	console.log({ quizList });
 	const [answerCount, setAnswerCount] = useState([1, 2]);
 	const [isHovered, setIsHovered] = useState(

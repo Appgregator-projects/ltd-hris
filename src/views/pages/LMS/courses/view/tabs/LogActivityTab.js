@@ -3,12 +3,12 @@ import { Fragment } from "react";
 import { Check, ChevronDown, User } from "react-feather";
 import { Card, CardBody, CardHeader, Col, Input, Label, Row } from "reactstrap";
 // ** Custom Components
-import Avatar from "../../../../../@core/components/avatar/index";
+import Avatar from "../../../../../../@core/components/avatar/index";
 import DataTable from "react-data-table-component";
-import { columns, data, states } from "../../store/data";
+import { columnsLogCourse, dataLogCourse, states } from "../../../store/data";
 import ReactPaginate from "react-paginate";
 
-const LogActivityTabs = ({ quizList, setQuizList }) => {
+const LogActivityTab = ({ courseData, setQuizList }) => {
 	const [searchValue, setSearchValue] = useState("");
 	const [filteredData, setFilteredData] = useState([]);
 	const [currentPage, setCurrentPage] = useState(0);
@@ -26,7 +26,7 @@ const LogActivityTabs = ({ quizList, setQuizList }) => {
 	const endIndex = startIndex + 7;
 	const paginatedData = searchValueCard.length
 		? filteredDataCard.slice(startIndex, endIndex)
-		: data.slice(startIndex, endIndex);
+		: dataLogCourse.slice(startIndex, endIndex);
 
 	//** Handle
 	const handleFilter = (e) => {
@@ -43,21 +43,21 @@ const LogActivityTabs = ({ quizList, setQuizList }) => {
 		};
 
 		if (value.length) {
-			updatedData = data.filter((item) => {
+			updatedData = dataLogCourse.filter((item) => {
 				const startsWith =
 					item.full_name
 						.toLowerCase()
 						.startsWith(value.toLowerCase()) ||
-					item.post
+					item.lesson
 						.toLowerCase()
 						.startsWith(value.toLowerCase()) ||
 					item.email
 						.toLowerCase()
 						.startsWith(value.toLowerCase()) ||
-					item.attempted
+					item.section
 						.toLowerCase()
 						.startsWith(value.toLowerCase()) ||
-					item.salary
+					item.course
 						.toLowerCase()
 						.startsWith(value.toLowerCase()) ||
 					item.start_date
@@ -71,14 +71,16 @@ const LogActivityTabs = ({ quizList, setQuizList }) => {
 					item.full_name
 						.toLowerCase()
 						.includes(value.toLowerCase()) ||
-					item.post
+					item.section
 						.toLowerCase()
 						.includes(value.toLowerCase()) ||
 					item.email
 						.toLowerCase()
 						.includes(value.toLowerCase()) ||
-					item.attempted.toLowerCase().includes(value.toLowerCase()) ||
-					item.salary
+					item.lesson
+						.toLowerCase()
+						.includes(value.toLowerCase()) ||
+					item.course
 						.toLowerCase()
 						.includes(value.toLowerCase()) ||
 					item.start_date
@@ -109,7 +111,7 @@ const LogActivityTabs = ({ quizList, setQuizList }) => {
 
 	// ** Expandable table component
 	const ExpandableTable = ({ data }) => {
-		return quizList?.map((item, index) => (
+		return courseData?.map((item, index) => (
 			<div className="expandable-content px-2" key={index}>
 				<p className="m-0">{index + 1}</p>
 				<Input type="checkbox" disabled />
@@ -126,8 +128,8 @@ const LogActivityTabs = ({ quizList, setQuizList }) => {
 			onPageChange={(page) => handlePagination(page)}
 			pageCount={
 				searchValue.length
-					? Math.ceil(filteredData.length / 7)
-					: Math.ceil(data.length / 7) || 1
+					? Math.ceil(filteredData.length / 10)
+					: Math.ceil(dataLogCourse.length / 10) || 1
 			}
 			breakLabel="..."
 			pageRangeDisplayed={2}
@@ -152,8 +154,8 @@ const LogActivityTabs = ({ quizList, setQuizList }) => {
 			onPageChange={(page) => handleCardPagination(page)}
 			pageCount={
 				searchValueCard.length
-					? Math.ceil(filteredDataCard.length / 7)
-					: Math.ceil(data.length / 7) || 1
+					? Math.ceil(filteredDataCard.length / 10)
+					: Math.ceil(dataLogCourse.length / 10) || 1
 			}
 			breakLabel="..."
 			pageRangeDisplayed={2}
@@ -226,7 +228,7 @@ const LogActivityTabs = ({ quizList, setQuizList }) => {
 
 				<Row className="justify-space mx-0">
 					<Col className=" mt-1">
-						<h3>Quiz Activity</h3>
+						<h3>Course Activity</h3>
 					</Col>
 					<Col
 						className="d-flex align-items-center justify-content-end mt-1"
@@ -250,15 +252,19 @@ const LogActivityTabs = ({ quizList, setQuizList }) => {
 					<DataTable
 						noHeader
 						pagination
-						data={searchValue.length ? filteredData : data}
-						expandableRows
-						columns={columns}
-						expandOnRowClicked
+						data={
+							searchValue.length
+								? filteredData
+								: dataLogCourse
+						}
+						// expandableRows
+						columns={columnsLogCourse}
+						// expandOnRowClicked
 						className="react-dataTable"
-						sortIcon={<ChevronDown size={10} />}
+						// sortIcon={<ChevronDown size={10} />}
 						paginationComponent={CustomPagination}
 						paginationDefaultPage={currentPage + 1}
-						expandableRowsComponent={ExpandableTable}
+						// expandableRowsComponent={ExpandableTable}
 						paginationRowsPerPageOptions={[10, 25, 50, 100]}
 					/>
 				</div>
@@ -267,4 +273,4 @@ const LogActivityTabs = ({ quizList, setQuizList }) => {
 	);
 };
 
-export default LogActivityTabs;
+export default LogActivityTab;

@@ -105,30 +105,29 @@ const QuizAccordion = ({ data, setQuizList, quizList }) => {
 							</div>
 						</Col>
 					) : (
-						<>
-							<Col className="d-flex justify-content-end">
-								<div className="pt-1">
-									<Save
-										size={20}
-										onClick={() =>
-											handleSubmitQuestion(
-												"save"
-											)
-										}
-									/>
-								</div>
-								<div className="pt-1 px-1">
-									<X
-										onClick={() =>
-											handleSubmitQuestion(
-												"cancel"
-											)
-										}
-									/>
-								</div>
-							</Col>
-
-							<Col className="ms-2 pt-1 col-10">
+						<Row>
+							<Col className="ms-2 pt-1">
+								<Col className="d-flex justify-content-end">
+									<div className="pt-1">
+										<Save
+											size={20}
+											onClick={() =>
+												handleSubmitQuestion(
+													"save"
+												)
+											}
+										/>
+									</div>
+									<div className="pt-1 px-1">
+										<X
+											onClick={() =>
+												handleSubmitQuestion(
+													"cancel"
+												)
+											}
+										/>
+									</div>
+								</Col>
 								<UploadMultipleFile />
 								<Form>
 									<Label>Question Title</Label>
@@ -168,7 +167,7 @@ const QuizAccordion = ({ data, setQuizList, quizList }) => {
 									</Label>
 								)}
 							</Col>
-						</>
+						</Row>
 					)}
 
 					<Col className="d-flex justify-content-end">
