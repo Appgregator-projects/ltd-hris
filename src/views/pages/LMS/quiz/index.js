@@ -1,37 +1,39 @@
 // ** React Imports
-import { Fragment, useEffect, useState } from "react";
+import { Fragment } from "react";
 
 // ** Custom Components
 import Breadcrumbs from "@components/breadcrumbs";
 
 // ** Reactstrap Imports
-import { Button, Card } from "reactstrap";
-
+import {
+	Button,
+	Card,
+	CardBody,
+	Col,
+	Input,
+	InputGroup,
+	InputGroupText,
+	Row,
+} from "reactstrap";
 // ** Images
+import { Search } from "react-feather";
+
 import AvatarGroup from "@components/avatar-group";
 import react from "@src/assets/images/icons/react.svg";
 import avatar1 from "@src/assets/images/portrait/small/avatar-s-5.jpg";
 import avatar2 from "@src/assets/images/portrait/small/avatar-s-6.jpg";
 import avatar3 from "@src/assets/images/portrait/small/avatar-s-7.jpg";
-
-//** Icons
 import { Edit, Trash } from "react-feather";
 import { Badge, Table } from "reactstrap";
 
-//** Folders
-import GroupCourses from "./Courses";
-import GroupMembers from "./Members";
-import AddGroup from "./AddGroup";
-
-// ** Third Party Components
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import DetailQuiz from "./DetailQuiz";
+import { useNavigate } from "react-router-dom";
+// import AddGroup from "./AddGroup";
+
 const MySwal = withReactContent(Swal);
-
-//** API
-import Api from "../../../../sevices/Api";
-
-// const data = [{}, {}, {}, {}, {}, {}, {}, {}];
+const data = [{}, {}, {}, {}, {}, {}, {}, {}];
 
 const avatarGroupData2 = [
 	{
@@ -69,22 +71,10 @@ const thumbnailCourses = [
 	},
 ];
 
-const GroupsPage = () => {
-	//** State
-	const [groupData, setGroupData] = useState([]);
+const QuizPage = () => {
+	const navigate = useNavigate();
 
-	//** Fetch Data
-	const fetchDataGroup = async () => {
-		try {
-			const res = await Api.get("/hris/lms/lms-group");
-			setGroupData(res.data);
-		} catch (error) {
-			throw error;
-		}
-	};
-
-	//** Handle
-	const handleConfirmText = (id) => {
+	const handleConfirmText = () => {
 		return MySwal.fire({
 			title: "Are you sure?",
 			text: "You won't be able to revert this!",
@@ -98,37 +88,24 @@ const GroupsPage = () => {
 			buttonsStyling: false,
 		}).then(function (result) {
 			if (result.value) {
-				const deleted = Api.delete(`/hris/lms/lms-group/${id}`);
-				if (deleted) {
-					fetchDataGroup();
-					MySwal.fire({
-						icon: "success",
-						title: "Deleted!",
-						text: "Your file has been deleted.",
-						customClass: {
-							confirmButton: "btn btn-success",
-						},
-					});
-				}
+				MySwal.fire({
+					icon: "success",
+					title: "Deleted!",
+					text: "Your file has been deleted.",
+					customClass: {
+						confirmButton: "btn btn-success",
+					},
+				});
 			}
 		});
 	};
-
-	useEffect(() => {
-		fetchDataGroup();
-	}, []);
-
+	const handleEdit = () => {};
 	return (
 		<Fragment>
 			<Breadcrumbs
-				title="Groups"
-				data={[{ title: "Groups" }]}
-				rightMenu={
-					<AddGroup
-						type={"Create"}
-						fetchDataGroup={fetchDataGroup}
-					/>
-				}
+				title="Quiz"
+				data={[{ title: "Quiz" }]}
+				// rightMenu={<AddGroup type={"Create"} />}
 			/>
 
 			{/* <Card>
@@ -162,14 +139,13 @@ const GroupsPage = () => {
 					<thead>
 						<tr>
 							<th>Group</th>
-							<th>Tag</th>
-							<th>Courses</th>
+							<th>Lesson</th>
 							<th>Members</th>
 							<th>Actions</th>
 						</tr>
 					</thead>
 					<tbody>
-						{groupData?.map((item, index) => (
+						{data.map((item, index) => (
 							<tr key={index}>
 								<td>
 									<img
@@ -180,52 +156,70 @@ const GroupsPage = () => {
 										width="20"
 									/>
 									<span className="align-middle fw-bold">
-										{item.group_name}
+										Quiz Project
 									</span>
 								</td>
-								<td>
-									<Badge
-										pill
-										color="light-success"
-										className="me-1"
-									>
-										fun_project
-									</Badge>
-								</td>
+
+								<td>Introduction to Web Development</td>
 								<td>
 									<AvatarGroup
-										data={[
-											{
-												title: item.group_name,
-												img: item.group_thumbnail,
-												imgHeight: 26,
-												imgWidth: 26,
-											},
-										]}
-									/>
-								</td>
-								<td>
-									<AvatarGroup
-										data={avatarGroupData2}
+										data={thumbnailCourses}
 									/>
 								</td>
 								<td width={250}>
-									<GroupMembers group_id={item.id}/>
+									{/* <GroupMembers />
 									<GroupCourses />
-									<AddGroup
-										type={"Edit"}
-										singleGroup={item}
-										fetchDataGroup={
-											fetchDataGroup
+									<AddGroup type={"Edit"} /> */}
+									{/* <DetailQuiz/> */}
+									<Button.Ripple
+										className={"btn-icon me-1"}
+										color={"warning"}
+										onClick={() =>
+											navigate(
+												"/quiz/testing",
+												{
+													state: {
+														question:
+															{
+																id: 1,
+																question_title:
+																	"How far it could be?",
+																question_description:
+																	"Use 3rd Law of Newton",
+																isCorrectAnswer: 3,
+																answer: [
+																	{
+																		answerTitle:
+																			"1600N",
+																		isCorrectAnswer: false,
+																		id: 1,
+																	},
+																	{
+																		answerTitle:
+																			"1000N",
+																		isCorrectAnswer: false,
+																		id: 2,
+																	},
+																	{
+																		answerTitle:
+																			"2000N",
+																		isCorrectAnswer: true,
+																		id: 3,
+																	},
+																],
+															},
+													},
+												}
+											)
 										}
-									/>
+									>
+										<Edit size={14} />
+									</Button.Ripple>
 									<Button.Ripple
 										className={"btn-icon"}
 										color={"danger"}
 										onClick={() =>
-											handleConfirmText(
-												item.id
-											)
+											handleConfirmText()
 										}
 									>
 										<Trash size={14} />
@@ -240,4 +234,4 @@ const GroupsPage = () => {
 	);
 };
 
-export default GroupsPage;
+export default QuizPage;
