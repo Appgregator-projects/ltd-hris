@@ -142,6 +142,7 @@ export default function PayrollForm() {
           x.loan_amount / x.tenor
         ))
         setLoans(loans_per_month)
+        sumLoans(parseInt(loans_per_month))
         const p = `${dayjs(data.cut_off_start).format('DD-MMM')  } - ${  dayjs(data.cut_off_end).format('DD-MMM')  } ${  dayjs(data.cut_off_end).format('YYYY')}`
         setPeriode(p)
         setAddjustment([...data.income_list])
@@ -151,9 +152,19 @@ export default function PayrollForm() {
       }
     }
   }
+  
+  // console.log(sumLoans, "sumLoans")
+  const sumLoans = (loans) => {
+    let sum =0 
+    for (let i=0; i<loans.length; i++){
+      sum += loans[i]
+    }
+    console.log(sum,"sum ")
+    return sum
+  }
 
   // console.log(info,"onInfo")
-  console.log(loans, "loans")
+  // console.log(loans, "loans")
   const onSelectEmployee = (arg) => {
     setUserSelect({...arg})
     setToggleModal(false)
