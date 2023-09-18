@@ -120,7 +120,7 @@ export default [
     title: "Days Off",
     icon: <Slash size={20} />,
     navLink: "/days-off",
-    navLink: "/leave-category"
+    navLink: "/days-categoryoff"
   },
   {
     id: "assest",
