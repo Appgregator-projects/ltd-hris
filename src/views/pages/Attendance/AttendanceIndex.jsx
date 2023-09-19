@@ -128,7 +128,7 @@ export default function AttendanceIndex() {
   }
 
   const generateCalendarEvent = (arg) => {
-    // console.log(arg, "generateCalendarEvent arg")
+    console.log(arg, "generateCalendarEvent arg")
     const attendances = arg
     const late = arg.filter((x) => parseFloat(x.late_count) > 0)
     // console.log(late, "generateCalendarEvent late")

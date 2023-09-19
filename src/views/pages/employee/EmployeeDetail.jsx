@@ -12,7 +12,7 @@ import LeaveForm from "./component/LeaveForm";
 import toast from 'react-hot-toast'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
-import AvatarGroup from "./component/AvatarGroup";
+import AvatarGroup from "@components/avatar-group";
 import UserTimeline from "./view/UserTimeline";
 import { useDispatch, useSelector } from "react-redux";
 import { getUser } from "./store/index";
@@ -30,6 +30,7 @@ export default function EmployeeDetail() {
 	const [balance, setBalance] = useState([])
 	const [userBalance, setUserBalance] = useState([])
 	const [usersGetBalance, setUsersGetBalance] = useState([])
+	const [userDivision, setUserDivision] = useState([])
   	const [logUser, setLogUser] = useState([])
 	const [leaveCategories, setLaeveCategories] = useState([])
 	const [isLoading, setIsLoading] = useState(false)
@@ -54,6 +55,32 @@ export default function EmployeeDetail() {
 	useEffect(() => {
 		fetchUser()
 	}, [])
+
+	const fetchUserTeam = async() => {
+		try {
+			const data = await Api.get(`/hris/employee/division/${id.uid}`)
+			console.log(data, "user team")
+			const dataTeam = data.map((x) => {
+				return {
+					title: x.name,
+					img: x.avatar,
+					imgHeight: 26,
+					imgWidth: 26
+
+				}
+			})
+			setUserDivision(dataTeam)
+		} catch (error) {
+			throw error
+			
+		}
+	}
+
+	useEffect(() => {
+		fetchUserTeam()
+	},[])
+
+	console.log(userDivision,"user division")
 
 	const fetchUsersBalance = async () => {
 		try {
@@ -465,7 +492,7 @@ export default function EmployeeDetail() {
 							<CardBody>
 								<div>
 									<span></span>
-									{/* <AvatarGroup/> */}
+									{/* <AvatarGroup data={userDivision}/> */}
 								</div>
 								<div className='d-flex justify-content-between align-items-end mt-1 pt-25'>
 									<div className='role-heading'>
@@ -528,13 +555,5 @@ export default function EmployeeDetail() {
 			</Modal>
 		</>
 	) 
-	// : 
-	// (
-	// 	<Alert color='danger'>
-	// 	  <h4 className='alert-heading'>User not found</h4>
-	// 	  <div className='alert-body'>
-	// 		User with id: {id} doesn't exist. Check list of all Users: <Link to='/apps/user/list'>Users List</Link>
-	// 	  </div>
-	// 	</Alert>
-	// )
+
 }   

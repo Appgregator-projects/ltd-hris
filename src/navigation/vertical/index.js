@@ -12,7 +12,8 @@ import {
   Users,
   Target,
   CreditCard,
-  Slash
+  Slash,
+  Edit3
 } from "react-feather"
 
 export default [
@@ -57,6 +58,12 @@ export default [
     title: "Group",
     icon: <Users size={20} />,
     navLink: "/groups"
+  },
+  {
+    id: "quiz",
+    title: "Quiz",
+    icon: <Edit3 size={20} />,
+    navLink: "/quiz"
   },
 
   {
@@ -120,7 +127,6 @@ export default [
     title: "Days Off",
     icon: <Slash size={20} />,
     navLink: "/days-off",
-    navLink: "/days-categoryoff"
   },
   {
     id: "assest",
