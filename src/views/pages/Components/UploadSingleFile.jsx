@@ -8,11 +8,14 @@ import { Card, CardBody, Button, ListGroup, ListGroupItem, Form, Label } from 'r
 import toast from 'react-hot-toast'
 import { useDropzone } from 'react-dropzone'
 import { X, DownloadCloud } from 'react-feather'
+import { useDispatch } from 'react-redux'
+import { getImage } from '../LMS/store/courses'
 
-const UploadSingleFile = () => {
+const UploadSingleFile = ({ data }) => {
      // ** State
-     const [files, setFiles] = useState([])
-
+     const [files, setFiles] = useState(data ? [...data] : [])
+     const dispatch = useDispatch()
+     // console.log({files})
      const { getRootProps, getInputProps } = useDropzone({
           multiple: false,
           accept: {
@@ -23,6 +26,7 @@ const UploadSingleFile = () => {
                     toast.error('You can only upload image Files!.')
                } else {
                     setFiles([...files, ...acceptedFiles.map(file => Object.assign(file))])
+                    dispatch(getImage([...files, ...acceptedFiles.map(file => Object.assign(file))]))
                }
           }
      })
@@ -39,6 +43,10 @@ const UploadSingleFile = () => {
           } else {
                return `${(Math.round(size / 100) / 10).toFixed(1)} kb`
           }
+     }
+
+     const handleSaveFile = () => {
+
      }
 
      const fileList = files.map((file, index) => (
@@ -65,35 +73,35 @@ const UploadSingleFile = () => {
      return (
           <Form>
                <Label>Upload Image</Label>
-          <Card>
-               <CardBody>
-                    <div {...getRootProps({ className: 'dropzone' })}>
-                         <input {...getInputProps()} />
-                         <div className='d-flex align-items-center justify-content-center flex-column'>
-                              <DownloadCloud size={64} />
-                              <h5>Drop Files here or click to upload</h5>
-                              <p className='text-secondary'>
-                                   Drop files here or click{' '}
-                                   <a href='/' onClick={e => e.preventDefault()}>
-                                        browse
-                                   </a>{' '}
-                                   thorough your machine
-                              </p>
-                         </div>
-                    </div>
-                    {files.length ? (
-                         <Fragment>
-                              <ListGroup className='my-2'>{fileList}</ListGroup>
-                              <div className='d-flex justify-content-end'>
-                                   <Button className='me-1' color='danger' outline onClick={handleRemoveAllFiles}>
-                                        Remove All
-                                   </Button>
-                                   <Button color='primary'>Upload Files</Button>
+               <Card>
+                    <CardBody>
+                         <div {...getRootProps({ className: 'dropzone' })}>
+                              <input {...getInputProps()} />
+                              <div className='d-flex align-items-center justify-content-center flex-column'>
+                                   <DownloadCloud size={64} />
+                                   <h5>Drop Files here or click to upload</h5>
+                                   <p className='text-secondary'>
+                                        Drop files here or click{' '}
+                                        <a href='/' onClick={e => e.preventDefault()}>
+                                             browse
+                                        </a>{' '}
+                                        thorough your machine
+                                   </p>
                               </div>
-                         </Fragment>
-                    ) : null}
-               </CardBody>
-          </Card>
+                         </div>
+                         {files.length ? (
+                              <Fragment>
+                                   <ListGroup className='my-2'>{fileList}</ListGroup>
+                                   <div className='d-flex justify-content-end'>
+                                        <Button className='me-1' color='danger' outline onClick={handleRemoveAllFiles}>
+                                             Remove All
+                                        </Button>
+                                        <Button color='primary' onClick={() => handleSaveFile()}>Upload Files</Button>
+                                   </div>
+                              </Fragment>
+                         ) : null}
+                    </CardBody>
+               </Card>
           </Form>
      )
 }

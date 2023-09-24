@@ -45,6 +45,7 @@ import portrait1 from "@src/assets/images/portrait/small/avatar-s-9.jpg";
 
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { toast } from "react-hot-toast";
 
 const MySwal = withReactContent(Swal);
 
@@ -123,18 +124,40 @@ const OptionComponent = ({ data, ...props }) => {
 	);
 };
 
-const ManageSection = ({ section, setSectionList, sectionList }) => {
+const ManageSection = ({ Api, section, setSectionList, sectionList }) => {
 	console.log({ section });
 	console.log({ sectionList });
 
 	const [show, setShow] = useState(false);
 	const [newDataSection, setNewDataSection] = useState({ ...section });
 
-	const handleSubmitSection = () => {
+	const handleSubmitSection = async () => {
 		const findIndex = sectionList.findIndex((x) => x.id === section.id);
 		sectionList[findIndex] = newDataSection;
-		setShow(false);
-		setNewDataSection({ ...section });
+
+		const newData = {
+			course_id: section.course_id,
+			section_index: section.id,
+			section_title: newDataSection.section_title,
+			section_description: newDataSection.section_description,
+		};
+
+		const updateSection = await Api.put(
+			`/hris/lms/section/${section.id}`,
+			newData
+		);
+		
+		if (updateSection) {
+			toast.success(`Section has created`, {
+				position: "top-center",
+			});
+			setShow(false);
+			setNewDataSection({ ...section });
+		} else {
+			return toast.error(`Error : ${updateSection}`, {
+				position: "top-center",
+			});
+		}
 	};
 
 	return (

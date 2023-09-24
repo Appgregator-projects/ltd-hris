@@ -41,7 +41,13 @@ import { Fragment } from "react";
 import "@styles/react/libs/file-uploader/file-uploader.scss";
 import UploadMultipleFile from "../../../../Components/UploadMultipleFile";
 
-const QuizAccordion = ({ data, setQuizList, quizList }) => {
+const QuizAccordion = ({
+	data,
+	setQuizList,
+	quizList,
+	id,
+	fetchDataQuestion,
+}) => {
 	const [answerList, setAnswerList] = useState([...data.answer]);
 	const [editQuiz, setEditQuiz] = useState(false);
 	const [newDataQuiz, setNewDataQuiz] = useState({
@@ -174,7 +180,14 @@ const QuizAccordion = ({ data, setQuizList, quizList }) => {
 						<div className="py-1">
 							{!editQuiz && (
 								<Col className="d-flex">
-									<DeleteButton type={"question"} />
+									<DeleteButton
+										type={"question"}
+										newDataQuiz={newDataQuiz}
+										id={id}
+										fetchDataQuestion={
+											fetchDataQuestion
+										}
+									/>
 									<Edit
 										size={20}
 										onClick={() =>

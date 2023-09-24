@@ -42,7 +42,16 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import CourseCard from "./CourseCard";
 
+//** API
+import Api from "../../../../sevices/Api";
+
 import data from "./course.json";
+import {
+	deleteDocumentFirebase,
+	deleteFileFirebase,
+	getCollectionFirebase,
+} from "../../../../sevices/FirebaseApi";
+import { useSelector } from "react-redux";
 
 const MySwal = withReactContent(Swal);
 
@@ -69,15 +78,33 @@ const avatarGroupData2 = [
 
 const CoursesPage = () => {
 	const navigate = useNavigate();
-	const [active, setActive] = useState("1");
+	const store = useSelector((state) => state.coursesSlice);
+	console.log(store);
 
+	//** Initial State
+	const [active, setActive] = useState("1");
+	const [dataCourse, setDataCourse] = useState([]);
+
+	//** Fetch Data
+	const fetchDataCourse = async () => {
+		const condition = [{ field: "isOpen", operator: "==", value: true }];
+		const getData = await getCollectionFirebase("courses", condition);
+		setDataCourse(getData);
+	};
+
+	//** Handle
 	const toggle = (tab) => {
 		if (active !== tab) {
 			setActive(tab);
 		}
 	};
 
-	const handleConfirmText = () => {
+	const handleConfirmText = (item) => {
+		console.log(item, "item");
+		const split = item.course_thumbnail.split("%2F");
+		const finalSplit = split[1].split("?");
+		const finalString = decodeURI(finalSplit[0])
+		console.log(finalString)
 		return MySwal.fire({
 			title: "Are you sure?",
 			text: "You won't be able to revert this!",
@@ -91,19 +118,31 @@ const CoursesPage = () => {
 			buttonsStyling: false,
 		}).then(function (result) {
 			if (result.value) {
-				MySwal.fire({
-					icon: "success",
-					title: "Deleted!",
-					text: "Your file has been deleted.",
-					customClass: {
-						confirmButton: "btn btn-success",
-					},
+				deleteFileFirebase(finalString, "courses").then(() => {
+					deleteDocumentFirebase("courses", item.id).then(
+						(deleteCourse) => {
+							if (deleteCourse) {
+								MySwal.fire({
+									icon: "success",
+									title: "Deleted!",
+									text: "Your file has been deleted.",
+									customClass: {
+										confirmButton:
+											"btn btn-success",
+									},
+								});
+								fetchDataCourse();
+							}
+						}
+					);
 				});
 			}
 		});
 	};
 
 	useEffect(() => {
+		fetchDataCourse();
+		console.log(store, "stores");
 		return () => {};
 	}, [active]);
 
@@ -135,7 +174,11 @@ const CoursesPage = () => {
 							</Button>
 						</ButtonGroup>
 
-						<AddCourse type={"Add"} />
+						<AddCourse
+							type={"Add"}
+							image={store.image}
+							fetchDataCourse={fetchDataCourse}
+						/>
 					</Col>
 				}
 			/>
@@ -169,7 +212,7 @@ const CoursesPage = () => {
 			<TabContent className="py-50" activeTab={active}>
 				<TabPane tabId="1">
 					<Row className="match-height">
-						{data.map((item, index) => {
+						{dataCourse.map((item, index) => {
 							return (
 								<CourseCard
 									key={index}
@@ -194,7 +237,7 @@ const CoursesPage = () => {
 								</tr>
 							</thead>
 							<tbody>
-								{data.map((item, index2) => {
+								{dataCourse.map((item, index2) => {
 									return (
 										<tr key={index2}>
 											<td>
@@ -258,7 +301,14 @@ const CoursesPage = () => {
 													/>
 												</Button.Ripple>
 
-											<AddCourse type={'Update'}/>
+												<AddCourse
+													type={"Update"}
+													id={item.id}
+													image={store}
+													fetchDataCourse={
+														fetchDataCourse
+													}
+												/>
 
 												<Button.Ripple
 													className={
@@ -268,7 +318,9 @@ const CoursesPage = () => {
 														"danger"
 													}
 													onClick={() =>
-														handleConfirmText()
+														handleConfirmText(
+															item
+														)
 													}
 												>
 													<Trash

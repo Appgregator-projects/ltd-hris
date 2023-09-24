@@ -21,20 +21,39 @@ import { Trash } from "react-feather";
 import "@styles/react/libs/react-select/_react-select.scss";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
+import { toast } from "react-hot-toast";
+import {
+	arrayRemoveFirebase,
+	deleteDocumentFirebase,
+} from "../../../../../sevices/FirebaseApi";
+import { useParams } from "react-router-dom";
+import { db } from "../../../../../configs/firebase";
+import { arrayRemove, doc, updateDoc } from "firebase/firestore";
 
-const DeleteButton = ({type}) => {
-     const MySwal = withReactContent(Swal);
+const DeleteButton = ({
+	type,
+	Api,
+	id,
+	data,
+	getCourseDetail,
+	fetchDataSection,
+	lesson,
+	section,
+}) => {
+	const param = useParams();
+	const MySwal = withReactContent(Swal);
 	const [isHovered, setIsHovered] = useState(false);
 
 	const iconHoverStyle = {
 		cursor: "pointer",
 	};
 
+
 	const iconStyle = {
 		backgroundColor: "#FFFFFF",
 	};
 
-     const handleConfirmText = () => {
+	const handleConfirmText = () => {
 		return MySwal.fire({
 			title: "Are you sure?",
 			text: "You won't be able to revert this!",
@@ -48,14 +67,79 @@ const DeleteButton = ({type}) => {
 			buttonsStyling: false,
 		}).then(function (result) {
 			if (result.value) {
-				MySwal.fire({
-					icon: "success",
-					title: "Deleted!",
-					text: "Your file has been deleted.",
-					customClass: {
-						confirmButton: "btn btn-success",
-					},
-				});
+					console.log(section, "section");
+					console.log(type, "type");
+				if (type === "section") {
+					try {
+						arrayRemoveFirebase(
+							"courses",
+							param.id,
+							"course_section",
+							section.id
+						).then((res) => {
+							if (res) {
+								deleteDocumentFirebase(
+									`courses/${param.id}/course_section`,
+									section.id
+								).then((response) => {
+									if (response) {
+										MySwal.fire({
+											icon: "success",
+											title: "Deleted!",
+											text: "Your file has been deleted.",
+											customClass: {
+												confirmButton:
+													"btn btn-success",
+											},
+										});
+										fetchDataSection();
+									} else {
+										return toast.error(
+											`Error : ${response}`,
+											{
+												position:
+													"top-center",
+											}
+										);
+									}
+								});
+							}
+						});
+					} catch (error) {
+						throw error;
+					}
+				} else if (type === "lesson") {
+					try {
+						arrayRemoveFirebase(
+							`courses/${param.id}/course_section`,
+							section.id,
+							"lesson_list",
+							lesson
+						).then((deleteSection) => {
+							if (deleteSection) {
+								MySwal.fire({
+									icon: "success",
+									title: "Deleted!",
+									text: "Your file has been deleted.",
+									customClass: {
+										confirmButton:
+											"btn btn-success",
+									},
+								});
+								fetchDataSection();
+							} else {
+								return toast.error(
+									`Error : ${deleteSection}`,
+									{
+										position: "top-center",
+									}
+								);
+							}
+						});
+					} catch (error) {
+						throw error;
+					}
+				}
 			}
 		});
 	};

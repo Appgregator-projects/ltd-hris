@@ -46,6 +46,11 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useEffect } from "react";
 import { toast } from "react-hot-toast";
+import {
+	addDocumentFirebase,
+	arrayUnionFirebase,
+	setDocumentFirebase,
+} from "../../../../sevices/FirebaseApi";
 
 const MySwal = withReactContent(Swal);
 
@@ -140,7 +145,7 @@ const OptionComponent = ({ data, ...props }) => {
 	);
 };
 
-const GroupMembers = ({ group_id }) => {
+const GroupMembers = ({ group_id, fetchDataGroup, members }) => {
 	const [show, setShow] = useState(false);
 	const [dataUser, setDataUser] = useState([]);
 	const [selectedOption, setSelectedOption] = useState(null);
@@ -196,33 +201,55 @@ const GroupMembers = ({ group_id }) => {
 	};
 
 	const handleSubmitUser = async () => {
-    console.log(group_id,'grup id')
-    console.log(selectedOption,'seloption')
-      const user_ids = [];
-
-		selectedOption.forEach((option) => {
-			user_ids.push(option.value);
-		});
-    console.log(user_ids,'user_ids')
-    
-		const reqBody = { user_id: user_ids, group_id: group_id };
-		const res = await Api.post(
-			"/hris/lms/lms-group-assign-user",
-			reqBody
-		);
-    console.log({ res });
-
-
-		if (res) {
-			toast.success(`Members has added to the group`, {
-				position: "top-center",
+		try {
+			selectedOption.forEach(async (option) => {
+				try {
+					setDocumentFirebase(
+						`groups/${group_id}/group_members`,
+						option.value,
+						option
+					).then((res) => {
+						if (res) {
+							arrayUnionFirebase(
+								"groups",
+								group_id,
+								"group_members",
+								option.value
+							).then((addGroupMember) => {
+								if (addGroupMember) {
+									toast.success(
+										`Member ${option.value} has been added to the group`,
+										{
+											position: "top-center",
+										}
+									);
+								} else {
+									toast.error(
+										`Error adding member ${option.value}`,
+										{
+											position: "top-center",
+										}
+									);
+								}
+							});
+						}
+					});
+				} catch (error) {
+					throw error;
+				}
 			});
+
 			setShow(false);
-		} else {
-			return toast.error(`Error : ${update}`, {
-				position: "top-center",
-			});
+			setSelectedOption([]);
+			fetchDataGroup();
+		} catch (error) {
+			throw error;
 		}
+	};
+
+	const handleDiscard = () => {
+		setShow(false);
+		setSelectedOption(null);
 	};
 
 	useEffect(() => {
@@ -241,12 +268,12 @@ const GroupMembers = ({ group_id }) => {
 
 			<Modal
 				isOpen={show}
-				toggle={() => setShow(!show)}
+				toggle={() => handleDiscard()}
 				className="modal-dialog-centered modal-lg"
 			>
 				<ModalHeader
 					className="bg-transparent"
-					toggle={() => setShow(!show)}
+					toggle={() => handleDiscard()}
 				></ModalHeader>
 				<ModalBody className="px-sm-5 mx-50 pb-4">
 					<h1 className="text-center mb-1">Group Members</h1>
@@ -260,7 +287,18 @@ const GroupMembers = ({ group_id }) => {
 						Add Members
 					</Label>
 					<Select
-						options={dataUser}
+						options={
+							members?.length > 0
+								? dataUser.filter(
+										(x) =>
+											!members.some(
+												(m) =>
+													m.value ===
+													x.value
+											)
+								  )
+								: dataUser
+						}
 						isClearable={false}
 						isMulti
 						id="addMemberSelect"
@@ -273,9 +311,13 @@ const GroupMembers = ({ group_id }) => {
 						value={selectedOption}
 						onChange={handleChangeOption}
 					/>
-					<p className="fw-bolder pt-50 mt-2">8 Members</p>
+					<p className="fw-bolder pt-50 mt-2">
+						{members?.length > 0
+							? `${members.length} Members`
+							: "0 Member"}
+					</p>
 					<ListGroup flush className="mb-2">
-						{data.map((item, index) => {
+						{members?.map((item, index) => {
 							return (
 								<ListGroupItem
 									key={index}
@@ -290,20 +332,20 @@ const GroupMembers = ({ group_id }) => {
 										/>
 									) : (
 										<Avatar
+											content={item.label}
+											initials
 											className="me-75"
-											content={item.name}
-											color="light-primary"
 											imgHeight={38}
 											imgWidth={38}
-											initials
 										/>
 									)}
+
 									<div className="d-flex align-items-center justify-content-between w-100">
 										<div className="me-1">
 											<h5 className="mb-25">
-												{item.name}
+												{item.label}
 											</h5>
-											<span>{item.email}</span>
+											{/* <span>{item.email}</span> */}
 										</div>
 										<Button.Ripple
 											className={"btn-icon"}
@@ -332,7 +374,7 @@ const GroupMembers = ({ group_id }) => {
 							type="reset"
 							color="secondary"
 							outline
-							onClick={() => setShow(false)}
+							onClick={() => handleDiscard()}
 						>
 							Discard
 						</Button>

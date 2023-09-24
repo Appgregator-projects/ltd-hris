@@ -5,6 +5,7 @@ import { Fragment, useState } from "react";
 import {
 	Button,
 	Col,
+	FormFeedback,
 	Input,
 	Label,
 	Modal,
@@ -15,12 +16,20 @@ import {
 
 // ** Third Party Components
 import { Edit, Plus } from "react-feather";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 
 // ** Utils
-
+import Api from "../../../../sevices/Api";
 // ** Styles
 import "@styles/react/libs/react-select/_react-select.scss";
+import { toast } from "react-hot-toast";
+import UploadSingleFile from "../../Components/UploadSingleFile";
+import { useSelector } from "react-redux";
+import { auth } from "../../../../configs/firebase";
+import {
+	addDocumentFirebase,
+	uploadFile,
+} from "../../../../sevices/FirebaseApi";
 
 const statusOptions = [
 	{ value: "active", label: "Active" },
@@ -45,12 +54,13 @@ const languageOptions = [
 ];
 
 const defaultValues = {
-	firstName: "Bob",
-	lastName: "Barton",
-	username: "bob.dev",
+	course_title: "",
+	course_description: "",
+	course_tag: [],
+	// course_author: "",
 };
 
-const AddCourse = ({ type }) => {
+const AddCourse = ({ type, id, image, fetchDataCourse }) => {
 	// ** States
 	const [show, setShow] = useState(false);
 	const [groupData, setGroupData] = useState({
@@ -67,11 +77,52 @@ const AddCourse = ({ type }) => {
 		setError,
 		handleSubmit,
 		formState: { errors },
+		reset,
 	} = useForm({ defaultValues });
 
-	const onSubmit = (data) => {
+	const onSubmit = async (data) => {
 		if (Object.values(data).every((field) => field.length > 0)) {
-			return null;
+			try {
+				uploadFile(data.course_title, "courses", image[0]).then(
+					(res) => {
+						const newData = {
+							course_title: data.course_title,
+							course_description: data.course_description,
+							course_thumbnail: res,
+							course_author: {
+								name: auth.currentUser.displayName,
+								id: auth.currentUser.uid,
+							},
+							course_tag: data.course_tag,
+							isOpen: true,
+						};
+						addDocumentFirebase("courses", newData).then(
+							(response) => {
+								if (response) {
+									toast.success(
+										`Course has ${type}ed`,
+										{
+											position: "top-center",
+										}
+									);
+									fetchDataCourse();
+									reset(defaultValues);
+									setShow(false);
+								} else {
+									return toast.error(
+										`Error : ${response}`,
+										{
+											position: "top-center",
+										}
+									);
+								}
+							}
+						);
+					}
+				);
+			} catch (error) {
+				throw error;
+			}
 		} else {
 			for (const key in data) {
 				if (data[key].length === 0) {
@@ -94,9 +145,11 @@ const AddCourse = ({ type }) => {
 					<span className="align-middle ms-25">Course</span>
 				</Button.Ripple>
 			) : (
-				<Button.Ripple className="btn-icon me-1" color="warning"
-        	onClick={() => setShow(true)}
-        >
+				<Button.Ripple
+					className="btn-icon me-1"
+					color="warning"
+					onClick={() => setShow(true)}
+				>
 					<Edit size={14} />
 				</Button.Ripple>
 			)}
@@ -125,39 +178,119 @@ const AddCourse = ({ type }) => {
 						className="gy-1 pt-75"
 						onSubmit={handleSubmit(onSubmit)}
 					>
-						<Col md={12} xs={12}>
-							<Label className="form-label" for="lastName">
-								course_title
+						<UploadSingleFile
+							data={groupData.course_thumbnail}
+						/>
+						<Col xs={12}>
+							<Label
+								className="form-label"
+								for="course_title"
+							>
+								Title
 							</Label>
-							<Input id="lastName" placeholder="Doe" />
-						</Col>
-
-						<Col md={12} xs={12}>
-							<Label className="form-label" for="lastName">
-								course_description
-							</Label>
-							<Input
-								type={"textarea"}
-								id="lastName"
-								placeholder="Doe"
+							<Controller
+								name="course_title"
+								control={control}
+								render={({ field }) => (
+									<Input
+										{...field}
+										id="course_title"
+										placeholder="Introduction to Web Development"
+										invalid={
+											errors.course_title &&
+											true
+										}
+									/>
+								)}
 							/>
+							{errors.course_title && (
+								<FormFeedback>
+									Please enter a valid title
+								</FormFeedback>
+							)}
 						</Col>
-
-						<Col md={12} xs={12}>
-							<Label className="form-label" for="lastName">
-								course_author
+						<Col xs={12}>
+							<Label
+								className="form-label"
+								for="course_description"
+							>
+								Description
 							</Label>
-							<Input id="lastName" placeholder="Doe" />
+							<Controller
+								name="course_description"
+								control={control}
+								render={({ field }) => (
+									<Input
+										{...field}
+										type="textarea"
+										id="course_description"
+										placeholder={
+											"Learn the fundamentals of web development with HTML, CSS, and JavaScript."
+										}
+										invalid={
+											errors.course_description &&
+											true
+										}
+									/>
+								)}
+							/>
+							{errors.course_description && (
+								<FormFeedback>
+									Please enter a valid description
+								</FormFeedback>
+							)}
 						</Col>
-
-						<Col md={12} xs={12}>
-							<Label className="form-label" for="lastName">
-								course_tag
-							</Label>{" "}
-							<small className="text-muted">
-								eg. <i>someone@example.com</i>
-							</small>
-							<Input id="lastName" placeholder="Doe" />
+						{/* <Col xs={12}>
+							<Label
+								for="course_author"
+								class="form-label"
+							>
+								Author
+							</Label>
+							<Controller
+								name="course_author"
+								control={control}
+								render={({ field }) => (
+									<Input
+										{...field}
+										id="course_author"
+										placeholder="John Doe"
+										invalid={
+											errors.course_author &&
+											true
+										}
+									/>
+								)}
+							/>
+							{errors.course_author && (
+								<FormFeedback>
+									Please enter a valid URL
+								</FormFeedback>
+							)}
+						</Col> */}
+						<Col xs={12}>
+							<Label for="course_tag" class="form-label">
+								Tag
+							</Label>
+							<Controller
+								name="course_tag"
+								control={control}
+								render={({ field }) => (
+									<Input
+										{...field}
+										id="course_tag"
+										placeholder="IT"
+										invalid={
+											errors.course_tag && true
+										}
+									/>
+								)}
+							/>
+							{errors.course_tag && (
+								<FormFeedback>
+									Please enter a valid URL
+								</FormFeedback>
+							)}
 						</Col>
 
 						<Col xs={12} className="text-center mt-2 pt-50">

@@ -25,16 +25,28 @@ import "@styles/react/libs/react-select/_react-select.scss";
 import { ReactSortable } from "react-sortablejs";
 
 import { Plus, Save, X } from "react-feather";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 // ** Styles
 import "@styles/react/libs/drag-and-drop/drag-and-drop.scss";
 import { MdDeleteOutline } from "react-icons/md";
 import UploadMultipleFile from "../../../Components/UploadMultipleFile";
 import QuizAccordion from "../view/quizAccordion";
+import { useSelector } from "react-redux";
+import {
+	addDocumentFirebase,
+	arrayUnionFirebase,
+	setDocumentFirebase,
+	uploadFile,
+} from "../../../../../sevices/FirebaseApi";
+import { toast } from "react-hot-toast";
 
-const QuestionAnswerTabs = ({quizList, setQuizList}) => {
+const QuestionAnswerTabs = ({ quizList, setQuizList, fetchDataQuestion }) => {
+	console.log(quizList, "quizlist");
 	const location = useLocation();
+	const param = useParams();
+
+	const store = useSelector((state) => state.coursesSlice);
 
 	const [isAddQuiz, setIsAddQuiz] = useState(false);
 	const [isError, setIsError] = useState({
@@ -48,7 +60,6 @@ const QuestionAnswerTabs = ({quizList, setQuizList}) => {
 		id: null,
 	});
 
-	console.log({ quizList });
 	const [answerCount, setAnswerCount] = useState([1, 2]);
 	const [isHovered, setIsHovered] = useState(
 		Array(answerCount.length).fill(false)
@@ -72,7 +83,7 @@ const QuestionAnswerTabs = ({quizList, setQuizList}) => {
 		setAnswerCount([...answerCount, answerLength + 1]);
 	};
 
-	const handleAddQuiz = (type) => {
+	const handleAddQuiz = async (type) => {
 		if (type === "add") {
 			setIsAddQuiz(true);
 		} else if (type === "cancel") {
@@ -89,45 +100,94 @@ const QuestionAnswerTabs = ({quizList, setQuizList}) => {
 				answer: [],
 			});
 		} else if (type === "submit") {
-			// Validasi sebelum menambahkan quiz
-			const errors = {};
-			console.log(newQuiz.question_title.trim() === "");
+			try {
+				// Validasi sebelum menambahkan quiz
+				const errors = {};
+				console.log(newQuiz.question_title.trim() === "");
 
-			if (newQuiz.question_title.trim() === "") {
-				errors.question_title =
-					"Judul pertanyaan tidak boleh kosong";
-			}
-
-			const answerErrors = [];
-			newQuiz.answer.forEach((answer, index) => {
-				if (answer.answerTitle.trim() === "") {
-					answerErrors[index] = "Jawaban tidak boleh kosong";
+				if (newQuiz.question_title.trim() === "") {
+					errors.question_title =
+						"Judul pertanyaan tidak boleh kosong";
 				}
-			});
 
-			if (answerErrors.length > 0) {
-				errors.answer = answerErrors;
+				const answerErrors = [];
+				newQuiz.answer.forEach((answer, index) => {
+					if (answer.answerTitle.trim() === "") {
+						answerErrors[index] =
+							"Jawaban tidak boleh kosong";
+					}
+				});
+
+				if (answerErrors.length > 0) {
+					errors.answer = answerErrors;
+				}
+
+				if (Object.keys(errors).length > 0) {
+					setIsError(errors);
+					return;
+				}
+				let newData = {
+					question_title: newQuiz.question_title,
+					question_description: newQuiz.question_description,
+					answer: newQuiz.answer,
+					quiz_id: param.id,
+					isCorrectAnswer: newQuiz.isCorrectAnswer,
+				};
+				if (quizList) {
+					newData.question_index = quizList.length;
+				} else {
+					newData.question_index = 1;
+				}
+
+				if (store.image[0]) {
+					uploadFile(
+						newQuiz.question_title,
+						"questions",
+						store.image[0]
+					).then((res) => {
+						newData.question_img = res;
+					});
+				} else {
+					addDocumentFirebase(
+						`quizzes/${param.id}/questions`,
+						newData
+					).then((res) => {
+						arrayUnionFirebase(
+							"quizzes",
+							param.id,
+							"questions",
+							res
+						).then((response) => {
+							if (response) {
+								toast.success(`Quiz has created`, {
+									position: "top-center",
+								});
+								setQuizList([...quizList, newQuiz]);
+
+								setIsAddQuiz(false);
+								setNewQuiz({
+									question_title: "",
+									question_description: "",
+									answer: [],
+								});
+								setAnswerCount([1, 2]);
+								setIsError({
+									question_title: "",
+									question_description: "",
+									answer: [],
+								});
+								fetchDataQuestion()
+							} else {
+								return toast.error(`Error : ${res}`, {
+									position: "top-center",
+								});
+							}
+						});
+					});
+				}
+			} catch (error) {
+				throw error;
 			}
-
-			if (Object.keys(errors).length > 0) {
-				setIsError(errors);
-				return;
-			}
-
-			setQuizList([...quizList, newQuiz]);
-			
-			setIsAddQuiz(false);
-			setNewQuiz({
-				question_title: "",
-				question_description: "",
-				answer: [],
-			});
-			setAnswerCount([1, 2]);
-			setIsError({
-				question_title: "",
-				question_description: "",
-				answer: [],
-			});
 		}
 	};
 
@@ -165,7 +225,6 @@ const QuestionAnswerTabs = ({quizList, setQuizList}) => {
 			default:
 				newQuiz.answer[findIndex].answerTitle = value;
 		}
-
 	};
 
 	const handleDelete = (index) => {
@@ -208,10 +267,14 @@ const QuestionAnswerTabs = ({quizList, setQuizList}) => {
 											key={item.id}
 										>
 											<QuizAccordion
+												id={item.id}
 												data={item}
 												quizList={quizList}
 												setQuizList={
 													setQuizList
+												}
+												fetchDataQuestion={
+													fetchDataQuestion
 												}
 											/>
 										</Card>

@@ -23,7 +23,13 @@ import Api from "../../../../sevices/Api";
 // ** Styles
 import "@styles/react/libs/react-select/_react-select.scss";
 import { toast } from "react-hot-toast";
-import UploadSingleFile from '../../Components/UploadSingleFile'
+import UploadSingleFile from "../../Components/UploadSingleFile";
+import {
+	addDocumentFirebase,
+	uploadFile,
+} from "../../../../sevices/FirebaseApi";
+import { useDispatch } from "react-redux";
+import { getImage } from "../store/courses";
 
 const statusOptions = [
 	{ value: "active", label: "Active" },
@@ -53,16 +59,16 @@ const defaultValues = {
 	username: "bob.dev",
 };
 
-const AddGroup = ({ type, singleGroup, fetchDataGroup }) => {
+const AddGroup = ({ type, singleGroup, fetchDataGroup, image }) => {
+	console.log(image, "image");
 	// ** States
 	const [show, setShow] = useState(false);
 	const [groupData, setGroupData] = useState({
 		group_name: "",
 		group_description: "",
-		group_thumbnail: "",
 		group_tag: [],
 	});
-
+	const dispatch = useDispatch();
 	// ** Hooks
 	const {
 		control,
@@ -72,8 +78,8 @@ const AddGroup = ({ type, singleGroup, fetchDataGroup }) => {
 	} = useForm({ defaultValues });
 
 	const onSubmit = async (data) => {
-		console.log({data})
-		if (Object.values(data).every((field) => field.length > 0)) {
+		console.log({ data });
+		if (Object.values(groupData).every((field) => field.length > 0)) {
 			if (type === "Edit") {
 				const update = await Api.put(
 					`/hris/lms/lms-group/${singleGroup.id}`,
@@ -83,18 +89,49 @@ const AddGroup = ({ type, singleGroup, fetchDataGroup }) => {
 					return toast.error(`Error : ${update}`, {
 						position: "top-center",
 					});
-			}else{
-				const create = await Api.post(`/hris/lms/lms-group`, groupData)
-				if (!create)
-					return toast.error(`Error : ${update}`, {
-						position: "top-center",
-					});
+			} else {
+				const newData = {
+					...groupData,
+				};
+				if (image[0]) {
+					try {
+						const res = await uploadFile(
+							groupData.group_name,
+							"groups",
+							image[0]
+						);
+						if (res) {
+							newData.group_thumbnail = res;
+						}
+					} catch (error) {
+						throw error;
+					}
+				}
+				console.log(newData, "dada");
+				try {
+					await addDocumentFirebase("groups", newData).then(
+						(response) => {
+							if (response) {
+								fetchDataGroup();
+								toast.success(`Group has ${type}ed`, {
+									position: "top-center",
+								});
+								setShow(false);
+								dispatch(getImage());
+							} else {
+								return toast.error(
+									`Error : ${response}`,
+									{
+										position: "top-center",
+									}
+								);
+							}
+						}
+					);
+				} catch (error) {
+					throw error;
+				}
 			}
-			fetchDataGroup();
-			toast.success(`Group has ${type}ed`, {
-				position: "top-center",
-			});
-			setShow(false);
 		} else {
 			for (const key in data) {
 				if (data[key].length === 0) {
@@ -148,7 +185,7 @@ const AddGroup = ({ type, singleGroup, fetchDataGroup }) => {
 						className="gy-1 pt-75"
 						onSubmit={handleSubmit(onSubmit)}
 					>
-						<UploadSingleFile />
+						<UploadSingleFile data={image} />
 						<Col md={12} xs={12}>
 							<Label className="form-label" for="lastName">
 								Name

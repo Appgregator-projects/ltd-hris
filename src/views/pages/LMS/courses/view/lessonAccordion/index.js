@@ -26,8 +26,10 @@ const LessonAccordion = ({
 	setSectionList,
 	lessonIndex,
 	course,
+	image,
+	getCourseDetail,
+	fetchDataSection
 }) => {
-	
 	const [open, setOpen] = useState("0");
 
 	const toggle = (id) => {
@@ -37,8 +39,6 @@ const LessonAccordion = ({
 			setOpen(id);
 		}
 	};
-
-	
 
 	useEffect(() => {
 		Prism.highlightAll();
@@ -55,12 +55,19 @@ const LessonAccordion = ({
 					</Col>
 
 					<Col className="d-flex justify-content-end">
-						<DeleteButton type='lesson' />
+						<DeleteButton
+							type="lesson"
+							lesson={lesson}
+							section={section}
+							getCourseDetail={getCourseDetail}
+							fetchDataSection={fetchDataSection}
+						/>
 
 						<AddQuiz
 							lesson={lesson}
 							section={section}
 							course={course}
+							image={image}
 						/>
 						<EditLesson
 							lesson={lesson}

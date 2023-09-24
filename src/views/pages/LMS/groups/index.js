@@ -30,6 +30,12 @@ const MySwal = withReactContent(Swal);
 
 //** API
 import Api from "../../../../sevices/Api";
+import { useSelector } from "react-redux";
+import {
+	deleteDocumentFirebase,
+	deleteFileFirebase,
+	getCollectionFirebase,
+} from "../../../../sevices/FirebaseApi";
 
 // const data = [{}, {}, {}, {}, {}, {}, {}, {}];
 
@@ -73,18 +79,41 @@ const GroupsPage = () => {
 	//** State
 	const [groupData, setGroupData] = useState([]);
 
+	const store = useSelector((state) => state.coursesSlice);
+	const stores = useSelector((state) => state);
+
 	//** Fetch Data
 	const fetchDataGroup = async () => {
 		try {
-			const res = await Api.get("/hris/lms/lms-group");
-			setGroupData(res.data);
+			const group = await getCollectionFirebase("groups");
+			if (group) {
+				const groupData = [];
+				group.forEach(async (groupDoc) => {
+					const groupMembers = await getCollectionFirebase(
+						`groups/${groupDoc.id}/group_members`
+					);
+					const groupCourses = await getCollectionFirebase(
+						`groups/${groupDoc.id}/group_courses`
+					);
+					groupData.push({
+						...groupDoc,
+						groupCourses: groupCourses,
+						groupMembers: groupMembers,
+					});
+					if (group.length === groupData.length) {
+						setGroupData(groupData);
+					}
+				});
+			}
 		} catch (error) {
 			throw error;
 		}
 	};
-
+	console.log(groupData, "groupData");
 	//** Handle
-	const handleConfirmText = (id) => {
+	const handleConfirmText = async (item, members, courses) => {
+
+		console.log(members, courses, item.id);
 		return MySwal.fire({
 			title: "Are you sure?",
 			text: "You won't be able to revert this!",
@@ -98,19 +127,57 @@ const GroupsPage = () => {
 			buttonsStyling: false,
 		}).then(function (result) {
 			if (result.value) {
-				const deleted = Api.delete(`/hris/lms/lms-group/${id}`);
-				if (deleted) {
-					fetchDataGroup();
-					MySwal.fire({
-						icon: "success",
-						title: "Deleted!",
-						text: "Your file has been deleted.",
-						customClass: {
-							confirmButton: "btn btn-success",
-						},
-					});
+				if (item.group_thumbnail) {
+					const split = item.group_thumbnail.split("%2F");
+					const finalSplit = split[1].split("?");
+					const finalString = decodeURI(finalSplit[0]);
+					try {
+						deleteFileFirebase(finalString, "groups");
+					} catch (error) {
+						throw error;
+					}
 				}
+				if (members) {
+					try {
+						members.forEach((e) =>
+							deleteDocumentFirebase(
+								`groups/${item.id}/group_members`,
+								e
+							)
+						);
+					} catch (error) {
+						throw error;
+					}
+				}
+				if (courses) {
+					try {
+						courses.forEach((e) =>
+							deleteDocumentFirebase(
+								`groups/${item.id}/group_courses`,
+								e
+							)
+						);
+					} catch (error) {
+						throw error;
+					}
+				}
+
+				deleteDocumentFirebase("groups", item.id).then(
+					(deleted) => {
+						if (deleted) {
+							MySwal.fire({
+								icon: "success",
+								title: "Deleted!",
+								text: "Your file has been deleted.",
+								customClass: {
+									confirmButton: "btn btn-success",
+								},
+							});
+						}
+					}
+				);
 			}
+			fetchDataGroup();
 		});
 	};
 
@@ -127,6 +194,7 @@ const GroupsPage = () => {
 					<AddGroup
 						type={"Create"}
 						fetchDataGroup={fetchDataGroup}
+						image={store.image}
 					/>
 				}
 			/>
@@ -174,7 +242,7 @@ const GroupsPage = () => {
 								<td>
 									<img
 										className="me-75"
-										src={react}
+										src={item.group_thumbnail ? item.group_thumbnail : react}
 										alt="react"
 										height="20"
 										width="20"
@@ -189,29 +257,35 @@ const GroupsPage = () => {
 										color="light-success"
 										className="me-1"
 									>
-										fun_project
+										{item.group_tag}
 									</Badge>
 								</td>
 								<td>
 									<AvatarGroup
-										data={[
-											{
-												title: item.group_name,
-												img: item.group_thumbnail,
-												imgHeight: 26,
-												imgWidth: 26,
-											},
-										]}
+										data={item.groupCourses}
 									/>
 								</td>
 								<td>
 									<AvatarGroup
-										data={avatarGroupData2}
+										data={item.groupMembers}
 									/>
 								</td>
 								<td width={250}>
-									<GroupMembers group_id={item.id}/>
-									<GroupCourses />
+									<GroupMembers
+										group_id={item.id}
+										fetchDataGroup={
+											fetchDataGroup
+										}
+										data={item}
+										members={item.groupMembers}
+									/>
+									<GroupCourses
+										group_id={item.id}
+										fetchDataGroup={
+											fetchDataGroup
+										}
+										courses={item.groupCourses}
+									/>
 									<AddGroup
 										type={"Edit"}
 										singleGroup={item}
@@ -224,7 +298,9 @@ const GroupsPage = () => {
 										color={"danger"}
 										onClick={() =>
 											handleConfirmText(
-												item.id
+												item,
+												item.group_members,
+												item.group_courses
 											)
 										}
 									>
