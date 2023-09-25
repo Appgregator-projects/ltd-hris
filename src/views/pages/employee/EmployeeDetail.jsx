@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
 import {
 	Card, CardBody, Col, Row, Badge, CardHeader, Table, CardTitle, CardFooter, Button,
-	Modal, ModalHeader, ModalBody, Label
+	Modal, ModalHeader, ModalBody, Label, Form, Input
 } from "reactstrap";
 import Avatar from '@components/avatar'
 import Api from '../../../sevices/Api'
@@ -32,6 +32,7 @@ export default function EmployeeDetail() {
 	const [usersGetBalance, setUsersGetBalance] = useState([])
 	const [userDivision, setUserDivision] = useState([])
   	const [logUser, setLogUser] = useState([])
+	const [uploadFile, setUploadFile] = useState([])
 	const [leaveCategories, setLaeveCategories] = useState([])
 	const [isLoading, setIsLoading] = useState(false)
 	const [income, setIncome] = useState([])
@@ -46,7 +47,6 @@ export default function EmployeeDetail() {
 			const data = await Api.get(`/hris/employee/${id.uid}`)
 			setUser(data)
 			setBalance([...data.leave_balances])
-			console.log(data, "user")
 		} catch (error) {
 			throw error
 		}
@@ -59,7 +59,6 @@ export default function EmployeeDetail() {
 	const fetchUserTeam = async() => {
 		try {
 			const data = await Api.get(`/hris/employee/division/${id.uid}`)
-			console.log(data, "user team")
 			const dataTeam = data.map((x) => {
 				return {
 					title: x.name,
@@ -80,8 +79,6 @@ export default function EmployeeDetail() {
 		fetchUserTeam()
 	},[])
 
-	console.log(userDivision,"user division")
-
 	const fetchUsersBalance = async () => {
 		try {
 			const dataUsers = await Api.get(`/hris/employee/${id.uid}`)
@@ -98,7 +95,6 @@ export default function EmployeeDetail() {
 	const fetchLeaveCategories = async () => {
 		try {
 			const data = await Api.get(`/hris/leave-category`)
-			// console.log(data, "data leave category")
 			setLaeveCategories([...data])
 
 		} catch (error) {
@@ -127,7 +123,6 @@ export default function EmployeeDetail() {
 		try {
 			const data = await Api.get(`/auth/log/${id.uid}`)
 			setLogUser([...data])
-			// console.log(data, "fetch userlog")
 		} catch (error) {
 			throw error
 		}
@@ -249,6 +244,13 @@ export default function EmployeeDetail() {
 		}
 	}
 
+	const postFile = async(arg) => {
+		return console.log(arg, "e")
+		const file = e.target.files[0];
+		setUploadFile(file)
+
+	}
+
 	const onDelete = (x) => {
 		console.log(x,"test delete")
 		return MySwal.fire({
@@ -288,7 +290,8 @@ export default function EmployeeDetail() {
 	return (
 		<>
 			<Row>
-				<Col xl='4' lg='5' xs={{ order: 1 }} md={{ order: 0, size: 5 }}>
+				<Col>
+				<Col xl='12' lg='12' xs={{ order: 1 }} md={{ order: 0, size: 5 }}>
 					<Card>
 						<CardBody>
 							<div className='user-avatar-section'>
@@ -395,6 +398,28 @@ export default function EmployeeDetail() {
 							</div>
 						</CardBody>
 					</Card>
+				</Col>
+				<Col xl='12' lg='12' xs={{ order: 2 }} md={{ order: 0, size: 5 }}>
+					<Card>
+							<Form onSubmit={postFile}>
+						<CardHeader>
+							<CardTitle>Upload File</CardTitle>
+						</CardHeader>
+						<CardBody>
+								<Label for="upload_file">File</Label>
+								<Input
+								id="upload_file"
+								name="file"
+								type="file"></Input>
+						</CardBody>
+						<CardFooter>
+							<Button color="warning" type="submit">Upload</Button>
+						</CardFooter>
+							</Form>
+						
+					</Card>
+					
+				</Col>
 				</Col>
 				<Col>
 				<Col>
