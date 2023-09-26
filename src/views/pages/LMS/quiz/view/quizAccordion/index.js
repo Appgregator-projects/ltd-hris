@@ -30,6 +30,7 @@ import {
 	List,
 	Plus,
 	Save,
+	Trash,
 	X,
 } from "react-feather";
 import AnswerAccordion from "../answerAccordion";
@@ -40,6 +41,18 @@ import { Fragment } from "react";
 // ** Styles
 import "@styles/react/libs/file-uploader/file-uploader.scss";
 import UploadMultipleFile from "../../../../Components/UploadMultipleFile";
+import {
+	deleteFileFirebase,
+	setDocumentFirebase,
+	uploadFile,
+} from "../../../../../../sevices/FirebaseApi";
+import { useParams } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import UploadSingleFile from "../../../../Components/UploadSingleFile";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+
+const MySwal = withReactContent(Swal);
 
 const QuizAccordion = ({
 	data,
@@ -47,8 +60,10 @@ const QuizAccordion = ({
 	quizList,
 	id,
 	fetchDataQuestion,
+	image,
+	fetchDataQuiz,
 }) => {
-	const [answerList, setAnswerList] = useState([...data.answer]);
+	const [answerList, setAnswerList] = useState([]);
 	const [editQuiz, setEditQuiz] = useState(false);
 	const [newDataQuiz, setNewDataQuiz] = useState({
 		...data,
@@ -57,8 +72,8 @@ const QuizAccordion = ({
 	const [answerCount, setAnswerCount] = useState(
 		Array.from({ length: answerList.length }, (_, index) => index + 1)
 	);
+	const param = useParams();
 
-	console.log({ newDataQuiz });
 	const handleCount = () => {
 		let answerLength = answerCount.length + 1;
 		setAnswerCount([...answerCount, answerLength]);
@@ -80,18 +95,96 @@ const QuizAccordion = ({
 		}
 	};
 
-	const handleSubmitQuestion = (type) => {
+	const handleSubmitQuestion = async (type) => {
 		if (type === "save") {
-			setAnswerList(newDataQuiz.answer);
-			setEditQuiz(false);
+			let newData = {
+				...newDataQuiz,
+			};
+			if (image) {
+				try {
+					const res = await uploadFile(
+						newDataQuiz.question_title,
+						"questions",
+						image
+					);
+					if (res) {
+						newData.question_img = res;
+					}
+				} catch (error) {
+					throw error;
+				}
+			}
+			try {
+				const res = await setDocumentFirebase(
+					`quizzes/${param.id}/questions`,
+					data.id,
+					newData
+				);
+				if (res) {
+					toast.success(`Question has edited`, {
+						position: "top-center",
+					});
+					fetchDataQuestion();
+					// fetchDataQuiz();
+					setEditQuiz(false);
+				} else {
+					return toast.error(`Error : ${res}`, {
+						position: "top-center",
+					});
+				}
+			} catch (error) {
+				throw error;
+			}
 		} else if (type === "cancel") {
 			setEditQuiz(false);
 		}
 	};
-
+	const handleDeleteImage = () => {
+		const split = data.question_img.split("%2F");
+		const finalSplit = split[1].split("?");
+		const finalString = decodeURI(finalSplit[0]);
+		return MySwal.fire({
+			title: "Are you sure?",
+			text: "You won't be able to revert this!",
+			icon: "warning",
+			showCancelButton: true,
+			confirmButtonText: "Yes, delete it!",
+			customClass: {
+				confirmButton: "btn btn-primary",
+				cancelButton: "btn btn-outline-danger ms-1",
+			},
+			buttonsStyling: false,
+		}).then(function (result) {
+			if (result.value) {
+				try {
+					deleteFileFirebase(finalString, "questions").then(
+						() => {
+							setDocumentFirebase(
+								`quizzes/${param.id}/questions`,
+								data.id,
+								{
+									question_img: "",
+								}
+							).then((response) => {
+								if (response) {
+									fetchDataQuestion();
+									fetchDataQuiz();
+								}
+							});
+						}
+					);
+				} catch (error) {
+					throw error;
+				}
+			}
+		});
+	};
 	useEffect(() => {
 		Prism.highlightAll();
-	}, []);
+		if (data?.answer) {
+			setAnswerList([...data.answer]);
+		}
+	}, [data?.answer]);
 
 	return (
 		<Accordion open={open} toggle={toggle}>
@@ -99,11 +192,23 @@ const QuizAccordion = ({
 				<Row>
 					{!editQuiz ? (
 						<Col className="pt-1">
+							{data?.question_img && (
+								<img
+									src={data?.question_img}
+									className="p-2"
+									style={{
+										width: "100%",
+										height: "270px",
+										objectFit: "contain",
+									}}
+								/>
+							)}
 							<h5>
 								<List
 									size={25}
 									className="me-1 ms-1 handle"
 								/>
+
 								{data.question_title}
 							</h5>
 							<div className="user-info mt-2 ps-5">
@@ -134,7 +239,43 @@ const QuizAccordion = ({
 										/>
 									</div>
 								</Col>
-								<UploadMultipleFile />
+								{newDataQuiz?.question_img ? (
+									<Col
+										style={{
+											position: "relative",
+										}}
+									>
+										<Button.Ripple
+											className={"btn-icon"}
+											color={"danger"}
+											style={{
+												position:
+													"absolute",
+												top: 0,
+												right: 0,
+											}}
+											onClick={() =>
+												handleDeleteImage()
+											}
+										>
+											<Trash size={14} />
+										</Button.Ripple>
+										<img
+											src={
+												newDataQuiz?.question_img
+											}
+											className="p-2"
+											style={{
+												width: "100%",
+												height: "270px",
+												objectFit:
+													"contain",
+											}}
+										/>
+									</Col>
+								) : (
+									<UploadSingleFile data={[]} />
+								)}
 								<Form>
 									<Label>Question Title</Label>
 									<Input

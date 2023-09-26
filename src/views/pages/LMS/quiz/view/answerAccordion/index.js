@@ -19,7 +19,7 @@ const AnswerAccordion = ({
 }) => {
 	const MySwal = withReactContent(Swal);
 	const [isHovered, setIsHovered] = useState(false);
-
+console.log(answer,'answer nih')
 	const iconHoverStyle = {
 		cursor: "pointer",
 	};
@@ -66,7 +66,6 @@ const AnswerAccordion = ({
 				newDataQuiz.answer[findIndex].answerTitle = value;
 		}
 
-		setNewDataQuiz({ ...newDataQuiz });
 	};
 
 	const handleConfirmText = (index) => {
@@ -88,12 +87,10 @@ const AnswerAccordion = ({
 				);
 
 				const newData = newDataQuiz.answer.splice(findIndex, 1);
-				console.log({ newData });
 
 				setNewDataQuiz({ ...newDataQuiz, answer: newData });
 				setAnswerList([...newDataQuiz.answer]);
 
-				console.log({ newDataQuiz });
 
 				MySwal.fire({
 					icon: "success",

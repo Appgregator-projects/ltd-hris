@@ -67,8 +67,6 @@ const DeleteButton = ({
 			buttonsStyling: false,
 		}).then(function (result) {
 			if (result.value) {
-					console.log(section, "section");
-					console.log(type, "type");
 				if (type === "section") {
 					try {
 						arrayRemoveFirebase(

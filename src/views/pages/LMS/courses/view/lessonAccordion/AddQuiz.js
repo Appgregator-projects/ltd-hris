@@ -31,6 +31,8 @@ import {
 	uploadFile,
 } from "../../../../../../sevices/FirebaseApi";
 import { toast } from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { getImage } from "../../../store/courses";
 
 const defaultValues = {
 	quiz_title: "",
@@ -38,9 +40,9 @@ const defaultValues = {
 	quiz_minGrade: "",
 };
 const AddQuiz = ({ lesson, course, image }) => {
-	console.log(lesson, "image");
 	const navigate = useNavigate();
-	const params = useParams();
+	const dispatch = useDispatch();
+	const param = useParams();
 	const [show, setShow] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 
@@ -72,38 +74,39 @@ const AddQuiz = ({ lesson, course, image }) => {
 					quiz_title: Object.values(data)[0],
 					quiz_description: Object.values(data)[1],
 					quiz_minGrade: Object.values(data)[2],
+					course: {
+						course_title: course.course_title,
+						course_id: param.id,
+					},
 					// section_id: lesson.section_id,
 				};
 				if (image) {
-					uploadFile(
+					const res = await uploadFile(
 						Object.values(data)[0],
 						"quizzes",
 						image
-					).then((res) => {
+					);
+					if (res) {
 						newData.quiz_thumbnail = res;
-					});
+					}
 				}
-				const addQuiz = await addDocumentFirebase("quizzes", newData);
-				if(addQuiz){
+				const addQuiz = await addDocumentFirebase(
+					"quizzes",
+					newData
+				);
+				if (addQuiz) {
 					toast.success(`Quiz has created`, {
 						position: "top-center",
 					});
-					navigate(`/quiz/${data.quiz_title}`, {
-						state: {
-							quiz_title: Object.values(data)[0],
-							quiz_description: Object.values(data)[1],
-							quiz_minGrade: Object.values(data)[2],
-							course: course,
-						},
-					});
-
-				}else{
+					dispatch(getImage());
+					navigate(`/quiz/${addQuiz}`);
+				} else {
 					return toast.error(`Error : ${addQuiz}`, {
 						position: "top-center",
 					});
 				}
 			} catch (error) {
-				throw error
+				throw error;
 			}
 		} else {
 			for (const key in data) {

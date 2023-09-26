@@ -15,52 +15,38 @@ import {
 } from "reactstrap";
 
 // ** Third Party Components
-import { Edit, Plus } from "react-feather";
+import { Edit, Plus, Trash } from "react-feather";
 import { Controller, useForm } from "react-hook-form";
 
-// ** Utils
-import Api from "../../../../sevices/Api";
 // ** Styles
 import "@styles/react/libs/react-select/_react-select.scss";
 import { toast } from "react-hot-toast";
 import UploadSingleFile from "../../Components/UploadSingleFile";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { auth } from "../../../../configs/firebase";
 import {
 	addDocumentFirebase,
+	deleteFileFirebase,
+	setDocumentFirebase,
 	uploadFile,
 } from "../../../../sevices/FirebaseApi";
+import { getImage } from "../store/courses";
+import { useParams } from "react-router-dom";
+import withReactContent from "sweetalert2-react-content";
+import Swal from "sweetalert2";
 
-const statusOptions = [
-	{ value: "active", label: "Active" },
-	{ value: "inactive", label: "Inactive" },
-	{ value: "suspended", label: "Suspended" },
-];
 
-const countryOptions = [
-	{ value: "uk", label: "UK" },
-	{ value: "usa", label: "USA" },
-	{ value: "france", label: "France" },
-	{ value: "russia", label: "Russia" },
-	{ value: "canada", label: "Canada" },
-];
+const MySwal = withReactContent(Swal);
 
-const languageOptions = [
-	{ value: "english", label: "English" },
-	{ value: "spanish", label: "Spanish" },
-	{ value: "french", label: "French" },
-	{ value: "german", label: "German" },
-	{ value: "dutch", label: "Dutch" },
-];
+const AddCourse = ({ type, id, image, fetchDataCourse, data }) => {
+	const defaultValues = {
+		course_title: data?.course_title,
+		course_description: data?.course_description,
+		course_tag: data?.course_tag,
+	};
 
-const defaultValues = {
-	course_title: "",
-	course_description: "",
-	course_tag: [],
-	// course_author: "",
-};
-
-const AddCourse = ({ type, id, image, fetchDataCourse }) => {
+	const dispatch = useDispatch();
+	const param = useParams();
 	// ** States
 	const [show, setShow] = useState(false);
 	const [groupData, setGroupData] = useState({
@@ -80,46 +66,58 @@ const AddCourse = ({ type, id, image, fetchDataCourse }) => {
 		reset,
 	} = useForm({ defaultValues });
 
-	const onSubmit = async (data) => {
-		if (Object.values(data).every((field) => field.length > 0)) {
+	const onSubmit = async (item) => {
+		if (Object.values(item).every((field) => field.length > 0)) {
 			try {
-				uploadFile(data.course_title, "courses", image[0]).then(
-					(res) => {
-						const newData = {
-							course_title: data.course_title,
-							course_description: data.course_description,
-							course_thumbnail: res,
-							course_author: {
-								name: auth.currentUser.displayName,
-								id: auth.currentUser.uid,
-							},
-							course_tag: data.course_tag,
-							isOpen: true,
-						};
-						addDocumentFirebase("courses", newData).then(
-							(response) => {
-								if (response) {
-									toast.success(
-										`Course has ${type}ed`,
-										{
-											position: "top-center",
-										}
-									);
-									fetchDataCourse();
-									reset(defaultValues);
-									setShow(false);
-								} else {
-									return toast.error(
-										`Error : ${response}`,
-										{
-											position: "top-center",
-										}
-									);
-								}
-							}
-						);
+				let newData = {
+					course_title: item.course_title,
+					course_description: item.course_description,
+					course_author: {
+						name: auth.currentUser.displayName,
+						id: auth.currentUser.uid,
+					},
+					course_tag: item.course_tag,
+					isOpen: true,
+				};
+				if (image[0]) {
+					const res = await uploadFile(
+						item.course_title,
+						"courses",
+						image[0]
+					);
+					if (res) {
+						newData.course_thumbnail = res;
 					}
-				);
+				}
+				let response = "";
+
+				if (type === "Add") {
+					response = await addDocumentFirebase(
+						"courses",
+						newData
+					);
+				} else {
+					response = await setDocumentFirebase(
+						"courses",
+						data.id,
+						newData
+					);
+				}
+				if (response) {
+					toast.success(`Course has ${type}ed`, {
+						position: "top-center",
+					});
+					if (image[0]) {
+						dispatch(getImage());
+					}
+					reset(defaultValues);
+					setShow(false);
+					fetchDataCourse();
+				} else {
+					return toast.error(`Error : ${response}`, {
+						position: "top-center",
+					});
+				}
 			} catch (error) {
 				throw error;
 			}
@@ -132,6 +130,38 @@ const AddCourse = ({ type, id, image, fetchDataCourse }) => {
 				}
 			}
 		}
+	};
+
+	const handleDeleteImage = () => {
+		const split = data.course_thumbnail.split("%2F");
+		const finalSplit = split[1].split("?");
+		const finalString = decodeURI(finalSplit[0]);
+		return MySwal.fire({
+			title: "Are you sure?",
+			text: "You won't be able to revert this!",
+			icon: "warning",
+			showCancelButton: true,
+			confirmButtonText: "Yes, delete it!",
+			customClass: {
+				confirmButton: "btn btn-primary",
+				cancelButton: "btn btn-outline-danger ms-1",
+			},
+			buttonsStyling: false,
+		}).then(function (result) {
+			if (result.value) {
+				try {
+					deleteFileFirebase(finalString, "courses").then(() => {
+						setDocumentFirebase("courses", data.id, {
+							course_thumbnail: "",
+						}).then((response) => {
+							if (response) fetchDataCourse();
+						});
+					});
+				} catch (error) {
+					throw error;
+				}
+			}
+		});
 	};
 
 	return (
@@ -178,9 +208,38 @@ const AddCourse = ({ type, id, image, fetchDataCourse }) => {
 						className="gy-1 pt-75"
 						onSubmit={handleSubmit(onSubmit)}
 					>
-						<UploadSingleFile
-							data={groupData.course_thumbnail}
-						/>
+						{type === "Add" ? (
+							<UploadSingleFile
+								data={groupData.course_thumbnail}
+							/>
+						) : data?.course_thumbnail ? (
+							<Col style={{ position: "relative" }}>
+								<Button.Ripple
+									className={"btn-icon"}
+									color={"danger"}
+									style={{
+										position: "absolute",
+										top: 0,
+										right: 0,
+									}}
+									onClick={() => handleDeleteImage()}
+								>
+									<Trash size={14} />
+								</Button.Ripple>
+								<img
+									src={data?.course_thumbnail}
+									style={{
+										width: "100%",
+										height: "350px",
+										objectFit: "contain",
+									}}
+								/>
+							</Col>
+						) : (
+							<UploadSingleFile
+								data={groupData.course_thumbnail}
+							/>
+						)}
 						<Col xs={12}>
 							<Label
 								className="form-label"
@@ -240,36 +299,11 @@ const AddCourse = ({ type, id, image, fetchDataCourse }) => {
 								</FormFeedback>
 							)}
 						</Col>
-						{/* <Col xs={12}>
-							<Label
-								for="course_author"
-								class="form-label"
-							>
-								Author
-							</Label>
-							<Controller
-								name="course_author"
-								control={control}
-								render={({ field }) => (
-									<Input
-										{...field}
-										id="course_author"
-										placeholder="John Doe"
-										invalid={
-											errors.course_author &&
-											true
-										}
-									/>
-								)}
-							/>
-							{errors.course_author && (
-								<FormFeedback>
-									Please enter a valid URL
-								</FormFeedback>
-							)}
-						</Col> */}
 						<Col xs={12}>
-							<Label for="course_tag" class="form-label">
+							<Label
+								for="course_tag"
+								className="form-label"
+							>
 								Tag
 							</Label>
 							<Controller
@@ -292,7 +326,6 @@ const AddCourse = ({ type, id, image, fetchDataCourse }) => {
 								</FormFeedback>
 							)}
 						</Col>
-
 						<Col xs={12} className="text-center mt-2 pt-50">
 							<Button
 								type="submit"

@@ -77,7 +77,9 @@ const LogActivityTabs = ({ quizList, setQuizList }) => {
 					item.email
 						.toLowerCase()
 						.includes(value.toLowerCase()) ||
-					item.attempted.toLowerCase().includes(value.toLowerCase()) ||
+					item.attempted
+						.toLowerCase()
+						.includes(value.toLowerCase()) ||
 					item.salary
 						.toLowerCase()
 						.includes(value.toLowerCase()) ||

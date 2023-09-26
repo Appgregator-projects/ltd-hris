@@ -79,7 +79,6 @@ const avatarGroupData2 = [
 const CoursesPage = () => {
 	const navigate = useNavigate();
 	const store = useSelector((state) => state.coursesSlice);
-	console.log(store);
 
 	//** Initial State
 	const [active, setActive] = useState("1");
@@ -99,12 +98,7 @@ const CoursesPage = () => {
 		}
 	};
 
-	const handleConfirmText = (item) => {
-		console.log(item, "item");
-		const split = item.course_thumbnail.split("%2F");
-		const finalSplit = split[1].split("?");
-		const finalString = decodeURI(finalSplit[0])
-		console.log(finalString)
+	const handleConfirmText = async (item) => {
 		return MySwal.fire({
 			title: "Are you sure?",
 			text: "You won't be able to revert this!",
@@ -118,24 +112,33 @@ const CoursesPage = () => {
 			buttonsStyling: false,
 		}).then(function (result) {
 			if (result.value) {
-				deleteFileFirebase(finalString, "courses").then(() => {
-					deleteDocumentFirebase("courses", item.id).then(
-						(deleteCourse) => {
-							if (deleteCourse) {
-								MySwal.fire({
-									icon: "success",
-									title: "Deleted!",
-									text: "Your file has been deleted.",
-									customClass: {
-										confirmButton:
-											"btn btn-success",
-									},
-								});
-								fetchDataCourse();
-							}
+				if (item?.course_thumbnail) {
+					const split = item.course_thumbnail.split("%2F");
+					const finalSplit = split[1].split("?");
+					const finalString = decodeURI(finalSplit[0]);
+
+					try {
+						deleteFileFirebase(finalString, "courses");
+					} catch (error) {
+						throw error;
+					}
+				}
+
+				deleteDocumentFirebase("courses", item.id).then(
+					(deleteCourse) => {
+						if (deleteCourse) {
+							MySwal.fire({
+								icon: "success",
+								title: "Deleted!",
+								text: "Your file has been deleted.",
+								customClass: {
+									confirmButton: "btn btn-success",
+								},
+							});
+							fetchDataCourse();
 						}
-					);
-				});
+					}
+				);
 			}
 		});
 	};
@@ -289,10 +292,7 @@ const CoursesPage = () => {
 													}
 													onClick={() =>
 														navigate(
-															`/courses/${
-																index2 +
-																1
-															}`
+															`/courses/${item.id}`
 														)
 													}
 												>
@@ -304,7 +304,8 @@ const CoursesPage = () => {
 												<AddCourse
 													type={"Update"}
 													id={item.id}
-													image={store}
+													data={item}
+													image={store.image}
 													fetchDataCourse={
 														fetchDataCourse
 													}

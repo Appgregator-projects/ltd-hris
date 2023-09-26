@@ -109,11 +109,8 @@ const GroupsPage = () => {
 			throw error;
 		}
 	};
-	console.log(groupData, "groupData");
 	//** Handle
 	const handleConfirmText = async (item, members, courses) => {
-
-		console.log(members, courses, item.id);
 		return MySwal.fire({
 			title: "Are you sure?",
 			text: "You won't be able to revert this!",
@@ -242,7 +239,11 @@ const GroupsPage = () => {
 								<td>
 									<img
 										className="me-75"
-										src={item.group_thumbnail ? item.group_thumbnail : react}
+										src={
+											item.group_thumbnail
+												? item.group_thumbnail
+												: react
+										}
 										alt="react"
 										height="20"
 										width="20"
@@ -292,6 +293,7 @@ const GroupsPage = () => {
 										fetchDataGroup={
 											fetchDataGroup
 										}
+										image={store.image}
 									/>
 									<Button.Ripple
 										className={"btn-icon"}

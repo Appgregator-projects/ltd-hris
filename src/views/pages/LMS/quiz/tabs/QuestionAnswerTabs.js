@@ -41,8 +41,14 @@ import {
 } from "../../../../../sevices/FirebaseApi";
 import { toast } from "react-hot-toast";
 
-const QuestionAnswerTabs = ({ quizList, setQuizList, fetchDataQuestion }) => {
-	console.log(quizList, "quizlist");
+const QuestionAnswerTabs = ({
+	quizList,
+	dataQuiz,
+	setQuizList,
+	fetchDataQuiz,
+	fetchDataQuestion,
+}) => {
+	// console.log(quizList, "quizlist");
 	const location = useLocation();
 	const param = useParams();
 
@@ -103,7 +109,6 @@ const QuestionAnswerTabs = ({ quizList, setQuizList, fetchDataQuestion }) => {
 			try {
 				// Validasi sebelum menambahkan quiz
 				const errors = {};
-				console.log(newQuiz.question_title.trim() === "");
 
 				if (newQuiz.question_title.trim() === "") {
 					errors.question_title =
@@ -140,13 +145,14 @@ const QuestionAnswerTabs = ({ quizList, setQuizList, fetchDataQuestion }) => {
 				}
 
 				if (store.image[0]) {
-					uploadFile(
+					const res = await uploadFile(
 						newQuiz.question_title,
 						"questions",
 						store.image[0]
-					).then((res) => {
+					);
+					if (res) {
 						newData.question_img = res;
-					});
+					}
 				} else {
 					addDocumentFirebase(
 						`quizzes/${param.id}/questions`,
@@ -176,7 +182,7 @@ const QuestionAnswerTabs = ({ quizList, setQuizList, fetchDataQuestion }) => {
 									question_description: "",
 									answer: [],
 								});
-								fetchDataQuestion()
+								fetchDataQuestion();
 							} else {
 								return toast.error(`Error : ${res}`, {
 									position: "top-center",
@@ -275,6 +281,12 @@ const QuestionAnswerTabs = ({ quizList, setQuizList, fetchDataQuestion }) => {
 												}
 												fetchDataQuestion={
 													fetchDataQuestion
+												}
+												fetchDataQuiz={
+													fetchDataQuiz
+												}
+												image={
+													store.image[0]
 												}
 											/>
 										</Card>

@@ -84,6 +84,7 @@ const SectionAccordion = ({
 							section={data}
 							setSectionList={setSectionList}
 							sectionList={sectionList}
+							fetchDataSection={fetchDataSection}
 						/>
 
 						<div className="p-1">
@@ -130,7 +131,9 @@ const SectionAccordion = ({
 											setSectionList={
 												setSectionList
 											}
-											fetchDataSection={fetchDataSection}
+											fetchDataSection={
+												fetchDataSection
+											}
 											lessonIndex={index}
 											sectionList={sectionList}
 											getCourseDetail={

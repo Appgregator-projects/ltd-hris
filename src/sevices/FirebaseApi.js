@@ -604,6 +604,8 @@ export const deleteFileFirebase = async (fileName, location) => {
 	const desertRef = ref(storage, `${location}/${fileName}`);
 	deleteObject(desertRef)
 		.then(() => {
+			return 'Success'
+			 console.log("success delete file") ;
 			// File deleted successfully TOAST
 		})
 		.catch((error) => {

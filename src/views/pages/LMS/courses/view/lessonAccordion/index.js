@@ -76,6 +76,7 @@ const LessonAccordion = ({
 							setSectionList={setSectionList}
 							sectionList={sectionList}
 							lessonIndex={lessonIndex}
+							fetchDataSection={fetchDataSection}
 						/>
 
 						<div className="p-1">

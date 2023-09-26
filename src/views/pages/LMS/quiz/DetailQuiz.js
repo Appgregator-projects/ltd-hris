@@ -11,12 +11,14 @@ import "@styles/react/apps/app-users.scss";
 import "@styles/react/libs/react-select/_react-select.scss";
 
 import { Edit } from "react-feather";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 // ** Styles
 import "@styles/react/libs/drag-and-drop/drag-and-drop.scss";
 
 import QuizTabs from "./QuizTabs";
+import { useEffect } from "react";
+import { getSingleDocumentFirebase } from "../../../../sevices/FirebaseApi";
 
 // const defaultValues = {
 // 	lesson_title: lesson.lesson_title,
@@ -26,14 +28,29 @@ import QuizTabs from "./QuizTabs";
 
 const DetailQuiz = () => {
 	const location = useLocation();
+	const param = useParams()
 
 	const [active, setActive] = useState("1");
+	const [dataQuiz, setDataQuiz] = useState([]);
+	
+
+	const fetchDataQuiz = async () => {
+		const res = await getSingleDocumentFirebase(`quizzes`,param.id);
+		setDataQuiz(res);
+	};
 
 	const toggleTab = (tab) => {
 		if (active !== tab) {
 			setActive(tab);
 		}
 	};
+
+	useEffect(() => {
+		fetchDataQuiz();
+		return () => {
+			setDataQuiz([]);
+		};
+	}, []);
 
 	return (
 		<Fragment>
@@ -42,17 +59,11 @@ const DetailQuiz = () => {
 				data={[
 					{ title: "Course", link: "/courses" },
 					{
-						title: location?.state?.course
-							? location.state.course.course_title
-							: "Introduction to Web Development",
-						link: location?.state?.course
-							? `/courses/${location.state.course.id}`
-							: "/courses/1",
+						title: dataQuiz?.course?.course_title,
+						link: `/courses/${dataQuiz?.course?.course_id}`,
 					},
 					{
-						title: location?.state?.quiz_title
-							? location.state.quiz_title
-							: "	Quiz Project",
+						title: dataQuiz?.quiz_title,
 					},
 				]}
 				rightMenu={
@@ -83,7 +94,7 @@ const DetailQuiz = () => {
 											// width="110"
 											alt="user-avatar"
 											src={
-												"https://i.ytimg.com/vi/w__n0BvkqB4/maxresdefault.jpg"
+												dataQuiz?.quiz_thumbnail
 											}
 											className="img-fluid rounded mt-0 mb-2"
 										/>
@@ -91,36 +102,24 @@ const DetailQuiz = () => {
 										<div className="d-flex flex-column align-items-center text-center">
 											<div className="user-info mt-1">
 												<h4>
-													{location
-														?.state
-														?.quiz_title
-														? location
-																.state
-																.quiz_title
-														: "	Quiz Project"}
+													{
+														dataQuiz?.quiz_title
+													}
 												</h4>
 											</div>
 
 											<div className="user-info mt-2">
 												<p>
-													{location
-														?.state
-														?.quiz_description
-														? location
-																.state
-																.quiz_description
-														: "Quiz Description"}
+													{
+														dataQuiz?.quiz_description
+													}
 												</p>
 											</div>
 											<div className="user-info mt-2">
 												<p>
-													{location
-														?.state
-														?.quiz_minGrade
-														? location
-																.state
-																.quiz_minGrade
-														: ""}
+													{
+														dataQuiz?.quiz_minGrade
+													}
 												</p>
 											</div>
 										</div>
@@ -135,7 +134,11 @@ const DetailQuiz = () => {
 						xs={{ order: 0 }}
 						md={{ order: 1, size: 7 }}
 					>
-						<QuizTabs active={active} toggleTab={toggleTab} />
+						<QuizTabs
+							active={active}
+							toggleTab={toggleTab}
+							fetchDataQuiz={fetchDataQuiz}
+						/>
 					</Col>
 				</Row>
 			</div>

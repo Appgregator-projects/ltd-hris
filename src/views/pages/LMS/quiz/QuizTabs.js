@@ -21,13 +21,11 @@ import LogActivityTabs from "./tabs/LogActivityTabs";
 import { useLocation, useParams } from "react-router-dom";
 import { getCollectionFirebase } from "../../../../sevices/FirebaseApi";
 
-const QuizTabs = ({ active, toggleTab, question }) => {
+const QuizTabs = ({ active, toggleTab, question, fetchDataQuiz }) => {
 	const location = useLocation();
 
 	const param = useParams();
-	const [quizList, setQuizList] = useState(
-		location?.state?.question ? [location.state.question] : []
-	);
+	const [quizList, setQuizList] = useState([]);
 
 	const fetchDataQuestion = async () => {
 		const res = await getCollectionFirebase(
@@ -99,6 +97,7 @@ const QuizTabs = ({ active, toggleTab, question }) => {
 						quizList={quizList}
 						setQuizList={setQuizList}
 						fetchDataQuestion={fetchDataQuestion}
+						fetchDataQuiz={fetchDataQuiz}
 					/>
 					{/* <UserProjectsList />
 					<UserTimeline />
