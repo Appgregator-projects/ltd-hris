@@ -1,5 +1,5 @@
 // ** React Imports
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 // ** Custom Components
 import Breadcrumbs from "@components/breadcrumbs";
@@ -30,6 +30,7 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import DetailQuiz from "./DetailQuiz";
 import { useNavigate } from "react-router-dom";
+import { getCollectionFirebase } from "../../../../sevices/FirebaseApi";
 // import AddGroup from "./AddGroup";
 
 const MySwal = withReactContent(Swal);
@@ -72,7 +73,17 @@ const thumbnailCourses = [
 ];
 
 const QuizPage = () => {
+	const [quizData, setQuizData] = useState([])
 	const navigate = useNavigate();
+
+	const fetchDataQuiz = async () => {
+		try {
+			const res = await getCollectionFirebase('quizzes');
+			setQuizData(res)
+		} catch (error) {
+			throw error;
+		}
+	};
 
 	const handleConfirmText = () => {
 		return MySwal.fire({
@@ -99,6 +110,14 @@ const QuizPage = () => {
 			}
 		});
 	};
+
+	useEffect(()=>{
+		fetchDataQuiz()
+		return()=>{
+			setQuizData([])
+		}
+	},[])
+
 	const handleEdit = () => {};
 	return (
 		<Fragment>
@@ -138,14 +157,14 @@ const QuizPage = () => {
 				<Table responsive>
 					<thead>
 						<tr>
-							<th>Group</th>
-							<th>Lesson</th>
-							<th>Members</th>
+							<th>Title</th>
+							<th>Description</th>
+							<th>Course</th>
 							<th>Actions</th>
 						</tr>
 					</thead>
 					<tbody>
-						{data.map((item, index) => (
+						{quizData.map((item, index) => (
 							<tr key={index}>
 								<td>
 									<img
@@ -156,11 +175,11 @@ const QuizPage = () => {
 										width="20"
 									/>
 									<span className="align-middle fw-bold">
-										Quiz Project
+										{item.quiz_title}
 									</span>
 								</td>
 
-								<td>Introduction to Web Development</td>
+								<td>{item.quiz_description}</td>
 								<td>
 									<AvatarGroup
 										data={thumbnailCourses}
@@ -176,7 +195,7 @@ const QuizPage = () => {
 										color={"warning"}
 										onClick={() =>
 											navigate(
-												"/quiz/testing",
+												`/quiz/${item.id}`,
 												{
 													state: {
 														question:

@@ -35,29 +35,31 @@ import data from "../course.json";
 import "@styles/react/libs/drag-and-drop/drag-and-drop.scss";
 import { FaSort } from "react-icons/fa";
 import CourseTabs from "../CourseTabs";
+import { getSingleDocumentFirebase } from "../../../../../sevices/FirebaseApi";
 
 const CourseDetailPage = () => {
 	const param = useParams();
 
-	const getCourseDetail = (type) => {
-		const courseDetail = data.find(
-			(item) => item.id === parseInt(param.id)
-		);
+	const [courseData, setCourseData] = useState([]);
+	const [active, setActive] = useState("1");
 
-		if (type === "course") {
-			return courseDetail;
-		} else if (type === "section") {
-			return courseDetail.course_section;
+	const toggleTab = (tab) => {
+		if (active !== tab) {
+			setActive(tab);
 		}
 	};
-	const [courseData, setCourseData] = useState(getCourseDetail("course"));
-const [active, setActive] = useState("1");
 
-const toggleTab = (tab) => {
-	if (active !== tab) {
-		setActive(tab);
-	}
-};
+	const getCourseDetail = async () => {
+		const getData = await getSingleDocumentFirebase("courses", param.id);
+		setCourseData(getData);
+	};
+
+	useEffect(() => {
+		getCourseDetail()
+		return () => {
+			setCourseData({})
+		};
+	}, []);
 	return (
 		<Fragment>
 			<Breadcrumbs
@@ -94,7 +96,7 @@ const toggleTab = (tab) => {
 											// width="110"
 											alt="user-avatar"
 											src={
-												courseData.course_thumbnail
+												courseData?.course_thumbnail
 											}
 											className="img-fluid rounded mt-0 mb-2"
 										/>
@@ -102,7 +104,7 @@ const toggleTab = (tab) => {
 											<div className="user-info mt-1">
 												<h4>
 													{
-														courseData.course_title
+														courseData?.course_title
 													}
 												</h4>
 											</div>
@@ -110,53 +112,13 @@ const toggleTab = (tab) => {
 											<div className="user-info mt-2">
 												<p>
 													{
-														courseData.course_description
+														courseData?.course_description
 													}
 												</p>
 											</div>
 										</div>
 									</div>
 								</div>
-
-								{/* <h4 className="fw-bolder border-bottom pb-50 mb-1">Details</h4>
-                <div className="info-container">
-                  <ul className="list-unstyled">
-                    <li className="mb-75">
-                      <span className="fw-bolder me-25">Username:</span>
-                      <span>username</span>
-                    </li>
-                    <li className="mb-75">
-                      <span className="fw-bolder me-25">Billing Email:</span>
-                      <span>@email.com</span>
-                    </li>
-                    <li className="mb-75">
-                      <span className="fw-bolder me-25">Status:</span>
-                      <Badge className="text-capitalize" color={"primary"}>
-                        status
-                      </Badge>
-                    </li>
-                    <li className="mb-75">
-                      <span className="fw-bolder me-25">Role:</span>
-                      <span className="text-capitalize">Admin</span>
-                    </li>
-                    <li className="mb-75">
-                      <span className="fw-bolder me-25">Tax ID:</span>
-                      <span>Tax-</span>
-                    </li>
-                    <li className="mb-75">
-                      <span className="fw-bolder me-25">Contact:</span>
-                      <span>contact</span>
-                    </li>
-                    <li className="mb-75">
-                      <span className="fw-bolder me-25">Language:</span>
-                      <span>English</span>
-                    </li>
-                    <li className="mb-75">
-                      <span className="fw-bolder me-25">Country:</span>
-                      <span>England</span>
-                    </li>
-                  </ul>
-                </div> */}
 							</CardBody>
 						</Card>
 					</Col>
@@ -171,6 +133,7 @@ const toggleTab = (tab) => {
 							courseData={courseData}
 							active={active}
 							toggleTab={toggleTab}
+							getCourseDetail={getCourseDetail}
 						/>
 					</Col>
 				</Row>

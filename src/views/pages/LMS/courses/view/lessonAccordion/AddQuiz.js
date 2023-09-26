@@ -6,6 +6,8 @@ import {
 	Col,
 	FormFeedback,
 	Input,
+	InputGroup,
+	InputGroupText,
 	Label,
 	Modal,
 	ModalBody,
@@ -24,15 +26,23 @@ import { selectThemeColors } from "@utils";
 import "@styles/react/libs/react-select/_react-select.scss";
 import { useNavigate, useParams } from "react-router-dom";
 import UploadSingleFile from "../../../../Components/UploadSingleFile";
+import {
+	addDocumentFirebase,
+	uploadFile,
+} from "../../../../../../sevices/FirebaseApi";
+import { toast } from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { getImage } from "../../../store/courses";
 
 const defaultValues = {
 	quiz_title: "",
 	quiz_description: "",
 	quiz_minGrade: "",
 };
-const AddQuiz = ({ lesson, course }) => {
+const AddQuiz = ({ lesson, course, image }) => {
 	const navigate = useNavigate();
-	const params = useParams();
+	const dispatch = useDispatch();
+	const param = useParams();
 	const [show, setShow] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 
@@ -52,22 +62,52 @@ const AddQuiz = ({ lesson, course }) => {
 		reset,
 	} = useForm({ defaultValues });
 
-	const onSubmit = (data) => {
+	const onSubmit = async (data) => {
 		console.log(Object.values(data)[2]);
 		// if (Object.values(data).every((field) => field.length > 0)) {
 		if (
 			Object.values(data)[0].length > 0 &&
 			Object.values(data)[1].length > 0
 		) {
-			console.log(data);
-			navigate(`/quiz/${data.quiz_title}`, {
-				state: {
+			try {
+				let newData = {
 					quiz_title: Object.values(data)[0],
 					quiz_description: Object.values(data)[1],
 					quiz_minGrade: Object.values(data)[2],
-					course: course,
-				},
-			});
+					course: {
+						course_title: course.course_title,
+						course_id: param.id,
+					},
+					// section_id: lesson.section_id,
+				};
+				if (image) {
+					const res = await uploadFile(
+						Object.values(data)[0],
+						"quizzes",
+						image
+					);
+					if (res) {
+						newData.quiz_thumbnail = res;
+					}
+				}
+				const addQuiz = await addDocumentFirebase(
+					"quizzes",
+					newData
+				);
+				if (addQuiz) {
+					toast.success(`Quiz has created`, {
+						position: "top-center",
+					});
+					dispatch(getImage());
+					navigate(`/quiz/${addQuiz}`);
+				} else {
+					return toast.error(`Error : ${addQuiz}`, {
+						position: "top-center",
+					});
+				}
+			} catch (error) {
+				throw error;
+			}
 		} else {
 			for (const key in data) {
 				if (data[key].length === 0) {
@@ -183,12 +223,17 @@ const AddQuiz = ({ lesson, course }) => {
 								name="quiz_minGrade"
 								control={control}
 								render={({ field }) => (
-									<Input
-										{...field}
-										id="quiz_minGrade"
-										placeholder="7"
-										type={"number"}
-									/>
+									<InputGroup className="input-group-merge mb-2">
+										<Input
+											placeholder="70"
+											{...field}
+											id="quiz_minGrade"
+											type={"number"}
+										/>
+										<InputGroupText>
+											%
+										</InputGroupText>
+									</InputGroup>
 								)}
 							/>
 						</Col>

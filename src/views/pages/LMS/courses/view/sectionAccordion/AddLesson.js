@@ -20,6 +20,13 @@ import { Controller, useForm } from "react-hook-form";
 // ** Styles
 import "@styles/react/libs/react-select/_react-select.scss";
 import { MdOutlineBookmarkAdd } from "react-icons/md";
+import {
+	arrayRemoveFirebase,
+	arrayUnionFirebase,
+	setDocumentFirebase,
+} from "../../../../../../sevices/FirebaseApi";
+import { useParams } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 const defaultValues = {
 	lesson_title: "",
@@ -27,7 +34,14 @@ const defaultValues = {
 	lesson_video: "",
 };
 
-const AddLesson = ({ section, sectionList, lessonList, setSectionList }) => {
+const AddLesson = ({
+	section,
+	sectionList,
+	lessonList,
+	setSectionList,
+	fetchDataSection,
+}) => {
+	const param = useParams();
 	// ** States
 	const [show, setShow] = useState(false);
 
@@ -40,10 +54,10 @@ const AddLesson = ({ section, sectionList, lessonList, setSectionList }) => {
 		reset,
 	} = useForm({ defaultValues });
 
-	const onSubmit = (data) => {
+	const onSubmit = async (data) => {
 		let newData = {
 			...data,
-			section_id: section.id,
+			section_id: section.section_index,
 			chosen: false,
 			selected: false,
 		};
@@ -57,18 +71,33 @@ const AddLesson = ({ section, sectionList, lessonList, setSectionList }) => {
 				newData.lesson_video = newString[1];
 			}
 
-      console.log({section})
 			let newSection = {
 				...section,
-				lesson_list: [...lessonList, newData],
+				lesson_list: [newData],
 			};
-			let arr = sectionList;
-			arr[parseInt(section.id) - 1] = newSection;
+			const resDel = await arrayUnionFirebase(
+				`courses/${param.id}/course_section`,
+				section.id,
+				"lesson_list",
+				newData
+			);
 
-			setSectionList(arr);
-			console.log({ sectionList });
-			reset(defaultValues);
-			setShow(false);
+			if (resDel) {
+				fetchDataSection();
+				toast.success(`Lesson has created`, {
+					position: "top-center",
+				});
+				let arr = sectionList;
+				arr[parseInt(section.id) - 1] = newSection;
+
+				setSectionList(arr);
+				reset(defaultValues);
+				setShow(false);
+			} else {
+				return toast.error(`Error : ${resDel}`, {
+					position: "top-center",
+				});
+			}
 		} else {
 			for (const key in data) {
 				if (data[key].length === 0) {

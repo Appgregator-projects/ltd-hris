@@ -20,7 +20,13 @@ import { useLocation } from "react-router-dom";
 import CourseSyllabusTab from "./view/tabs/CourseSyllabusTab";
 import LogActivityTab from "./view/tabs/LogActivityTab";
 
-const CourseTabs = ({ active, toggleTab, setCourseData, courseData }) => {
+const CourseTabs = ({
+	active,
+	toggleTab,
+	setCourseData,
+	courseData,
+	getCourseDetail,
+}) => {
 	return (
 		<Fragment>
 			<Nav pills className="mb-2">
@@ -30,9 +36,7 @@ const CourseTabs = ({ active, toggleTab, setCourseData, courseData }) => {
 						onClick={() => toggleTab("1")}
 					>
 						<BookOpen className="font-medium-3 me-50" />
-						<span className="fw-bold">
-							Course Syllabus
-						</span>
+						<span className="fw-bold">Course Syllabus</span>
 					</NavLink>
 				</NavItem>
 				<NavItem>
@@ -77,10 +81,8 @@ const CourseTabs = ({ active, toggleTab, setCourseData, courseData }) => {
 					<CourseSyllabusTab
 						courseData={courseData}
 						setCourseData={setCourseData}
+						getCourseDetail={getCourseDetail}
 					/>
-					{/* <UserProjectsList />
-					<UserTimeline />
-					<InvoiceList /> */}
 				</TabPane>
 				<TabPane tabId="2">
 					<LogActivityTab

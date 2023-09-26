@@ -114,7 +114,7 @@ export default [
     icon: <User size={20} />,
     navLink: "/employee"
   },
-  
+
   {
     id: "company",
     title: "Company",

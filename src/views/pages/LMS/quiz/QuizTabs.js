@@ -1,5 +1,5 @@
 // ** React Imports
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 // ** Reactstrap Imports
 import { Nav, NavItem, NavLink, TabContent, TabPane } from "reactstrap";
@@ -18,15 +18,28 @@ import {
 // // ** User Components
 import QuestionAnswerTabs from "./tabs/QuestionAnswerTabs";
 import LogActivityTabs from "./tabs/LogActivityTabs";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
+import { getCollectionFirebase } from "../../../../sevices/FirebaseApi";
 
-
-const QuizTabs = ({ active, toggleTab, question }) => {
+const QuizTabs = ({ active, toggleTab, question, fetchDataQuiz }) => {
 	const location = useLocation();
 
-	const [quizList, setQuizList] = useState(
-		location?.state?.question ? [location.state.question] : []
-	);
+	const param = useParams();
+	const [quizList, setQuizList] = useState([]);
+
+	const fetchDataQuestion = async () => {
+		const res = await getCollectionFirebase(
+			`quizzes/${param.id}/questions`
+		);
+		setQuizList(res);
+	};
+
+	useEffect(() => {
+		fetchDataQuestion();
+		return () => {
+			setQuizList([]);
+		};
+	}, []);
 	return (
 		<Fragment>
 			<Nav pills className="mb-2">
@@ -83,6 +96,8 @@ const QuizTabs = ({ active, toggleTab, question }) => {
 					<QuestionAnswerTabs
 						quizList={quizList}
 						setQuizList={setQuizList}
+						fetchDataQuestion={fetchDataQuestion}
+						fetchDataQuiz={fetchDataQuiz}
 					/>
 					{/* <UserProjectsList />
 					<UserTimeline />

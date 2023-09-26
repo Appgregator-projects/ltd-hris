@@ -117,7 +117,7 @@ export default function DivisionForm({
                   {...field}
                   placeholder={"Select Manager"}
                   options={Option}
-                  invalid={errors.manager && true}
+                  invalid={errors.manager_id && true}
                 />
               )}
             />

@@ -35,18 +35,40 @@ import data from "../../course.json";
 import "@styles/react/libs/drag-and-drop/drag-and-drop.scss";
 import { FaSort } from "react-icons/fa";
 
-const CourseSyllabusTab = ({courseData, setCourseData}) => {
+//** Api
+import Api from "../../../../../../sevices/Api";
+import { toast } from "react-hot-toast";
+import { useSelector } from "react-redux";
+import {
+	addDocumentFirebase,
+	arrayUnionFirebase,
+	getCollectionFirebase,
+} from "../../../../../../sevices/FirebaseApi";
 
-	let sectionListData = [...courseData.course_section];
-	const [sectionList, setSectionList] = useState([...sectionListData]);
+const CourseSyllabusTab = ({ courseData, setCourseData, getCourseDetail }) => {
+	const param = useParams();
+	// let sectionListData = [...courseData?.course_section];
+	// console.log(sectionListData, "sasa");
+
+	const [sectionList, setSectionList] = useState([]);
 	const [isAddSection, setIsAddSection] = useState(false);
 	const [newSection, setNewSection] = useState({
 		section_title: "",
 		section_description: "",
 	});
+	const store = useSelector((state) => state.coursesSlice);
+
+
+	//** Fetch data
+	const fetchDataSection = async ()=>{
+		const res = await getCollectionFirebase(
+			`courses/${param.id}/course_section`
+		);
+		setSectionList(res)
+	}
 
 	// ** handle
-	const handleAddSection = (type) => {
+	const handleAddSection = async (type) => {
 		if (type === "add") {
 			setIsAddSection(true);
 		} else if (type === "cancel") {
@@ -56,11 +78,53 @@ const CourseSyllabusTab = ({courseData, setCourseData}) => {
 				section_description: "",
 			});
 		} else if (type === "submit") {
-			setIsAddSection(false);
-			setNewSection({
-				section_title: "",
-				section_description: "",
-			});
+			try {
+				let newData = {
+					// course_id: courseData.id,
+					section_title: newSection?.section_title,
+					section_description: newSection?.section_description,
+				};
+
+				if (courseData?.course_section) {
+					newData.section_index =
+						parseInt(courseData?.course_section.length) + 1;
+				} else {
+					newData.section_index = 1;
+				}
+
+				addDocumentFirebase(
+					`courses/${param.id}/course_section`,
+					newData
+				).then((submitDoc) => {
+					arrayUnionFirebase(
+						"courses",
+						param.id,
+						"course_section",
+						submitDoc
+					).then((arraySubmit) => {
+						if (arraySubmit) {
+							toast.success(`Section has created`, {
+								position: "top-center",
+							});
+							setIsAddSection(false);
+							setNewSection({
+								section_title: "",
+								section_description: "",
+							});
+							fetchDataSection();
+						} else {
+							return toast.error(
+								`Error : ${arraySubmit}`,
+								{
+									position: "top-center",
+								}
+							);
+						}
+					});
+				});
+			} catch (error) {
+				throw error;
+			}
 		}
 	};
 
@@ -69,8 +133,11 @@ const CourseSyllabusTab = ({courseData, setCourseData}) => {
 	};
 
 	useEffect(() => {
-		return () => {};
-	}, [sectionList]);
+		fetchDataSection()
+		return () => {
+			setSectionList()
+		};
+	}, []);
 
 	console.log(
 		"🚀 ~ file: index.js:54 ~ CourseDetailPage ~ sectionList:",
@@ -92,36 +159,50 @@ const CourseSyllabusTab = ({courseData, setCourseData}) => {
 
 			<Row id="dd-with-handle" className="pl-1">
 				<Col>
-					<ReactSortable
-						tag="ul"
-						className="list-group"
-						handle=".handle"
-						list={sectionList}
-						setList={(e) => handleSectionIndex(e)}
-					>
-						{sectionList?.map((item, index) => {
-							return (
-								<ListGroupItem
-									key={index}
-									className="ml-1 p-0 border-0 mb-1"
-								>
-									<Card
-										className="mb-0 w-full"
-										key={item.id}
+					{sectionList && (
+						<ReactSortable
+							// tag="ul"
+							// className="list-group"
+							handle=".handle"
+							list={sectionList}
+							setList={(e) => handleSectionIndex(e)}
+						>
+							{sectionList?.map((item, index) => {
+								return (
+									<ListGroupItem
+										key={index}
+										className="ml-1 p-0 border-0 mb-1"
 									>
-										<SectionAccordion
-											data={item}
-											sectionList={sectionList}
-											course={courseData}
-											setSectionList={
-												setSectionList
-											}
-										/>
-									</Card>
-								</ListGroupItem>
-							);
-						})}
-					</ReactSortable>
+										<Card
+											className="mb-0 w-full"
+											key={index}
+										>
+											<SectionAccordion
+												image={
+													store?.image[0]
+												}
+												Api={Api}
+												data={item}
+												sectionList={
+													sectionList
+												}
+												course={courseData}
+												setSectionList={
+													setSectionList
+												}
+												fetchDataSection={
+													fetchDataSection
+												}
+												getCourseDetail={
+													getCourseDetail
+												}
+											/>
+										</Card>
+									</ListGroupItem>
+								);
+							})}
+						</ReactSortable>
+					)}
 				</Col>
 			</Row>
 
@@ -143,14 +224,32 @@ const CourseSyllabusTab = ({courseData, setCourseData}) => {
 						<Row>
 							<Form>
 								<Label>Section Title</Label>
-								<Input type={"text"} />
+								<Input
+									type={"text"}
+									onChange={(e) =>
+										setNewSection({
+											...newSection,
+											section_title:
+												e.target.value,
+										})
+									}
+								/>
 							</Form>
 						</Row>
 
 						<Row className="mt-1">
 							<Form>
 								<Label>Section Description</Label>
-								<Input type={"textarea"} />
+								<Input
+									type={"textarea"}
+									onChange={(e) =>
+										setNewSection({
+											...newSection,
+											section_description:
+												e.target.value,
+										})
+									}
+								/>
 							</Form>
 						</Row>
 

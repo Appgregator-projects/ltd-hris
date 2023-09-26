@@ -8,8 +8,12 @@ import { Trash } from "react-feather";
 import "@styles/react/libs/react-select/_react-select.scss";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
+import {
+	arrayRemoveFirebase,
+	deleteDocumentFirebase,
+} from "../../../../sevices/FirebaseApi";
 
-const DeleteButton = ({ type }) => {
+const DeleteButton = ({ type, id, newDataQuiz, fetchDataQuestion }) => {
 	const MySwal = withReactContent(Swal);
 	const [isHovered, setIsHovered] = useState(false);
 
@@ -34,15 +38,37 @@ const DeleteButton = ({ type }) => {
 			},
 			buttonsStyling: false,
 		}).then(function (result) {
-			if (result.value) {
-				MySwal.fire({
-					icon: "success",
-					title: "Deleted!",
-					text: "Your file has been deleted.",
-					customClass: {
-						confirmButton: "btn btn-success",
-					},
-				});
+			try {
+				if (result.value) {
+					deleteDocumentFirebase(
+						`quizzes/${newDataQuiz.quiz_id}/questions`,
+						id
+					).then((res) => {
+						if (res) {
+							arrayRemoveFirebase(
+								"quizzes",
+								newDataQuiz.quiz_id,
+								"questions",
+								id
+							).then((response) => {
+								if (response) {
+									MySwal.fire({
+										icon: "success",
+										title: "Deleted!",
+										text: "Your file has been deleted.",
+										customClass: {
+											confirmButton:
+												"btn btn-success",
+										},
+									});
+								}
+							});
+							fetchDataQuestion();
+						}
+					});
+				}
+			} catch (error) {
+				throw error;
 			}
 		});
 	};

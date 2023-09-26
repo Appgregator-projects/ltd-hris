@@ -47,6 +47,13 @@ import withReactContent from "sweetalert2-react-content";
 const MySwal = withReactContent(Swal);
 
 import courses from "../courses/course.json";
+import {
+	arrayUnionFirebase,
+	getCollectionFirebase,
+	setDocumentFirebase,
+} from "../../../../sevices/FirebaseApi";
+import { useEffect } from "react";
+import { toast } from "react-hot-toast";
 
 const options = [
 	{
@@ -68,9 +75,8 @@ const options = [
 		value: "Machine Learning Basics",
 		label: "Machine Learning Basics",
 		avatar: "https://i.ytimg.com/vi/hjh1ikznScg/maxresdefault.jpg",
-	}
+	},
 ];
-
 
 const data = [
 	{
@@ -96,8 +102,29 @@ const OptionComponent = ({ data, ...props }) => {
 	);
 };
 
-const GroupCourses = () => {
+const GroupCourses = ({ group_id, courses, fetchDataGroup }) => {
 	const [show, setShow] = useState(false);
+	const [dataCourse, setDataCourse] = useState([]);
+	const [selectedOption, setSelectedOption] = useState([]);
+
+	const fetchDataCourse = async () => {
+		const res = await getCollectionFirebase("courses");
+		let arr = [];
+		if (res) {
+			res.forEach((element) => {
+				arr.push({
+					value: element.id,
+					label: element.course_title,
+					avatar: element.course_thumbnail,
+				});
+			});
+		}
+		setDataCourse(arr);
+	};
+
+	const handleChangeOption = (selectedOption) => {
+		setSelectedOption(selectedOption);
+	};
 
 	const handleConfirmText = () => {
 		return MySwal.fire({
@@ -125,6 +152,62 @@ const GroupCourses = () => {
 		});
 	};
 
+	const handleSubmitCourseToGroup = async () => {
+		try {
+			selectedOption.forEach(async (option) => {
+				try {
+					setDocumentFirebase(
+						`groups/${group_id}/group_courses`,
+						option.value,
+						option
+					).then((res) => {
+						if (res) {
+							arrayUnionFirebase(
+								"groups",
+								group_id,
+								"group_courses",
+								option.value
+							).then((addCourse) => {
+								if (addCourse) {
+									toast.success(
+										`Member ${option.value} has been added to the group`,
+										{
+											position: "top-center",
+										}
+									);
+								} else {
+									toast.error(
+										`Error adding member ${option.value}`,
+										{
+											position: "top-center",
+										}
+									);
+								}
+							});
+						}
+					});
+				} catch (error) {
+					throw error;
+				}
+			});
+			setShow(false);
+			setSelectedOption([]);
+			fetchDataGroup();
+		} catch (error) {
+			throw error;
+		}
+	};
+	const handleDiscard = () => {
+		setShow(false);
+		setSelectedOption(null);
+	};
+	useEffect(() => {
+		fetchDataCourse();
+		return () => {
+			setDataCourse([]);
+		};
+	}, []);
+
 	return (
 		<Fragment>
 			<Button
@@ -137,12 +220,12 @@ const GroupCourses = () => {
 
 			<Modal
 				isOpen={show}
-				toggle={() => setShow(!show)}
+				toggle={() => handleDiscard()}
 				className="modal-dialog-centered modal-lg"
 			>
 				<ModalHeader
 					className="bg-transparent"
-					toggle={() => setShow(!show)}
+					toggle={() => handleDiscard()}
 				></ModalHeader>
 				<ModalBody className="px-sm-5 mx-50 pb-4">
 					<h1 className="text-center mb-1">Group Courses</h1>
@@ -156,7 +239,18 @@ const GroupCourses = () => {
 						Add Course
 					</Label>
 					<Select
-						options={options}
+						options={
+							courses?.length > 0
+								? dataCourse.filter(
+										(x) =>
+											!courses.some(
+												(y) =>
+													y.value ===
+													x.value
+											)
+								  )
+								: dataCourse
+						}
 						isClearable={false}
 						isMulti
 						id="addMemberSelect"
@@ -166,25 +260,40 @@ const GroupCourses = () => {
 						components={{
 							Option: OptionComponent,
 						}}
+						onChange={handleChangeOption}
 					/>
-					<p className="fw-bolder pt-50 mt-2">2 Courses</p>
+					<p className="fw-bolder pt-50 mt-2">
+						{courses?.length > 0
+							? `${courses.length} Courses`
+							: "0 Course"}
+					</p>
 					<ListGroup flush className="mb-2">
-						{data.map((item) => {
+						{courses?.map((item) => {
 							return (
 								<ListGroupItem
 									key={item.name}
 									className="d-flex align-items-start border-0 px-0"
 								>
-									<Avatar
-										className="me-75"
-										img={item.img}
-										imgHeight={38}
-										imgWidth={38}
-									/>
+									{item.avatar ? (
+										<Avatar
+											className="me-75"
+											img={item.avatar}
+											imgHeight={38}
+											imgWidth={38}
+										/>
+									) : (
+										<Avatar
+											content={item.label}
+											initials
+											className="me-75"
+											imgHeight={38}
+											imgWidth={38}
+										/>
+									)}
 									<div className="d-flex align-items-center justify-content-between w-100">
 										<div className="me-1">
 											<h5 className="mb-25">
-												{item.name}
+												{item.label}
 											</h5>
 											{/* <span>
 												{item.value}
@@ -209,6 +318,7 @@ const GroupCourses = () => {
 						<Button
 							type="submit"
 							className="me-1"
+							onClick={() => handleSubmitCourseToGroup()}
 							color="primary"
 						>
 							Submit

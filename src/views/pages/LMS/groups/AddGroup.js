@@ -14,7 +14,7 @@ import {
 } from "reactstrap";
 
 // ** Third Party Components
-import { Edit, Plus } from "react-feather";
+import { Edit, Plus, Trash } from "react-feather";
 import { useForm } from "react-hook-form";
 
 // ** Utils
@@ -23,7 +23,17 @@ import Api from "../../../../sevices/Api";
 // ** Styles
 import "@styles/react/libs/react-select/_react-select.scss";
 import { toast } from "react-hot-toast";
-import UploadSingleFile from '../../Components/UploadSingleFile'
+import UploadSingleFile from "../../Components/UploadSingleFile";
+import {
+	addDocumentFirebase,
+	deleteFileFirebase,
+	setDocumentFirebase,
+	uploadFile,
+} from "../../../../sevices/FirebaseApi";
+import { useDispatch } from "react-redux";
+import { getImage } from "../store/courses";
+import withReactContent from "sweetalert2-react-content";
+import Swal from "sweetalert2";
 
 const statusOptions = [
 	{ value: "active", label: "Active" },
@@ -52,16 +62,18 @@ const defaultValues = {
 	lastName: "Barton",
 	username: "bob.dev",
 };
+const MySwal = withReactContent(Swal);
 
-const AddGroup = ({ type, singleGroup, fetchDataGroup }) => {
+const AddGroup = ({ type, singleGroup, fetchDataGroup, image }) => {
+	console.log(singleGroup, "singleGroup");
 	// ** States
 	const [show, setShow] = useState(false);
 	const [groupData, setGroupData] = useState({
-		group_name: "",
-		group_description: "",
-		group_thumbnail: "",
-		group_tag: [],
+		group_name: singleGroup?.group_name,
+		group_description: singleGroup?.group_description,
+		group_tag: singleGroup?.group_tag,
 	});
+	const dispatch = useDispatch();
 
 	// ** Hooks
 	const {
@@ -72,29 +84,57 @@ const AddGroup = ({ type, singleGroup, fetchDataGroup }) => {
 	} = useForm({ defaultValues });
 
 	const onSubmit = async (data) => {
-		console.log({data})
-		if (Object.values(data).every((field) => field.length > 0)) {
-			if (type === "Edit") {
-				const update = await Api.put(
-					`/hris/lms/lms-group/${singleGroup.id}`,
-					groupData
-				);
-				if (!update)
-					return toast.error(`Error : ${update}`, {
-						position: "top-center",
-					});
-			}else{
-				const create = await Api.post(`/hris/lms/lms-group`, groupData)
-				if (!create)
-					return toast.error(`Error : ${update}`, {
-						position: "top-center",
-					});
+		if (Object.values(groupData).every((field) => field.length > 0)) {
+			const newData = {
+				...groupData,
+			};
+
+			if (image[0]) {
+				try {
+					const res = await uploadFile(
+						groupData.group_name,
+						"groups",
+						image[0]
+					);
+					if (res) {
+						newData.group_thumbnail = res;
+					}
+				} catch (error) {
+					throw error;
+				}
 			}
-			fetchDataGroup();
-			toast.success(`Group has ${type}ed`, {
-				position: "top-center",
-			});
-			setShow(false);
+
+			let response = "";
+
+			if (type === "Edit") {
+				response = await setDocumentFirebase(
+					"groups",
+					singleGroup.id,
+					newData
+				);
+			} else {
+				try {
+					response = await addDocumentFirebase(
+						"groups",
+						newData
+					);
+				} catch (error) {
+					throw error;
+				}
+			}
+
+			if (response) {
+				fetchDataGroup();
+				toast.success(`Group has ${type}ed`, {
+					position: "top-center",
+				});
+				setShow(false);
+				dispatch(getImage());
+			} else {
+				return toast.error(`Error : ${response}`, {
+					position: "top-center",
+				});
+			}
 		} else {
 			for (const key in data) {
 				if (data[key].length === 0) {
@@ -105,7 +145,38 @@ const AddGroup = ({ type, singleGroup, fetchDataGroup }) => {
 			}
 		}
 	};
-
+	const handleDeleteImage = () => {
+		const split = singleGroup.group_thumbnail.split("%2F");
+		const finalSplit = split[1].split("?");
+		const finalString = decodeURI(finalSplit[0]);
+		return MySwal.fire({
+			title: "Are you sure?",
+			text: "You won't be able to revert this!",
+			icon: "warning",
+			showCancelButton: true,
+			confirmButtonText: "Yes, delete it!",
+			customClass: {
+				confirmButton: "btn btn-primary",
+				cancelButton: "btn btn-outline-danger ms-1",
+			},
+			buttonsStyling: false,
+		}).then(function (result) {
+			if (result.value) {
+				try {
+					deleteFileFirebase(finalString, "groups").then(() => {
+						setDocumentFirebase("groups", singleGroup.id, {
+							group_thumbnail: "",
+						}).then((response) => {
+							if (response) fetchDataGroup();
+						});
+					});
+					fetchDataGroup();
+				} catch (error) {
+					throw error;
+				}
+			}
+		});
+	};
 	return (
 		<Fragment>
 			{type === "Create" ? (
@@ -148,12 +219,39 @@ const AddGroup = ({ type, singleGroup, fetchDataGroup }) => {
 						className="gy-1 pt-75"
 						onSubmit={handleSubmit(onSubmit)}
 					>
-						<UploadSingleFile />
+						{singleGroup?.group_thumbnail ? (
+							<Col style={{ position: "relative" }}>
+								<Button.Ripple
+									className={"btn-icon"}
+									color={"danger"}
+									style={{
+										position: "absolute",
+										top: 0,
+										right: 0,
+									}}
+									onClick={() => handleDeleteImage()}
+								>
+									<Trash size={14} />
+								</Button.Ripple>
+
+								<img
+									src={singleGroup?.group_thumbnail}
+									style={{
+										width: "100%",
+										height: "350px",
+										objectFit: "contain",
+									}}
+								/>
+							</Col>
+						) : (
+							<UploadSingleFile data={image} />
+						)}
 						<Col md={12} xs={12}>
 							<Label className="form-label" for="lastName">
 								Name
 							</Label>
 							<Input
+								value={groupData?.group_name}
 								id="lastName"
 								placeholder="IT"
 								onChange={(e) =>
@@ -172,6 +270,7 @@ const AddGroup = ({ type, singleGroup, fetchDataGroup }) => {
 							<Input
 								type={"textarea"}
 								id="lastName"
+								value={groupData?.group_description}
 								placeholder="This is group for IT Division"
 								onChange={(e) =>
 									setGroupData({
@@ -193,6 +292,7 @@ const AddGroup = ({ type, singleGroup, fetchDataGroup }) => {
 							<Input
 								id="lastName"
 								placeholder="IT"
+								value={groupData?.group_tag}
 								onChange={(e) =>
 									setGroupData({
 										...groupData,

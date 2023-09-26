@@ -18,9 +18,15 @@ import {
 import { Edit } from "react-feather";
 import { Controller, useForm } from "react-hook-form";
 
-
 // ** Styles
 import "@styles/react/libs/react-select/_react-select.scss";
+import {
+	arrayRemoveFirebase,
+	arrayUnionFirebase,
+	setDocumentFirebase,
+} from "../../../../../../sevices/FirebaseApi";
+import { useParams } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 const EditLesson = ({
 	lesson,
@@ -29,13 +35,15 @@ const EditLesson = ({
 	setSectionList,
 	lessonIndex,
 	section,
+	fetchDataSection,
 }) => {
+	const param = useParams();
 	const defaultValues = {
 		lesson_title: lesson.lesson_title,
 		lesson_description: lesson.lesson_description,
 		lesson_video: `https://www.youtube.com/watch?v=${lesson.lesson_video}`,
 	};
-
+console.log({section})
 	// ** States
 	const [show, setShow] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
@@ -58,11 +66,11 @@ const EditLesson = ({
 		reset,
 	} = useForm({ defaultValues });
 
-	const onSubmit = (data) => {
+	const onSubmit = async (data) => {
 		console.log({ data });
 		let newData = {
 			...data,
-			section_id: section.id,
+			section_id: section.section_index,
 			chosen: false,
 			selected: false,
 		};
@@ -82,16 +90,27 @@ const EditLesson = ({
 				...section,
 				lesson_list: newLessonList,
 			};
-
-			let arr = sectionList;
-			arr[parseInt(section.id) - 1] = newSection;
-
-			setSectionList(arr);
-
-			setSectionList(arr);
-			console.log({ sectionList });
-			reset(defaultValues);
-			setShow(false);
+			try {
+				const res = await setDocumentFirebase(
+					`courses/${param.id}/course_section`,
+					section.section_index,
+					newSection
+				);
+				if (res) {
+					toast.success(`Lesson has updated`, {
+						position: "top-center",
+					});
+					reset(defaultValues);
+					setShow(false);
+					fetchDataSection();
+				} else {
+					return toast.error(`Error : ${res}`, {
+						position: "top-center",
+					});
+				}
+			} catch (error) {
+				throw error;
+			}
 		} else {
 			for (const key in data) {
 				if (data[key].length === 0) {
