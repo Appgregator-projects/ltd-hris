@@ -1,47 +1,43 @@
 // ** React Imports
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 
 // ** Custom Components
 import Breadcrumbs from "@components/breadcrumbs";
 
 // ** Reactstrap Imports
-import {
-	Badge,
-	Button,
-	Card,
-	CardBody,
-	CardHeader,
-	Col,
-	Form,
-	Input,
-	Label,
-	ListGroupItem,
-	Row,
-} from "reactstrap";
+import { Button, Card, CardBody, Col, Row } from "reactstrap";
 // ** Styles
 import "@styles/react/apps/app-users.scss";
 import "@styles/react/libs/react-select/_react-select.scss";
 
-// ** Third Party Components
-import { ReactSortable } from "react-sortablejs";
-
-import { Edit, List, Plus, Save, X } from "react-feather";
-import SectionAccordion from "./sectionAccordion";
-import { useParams } from "react-router-dom";
-
-import data from "../course.json";
+import { Edit } from "react-feather";
+import { useLocation, useParams } from "react-router-dom";
 
 // ** Styles
 import "@styles/react/libs/drag-and-drop/drag-and-drop.scss";
-import { FaSort } from "react-icons/fa";
-import CourseTabs from "../CourseTabs";
-import { getSingleDocumentFirebase } from "../../../../../sevices/FirebaseApi";
 
-const CourseDetailPage = () => {
-	const param = useParams();
+import QuizTabs from "./QuizTabs";
+import { useEffect } from "react";
+import { getSingleDocumentFirebase } from "../../../../sevices/FirebaseApi";
 
-	const [courseData, setCourseData] = useState([]);
+// const defaultValues = {
+// 	lesson_title: lesson.lesson_title,
+// 	lesson_description: lesson.lesson_description,
+// 	lesson_video: `https://www.youtube.com/watch?v=${lesson.lesson_video}`,
+// };
+
+const DetailQuiz = () => {
+	const location = useLocation();
+	const param = useParams()
+
 	const [active, setActive] = useState("1");
+	const [dataQuiz, setDataQuiz] = useState([]);
+	
+
+	const fetchDataQuiz = async () => {
+		const res = await getSingleDocumentFirebase(`quizzes`,param.id);
+		setDataQuiz(res);
+	};
 
 	const toggleTab = (tab) => {
 		if (active !== tab) {
@@ -49,24 +45,26 @@ const CourseDetailPage = () => {
 		}
 	};
 
-	const getCourseDetail = async () => {
-		const getData = await getSingleDocumentFirebase("courses", param.id);
-		setCourseData(getData);
-	};
-
 	useEffect(() => {
-		getCourseDetail()
+		fetchDataQuiz();
 		return () => {
-			setCourseData({})
+			setDataQuiz([]);
 		};
 	}, []);
+
 	return (
 		<Fragment>
 			<Breadcrumbs
 				title="Course"
 				data={[
 					{ title: "Course", link: "/courses" },
-					{ title: courseData.course_title },
+					{
+						title: dataQuiz?.course?.course_title,
+						link: `/courses/${dataQuiz?.course?.course_id}`,
+					},
+					{
+						title: dataQuiz?.quiz_title,
+					},
 				]}
 				rightMenu={
 					<Button.Ripple className="btn-icon" color={"warning"}>
@@ -96,15 +94,16 @@ const CourseDetailPage = () => {
 											// width="110"
 											alt="user-avatar"
 											src={
-												courseData?.course_thumbnail
+												dataQuiz?.quiz_thumbnail
 											}
 											className="img-fluid rounded mt-0 mb-2"
 										/>
+
 										<div className="d-flex flex-column align-items-center text-center">
 											<div className="user-info mt-1">
 												<h4>
 													{
-														courseData?.course_title
+														dataQuiz?.quiz_title
 													}
 												</h4>
 											</div>
@@ -112,7 +111,14 @@ const CourseDetailPage = () => {
 											<div className="user-info mt-2">
 												<p>
 													{
-														courseData?.course_description
+														dataQuiz?.quiz_description
+													}
+												</p>
+											</div>
+											<div className="user-info mt-2">
+												<p>
+													{
+														dataQuiz?.quiz_minGrade
 													}
 												</p>
 											</div>
@@ -128,12 +134,10 @@ const CourseDetailPage = () => {
 						xs={{ order: 0 }}
 						md={{ order: 1, size: 7 }}
 					>
-						<CourseTabs
-							setCourseData={setCourseData}
-							courseData={courseData}
+						<QuizTabs
 							active={active}
 							toggleTab={toggleTab}
-							getCourseDetail={getCourseDetail}
+							fetchDataQuiz={fetchDataQuiz}
 						/>
 					</Col>
 				</Row>
@@ -142,4 +146,4 @@ const CourseDetailPage = () => {
 	);
 };
 
-export default CourseDetailPage;
+export default DetailQuiz;
