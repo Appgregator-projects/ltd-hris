@@ -1,7 +1,17 @@
 import React from 'react'
-import { Button, Card, CardBody, CardHeader, CardTitle, Col, Input, Label, Row } from 'reactstrap'
+import { useState } from 'react'
+import { Edit, Plus } from 'react-feather'
+import { Button, Card, CardBody, CardHeader, CardTitle, Col, Input, Label, Modal, ModalBody, ModalHeader, Row } from 'reactstrap'
+import AnnouncementForm from './AnnouncementForm'
 
 const AnnouncementIndex = () => {
+  const [annoncement, setAnnouncement] = useState([])
+  const [toggleModal, setToggleModal] = useState(false)
+  const [modal, setModal] = useState({
+    title : "",
+    mode : "",
+    item: null
+  })
 
   const dummy = [
     {
@@ -34,6 +44,22 @@ const AnnouncementIndex = () => {
     },
   ]
 
+  const alertDummy = [
+    {
+
+    }
+  ]
+
+  const onAddAnnouncement = () => {
+    setModal({
+      title :  "Add Announcement",
+      mode : "add",
+      item : null
+    })
+    setToggleModal(true)
+
+  }
+
   return (
     <>
       <Row>
@@ -42,18 +68,22 @@ const AnnouncementIndex = () => {
             <Card>
               <CardHeader className='border-bottom'>
                 <CardTitle>Announcement</CardTitle>
-                <Col className="d-flex align-items-center justify-content-sm-end mt-sm-0 mt-1" sm="3">
-                  <Button color='warning' size='sm'>Add Announcement</Button>
+                <Col className="d-flex align-items-center justify-content-sm-end mt-sm-0 mt-1">
+                  <Button color='warning' size='sm' onClick={onAddAnnouncement}>
+                    <Plus size={13}/>
+                    Add new</Button>
                 </Col>
               </CardHeader>
               <CardBody>
-                <div className='info-list'>
+                <div className='info-list my-2'>
                 {dummy?.map((x) => {
                   return(
-                      <ul className='list-unstyled'>
+                      <ul className='list-styled'>
                         <li>
-                          <span>{x.title}</span>
+                          <span>New announcement just posted </span>
+                          <span className='fw-bolder'>{x.title}</span>
                         </li>
+                          <span className='color-grey'>{x.createdAd}</span>
                       </ul>
                   )
                 })}
@@ -64,7 +94,7 @@ const AnnouncementIndex = () => {
           </Col>
           <Col xl='6' lg='12' xs={{ order: 1 }} md={{ order: 0, size: 5 }}>
             <Card>
-              <CardHeader>
+              <CardHeader className='border-bottom'>
                 <CardTitle>Employee Alert</CardTitle>
               </CardHeader>
               <CardBody>
@@ -74,6 +104,17 @@ const AnnouncementIndex = () => {
           </Col>
         </Row>
       </Row>
+      <Modal
+        isOpen={toggleModal}
+        toggle={() => setToggleModal(!toggleModal)}
+        className={`modal-dialog-centered modal-lg`}>
+        <ModalHeader toggle={() => setToggleModal(!toggleModal)}>
+          {modal.title}
+        </ModalHeader>
+        <ModalBody>
+          {modal.mode === "add"? <AnnouncementForm item={dummy} close={() => setToggleModal(!toggleModal)}/> : <></>}
+        </ModalBody>
+      </Modal>
     </>
   )
 }

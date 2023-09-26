@@ -266,7 +266,6 @@ export default function DivisionIndex() {
                   <th className="fs-6">Name</th>
                   <th className="fs-6">Leader</th>
                   <th className="fs-6">Total Employee</th>
-                  {/* <th className='fs-6'>Description</th> */}
                   <th className="fs-6">Actions</th>
                 </tr>
               </thead>
@@ -277,7 +276,6 @@ export default function DivisionIndex() {
                       <td>{x.name}</td>
                       <td>{x.manager_name ? renderClient(x) : "-"}</td>
                       <td>{x.total_employee}</td>
-                      {/* <td>{x.description}</td> */}
                       <td>
                         <div className="d-flex">
                           <div className="pointer">
@@ -312,7 +310,7 @@ export default function DivisionIndex() {
           {modal.title}
         </ModalHeader>
         <ModalBody>
-          {modal.mode == "add" ? (
+          {modal.mode === "add" ? (
             <DivisionForm
               onSubmit={onSubmit}
               users={users}
@@ -325,7 +323,7 @@ export default function DivisionIndex() {
           ) : (
             <></>
           )}
-          {modal.mode == "edit" ? (
+          {modal.mode === "edit" ? (
             <DivisionForm
               item={modal.item}
               onSubmit={onSubmit}
