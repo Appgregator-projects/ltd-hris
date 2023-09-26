@@ -184,7 +184,7 @@ export default function DaysOffIndex() {
 				  });
         setToggleModal(!toggleModal)
         generateCalendarView(initalDate)
-				toast.success("Successfully updated employee!", {
+				toast.success("Successfully updated calender!", {
 				  position: "top-center",
 				});
 			  } catch (error) {

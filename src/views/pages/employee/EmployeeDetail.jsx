@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
 import {
 	Card, CardBody, Col, Row, Badge, CardHeader, Table, CardTitle, CardFooter, Button,
-	Modal, ModalHeader, ModalBody, Label
+	Modal, ModalHeader, ModalBody, Label, Form, Input
 } from "reactstrap";
 import Avatar from '@components/avatar'
 import Api from '../../../sevices/Api'
@@ -12,7 +12,7 @@ import LeaveForm from "./component/LeaveForm";
 import toast from 'react-hot-toast'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
-import AvatarGroup from "./component/AvatarGroup";
+import AvatarGroup from "@components/avatar-group";
 import UserTimeline from "./view/UserTimeline";
 import { useDispatch, useSelector } from "react-redux";
 import { getUser } from "./store/index";
@@ -30,7 +30,9 @@ export default function EmployeeDetail() {
 	const [balance, setBalance] = useState([])
 	const [userBalance, setUserBalance] = useState([])
 	const [usersGetBalance, setUsersGetBalance] = useState([])
+	const [userDivision, setUserDivision] = useState([])
   	const [logUser, setLogUser] = useState([])
+	const [uploadFile, setUploadFile] = useState([])
 	const [leaveCategories, setLaeveCategories] = useState([])
 	const [isLoading, setIsLoading] = useState(false)
 	const [income, setIncome] = useState([])
@@ -45,7 +47,6 @@ export default function EmployeeDetail() {
 			const data = await Api.get(`/hris/employee/${id.uid}`)
 			setUser(data)
 			setBalance([...data.leave_balances])
-			console.log(data, "user")
 		} catch (error) {
 			throw error
 		}
@@ -54,6 +55,29 @@ export default function EmployeeDetail() {
 	useEffect(() => {
 		fetchUser()
 	}, [])
+
+	const fetchUserTeam = async() => {
+		try {
+			const data = await Api.get(`/hris/employee/division/${id.uid}`)
+			const dataTeam = data.map((x) => {
+				return {
+					title: x.name,
+					img: x.avatar,
+					imgHeight: 26,
+					imgWidth: 26
+
+				}
+			})
+			setUserDivision(dataTeam)
+		} catch (error) {
+			throw error
+			
+		}
+	}
+
+	useEffect(() => {
+		fetchUserTeam()
+	},[])
 
 	const fetchUsersBalance = async () => {
 		try {
@@ -71,7 +95,6 @@ export default function EmployeeDetail() {
 	const fetchLeaveCategories = async () => {
 		try {
 			const data = await Api.get(`/hris/leave-category`)
-			// console.log(data, "data leave category")
 			setLaeveCategories([...data])
 
 		} catch (error) {
@@ -100,7 +123,6 @@ export default function EmployeeDetail() {
 		try {
 			const data = await Api.get(`/auth/log/${id.uid}`)
 			setLogUser([...data])
-			// console.log(data, "fetch userlog")
 		} catch (error) {
 			throw error
 		}
@@ -222,6 +244,13 @@ export default function EmployeeDetail() {
 		}
 	}
 
+	const postFile = async(arg) => {
+		return console.log(arg, "e")
+		const file = e.target.files[0];
+		setUploadFile(file)
+
+	}
+
 	const onDelete = (x) => {
 		console.log(x,"test delete")
 		return MySwal.fire({
@@ -261,7 +290,8 @@ export default function EmployeeDetail() {
 	return (
 		<>
 			<Row>
-				<Col xl='4' lg='5' xs={{ order: 1 }} md={{ order: 0, size: 5 }}>
+				<Col>
+				<Col xl='12' lg='12' xs={{ order: 1 }} md={{ order: 0, size: 5 }}>
 					<Card>
 						<CardBody>
 							<div className='user-avatar-section'>
@@ -369,6 +399,28 @@ export default function EmployeeDetail() {
 						</CardBody>
 					</Card>
 				</Col>
+				<Col xl='12' lg='12' xs={{ order: 2 }} md={{ order: 0, size: 5 }}>
+					<Card>
+							<Form onSubmit={postFile}>
+						<CardHeader>
+							<CardTitle>Upload File</CardTitle>
+						</CardHeader>
+						<CardBody>
+								<Label for="upload_file">File</Label>
+								<Input
+								id="upload_file"
+								name="file"
+								type="file"></Input>
+						</CardBody>
+						<CardFooter>
+							<Button color="warning" type="submit">Upload</Button>
+						</CardFooter>
+							</Form>
+						
+					</Card>
+					
+				</Col>
+				</Col>
 				<Col>
 				<Col>
 					<Card>
@@ -465,7 +517,7 @@ export default function EmployeeDetail() {
 							<CardBody>
 								<div>
 									<span></span>
-									{/* <AvatarGroup/> */}
+									{/* <AvatarGroup data={userDivision}/> */}
 								</div>
 								<div className='d-flex justify-content-between align-items-end mt-1 pt-25'>
 									<div className='role-heading'>
@@ -528,13 +580,5 @@ export default function EmployeeDetail() {
 			</Modal>
 		</>
 	) 
-	// : 
-	// (
-	// 	<Alert color='danger'>
-	// 	  <h4 className='alert-heading'>User not found</h4>
-	// 	  <div className='alert-body'>
-	// 		User with id: {id} doesn't exist. Check list of all Users: <Link to='/apps/user/list'>Users List</Link>
-	// 	  </div>
-	// 	</Alert>
-	// )
+
 }   

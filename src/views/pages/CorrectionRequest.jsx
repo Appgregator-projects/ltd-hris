@@ -2,12 +2,15 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { 
   Badge, Card, CardBody, CardHeader, CardTitle, Col,Row, Table,UncontrolledTooltip,
-  Modal,ModalBody,ModalHeader,Button, ModalFooter, Form, Label, Input
+  Modal,ModalBody,ModalHeader,Button, ModalFooter, Form, Label, Input, FormGroup
 } from "reactstrap";
 // import api from '../../plugins/api'
 import {dateFormat,dateTimeFormat} from '../../Helper/index'
 import {
-  Eye
+  Check,
+  Edit,
+  Eye,
+  X
 } from 'react-feather'
 import Api from "../../sevices/Api";
 import { Link } from "react-router-dom";
@@ -21,26 +24,55 @@ export default function CorrectionIndex(){
   
   const [corrections, setCorrection] = useState([])
   const [users, setUsers] = useState([])
+  const [selectCheck, setSelectCheck] = useState(false)
+  const [selectAll, setSelectAll] = useState(false)
   const [toggleModal, setToggleModal] = useState(false)
   const [nestedToggle, setNestedToggle] = useState(false)
   const [selectItem, setSelectItem] = useState(null)
-
+  
+  //**State filtering */
+  const [filterStatus, setFilterStatus] = useState("")
+  const [searchStatus, setSearchStatus] = useState('')
+  
   const {
     setValue, control, handleSubmit, formState: {errors}
   } = useForm({ mode: "onChange"});
-  console.log(errors, "error");
+  // console.log(errors, "error");
 
   const fetchCorrection = async() => {
     try {
       const data = await Api.get('/hris/correction')
-      setCorrection([...data])
+      const filterData = data.filter((x) => filterStatus !== "Requested"?  
+      x.current_status === filterStatus : x.current_status === null)
+      if(filterStatus === ""){
+        setCorrection([...data])
+      } else{
+        if(data){
+          const updateDatFilter =  filterData.map((x) => {
+            return {
+              id : x.id,
+              clock_in : x.clock_in,
+              clock_out : x.clock_out,
+              current_status : x.current_status,
+              periode: x.periode,
+              rejected_note: x.rejected_note,
+              user_id : x.user_id,
+              users : x.users,
+              is_check : false,
+              createdAt : x.createdAt,
+              updateAt :  x.updateAt
+            }
+          })
+          setCorrection(updateDatFilter)
+        }
+      }
     } catch (error) {
       throw error
     }
   }
   useEffect(() => {
     fetchCorrection()
-  },[])
+  },[filterStatus])
 
   const onDetail = (arg) => {
     console.log(arg, "arg on detail")
@@ -62,6 +94,138 @@ export default function CorrectionIndex(){
   const onCloseAll = () => {  
     setNestedToggle(!nestedToggle)
     setCloseAll(true)
+  }
+  
+  const handleFilter = (e) => {
+    setFilterStatus(e.target.value)
+  }
+
+  const handleSelectAll = () => {
+    const toggleAll =!selectAll;
+    const updatedData = corrections.map((x) => ({...x, is_check : toggleAll}));
+    console.log(updatedData,"chacked all")
+    setCorrection(updatedData)
+    setSelectAll(toggleAll)
+    return console.log(toggleAll,"toggleAll")
+  }
+  
+  const handleCheckChange = (params) => {
+    console.log(params, "checked item")
+    const updatedData = corrections.map((x) => 
+      x.id === params.id? {...x, is_check : !x.is_check} : x
+    );
+    setCorrection(updatedData);
+    setSelectAll(updatedData.every((item) => item.is_check))
+  }
+
+  const onProceed = () => {
+    console.log("it works")
+    return MySwal.fire({
+      icon: 'info',
+      title: 'Do you want to proceed correction at the same time?',
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: 'Approve',
+      denyButtonText: `Reject`,
+      customClass: {
+        confirmButton: 'btn btn-primary me-1',
+        denyButton: 'btn btn-danger me-1',
+        title: "fs-13"
+      }
+    }).then((result) => {
+      let newArr = [];
+      const correctionsFilter = corrections.filter((x) => x.is_check == true);
+      correctionsFilter.forEach((x) => {newArr.push(x.id)})
+      console.log(newArr, "hahah")
+      if (result.isConfirmed) {
+        return onSubmitAll(newArr,"Approved")
+      } else if (result.isDenied) {
+        return onRejectAll(newArr, "Rejected")
+      }
+    })
+  }
+  const onSubmitAll = async(x,y) => {
+    console.log(x, y, "dfkshdfkj")
+    return MySwal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: `Yes, ${y} it!`,
+      customClass: {
+          confirmButton: 'btn btn-primary',
+          cancelButton: 'btn btn-outline-danger ms-1'
+      },
+      buttonsStyling: false 
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const params = {
+            current_status: y,
+            id : x
+          }
+          console.log(params,"result")
+          const status = await Api.put(`/hris/corrections-check`, params)
+          console.log(status, params,  "status submit all correction")
+          if(!status) return toast.error(`Error : ${data}`, {
+            position: 'top-center'
+          }) 
+          fetchCorrection()
+          toast.success(status, {
+            position: 'top-center'
+          })
+          setToggleModal(false)
+    
+        } catch (error) {
+          setToggleModal(false)
+          toast.error(`Error : ${error.message}`, {
+            position: 'top-center'
+          })
+          throw error
+        }
+      }
+    })
+  }
+
+  const onRejectAll = async(x,y) => {
+    return MySwal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: `Yes, ${y} it!`,
+      customClass: {
+          confirmButton: 'btn btn-primary',
+          cancelButton: 'btn btn-outline-danger ms-1'
+      },
+      buttonsStyling: false 
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const params = {
+            current_status: y,
+            id : x
+          }
+          const status = await Api.put(`/hris/corrections-check`, params)
+          console.log(status, params,  "status reject all correction")
+          if(!status) return toast.error(`Error : ${data}`, {
+            position: 'top-center'
+          }) 
+          fetchCorrection()
+          toast.success(status, {
+            position: 'top-center'
+          })
+          setToggleModal(false)
+    
+        } catch (error) {
+          setToggleModal(false)
+          toast.error(`Error : ${error.message}`, {
+            position: 'top-center'
+          })
+          throw error
+        }
+      }
+    })
   }
 
   const onSubmit = async(arg , param) => {
@@ -119,6 +283,21 @@ export default function CorrectionIndex(){
           <Card>
             <CardHeader>
               <CardTitle>Correction Request</CardTitle>
+              <Col className="d-flex align-items-center justify-content-sm-end mt-sm-0 mt-1" sm="3">
+                <Label className="me-1 w-50" for="filtering">Filter status</Label>
+                <Input
+                type="select"
+                id="filter-by-sttus"
+                value={filterStatus}
+                onChange={handleFilter}
+                >
+                  <option value="">All</option>
+                  <option value="Approved">Approved</option>
+                  <option value="Rejected">Rejected</option>
+                  <option value="approved">Processed</option>
+                  <option value="Requested">Requested</option>
+                </Input>
+              </Col>
             </CardHeader>
             <CardBody>
               <Table responsive>
@@ -129,13 +308,27 @@ export default function CorrectionIndex(){
                     <th className='fs-6'>Clock time</th>
                     <th className='fs-6'>Status</th>
                     <th className='fs-6'>Created At</th>
-                    <th className='fs-6'>#</th>
+                    <th className='fs-6'>
+                      <Col className="d-flex justify-content-between">
+                      Action
+                      {filterStatus === "Requested" ?
+                        <Form className="d-flex justify-content-between">
+                          <Button.Ripple size="sm" color="primary" onClick={handleSelectAll}>
+                            {selectAll? <X size={11}/> :  <Check size={11}/>}
+                            
+                          </Button.Ripple>
+                          <Button size="sm" color="warning" className="ms-1" onClick={onProceed}> Proceed </Button>
+                        </Form>
+                        : <></>
+                      }
+                      </Col>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {
                     corrections.map((x,index) => (
-                      <tr key={index}>
+                      <tr key={x.id}>
                         <td>{x?.users? x.users.name : "-"}</td>
                         <td>{dateFormat(x.clock_in)}</td>
                         <td>{dayjs(x.clock_in).format('HH:mm')} | { dayjs(x.clock_out).format('HH:mm')}</td>
@@ -144,13 +337,21 @@ export default function CorrectionIndex(){
                         </td>
                         <td>{dateTimeFormat(x.createdAt)}</td>
                         <td>
-                        <div className='column-action d-flex align-items-center'>
+                          <div className='column-action d-flex align-items-center d-flex justify-content-center'>
                             <div className='text-body pointer' onClick={() => onDetail(x)} id={`pw-tooltip-${x.id}`}>
                               <Eye size={17} className='mx-1' />
                             </div>
-                            <UncontrolledTooltip placement='top' target={`pw-tooltip-${x.id}`}>
-                              Preview Correction
-                            </UncontrolledTooltip>
+                            {filterStatus === "Requested" ?
+                            <div className="form-check">
+                              <Form>
+                              <Input
+                              type="checkbox"
+                              checked={x.is_check}
+                              onChange={() => handleCheckChange(x)}
+                              ></Input>
+                              </Form>
+                            </div> : <></>
+                            }
                           </div>
                         </td>
                       </tr>

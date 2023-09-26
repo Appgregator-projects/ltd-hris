@@ -5,7 +5,7 @@ import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Col, Input, Label
 import Api from "../../../sevices/Api"
 import Swal from "sweetalert2"
 import withReactContent from "sweetalert2-react-content"
-import { numberFormat } from "../../../Helper"
+import { dateTimeFormat, numberFormat } from "../../../Helper"
 const MySwal = withReactContent(Swal);
 
 export default function LoanIndex() {
@@ -164,6 +164,10 @@ export default function LoanIndex() {
                 <p>{modalAtr.status}</p>
               </div>
               <div style={{display:'flex', justifyContent:'space-between'}}>
+                <p>{modalAtr.status} at</p>
+                <p>{dateTimeFormat(modalAtr.updatedAt)}</p>
+              </div>
+              <div style={{display:'flex', justifyContent:'space-between'}}>
                 <p>Amount</p>
                 <p>Rp {numberFormat(modalAtr.loan_amount)}</p>
               </div>
@@ -171,7 +175,8 @@ export default function LoanIndex() {
           </Col>
         </ModalBody>
         {modalAtr.status === 'approved' ? 
-        <></> 
+        <>
+        </> 
         : 
         <>
         <ModalFooter>

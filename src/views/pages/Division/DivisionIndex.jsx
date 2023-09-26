@@ -343,3 +343,11 @@ export default function DivisionIndex() {
     </>
   );
 }
+
+  {/* <Input 
+                              type="checkbox"
+                              name="selectAll" 
+                              id="select-all"
+                              checked={selectAll}
+                              onChange={handleSelectAll}>
+                              </Input> */}
