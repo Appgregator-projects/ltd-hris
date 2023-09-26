@@ -12,6 +12,7 @@ import {
 	ModalBody,
 	ModalHeader,
 	Row,
+	UncontrolledTooltip,
 } from "reactstrap";
 
 // ** Third Party Components
@@ -47,7 +48,6 @@ const DeleteButton = ({
 	const iconHoverStyle = {
 		cursor: "pointer",
 	};
-
 
 	const iconStyle = {
 		backgroundColor: "#FFFFFF",
@@ -151,10 +151,18 @@ const DeleteButton = ({
 						style={isHovered ? iconHoverStyle : iconStyle}
 						onMouseEnter={() => setIsHovered(true)}
 						onMouseLeave={() => setIsHovered(false)}
+						id={`delete-lesson`}
 					/>
 				) : (
-					<Trash size={21} />
+					<Trash size={21} id={`delete-section`} />
 				)}
+				<UncontrolledTooltip
+					placement="top"
+					target={`delete-${type}`}
+					style={{ textTransform: "capitalize" }}
+				>
+					Delete {type}
+				</UncontrolledTooltip>
 			</div>
 		</Fragment>
 	);

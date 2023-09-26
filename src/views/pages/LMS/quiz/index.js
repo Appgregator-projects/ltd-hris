@@ -14,6 +14,7 @@ import {
 	InputGroup,
 	InputGroupText,
 	Row,
+	UncontrolledTooltip,
 } from "reactstrap";
 // ** Images
 import { Search } from "react-feather";
@@ -57,33 +58,33 @@ const avatarGroupData2 = [
 	},
 ];
 
-const thumbnailCourses = [
-	{
-		title: "Introduction to Web Development",
-		img: "https://i.ytimg.com/vi/w__n0BvkqB4/maxresdefault.jpg",
-		imgHeight: 26,
-		imgWidth: 26,
-	},
-	{
-		title: "Python for Beginners",
-		img: "https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F549550559%2F1234433154323%2F1%2Foriginal.20230706-115709?w=1000&auto=format%2Ccompress&q=75&sharp=10&rect=0%2C0%2C2160%2C1080&s=84e3c74c34b060e7d28ccef3f6a5a6ec",
-		imgHeight: 26,
-		imgWidth: 26,
-	},
-];
-
 const QuizPage = () => {
-	const [quizData, setQuizData] = useState([])
+	const [quizData, setQuizData] = useState([]);
 	const navigate = useNavigate();
 
 	const fetchDataQuiz = async () => {
 		try {
-			const res = await getCollectionFirebase('quizzes');
-			setQuizData(res)
+			const res = await getCollectionFirebase("quizzes");
+			setQuizData(res);
 		} catch (error) {
 			throw error;
 		}
 	};
+
+	const thumbnailCourses = [
+		{
+			title: "Introduction to Web Development",
+			img: "https://i.ytimg.com/vi/w__n0BvkqB4/maxresdefault.jpg",
+			imgHeight: 26,
+			imgWidth: 26,
+		},
+		{
+			title: "Python for Beginners",
+			img: "https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F549550559%2F1234433154323%2F1%2Foriginal.20230706-115709?w=1000&auto=format%2Ccompress&q=75&sharp=10&rect=0%2C0%2C2160%2C1080&s=84e3c74c34b060e7d28ccef3f6a5a6ec",
+			imgHeight: 26,
+			imgWidth: 26,
+		},
+	];
 
 	const handleConfirmText = () => {
 		return MySwal.fire({
@@ -111,14 +112,13 @@ const QuizPage = () => {
 		});
 	};
 
-	useEffect(()=>{
-		fetchDataQuiz()
-		return()=>{
-			setQuizData([])
-		}
-	},[])
-
-	const handleEdit = () => {};
+	useEffect(() => {
+		fetchDataQuiz();
+		return () => {
+			setQuizData([]);
+		};
+	}, []);
+	console.log({ quizData });
 	return (
 		<Fragment>
 			<Breadcrumbs
@@ -126,32 +126,6 @@ const QuizPage = () => {
 				data={[{ title: "Quiz" }]}
 				// rightMenu={<AddGroup type={"Create"} />}
 			/>
-
-			{/* <Card>
-        <CardBody className="px-1">
-          <Row>
-            <Col lg="6" md="12">
-              <InputGroup>
-                <InputGroupText>Search</InputGroupText>
-                <Input />
-                <Button color="secondary">
-                  <Search size={12} />
-                </Button>
-              </InputGroup>
-            </Col>
-
-            <Col lg="6" md="12">
-              <InputGroup>
-                <InputGroupText>Search</InputGroupText>
-                <Input />
-                <Button color="secondary">
-                  <Search size={12} />
-                </Button>
-              </InputGroup>
-            </Col>
-          </Row>
-        </CardBody>
-      </Card> */}
 
 			<Card>
 				<Table responsive>
@@ -181,9 +155,7 @@ const QuizPage = () => {
 
 								<td>{item.quiz_description}</td>
 								<td>
-									<AvatarGroup
-										data={thumbnailCourses}
-									/>
+									<a onClick={()=>navigate(`/courses/${item.course.course_id}`)}>{item.course.course_title}</a>
 								</td>
 								<td width={250}>
 									{/* <GroupMembers />
@@ -231,18 +203,32 @@ const QuizPage = () => {
 												}
 											)
 										}
+										id="edit-quiz"
 									>
 										<Edit size={14} />
 									</Button.Ripple>
+									<UncontrolledTooltip
+										placement="top"
+										target="edit-quiz"
+									>
+										Edit Quiz
+									</UncontrolledTooltip>
 									<Button.Ripple
 										className={"btn-icon"}
 										color={"danger"}
 										onClick={() =>
 											handleConfirmText()
 										}
+										id="delete-quiz"
 									>
 										<Trash size={14} />
 									</Button.Ripple>
+									<UncontrolledTooltip
+										placement="top"
+										target="delete-quiz"
+									>
+										Delete Quiz
+									</UncontrolledTooltip>
 								</td>
 							</tr>
 						))}

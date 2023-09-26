@@ -12,6 +12,7 @@ import {
 	ModalBody,
 	ModalHeader,
 	Row,
+	UncontrolledTooltip,
 } from "reactstrap";
 
 // ** Third Party Components
@@ -43,7 +44,6 @@ const EditLesson = ({
 		lesson_description: lesson.lesson_description,
 		lesson_video: `https://www.youtube.com/watch?v=${lesson.lesson_video}`,
 	};
-console.log({section})
 	// ** States
 	const [show, setShow] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
@@ -67,7 +67,6 @@ console.log({section})
 	} = useForm({ defaultValues });
 
 	const onSubmit = async (data) => {
-		console.log({ data });
 		let newData = {
 			...data,
 			section_id: section.section_index,
@@ -130,7 +129,11 @@ console.log({section})
 					style={isHovered ? iconHoverStyle : iconStyle}
 					onMouseEnter={() => setIsHovered(true)}
 					onMouseLeave={() => setIsHovered(false)}
+					id='edit-lesson'
 				/>
+				<UncontrolledTooltip placement="top" target="edit-lesson">
+					Edit Lesson
+				</UncontrolledTooltip>
 			</div>
 
 			<Modal

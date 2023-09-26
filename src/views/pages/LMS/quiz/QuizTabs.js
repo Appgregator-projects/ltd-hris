@@ -40,6 +40,7 @@ const QuizTabs = ({ active, toggleTab, question, fetchDataQuiz }) => {
 			setQuizList([]);
 		};
 	}, []);
+	
 	return (
 		<Fragment>
 			<Nav pills className="mb-2">

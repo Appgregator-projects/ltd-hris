@@ -13,6 +13,7 @@ import {
 	ModalBody,
 	ModalHeader,
 	Row,
+	UncontrolledTooltip,
 } from "reactstrap";
 
 // ** Third Party Components
@@ -127,7 +128,11 @@ const AddQuiz = ({ lesson, course, image }) => {
 					style={isHovered ? iconHoverStyle : iconStyle}
 					onMouseEnter={() => setIsHovered(true)}
 					onMouseLeave={() => setIsHovered(false)}
+					id='add-quiz'
 				/>
+				<UncontrolledTooltip placement="top" target="add-quiz">
+					Add Quiz
+				</UncontrolledTooltip>
 			</div>
 			<Modal
 				isOpen={show}

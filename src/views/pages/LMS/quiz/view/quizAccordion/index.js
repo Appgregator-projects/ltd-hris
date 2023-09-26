@@ -16,6 +16,7 @@ import {
 	ListGroup,
 	ListGroupItem,
 	Row,
+	UncontrolledTooltip,
 } from "reactstrap";
 
 // ** Third Party Components
@@ -56,8 +57,6 @@ const MySwal = withReactContent(Swal);
 
 const QuizAccordion = ({
 	data,
-	setQuizList,
-	quizList,
 	id,
 	fetchDataQuestion,
 	image,
@@ -65,28 +64,24 @@ const QuizAccordion = ({
 }) => {
 	const [answerList, setAnswerList] = useState([]);
 	const [editQuiz, setEditQuiz] = useState(false);
-	const [newDataQuiz, setNewDataQuiz] = useState({
-		...data,
-	});
+	const [newDataQuiz, setNewDataQuiz] = useState({});
 	const [open, setOpen] = useState("1");
-	const [answerCount, setAnswerCount] = useState(
-		Array.from({ length: answerList.length }, (_, index) => index + 1)
-	);
+	const [answerCount, setAnswerCount] = useState(0);
 	const param = useParams();
 
 	const handleCount = () => {
 		let answerLength = answerCount.length + 1;
-		setAnswerCount([...answerCount, answerLength]);
 
 		let arr = {
-			id: answerLength,
+			id: answerList[answerList.length - 1]?.id + 1,
 			answerTitle: "",
 			isCorrectAnswer: false,
 		};
+
+		setAnswerCount([...answerCount, answerLength]);
 		setNewDataQuiz({ ...newDataQuiz, answer: [...answerList, arr] });
 		setAnswerList([...answerList, arr]);
 	};
-
 	const toggle = (id) => {
 		if (open === id) {
 			setOpen();
@@ -121,12 +116,12 @@ const QuizAccordion = ({
 					newData
 				);
 				if (res) {
+					fetchDataQuestion();
+					fetchDataQuiz();
+					setEditQuiz(false);
 					toast.success(`Question has edited`, {
 						position: "top-center",
 					});
-					fetchDataQuestion();
-					// fetchDataQuiz();
-					setEditQuiz(false);
 				} else {
 					return toast.error(`Error : ${res}`, {
 						position: "top-center",
@@ -137,12 +132,14 @@ const QuizAccordion = ({
 			}
 		} else if (type === "cancel") {
 			setEditQuiz(false);
+			setNewDataQuiz({ ...data });
+			setAnswerList([...data.answer]);
 		}
 	};
 	const handleDeleteImage = () => {
 		const split = data.question_img.split("%2F");
 		const finalSplit = split[1].split("?");
-		const finalString = decodeURI(finalSplit[0]);
+		const finalString = decodeURIComponent(finalSplit[0]);
 		return MySwal.fire({
 			title: "Are you sure?",
 			text: "You won't be able to revert this!",
@@ -169,6 +166,15 @@ const QuizAccordion = ({
 								if (response) {
 									fetchDataQuestion();
 									fetchDataQuiz();
+									MySwal.fire({
+										icon: "success",
+										title: "Deleted!",
+										text: "Your file has been deleted.",
+										customClass: {
+											confirmButton:
+												"btn btn-success",
+										},
+									});
 								}
 							});
 						}
@@ -183,7 +189,23 @@ const QuizAccordion = ({
 		Prism.highlightAll();
 		if (data?.answer) {
 			setAnswerList([...data.answer]);
+			setAnswerCount(
+				Array.from(
+					{ length: data?.answer?.length },
+					(_, index) => index + 1
+				)
+			);
 		}
+		if (data) {
+			setNewDataQuiz({
+				...data,
+			});
+		}
+		return () => {
+			setAnswerList([]);
+			setAnswerCount(0);
+			setNewDataQuiz({});
+		};
 	}, [data?.answer]);
 
 	return (
@@ -227,7 +249,14 @@ const QuizAccordion = ({
 													"save"
 												)
 											}
+											id="save-question"
 										/>
+										<UncontrolledTooltip
+											placement="top"
+											target="save-question"
+										>
+											Save Question
+										</UncontrolledTooltip>
 									</div>
 									<div className="pt-1 px-1">
 										<X
@@ -236,17 +265,26 @@ const QuizAccordion = ({
 													"cancel"
 												)
 											}
+											id="cancel-edit-question"
 										/>
+										<UncontrolledTooltip
+											placement="top"
+											target="cancel-edit-question"
+										>
+											Cancel
+										</UncontrolledTooltip>
 									</div>
 								</Col>
-								{newDataQuiz?.question_img ? (
+								{data?.question_img ? (
 									<Col
 										style={{
 											position: "relative",
 										}}
 									>
 										<Button.Ripple
-											className={"btn-icon"}
+											className={
+												"btn-icon mt-2"
+											}
 											color={"danger"}
 											style={{
 												position:
@@ -257,13 +295,18 @@ const QuizAccordion = ({
 											onClick={() =>
 												handleDeleteImage()
 											}
+											id="delete-img-question"
 										>
 											<Trash size={14} />
 										</Button.Ripple>
+										<UncontrolledTooltip
+											placement="top"
+											target="delete-img-question"
+										>
+											Delete Image
+										</UncontrolledTooltip>
 										<img
-											src={
-												newDataQuiz?.question_img
-											}
+											src={data?.question_img}
 											className="p-2"
 											style={{
 												width: "100%",
@@ -334,7 +377,14 @@ const QuizAccordion = ({
 										onClick={() =>
 											setEditQuiz(true)
 										}
+										id='edit-question'
 									/>
+									<UncontrolledTooltip
+										placement="top"
+										target="edit-question"
+									>
+										Edit Question
+									</UncontrolledTooltip>
 								</Col>
 							)}
 						</div>
@@ -382,7 +432,9 @@ const QuizAccordion = ({
 										setNewDataQuiz={
 											setNewDataQuiz
 										}
-										setAnswerList={setAnswerList}
+										fetchDataQuestion={
+											fetchDataQuestion
+										}
 									/>
 								</ListGroupItem>
 							);

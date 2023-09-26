@@ -14,6 +14,7 @@ import {
 	Modal,
 	ModalBody,
 	ModalHeader,
+	UncontrolledTooltip,
 } from "reactstrap";
 
 // ** Third Party Components
@@ -48,7 +49,9 @@ const MySwal = withReactContent(Swal);
 
 import courses from "../courses/course.json";
 import {
+	arrayRemoveFirebase,
 	arrayUnionFirebase,
+	deleteDocumentFirebase,
 	getCollectionFirebase,
 	setDocumentFirebase,
 } from "../../../../sevices/FirebaseApi";
@@ -126,7 +129,7 @@ const GroupCourses = ({ group_id, courses, fetchDataGroup }) => {
 		setSelectedOption(selectedOption);
 	};
 
-	const handleConfirmText = () => {
+	const handleConfirmText = (item) => {
 		return MySwal.fire({
 			title: "Are you sure?",
 			text: "You won't be able to revert this!",
@@ -140,14 +143,36 @@ const GroupCourses = ({ group_id, courses, fetchDataGroup }) => {
 			buttonsStyling: false,
 		}).then(function (result) {
 			if (result.value) {
-				MySwal.fire({
-					icon: "success",
-					title: "Deleted!",
-					text: "Your file has been deleted.",
-					customClass: {
-						confirmButton: "btn btn-success",
-					},
-				});
+				try {
+					arrayRemoveFirebase(
+						"groups",
+						group_id,
+						"group_courses",
+						item.id
+					).then((res) => {
+						if (res) {
+							deleteDocumentFirebase(
+								`groups/${group_id}/group_courses`,
+								item.id
+							).then((response) => {
+								if (response) {
+									fetchDataGroup();
+									MySwal.fire({
+										icon: "success",
+										title: "Deleted!",
+										text: "Your file has been deleted.",
+										customClass: {
+											confirmButton:
+												"btn btn-success",
+										},
+									});
+								}
+							});
+						}
+					});
+				} catch (error) {
+					throw error;
+				}
 			}
 		});
 	};
@@ -214,9 +239,13 @@ const GroupCourses = ({ group_id, courses, fetchDataGroup }) => {
 				color="primary"
 				className="btn-icon me-1"
 				onClick={() => setShow(true)}
+				id="add-course"
 			>
 				<Book size={14} />
 			</Button>
+			<UncontrolledTooltip placement="top" target="add-course">
+				Add Course
+			</UncontrolledTooltip>
 
 			<Modal
 				isOpen={show}
@@ -304,7 +333,9 @@ const GroupCourses = ({ group_id, courses, fetchDataGroup }) => {
 											className={"btn-icon"}
 											color={"danger"}
 											onClick={() =>
-												handleConfirmText()
+												handleConfirmText(
+													item
+												)
 											}
 										>
 											<Trash size={15} />

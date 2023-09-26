@@ -11,6 +11,7 @@ import {
 	ModalBody,
 	ModalHeader,
 	Row,
+	UncontrolledTooltip,
 } from "reactstrap";
 
 // ** Third Party Components
@@ -148,7 +149,7 @@ const AddGroup = ({ type, singleGroup, fetchDataGroup, image }) => {
 	const handleDeleteImage = () => {
 		const split = singleGroup.group_thumbnail.split("%2F");
 		const finalSplit = split[1].split("?");
-		const finalString = decodeURI(finalSplit[0]);
+		const finalString = decodeURIComponent(finalSplit[0]);
 		return MySwal.fire({
 			title: "Are you sure?",
 			text: "You won't be able to revert this!",
@@ -188,13 +189,22 @@ const AddGroup = ({ type, singleGroup, fetchDataGroup, image }) => {
 					<span className="align-middle ms-25">Group</span>
 				</Button.Ripple>
 			) : (
-				<Button.Ripple
-					className={"btn-icon me-1"}
-					color={"warning"}
-					onClick={() => setShow(true)}
-				>
-					<Edit size={14} />
-				</Button.Ripple>
+				<>
+					<Button.Ripple
+						className={"btn-icon me-1"}
+						color={"warning"}
+						onClick={() => setShow(true)}
+						id="edit-group"
+					>
+						<Edit size={14} />
+					</Button.Ripple>
+					<UncontrolledTooltip
+						placement="top"
+						target="edit-group"
+					>
+						Edit Group
+					</UncontrolledTooltip>
+				</>
 			)}
 
 			<Modal

@@ -23,6 +23,7 @@ import {
 	Row,
 	TabContent,
 	TabPane,
+	UncontrolledTooltip,
 } from "reactstrap";
 
 // ** Images
@@ -115,7 +116,7 @@ const CoursesPage = () => {
 				if (item?.course_thumbnail) {
 					const split = item.course_thumbnail.split("%2F");
 					const finalSplit = split[1].split("?");
-					const finalString = decodeURI(finalSplit[0]);
+					const finalString = decodeURIComponent(finalSplit[0]);
 
 					try {
 						deleteFileFirebase(finalString, "courses");
@@ -295,17 +296,26 @@ const CoursesPage = () => {
 															`/courses/${item.id}`
 														)
 													}
+													id="detail-course"
 												>
 													<Eye
 														size={14}
 													/>
 												</Button.Ripple>
+												<UncontrolledTooltip
+													placement="top"
+													target="detail-course"
+												>
+													Detail Course
+												</UncontrolledTooltip>
 
 												<AddCourse
 													type={"Update"}
 													id={item.id}
 													data={item}
-													image={store.image}
+													image={
+														store.image
+													}
 													fetchDataCourse={
 														fetchDataCourse
 													}
@@ -323,11 +333,18 @@ const CoursesPage = () => {
 															item
 														)
 													}
+													id="delete-course"
 												>
 													<Trash
 														size={14}
 													/>
 												</Button.Ripple>
+												<UncontrolledTooltip
+													placement="top"
+													target="delete-course"
+												>
+													Delete Course
+												</UncontrolledTooltip>
 											</td>
 										</tr>
 									);

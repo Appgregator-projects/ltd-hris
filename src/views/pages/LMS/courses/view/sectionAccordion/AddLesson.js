@@ -12,6 +12,7 @@ import {
 	ModalBody,
 	ModalHeader,
 	Row,
+	UncontrolledTooltip,
 } from "reactstrap";
 
 // ** Third Party Components
@@ -112,7 +113,13 @@ const AddLesson = ({
 	return (
 		<Fragment>
 			<div className="py-1 me-1" onClick={() => setShow(true)}>
-				<MdOutlineBookmarkAdd size={24} />
+				<MdOutlineBookmarkAdd size={24} id="add-lesson" />
+				<UncontrolledTooltip
+					placement="top"
+					target="add-lesson"
+				>
+					Add Lesson
+				</UncontrolledTooltip>
 			</div>
 
 			<Modal

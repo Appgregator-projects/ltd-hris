@@ -32,7 +32,6 @@ const SectionAccordion = ({
 	fetchDataSection,
 }) => {
 	const [lessonList, setLessonList] = useState([]);
-	console.log(lessonList, "lessonList");
 	const [open, setOpen] = useState("1");
 	const toggle = (id) => {
 		if (open === id) {

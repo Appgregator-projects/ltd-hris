@@ -16,6 +16,7 @@ import {
 	ModalBody,
 	ModalHeader,
 	Row,
+	UncontrolledTooltip,
 } from "reactstrap";
 
 // ** Third Party Components
@@ -170,8 +171,11 @@ const ManageSection = ({
 
 	return (
 		<Fragment>
-			<div className="py-1" onClick={() => setShow(true)}>
-				<Edit size={20} />
+			<div className="py-1" onClick={() => setShow(true)} >
+				<Edit size={20} id='edit-section'/>
+				<UncontrolledTooltip placement="top" target="edit-section">
+					Edit Section
+				</UncontrolledTooltip>
 			</div>
 
 			<Modal

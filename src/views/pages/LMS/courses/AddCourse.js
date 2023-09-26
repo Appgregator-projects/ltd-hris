@@ -12,6 +12,7 @@ import {
 	ModalBody,
 	ModalHeader,
 	Row,
+	UncontrolledTooltip,
 } from "reactstrap";
 
 // ** Third Party Components
@@ -34,7 +35,6 @@ import { getImage } from "../store/courses";
 import { useParams } from "react-router-dom";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
-
 
 const MySwal = withReactContent(Swal);
 
@@ -135,7 +135,7 @@ const AddCourse = ({ type, id, image, fetchDataCourse, data }) => {
 	const handleDeleteImage = () => {
 		const split = data.course_thumbnail.split("%2F");
 		const finalSplit = split[1].split("?");
-		const finalString = decodeURI(finalSplit[0]);
+		const finalString = decodeURIComponent(finalSplit[0]);
 		return MySwal.fire({
 			title: "Are you sure?",
 			text: "You won't be able to revert this!",
@@ -175,13 +175,22 @@ const AddCourse = ({ type, id, image, fetchDataCourse, data }) => {
 					<span className="align-middle ms-25">Course</span>
 				</Button.Ripple>
 			) : (
-				<Button.Ripple
-					className="btn-icon me-1"
-					color="warning"
-					onClick={() => setShow(true)}
-				>
-					<Edit size={14} />
-				</Button.Ripple>
+				<>
+					<Button.Ripple
+						className="btn-icon me-1"
+						color="warning"
+						onClick={() => setShow(true)}
+						id="edit-course"
+					>
+						<Edit size={14} />
+					</Button.Ripple>
+					<UncontrolledTooltip
+						placement="top"
+						target="edit-course"
+					>
+						Edit Course
+					</UncontrolledTooltip>
+				</>
 			)}
 
 			<Modal
