@@ -53,9 +53,9 @@ useEffect(() => {
                 control={control}
                 render={({ field }) => (<Input type='select' {...field} name='duration' invalid={errors.duration && true}>
                   <option>Select month</option>
-                  <option value={30}>1 month</option>
-                  <option value={60}>2 month</option>
-                  <option value={90}>3 month</option>
+                  <option value={1}>1 month</option>
+                  <option value={2}>2 month</option>
+                  <option value={3}>3 month</option>
                 </Input>
               )}
             />

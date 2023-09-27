@@ -6,11 +6,14 @@ import { Button, Col, Form, FormFeedback, Input, Label, Row } from 'reactstrap'
 import Select from 'react-select'
 import { useState } from 'react'
 import { Upload } from '../../../Helper/firebaseStorage'
+import Api from '../../../sevices/Api'
+
 
 const PenaltyForm = ({item, close, user}) => {
   const [file, setFile] = useState("")
+  const [penalty, setPenalty] = useState([])
 
-  const option = user?.map((e) => ({value: e.id, label: e.email}))
+  const option = user?.map((e) => ({value: e.id, label: e.name}))
 
   const ItemSchema = yup.object().shape({
 		// name: yup.string().required(),
@@ -37,6 +40,19 @@ const PenaltyForm = ({item, close, user}) => {
 			setValue('file', item.file)
 		}
 	}, [item])
+
+  const fetchPenalty = async() => {
+    try {
+      const data = await Api.get('/hris/penalty-category')
+      setPenalty([...data])
+    } catch (error) {
+      throw error
+    }
+  }
+
+  useEffect(() => {
+    fetchPenalty()
+  }, [])
 
   const handleUpload = (e) => {
     const fileObj = e.target.files && e.target.files[0];
@@ -89,12 +105,18 @@ const PenaltyForm = ({item, close, user}) => {
 							{errors.name && <FormFeedback>{errors.name.message}</FormFeedback>}
 					</Col>
 					<Col md='12' sm='12' className='mb-1'>
-						<Label className='form-label' for='title'>Title</Label>
+						<Label className='form-label' for='title'>Penalty</Label>
 						<Controller
 								name='title'
 								defaultValue=''
 								control={control}
-								render={({ field }) => <Input type='text' {...field} name='title' invalid={errors.title && true}/>
+								render={({ field }) => 
+                <Input type='select' {...field} name='title' invalid={errors.title && true}>
+                  <option value="">Select Penalty</option>
+                  {penalty?.map((x)=> (
+                    <option key={x.id} value={x.duration}>{x.title}</option>
+                  ))}
+                </Input>
 							}
 						/>
 							{errors.title && <FormFeedback>{errors.title.message}</FormFeedback>}
