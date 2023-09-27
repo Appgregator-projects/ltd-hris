@@ -19,7 +19,7 @@ import EditCompany from "./CompanyForm"
 import CompanyDetail from "./CompanyDetail";
 // import FormUserAssign from "../components/FormUserAssign"
 
-export default function OfficeIndex(){
+export default function CompanyIndex(){
   const dispatch = useDispatch()
 
 	const [companies, setCompanies] = useState([])

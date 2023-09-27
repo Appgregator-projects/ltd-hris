@@ -12,8 +12,9 @@ import { UncontrolledTooltip } from "reactstrap"
 import Avatar from "@components/avatar"
 
 const AvatarGroup = (props) => {
-  // ** Props
-  const { data, tag, className } = props
+
+	// ** Props
+	const { data, tag, className } = props
 
   // ** Conditional Tag
   const Tag = tag ? tag : "div"

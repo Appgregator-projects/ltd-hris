@@ -418,7 +418,6 @@ export default function EmployeeDetail() {
 							</Form>
 						
 					</Card>
-					
 				</Col>
 				</Col>
 				<Col>
