@@ -4,14 +4,20 @@ import * as yup from 'yup'
 import { Controller, useForm } from 'react-hook-form'
 import { Button, Col, Form, FormFeedback, Input, Label, Row } from 'reactstrap'
 import Select from 'react-select'
+import { useState } from 'react'
+import { Upload } from '../../../Helper/firebaseStorage'
 
 const PenaltyForm = ({item, close, user}) => {
+  const [file, setFile] = useState("")
 
-  const option = user?.map((e) => ({value: e.id, label: e.name}))
+  const option = user?.map((e) => ({value: e.id, label: e.email}))
 
   const ItemSchema = yup.object().shape({
-		name: yup.string().required(),
-		address: yup.string().required(),
+		// name: yup.string().required(),
+		title: yup.string().required(),
+		penalty_type: yup.string().required(),
+		message: yup.string().required(),
+		// file: yup.string().required(),
   	})
 
   const {
@@ -25,12 +31,35 @@ const PenaltyForm = ({item, close, user}) => {
   useEffect(() => {
 		if(item){
 			setValue('name', item.name)
-			setValue('address', item.address)
-			setValue('phone_number', item.phone_number)
-			setValue('company_npwp', item.company_npwp)
+			setValue('title', item.title)
+			setValue('penalty_type', item.penalty_type)
+			setValue('message', item.message)
+			setValue('file', item.file)
 		}
 	}, [item])
-	
+
+  const handleUpload = (e) => {
+    const fileObj = e.target.files && e.target.files[0];
+    setFile(fileObj)
+    console.log(fileObj, "fileObj")
+  };
+
+  const onSubmitFile = async(arg) => {
+    let baseURL = ""
+    console.log(arg, "arg onsubmitfile")
+    try{
+    let reader = new FileReader()
+    reader.readAsDataURL(file);
+    reader.onload = async () => {
+      baseURL = reader.result;
+      // return console.log(baseURL, "baseURL")
+    }
+    const uploadFile = await Upload(file.name, )
+    } catch(error){
+
+    }
+  }
+
 	const onSubmitForm = (params) => {
     return console.log(params, "params")
 			onSubmit(params)
@@ -38,7 +67,7 @@ const PenaltyForm = ({item, close, user}) => {
   
   return (
     <>
-    	<Form onSubmit={handleSubmit(onSubmitForm)}>
+    	<Form onSubmit={handleSubmit(onSubmitFile)}>
 				<Row>
 					<Col md='12' sm='12' className='mb-1'>
 						<Label className='form-label' for='name'>Name</Label>
@@ -59,7 +88,7 @@ const PenaltyForm = ({item, close, user}) => {
 						/>
 							{errors.name && <FormFeedback>{errors.name.message}</FormFeedback>}
 					</Col>
-					<Col md='6' sm='12' className='mb-1'>
+					<Col md='12' sm='12' className='mb-1'>
 						<Label className='form-label' for='title'>Title</Label>
 						<Controller
 								name='title'
@@ -69,22 +98,6 @@ const PenaltyForm = ({item, close, user}) => {
 							}
 						/>
 							{errors.title && <FormFeedback>{errors.title.message}</FormFeedback>}
-					</Col>
-					<Col md='6' sm='12' className='mb-1'>
-						<Label className='form-label' for='penalty_type'>Penalty type</Label>
-						<Controller
-								name='penalty_type'
-								defaultValue=''
-								control={control}
-								render={({ field }) => 
-                  <Input type='select' {...field} name='penalty_type' invalid={errors.penalty_type && true}>
-                    <option value={1}>1</option>
-                    <option value={2}>2</option>
-                    <option value={3}>3</option>
-                  </Input>
-							}
-						/>
-							{errors.penalty_type && <FormFeedback>{errors.penalty_type.message}</FormFeedback>}
 					</Col>
 					<Col md='12' sm='12' className='mb-1'>
 						<Label className='form-label' for='message'>Message</Label>
@@ -103,7 +116,13 @@ const PenaltyForm = ({item, close, user}) => {
 								name='file'
 								defaultValue=''
 								control={control}
-								render={({ field }) => <Input type='file' {...field} name='file' invalid={errors.file && true}/>
+								render={({ field }) => 
+                <Input 
+                type='file' {...field} 
+                name='file' 
+                id="inputFile" 
+                onChange={(e) => handleUpload(e)}
+                invalid={errors.file && true}/>
 							}
 						/>
 							{errors.file && <FormFeedback>{errors.file.message}</FormFeedback>}
@@ -117,5 +136,6 @@ const PenaltyForm = ({item, close, user}) => {
     </>
   )
 }
+
 
 export default PenaltyForm
