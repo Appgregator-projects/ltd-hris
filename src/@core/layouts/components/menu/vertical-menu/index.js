@@ -18,7 +18,7 @@ import { handleCompany } from "../../../../../redux/authentication"
 const Sidebar = (props) => {
   const dispatch = useDispatch();
   const {company} = useSelector(state => state.authentication)
-
+ 
   // ** Props
   const { menuCollapsed, menu, skin, menuData } = props
 

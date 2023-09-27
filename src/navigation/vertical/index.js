@@ -12,7 +12,13 @@ import {
   Users,
   Target,
   CreditCard,
-  Slash
+  Slash,
+  Edit3,
+  Pocket,
+  File,
+  Monitor,
+  MessageSquare,
+  AlertCircle
 } from "react-feather"
 
 export default [
@@ -24,6 +30,18 @@ export default [
     title: "Home",
     icon: <Home size={20} />,
     navLink: "/home"
+  },
+  {
+    id: "announcement",
+    title: "Announcement",
+    icon: <MessageSquare size={20} />,
+    navLink: "/announcement"
+  },
+  {
+    id: "penalty",
+    title: "Penalty",
+    icon: <AlertCircle size={20} />,
+    navLink: "/penalty"
   },
   {
     id: "attendance",
@@ -58,6 +76,12 @@ export default [
     icon: <Users size={20} />,
     navLink: "/groups"
   },
+  {
+    id: "quiz",
+    title: "Quiz",
+    icon: <Edit3 size={20} />,
+    navLink: "/quiz"
+  },
 
   {
     header: "Payroll"
@@ -65,7 +89,7 @@ export default [
   {
     id: "Deductions",
     title: "Deductions",
-    icon: <CreditCard size={20} />,
+    icon: <Pocket size={20} />,
     navLink: "/payroll-deduction"
   },
   {
@@ -77,7 +101,7 @@ export default [
   {
     id: "Loans",
     title: "Employee Loans",
-    icon: <CreditCard size={20} />,
+    icon: <File size={20} />,
     navLink: "/loans"
   },
 
@@ -90,7 +114,7 @@ export default [
     icon: <User size={20} />,
     navLink: "/employee"
   },
-  
+
   {
     id: "company",
     title: "Company",
@@ -119,13 +143,12 @@ export default [
     id: "Days Off",
     title: "Days Off",
     icon: <Slash size={20} />,
-    navLink: "/days-off",
     navLink: "/days-off"
   },
   {
     id: "assest",
     title: "Assets",
-    icon: <Hash size={20} />,
+    icon: <Monitor size={20} />,
     navLink: "/assets"
   }
 ]

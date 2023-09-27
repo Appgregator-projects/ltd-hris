@@ -98,6 +98,7 @@ export default function FormEmployee({
   const { getRootProps, getInputProps } = useDropzone({
     multiple: false,
     onDrop: async (acceptedFiles) => {
+      console.log(acceptedFiles, "acceptedFiles")
       try {
         const { size, name } = acceptedFiles[0];
         if (size > 3000000)

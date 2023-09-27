@@ -3,297 +3,262 @@ import { Fragment, useState } from "react";
 
 // ** Reactstrap Imports
 import {
-  Button,
-  Col,
-  FormFeedback,
-  Input,
-  Label,
-  Modal,
-  ModalBody,
-  ModalHeader,
-  Row,
+	Button,
+	Col,
+	FormFeedback,
+	Input,
+	Label,
+	Modal,
+	ModalBody,
+	ModalHeader,
+	Row,
+	UncontrolledTooltip,
 } from "reactstrap";
 
 // ** Third Party Components
-import { Check, Edit, X } from "react-feather";
+import { Edit } from "react-feather";
 import { Controller, useForm } from "react-hook-form";
-import Select from "react-select";
-
-// ** Utils
-import { selectThemeColors } from "@utils";
 
 // ** Styles
 import "@styles/react/libs/react-select/_react-select.scss";
+import {
+	arrayRemoveFirebase,
+	arrayUnionFirebase,
+	setDocumentFirebase,
+} from "../../../../../../sevices/FirebaseApi";
+import { useParams } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
-const statusOptions = [
-  { value: "active", label: "Active" },
-  { value: "inactive", label: "Inactive" },
-  { value: "suspended", label: "Suspended" },
-];
+const EditLesson = ({
+	lesson,
+	sectionList,
+	lessonList,
+	setSectionList,
+	lessonIndex,
+	section,
+	fetchDataSection,
+}) => {
+	const param = useParams();
+	const defaultValues = {
+		lesson_title: lesson.lesson_title,
+		lesson_description: lesson.lesson_description,
+		lesson_video: `https://www.youtube.com/watch?v=${lesson.lesson_video}`,
+	};
+	// ** States
+	const [show, setShow] = useState(false);
+	const [isHovered, setIsHovered] = useState(false);
 
-const countryOptions = [
-  { value: "uk", label: "UK" },
-  { value: "usa", label: "USA" },
-  { value: "france", label: "France" },
-  { value: "russia", label: "Russia" },
-  { value: "canada", label: "Canada" },
-];
+	const iconHoverStyle = {
+		// Set the desired background color on hover
+		cursor: "pointer", // Optional: Change the cursor to a pointer on hover
+	};
 
-const languageOptions = [
-  { value: "english", label: "English" },
-  { value: "spanish", label: "Spanish" },
-  { value: "french", label: "French" },
-  { value: "german", label: "German" },
-  { value: "dutch", label: "Dutch" },
-];
+	const iconStyle = {
+		backgroundColor: "#FFFFFF",
+	};
 
-const defaultValues = {
-  firstName: "Bob",
-  lastName: "Barton",
-  username: "bob.dev",
-};
+	// ** Hooks
+	const {
+		control,
+		setError,
+		handleSubmit,
+		formState: { errors },
+		reset,
+	} = useForm({ defaultValues });
 
-const EditLesson = () => {
-  // ** States
-  const [show, setShow] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
+	const onSubmit = async (data) => {
+		let newData = {
+			...data,
+			section_id: section.section_index,
+			chosen: false,
+			selected: false,
+		};
 
-  const iconHoverStyle = {
-    // Set the desired background color on hover
-    cursor: "pointer", // Optional: Change the cursor to a pointer on hover
-  };
+		if (Object.values(data).every((field) => field.length > 0)) {
+			if (data.lesson_video.includes("?v=")) {
+				const newString = data.lesson_video.split("?v=");
+				newData.lesson_video = newString[1];
+			} else {
+				const newString = data.lesson_video.split("be/");
+				newData.lesson_video = newString[1];
+			}
+			const newLessonList = [...lessonList]; // Salin array lessonList agar tidak merubah array asli
+			newLessonList[lessonIndex] = newData;
 
-  const iconStyle = {
-    backgroundColor: "#FFFFFF",
-  };
+			let newSection = {
+				...section,
+				lesson_list: newLessonList,
+			};
+			try {
+				const res = await setDocumentFirebase(
+					`courses/${param.id}/course_section`,
+					section.section_index,
+					newSection
+				);
+				if (res) {
+					toast.success(`Lesson has updated`, {
+						position: "top-center",
+					});
+					reset(defaultValues);
+					setShow(false);
+					fetchDataSection();
+				} else {
+					return toast.error(`Error : ${res}`, {
+						position: "top-center",
+					});
+				}
+			} catch (error) {
+				throw error;
+			}
+		} else {
+			for (const key in data) {
+				if (data[key].length === 0) {
+					setError(key, {
+						type: "manual",
+					});
+				}
+			}
+		}
+	};
 
-  // ** Hooks
-  const {
-    control,
-    setError,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({ defaultValues });
+	return (
+		<Fragment>
+			<div className="py-1" onClick={() => setShow(true)}>
+				<Edit
+					size={isHovered ? 18 : 15}
+					style={isHovered ? iconHoverStyle : iconStyle}
+					onMouseEnter={() => setIsHovered(true)}
+					onMouseLeave={() => setIsHovered(false)}
+					id='edit-lesson'
+				/>
+				<UncontrolledTooltip placement="top" target="edit-lesson">
+					Edit Lesson
+				</UncontrolledTooltip>
+			</div>
 
-  const onSubmit = (data) => {
-    if (Object.values(data).every((field) => field.length > 0)) {
-      return null;
-    } else {
-      for (const key in data) {
-        if (data[key].length === 0) {
-          setError(key, {
-            type: "manual",
-          });
-        }
-      }
-    }
-  };
-
-  return (
-    <Fragment>
-      <div className="py-1" onClick={() => setShow(true)}>
-        <Edit
-          size={isHovered ? 18 : 15}
-          style={isHovered ? iconHoverStyle : iconStyle}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        />
-      </div>
-
-      <Modal
-        isOpen={show}
-        toggle={() => setShow(!show)}
-        className="modal-dialog-centered modal-lg"
-      >
-        <ModalHeader
-          className="bg-transparent"
-          toggle={() => setShow(!show)}
-        ></ModalHeader>
-        <ModalBody className="px-sm-5 mx-50 pb-5">
-          <div className="text-center mb-2">
-            <h1 className="mb-1">Edit User Information</h1>
-            <p>Updating user details will receive a privacy audit.</p>
-          </div>
-          <Row
-            tag="form"
-            className="gy-1 pt-75"
-            onSubmit={handleSubmit(onSubmit)}
-          >
-            <Col md={6} xs={12}>
-              <Label className="form-label" for="firstName">
-                First Name
-              </Label>
-              <Controller
-                control={control}
-                name="firstName"
-                render={({ field }) => {
-                  return (
-                    <Input
-                      {...field}
-                      id="firstName"
-                      placeholder="John"
-                      value={field.value}
-                      invalid={errors.firstName && true}
-                    />
-                  );
-                }}
-              />
-              {errors.firstName && (
-                <FormFeedback>Please enter a valid First Name</FormFeedback>
-              )}
-            </Col>
-            <Col md={6} xs={12}>
-              <Label className="form-label" for="lastName">
-                Last Name
-              </Label>
-              <Controller
-                name="lastName"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    id="lastName"
-                    placeholder="Doe"
-                    invalid={errors.lastName && true}
-                  />
-                )}
-              />
-              {errors.lastName && (
-                <FormFeedback>Please enter a valid Last Name</FormFeedback>
-              )}
-            </Col>
-            <Col xs={12}>
-              <Label className="form-label" for="username">
-                Username
-              </Label>
-              <Controller
-                name="username"
-                control={control}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    id="username"
-                    placeholder="john.doe.007"
-                    invalid={errors.username && true}
-                  />
-                )}
-              />
-              {errors.username && (
-                <FormFeedback>Please enter a valid Username</FormFeedback>
-              )}
-            </Col>
-            <Col md={6} xs={12}>
-              <Label className="form-label" for="email">
-                Billing Email
-              </Label>
-              <Input type="email" id="email" placeholder="example@domain.com" />
-            </Col>
-            <Col md={6} xs={12}>
-              <Label className="form-label" for="status">
-                Status:
-              </Label>
-              <Select
-                id="status"
-                isClearable={false}
-                className="react-select"
-                classNamePrefix="select"
-                options={statusOptions}
-                theme={selectThemeColors}
-                defaultValue={statusOptions[0]}
-              />
-            </Col>
-            <Col md={6} xs={12}>
-              <Label className="form-label" for="tax-id">
-                Tax ID
-              </Label>
-              <Input
-                id="tax-id"
-                defaultValue="Tax-8894"
-                placeholder="Tax-1234"
-              />
-            </Col>
-            <Col md={6} xs={12}>
-              <Label className="form-label" for="contact">
-                Contact
-              </Label>
-              <Input
-                id="contact"
-                defaultValue="+1 609 933 4422"
-                placeholder="+1 609 933 4422"
-              />
-            </Col>
-            <Col md={6} xs={12}>
-              <Label className="form-label" for="language">
-                Language
-              </Label>
-              <Select
-                id="language"
-                isClearable={false}
-                className="react-select"
-                classNamePrefix="select"
-                options={languageOptions}
-                theme={selectThemeColors}
-                defaultValue={languageOptions[0]}
-              />
-            </Col>
-            <Col md={6} xs={12}>
-              <Label className="form-label" for="country">
-                Country
-              </Label>
-              <Select
-                id="country"
-                isClearable={false}
-                className="react-select"
-                classNamePrefix="select"
-                options={countryOptions}
-                theme={selectThemeColors}
-                defaultValue={countryOptions[0]}
-              />
-            </Col>
-            <Col xs={12}>
-              <div className="d-flex align-items-center">
-                <div className="form-switch">
-                  <Input
-                    type="switch"
-                    defaultChecked
-                    id="billing-switch"
-                    name="billing-switch"
-                  />
-                  <Label className="form-check-label" htmlFor="billing-switch">
-                    <span className="switch-icon-left">
-                      <Check size={14} />
-                    </span>
-                    <span className="switch-icon-right">
-                      <X size={14} />
-                    </span>
-                  </Label>
-                </div>
-                <Label
-                  className="form-check-label fw-bolder"
-                  htmlFor="billing-switch"
-                >
-                  Use as a billing address?
-                </Label>
-              </div>
-            </Col>
-            <Col xs={12} className="text-center mt-2 pt-50">
-              <Button type="submit" className="me-1" color="primary">
-                Submit
-              </Button>
-              <Button
-                type="reset"
-                color="secondary"
-                outline
-                onClick={() => setShow(false)}
-              >
-                Discard
-              </Button>
-            </Col>
-          </Row>
-        </ModalBody>
-      </Modal>
-    </Fragment>
-  );
+			<Modal
+				isOpen={show}
+				toggle={() => setShow(!show)}
+				className="modal-dialog-centered modal-lg"
+			>
+				<ModalHeader
+					className="bg-transparent"
+					toggle={() => setShow(!show)}
+				></ModalHeader>
+				<ModalBody className="px-sm-5 mx-50 pb-5">
+					<div className="text-center mb-2">
+						<h1 className="mb-1">Edit Lesson</h1>
+						<p>Update lesson {lesson.lesson_title}.</p>
+					</div>
+					<Row
+						tag="form"
+						className="gy-1 pt-75"
+						onSubmit={handleSubmit(onSubmit)}
+					>
+						<Col xs={12}>
+							<Label
+								className="form-label"
+								for="lesson_title"
+							>
+								Title
+							</Label>
+							<Controller
+								name="lesson_title"
+								control={control}
+								render={({ field }) => (
+									<Input
+										{...field}
+										id="lesson_title"
+										placeholder="Introduction"
+										invalid={
+											errors.lesson_title &&
+											true
+										}
+									/>
+								)}
+							/>
+							{errors.lesson_title && (
+								<FormFeedback>
+									Please enter a valid title
+								</FormFeedback>
+							)}
+						</Col>
+						<Col xs={12}>
+							<Label
+								className="form-label"
+								for="lesson_description"
+							>
+								Description
+							</Label>
+							<Controller
+								name="lesson_description"
+								control={control}
+								render={({ field }) => (
+									<Input
+										{...field}
+										type="textarea"
+										id="lesson_description"
+										placeholder={`This is introduction for ${lesson.lesson_title}`}
+										invalid={
+											errors.lesson_description &&
+											true
+										}
+									/>
+								)}
+							/>
+							{errors.lesson_description && (
+								<FormFeedback>
+									Please enter a valid description
+								</FormFeedback>
+							)}
+						</Col>
+						<Col xs={12}>
+							<Label for="lesson_video" class="form-label">
+								Youtube URL
+							</Label>
+							<Controller
+								name="lesson_video"
+								control={control}
+								render={({ field }) => (
+									<Input
+										{...field}
+										id="lesson_video"
+										placeholder="https://youtu.be/SBmSRK3feww"
+										invalid={
+											errors.lesson_video &&
+											true
+										}
+									/>
+								)}
+							/>
+							{errors.lesson_video && (
+								<FormFeedback>
+									Please enter a valid URL
+								</FormFeedback>
+							)}
+						</Col>
+						<Col xs={12} className="text-center mt-2 pt-50">
+							<Button
+								type="submit"
+								className="me-1"
+								color="primary"
+							>
+								Submit
+							</Button>
+							<Button
+								type="reset"
+								color="secondary"
+								outline
+								onClick={() => setShow(false)}
+							>
+								Discard
+							</Button>
+						</Col>
+					</Row>
+				</ModalBody>
+			</Modal>
+		</Fragment>
+	);
 };
 
 export default EditLesson;
