@@ -65,6 +65,15 @@ export default function AttendanceIndex() {
     setToggleModal(true)
   }
 
+  const onDetail = (x) => {
+    setModal({
+      title: "User Detail",
+      mode: "detail",
+      item: x
+    })
+    setToggleModal(true)
+  }
+
   const generateCalendarData = (month = "") => {
     const params = []
     const totalDay = dayjs(month).daysInMonth()
@@ -119,7 +128,7 @@ export default function AttendanceIndex() {
   }
 
   const generateCalendarEvent = (arg) => {
-    // console.log(arg, "generateCalendarEvent arg")
+    console.log(arg, "generateCalendarEvent arg")
     const attendances = arg
     const late = arg.filter((x) => parseFloat(x.late_count) > 0)
     // console.log(late, "generateCalendarEvent late")
@@ -167,16 +176,6 @@ export default function AttendanceIndex() {
       })
       throw error
     }
-  }
-
-  const onDetail = (arg) => {
-    console.log(arg, "ondetail")
-    setModal({
-      title: "Detail attendance",
-      mode: "detail",
-      item: arg
-    })
-    setToggleModal(true)
   }
 
   return (

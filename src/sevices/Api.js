@@ -1,5 +1,7 @@
 import axios from "axios";
+import { onAuthStateChanged } from "firebase/auth";
 import Cookies from "js-cookie";
+import { auth } from "../configs/firebase";
 const config = {
   baseURL: import.meta.env.VITE_BASEURL || "http://localhost:3001",
   // timeout: 60 * 1000, // Timeout
@@ -8,15 +10,23 @@ const config = {
 
 const _axios = axios.create(config);
 
+
+
 _axios.interceptors.request.use(
   function (config) {
     // Do something before request is sent
+
     const accessToken = Cookies.get("accessToken");
     const company_id = Cookies.get("company_id");
-    if (accessToken) {
-      config.headers["Authorization"] = `Bearer ${accessToken}`;
-      config.headers["company"] = `${company_id}`;
-    }
+    // console.log(accessToken, "access_token")
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const uid = user.uid;
+        config.headers["Authorization"] = `Bearer ${user.accessToken}`;
+        config.headers["company"] = `${company_id}`;
+      }
+    });
     return config;
   },
   function (error) {

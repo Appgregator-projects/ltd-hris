@@ -6,13 +6,14 @@ import Avatar from "@components/avatar";
 
 // ** Reactstrap Imports
 import {
-  Button,
-  Label,
-  ListGroup,
-  ListGroupItem,
-  Modal,
-  ModalBody,
-  ModalHeader,
+	Button,
+	Col,
+	Label,
+	ListGroup,
+	ListGroupItem,
+	Modal,
+	ModalBody,
+	ModalHeader,
 } from "reactstrap";
 
 // ** Third Party Components
@@ -45,199 +46,296 @@ import withReactContent from "sweetalert2-react-content";
 
 const MySwal = withReactContent(Swal);
 
+import courses from "../courses/course.json";
+import {
+	arrayUnionFirebase,
+	getCollectionFirebase,
+	setDocumentFirebase,
+} from "../../../../sevices/FirebaseApi";
+import { useEffect } from "react";
+import { toast } from "react-hot-toast";
+
 const options = [
-  { value: "Donna Frank", label: "Donna Frank", avatar: avatar1 },
-  { value: "Jane Foster", label: "Jane Foster", avatar: avatar2 },
-  {
-    value: "Gabrielle Robertson",
-    label: "Gabrielle Robertson",
-    avatar: avatar3,
-  },
-  { value: "Lori Spears", label: "Lori Spears", avatar: avatar4 },
-  { value: "Sandy Vega", label: "Sandy Vega", avatar: avatar5 },
-  { value: "Cheryl May", label: "Cheryl May", avatar: avatar6 },
+	{
+		value: "Introduction to Web Development",
+		label: "Introduction to Web Development",
+		avatar: "https://i.ytimg.com/vi/w__n0BvkqB4/maxresdefault.jpg",
+	},
+	{
+		value: "Python for Beginners",
+		label: "Python for Beginners",
+		avatar: "https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F549550559%2F1234433154323%2F1%2Foriginal.20230706-115709?w=1000&auto=format%2Ccompress&q=75&sharp=10&rect=0%2C0%2C2160%2C1080&s=84e3c74c34b060e7d28ccef3f6a5a6ec",
+	},
+	{
+		value: "React.js Crash Course",
+		label: "React.js Crash Course",
+		avatar: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqrgfrwbac7118tMFPTg1nNkY6-kCMuS9Ojg&usqp=CAU",
+	},
+	{
+		value: "Machine Learning Basics",
+		label: "Machine Learning Basics",
+		avatar: "https://i.ytimg.com/vi/hjh1ikznScg/maxresdefault.jpg",
+	},
 ];
 
 const data = [
-  {
-    img: portrait1,
-    type: "Can Edit",
-    name: "Lester Palmer",
-    username: "pe@vogeiz.net",
-  },
-  {
-    img: portrait2,
-    type: "Owner",
-    name: "Mittie Blair",
-    username: "peromak@zukedohik.gov",
-  },
-  {
-    img: portrait3,
-    type: "Can Comment",
-    name: "Marvin Wheeler",
-    username: "rumet@jujpejah.net",
-  },
-  {
-    img: portrait4,
-    type: "Can View",
-    name: "Nannie Ford",
-    username: "negza@nuv.io",
-  },
-  {
-    img: portrait5,
-    type: "Can Edit",
-    name: "Julian Murphy",
-    username: "lunebame@umdomgu.net",
-  },
-  {
-    img: portrait6,
-    type: "Can View",
-    name: "Sophie Gilbert",
-    username: "ha@sugit.gov",
-  },
-  {
-    img: portrait7,
-    type: "Can Comment",
-    name: "Chris Watkins",
-    username: "zokap@mak.org",
-  },
-  {
-    img: portrait8,
-    type: "Can Edit",
-    name: "Adelaide Nichols",
-    username: "ujinomu@jigo.com",
-  },
+	{
+		value: "Introduction to Web Development",
+		name: "Introduction to Web Development",
+		img: "https://i.ytimg.com/vi/w__n0BvkqB4/maxresdefault.jpg",
+	},
+	{
+		value: "Python for Beginners",
+		name: "Python for Beginners",
+		img: "https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F549550559%2F1234433154323%2F1%2Foriginal.20230706-115709?w=1000&auto=format%2Ccompress&q=75&sharp=10&rect=0%2C0%2C2160%2C1080&s=84e3c74c34b060e7d28ccef3f6a5a6ec",
+	},
 ];
 
 const OptionComponent = ({ data, ...props }) => {
-  return (
-    <components.Option {...props}>
-      <div className="d-flex flex-wrap align-items-center">
-        <Avatar className="my-0 me-1" size="sm" img={data.avatar} />
-        <div>{data.label}</div>
-      </div>
-    </components.Option>
-  );
+	return (
+		<components.Option {...props}>
+			<div className="d-flex flex-wrap align-items-center">
+				<Avatar className="my-0 me-1" size="sm" img={data.avatar} />
+				<div>{data.label}</div>
+			</div>
+		</components.Option>
+	);
 };
 
-const GroupCourses = () => {
-  const [show, setShow] = useState(false);
+const GroupCourses = ({ group_id, courses, fetchDataGroup }) => {
+	const [show, setShow] = useState(false);
+	const [dataCourse, setDataCourse] = useState([]);
+	const [selectedOption, setSelectedOption] = useState([]);
 
-  const handleConfirmText = () => {
-    return MySwal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, delete it!",
-      customClass: {
-        confirmButton: "btn btn-primary",
-        cancelButton: "btn btn-outline-danger ms-1",
-      },
-      buttonsStyling: false,
-    }).then(function (result) {
-      if (result.value) {
-        MySwal.fire({
-          icon: "success",
-          title: "Deleted!",
-          text: "Your file has been deleted.",
-          customClass: {
-            confirmButton: "btn btn-success",
-          },
-        });
-      }
-    });
-  };
+	const fetchDataCourse = async () => {
+		const res = await getCollectionFirebase("courses");
+		let arr = [];
+		if (res) {
+			res.forEach((element) => {
+				arr.push({
+					value: element.id,
+					label: element.course_title,
+					avatar: element.course_thumbnail,
+				});
+			});
+		}
+		setDataCourse(arr);
+	};
 
-  return (
-    <Fragment>
-      <Button
-        color="primary"
-        className="btn-icon me-1"
-        onClick={() => setShow(true)}
-      >
-        <Book size={14} />
-      </Button>
+	const handleChangeOption = (selectedOption) => {
+		setSelectedOption(selectedOption);
+	};
 
-      <Modal
-        isOpen={show}
-        toggle={() => setShow(!show)}
-        className="modal-dialog-centered modal-lg"
-      >
-        <ModalHeader
-          className="bg-transparent"
-          toggle={() => setShow(!show)}
-        ></ModalHeader>
-        <ModalBody className="px-sm-5 mx-50 pb-4">
-          <h1 className="text-center mb-1">Group Courses</h1>
-          <p className="text-center">Share project with a team members</p>
-          <Label
-            for="addMemberSelect"
-            className="form-label fw-bolder font-size font-small-4 mb-50"
-          >
-            Add Members
-          </Label>
-          <Select
-            options={options}
-            isClearable={false}
-            id="addMemberSelect"
-            theme={selectThemeColors}
-            className="react-select"
-            classNamePrefix="select"
-            components={{
-              Option: OptionComponent,
-            }}
-          />
-          <p className="fw-bolder pt-50 mt-2">12 Members</p>
-          <ListGroup flush className="mb-2">
-            {data.map((item) => {
-              return (
-                <ListGroupItem
-                  key={item.name}
-                  className="d-flex align-items-start border-0 px-0"
-                >
-                  <Avatar
-                    className="me-75"
-                    img={item.img}
-                    imgHeight={38}
-                    imgWidth={38}
-                  />
-                  <div className="d-flex align-items-center justify-content-between w-100">
-                    <div className="me-1">
-                      <h5 className="mb-25">{item.name}</h5>
-                      <span>{item.username}</span>
-                    </div>
+	const handleConfirmText = () => {
+		return MySwal.fire({
+			title: "Are you sure?",
+			text: "You won't be able to revert this!",
+			icon: "warning",
+			showCancelButton: true,
+			confirmButtonText: "Yes, delete it!",
+			customClass: {
+				confirmButton: "btn btn-primary",
+				cancelButton: "btn btn-outline-danger ms-1",
+			},
+			buttonsStyling: false,
+		}).then(function (result) {
+			if (result.value) {
+				MySwal.fire({
+					icon: "success",
+					title: "Deleted!",
+					text: "Your file has been deleted.",
+					customClass: {
+						confirmButton: "btn btn-success",
+					},
+				});
+			}
+		});
+	};
 
-                    <Button.Ripple
-                      className={"btn-icon"}
-                      color={"danger"}
-                      onClick={() => handleConfirmText()}
-                    >
-                      <Trash size={15} />
-                    </Button.Ripple>
-                  </div>
-                </ListGroupItem>
-              );
-            })}
-          </ListGroup>
-          <div className="d-flex align-content-center justify-content-between flex-wrap">
-            <div className="d-flex align-items-center me-2">
-              <Users className="font-medium-2 me-50" />
-              <p className="fw-bolder mb-0">Public to Vuexy - Pixinvent</p>
-            </div>
-            <a
-              className="fw-bolder"
-              href="#"
-              onClick={(e) => e.preventDefault()}
-            >
-              <Link className="font-medium-2 me-50" />
-              <span>Copy project link</span>
-            </a>
-          </div>
-        </ModalBody>
-      </Modal>
-    </Fragment>
-  );
+	const handleSubmitCourseToGroup = async () => {
+		try {
+			selectedOption.forEach(async (option) => {
+				try {
+					setDocumentFirebase(
+						`groups/${group_id}/group_courses`,
+						option.value,
+						option
+					).then((res) => {
+						if (res) {
+							arrayUnionFirebase(
+								"groups",
+								group_id,
+								"group_courses",
+								option.value
+							).then((addCourse) => {
+								if (addCourse) {
+									toast.success(
+										`Member ${option.value} has been added to the group`,
+										{
+											position: "top-center",
+										}
+									);
+								} else {
+									toast.error(
+										`Error adding member ${option.value}`,
+										{
+											position: "top-center",
+										}
+									);
+								}
+							});
+						}
+					});
+				} catch (error) {
+					throw error;
+				}
+			});
+			setShow(false);
+			setSelectedOption([]);
+			fetchDataGroup();
+		} catch (error) {
+			throw error;
+		}
+	};
+	const handleDiscard = () => {
+		setShow(false);
+		setSelectedOption(null);
+	};
+	useEffect(() => {
+		fetchDataCourse();
+		return () => {
+			setDataCourse([]);
+		};
+	}, []);
+
+	return (
+		<Fragment>
+			<Button
+				color="primary"
+				className="btn-icon me-1"
+				onClick={() => setShow(true)}
+			>
+				<Book size={14} />
+			</Button>
+
+			<Modal
+				isOpen={show}
+				toggle={() => handleDiscard()}
+				className="modal-dialog-centered modal-lg"
+			>
+				<ModalHeader
+					className="bg-transparent"
+					toggle={() => handleDiscard()}
+				></ModalHeader>
+				<ModalBody className="px-sm-5 mx-50 pb-4">
+					<h1 className="text-center mb-1">Group Courses</h1>
+					<p className="text-center">
+						Add courses in projct team
+					</p>
+					<Label
+						for="addMemberSelect"
+						className="form-label fw-bolder font-size font-small-4 mb-50"
+					>
+						Add Course
+					</Label>
+					<Select
+						options={
+							courses?.length > 0
+								? dataCourse.filter(
+										(x) =>
+											!courses.some(
+												(y) =>
+													y.value ===
+													x.value
+											)
+								  )
+								: dataCourse
+						}
+						isClearable={false}
+						isMulti
+						id="addMemberSelect"
+						theme={selectThemeColors}
+						className="react-select"
+						classNamePrefix="select"
+						components={{
+							Option: OptionComponent,
+						}}
+						onChange={handleChangeOption}
+					/>
+					<p className="fw-bolder pt-50 mt-2">
+						{courses?.length > 0
+							? `${courses.length} Courses`
+							: "0 Course"}
+					</p>
+					<ListGroup flush className="mb-2">
+						{courses?.map((item) => {
+							return (
+								<ListGroupItem
+									key={item.name}
+									className="d-flex align-items-start border-0 px-0"
+								>
+									{item.avatar ? (
+										<Avatar
+											className="me-75"
+											img={item.avatar}
+											imgHeight={38}
+											imgWidth={38}
+										/>
+									) : (
+										<Avatar
+											content={item.label}
+											initials
+											className="me-75"
+											imgHeight={38}
+											imgWidth={38}
+										/>
+									)}
+									<div className="d-flex align-items-center justify-content-between w-100">
+										<div className="me-1">
+											<h5 className="mb-25">
+												{item.label}
+											</h5>
+											{/* <span>
+												{item.value}
+											</span> */}
+										</div>
+
+										<Button.Ripple
+											className={"btn-icon"}
+											color={"danger"}
+											onClick={() =>
+												handleConfirmText()
+											}
+										>
+											<Trash size={15} />
+										</Button.Ripple>
+									</div>
+								</ListGroupItem>
+							);
+						})}
+					</ListGroup>
+					<Col xs={12} className="text-center mt-2 pt-50">
+						<Button
+							type="submit"
+							className="me-1"
+							onClick={() => handleSubmitCourseToGroup()}
+							color="primary"
+						>
+							Submit
+						</Button>
+						<Button
+							type="reset"
+							color="secondary"
+							outline
+							onClick={() => setShow(false)}
+						>
+							Discard
+						</Button>
+					</Col>
+				</ModalBody>
+			</Modal>
+		</Fragment>
+	);
 };
 
 export default GroupCourses;

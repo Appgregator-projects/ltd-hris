@@ -49,7 +49,6 @@ export default function PayrollDeduction() {
       percentage : params.percentage,
       topper : params.topper
     }
-    // return console.log(itemUpdate , "params division")
     try {
       const status = await Api.put(`/hris/bpjs-rule/${modal.item.id}`, params)
       console.log(status, "has updated")
@@ -152,7 +151,7 @@ export default function PayrollDeduction() {
           <Fragment>
             <Button.Ripple size="sm" color="warning" onClick={() => onBpjsConfig()}>
               <Plus size={14} />
-              <span className="align-middle ms-25">Add Configuration</span>
+              <span className="align-middle ms-15">Add Deduction</span>
             </Button.Ripple>
           </Fragment>
         </Col>
@@ -160,7 +159,7 @@ export default function PayrollDeduction() {
     		<Col>
 					<Card>
 						<CardHeader>
-							<CardTitle>BPJS Config</CardTitle>
+							<CardTitle>Deductions</CardTitle>
 						</CardHeader>
 						<CardBody>
               <Table responsive>

@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
 import {
 	Card, CardBody, Col, Row, Badge, CardHeader, Table, CardTitle, CardFooter, Button,
-	Modal, ModalHeader, ModalBody
+	Modal, ModalHeader, ModalBody, Label, Form, Input
 } from "reactstrap";
 import Avatar from '@components/avatar'
 import Api from '../../../sevices/Api'
@@ -12,7 +12,7 @@ import LeaveForm from "./component/LeaveForm";
 import toast from 'react-hot-toast'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
-import AvatarGroup from "./component/AvatarGroup";
+import AvatarGroup from "@components/avatar-group";
 import UserTimeline from "./view/UserTimeline";
 import { useDispatch, useSelector } from "react-redux";
 import { getUser } from "./store/index";
@@ -29,8 +29,10 @@ export default function EmployeeDetail() {
 	const [user, setUser] = useState([])
 	const [balance, setBalance] = useState([])
 	const [userBalance, setUserBalance] = useState([])
-	const [usersDivision, setUsersDivision] = useState([])
+	const [usersGetBalance, setUsersGetBalance] = useState([])
+	const [userDivision, setUserDivision] = useState([])
   	const [logUser, setLogUser] = useState([])
+	const [uploadFile, setUploadFile] = useState([])
 	const [leaveCategories, setLaeveCategories] = useState([])
 	const [isLoading, setIsLoading] = useState(false)
 	const [income, setIncome] = useState([])
@@ -47,7 +49,6 @@ export default function EmployeeDetail() {
 			setBalance([...data.leave_balances])
 		} catch (error) {
 			throw error
-
 		}
 	}
 
@@ -55,23 +56,45 @@ export default function EmployeeDetail() {
 		fetchUser()
 	}, [])
 
-	const fetchUsersDivision = async () => {
+	const fetchUserTeam = async() => {
 		try {
-			const dataUsers = await Api.get(`/hris/employee/${id.uid}`)
-			setUsersDivision([...dataUsers.leave_balances])
+			const data = await Api.get(`/hris/employee/division/${id.uid}`)
+			const dataTeam = data.map((x) => {
+				return {
+					title: x.name,
+					img: x.avatar,
+					imgHeight: 26,
+					imgWidth: 26
+
+				}
+			})
+			setUserDivision(dataTeam)
 		} catch (error) {
 			throw error
+			
 		}
 	}
 
 	useEffect(() => {
-		fetchUsersDivision()
+		fetchUserTeam()
+	},[])
+
+	const fetchUsersBalance = async () => {
+		try {
+			const dataUsers = await Api.get(`/hris/employee/${id.uid}`)
+			setUsersGetBalance([...dataUsers.leave_balances])
+		} catch (error) {
+			throw error
+		}
+	}
+	
+	useEffect(() => {
+		fetchUsersBalance()
 	}, [])
 
 	const fetchLeaveCategories = async () => {
 		try {
 			const data = await Api.get(`/hris/leave-category`)
-			// console.log(data, "data leave category")
 			setLaeveCategories([...data])
 
 		} catch (error) {
@@ -100,7 +123,6 @@ export default function EmployeeDetail() {
 		try {
 			const data = await Api.get(`/auth/log/${id.uid}`)
 			setLogUser([...data])
-			// console.log(data, "fetch userlog")
 		} catch (error) {
 			throw error
 		}
@@ -167,12 +189,13 @@ export default function EmployeeDetail() {
 	}
 
 	const onEditIncome = (x) => {
+		console.log(x, "add config")
 		setModal({
 			title: "Employee Income",
 			mode: "income",
 			item: x
 		})
-		setToggleModal(true)
+		setToggleModal(true)	
 
 	}
 
@@ -202,10 +225,9 @@ export default function EmployeeDetail() {
 	}
 
 	const postIncome = async(params) => {
-		return console.log(params, "params postincome")
 		try {
 			const status = await Api.post(`/hris/employee-income/${id.uid}`, params)
-			return console.log(status, "status")
+			console.log(status, "status")
 			if (!status)
 			return toast.error(`Error : ${data}`, {
 			  position: "top-center",
@@ -220,6 +242,13 @@ export default function EmployeeDetail() {
 				position: "top-center",
 			});
 		}
+	}
+
+	const postFile = async(arg) => {
+		return console.log(arg, "e")
+		const file = e.target.files[0];
+		setUploadFile(file)
+
 	}
 
 	const onDelete = (x) => {
@@ -239,7 +268,6 @@ export default function EmployeeDetail() {
 			if (result.value) {
 			  try {
 				const status = await Api.delete(`/hris/employee-income/${x.id}`);
-				// return console.log(status, "ini params")
 				if (!status)
 				  return toast.error(`Error : ${data}`, {
 					position: "top-center",
@@ -259,32 +287,11 @@ export default function EmployeeDetail() {
 
 	}
 
-	const UserView = () => {
-		// ** Store Vars
-		const store = useSelector(state => state.users)
-		const dispatch = useDispatch()
-		console.log(store, "store useSelector")
-	  
-		// ** Get suer on mount
-		useEffect(() => {
-		  dispatch(getUser(parseInt(id)))
-		}, [dispatch])
-	  
-		const [active, setActive] = useState('1')
-	  
-		const toggleTab = tab => {
-		  if (active !== tab) {
-			setActive(tab)
-		  }
-		}
-
-	}
-
-
 	return (
 		<>
 			<Row>
-				<Col xl='4' lg='5' xs={{ order: 1 }} md={{ order: 0, size: 5 }}>
+				<Col>
+				<Col xl='12' lg='12' xs={{ order: 1 }} md={{ order: 0, size: 5 }}>
 					<Card>
 						<CardBody>
 							<div className='user-avatar-section'>
@@ -308,6 +315,46 @@ export default function EmployeeDetail() {
 											<span className='fw-bolder me-25'>Email</span>
 											<span>{user.email}</span>
 										</li>
+										<li className='mb-75 d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>Join Date</span>
+											<span>{user.employee_attribute ? dateFormat(user.employee_attribute.join_date) : '-'}</span>
+										</li>
+
+										{/* <span>Employee Attribute</span> */}
+										<li className='mb-75  d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>DOB</span>
+											<span className='text-capitalize'> {user.employee_attribute ? dateFormat(user.employee_attribute.dob) : '-'}</span>
+										</li>
+										<li className='mb-75 d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>Gender</span>
+											<span>{user.employee_attribute ? user.employee_attribute.gender : '-'}</span>
+										</li>
+										<li className='mb-75 d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>Religion</span>
+											<span>{user.employee_attribute ? user.employee_attribute.religion : '-'}</span>
+										</li>
+										<li className='mb-75 d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>Phone Number</span>
+											<span>{user? user.phone : '-'}</span>
+										</li>
+										<li className='mb-75  d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>ID Number</span>
+											<span> {user.employee_attribute ? user.employee_attribute.id_number : '-'}</span>
+										</li>
+										<li className='mb-75  d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>Tax Number</span>
+											<span> {user.employee_attribute ? user.employee_attribute.id_tax_number : '-'}</span>
+										</li>
+										<li className='mb-75 d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>Marital status</span>
+											<span>{user && user.employee_attribute ? user.employee_attribute.marital_status === "married"? "Married" : '-' : "-"}</span>
+										</li>
+										<li className='mb-75 d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>Dependents</span>
+											<span>{user && user.employee_attribute ? user.employee_attribute.dependents : "0"} person</span>
+										</li>
+
+										{/* <span>Position</span> */}
 										<li className='mb-75  d-flex justify-content-between'>
 											<span className='fw-bolder me-25'>Company</span>
 											<span>{user.company ? user.company.name : '-'}</span>
@@ -325,42 +372,54 @@ export default function EmployeeDetail() {
 											</span>
 										</li>
 										<li className='mb-75  d-flex justify-content-between'>
-											<span className='fw-bolder me-25'>DOB</span>
-											<span className='text-capitalize'> {user.employee_attribute ? dateFormat(user.employee_attribute.dob) : '-'}</span>
+											<span className='fw-bolder me-25'>Title</span>
+											<span>{user ? user.title: '-'}</span>
 										</li>
 										<li className='mb-75  d-flex justify-content-between'>
-											<span className='fw-bolder me-25'>ID Number</span>
-											<span> {user.employee_attribute ? user.employee_attribute.id_number : '-'}</span>
+											<span className='fw-bolder me-25'>NIP</span>
+											<span>{user ? user.nip : '-'}</span>
 										</li>
-										<li className='mb-75  d-flex justify-content-between'>
-											<span className='fw-bolder me-25'>Tax Number</span>
-											<span> {user.employee_attribute ? user.employee_attribute.id_tax_number : '-'}</span>
+
+										{/* <span className="justify-center">Bank</span> */}
+										<li className='mb-75 d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>Bank Account</span>
+											<span>{user && user.employee_attribute? user.employee_attribute.bank_Account : "-"}</span>
 										</li>
 										<li className='mb-75 d-flex justify-content-between'>
-											<span className='fw-bolder me-25'>Gender</span>
-											<span>{user.employee_attribute ? user.employee_attribute.gender : '-'}</span>
+											<span className='fw-bolder me-25'>Bank Account Name</span>
+											<span>{user && user.employee_attribute? user.employee_attribute.bank_Account_Name : "-"}</span>
 										</li>
 										<li className='mb-75 d-flex justify-content-between'>
-											<span className='fw-bolder me-25'>Religion</span>
-											<span>{user.employee_attribute ? user.employee_attribute.religion : '-'}</span>
-										</li>
-										<li className='mb-75 d-flex justify-content-between'>
-											<span className='fw-bolder me-25'>Join Date</span>
-											<span>{user.employee_attribute ? dateFormat(user.employee_attribute.join_date) : '-'}</span>
-										</li>
-										<li className='mb-75 d-flex justify-content-between'>
-											<span className='fw-bolder me-25'>Out Date</span>
-											<span>{user && user.employee_attribute ? dateFormat(user.employee_attribute.out_date) : '-'}</span>
-										</li>
-										<li className='mb-75 d-flex flex-column'>
-											<span className='fw-bolder me-25'>Address</span>
-											<span>{user.info ? user.info.address : '-'}</span>
+											<span className='fw-bolder me-25'>Bank Number</span>
+											<span>{user && user.employee_attribute ? user.employee_attribute.bank_Account_Number : "-"} </span>
 										</li>
 									</ul>
 								) : null}
 							</div>
 						</CardBody>
 					</Card>
+				</Col>
+				<Col xl='12' lg='12' xs={{ order: 2 }} md={{ order: 0, size: 5 }}>
+					<Card>
+							<Form onSubmit={postFile}>
+						<CardHeader>
+							<CardTitle>Upload File</CardTitle>
+						</CardHeader>
+						<CardBody>
+								<Label for="upload_file">File</Label>
+								<Input
+								id="upload_file"
+								name="file"
+								type="file"></Input>
+						</CardBody>
+						<CardFooter>
+							<Button color="warning" type="submit">Upload</Button>
+						</CardFooter>
+							</Form>
+						
+					</Card>
+					
+				</Col>
 				</Col>
 				<Col>
 				<Col>
@@ -393,15 +452,21 @@ export default function EmployeeDetail() {
 							</Table>
 						</CardBody>
 						<CardFooter>
-							<Button size="sm" type="button" color='warning'>
+							<Fragment>
+							<Button.Ripple
+								size="sm"
+								color="warning"
+								onClick={(e) => {e.preventDefault() ; onEditIncome(income)}}
+							>
 								<Edit size={13} />
-								<span className='align-middle ms-25' onClick={() => onEditIncome(income)}>Edit</span>
-							</Button>
+								<span className="align-middle ms-25">Add Income</span>
+							</Button.Ripple>
+							</Fragment>
 						</CardFooter>
 					</Card>
-					</Col>
-					<Col>
-						<Card>
+				</Col>
+				<Col>
+					<Card>
 							<CardHeader>
 								<CardTitle>Leave Balances</CardTitle>
 							</CardHeader>
@@ -415,8 +480,8 @@ export default function EmployeeDetail() {
 									</thead>
 									<tbody>
 										{
-											usersDivision.length ?
-												usersDivision.map(x => (
+											usersGetBalance.length ?
+												usersGetBalance.map(x => (
 													<tr key={x.id}>
 														<td>{x.category? x.category.name : '-'}</td>
 														<td>{x.balance ? x.balance : "0"} days</td>
@@ -431,13 +496,19 @@ export default function EmployeeDetail() {
 								</Table>
 							</CardBody>
 							<CardFooter>
-								<Button size="sm" type="button" color='warning'>
-									<Edit size={13} />
-									<span className='align-middle ms-25' onClick={() => onEditLeave()}>Edit</span>
-								</Button>
+								<Fragment>
+									<Button.Ripple
+										size="sm"
+										color="warning"
+										onClick={(e) => {e.preventDefault() ; onEditLeave()}}
+									>
+										<Edit size={13} />
+										<span className="align-middle ms-25">Edit Leave</span>
+									</Button.Ripple>
+								</Fragment>
 							</CardFooter>
-						</Card>
-					</Col>
+					</Card>
+				</Col>
 					<Col>
 						<Card>
 							<CardHeader>
@@ -446,11 +517,11 @@ export default function EmployeeDetail() {
 							<CardBody>
 								<div>
 									<span></span>
-									{/* <AvatarGroup data={usersDivision}/> */}
+									{/* <AvatarGroup data={userDivision}/> */}
 								</div>
 								<div className='d-flex justify-content-between align-items-end mt-1 pt-25'>
 									<div className='role-heading'>
-										<h4 className='fw-bolder'>{usersDivision.category?.name}</h4>
+										<h4 className='fw-bolder'>{usersGetBalance.category?.name}</h4>
 										<Link
 											to='/'
 											className='role-edit-modal'
@@ -509,13 +580,5 @@ export default function EmployeeDetail() {
 			</Modal>
 		</>
 	) 
-	// : 
-	// (
-	// 	<Alert color='danger'>
-	// 	  <h4 className='alert-heading'>User not found</h4>
-	// 	  <div className='alert-body'>
-	// 		User with id: {id} doesn't exist. Check list of all Users: <Link to='/apps/user/list'>Users List</Link>
-	// 	  </div>
-	// 	</Alert>
-	// )
+
 }   

@@ -154,7 +154,7 @@ const UsersList = () => {
       params.id = itemActive.id;
       dispatch(handlePreloader(true));
       const status = await Api.put(`/hris/employee/${params.id}`,params);
-      return console.log(status, params, "ini params edit")
+      // return console.log(status, params, "ini params edit")
       dispatch(handlePreloader(false));
       if (!status)
         return toast.error(`Error : ${data}`, {

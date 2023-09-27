@@ -177,7 +177,7 @@ export default function OfficeIndex(){
 					<Fragment>
 						<Button.Ripple size="sm" color='warning' onClick={onAdd}>
 							<Plus size={14} />
-							<span className='align-middle ms-25'>Add Company</span>
+							<span className='align-middle ms-23'>Add Company</span>
 						</Button.Ripple>
 					</Fragment>
 				</Col>

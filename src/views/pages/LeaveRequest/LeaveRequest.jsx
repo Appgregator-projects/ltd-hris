@@ -66,6 +66,7 @@ export default function LeaveRequestIndex() {
   }, []);
 
   const onDetail = (arg) => {
+    console.log(arg,"arg")
     setModal({
       title: "Detail Request",
       mode: "detail",
@@ -76,14 +77,12 @@ export default function LeaveRequestIndex() {
   };
 
   const onReject = (param) => {
-    console.log(param, "Rejected");
     setNestedToggle(true)
-    return onSubmit(param, "Rejected")
+    return onSubmit(param, selectItem, "reject")
   };
 
   const onApproval = () => {
-    console.log("Approved");
-    return onSubmit(null,"Approved")
+    return onSubmit("",selectItem,"approve")
   };
 
   const onCloseAll = () => {  
@@ -91,14 +90,14 @@ export default function LeaveRequestIndex() {
     setCloseAll(true)
   }
 
-  const onSubmit = async (x, y) => {
-    // return console.log(x, y, "arg leave request")
+  const onSubmit = async (x, y,z) => {
+    console.log(x, y, "arg leave request")
     return MySwal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: `Yes, ${y} it!`,
+      confirmButtonText: `Yes, ${z} it!`,
       customClass: {
         confirmButton: "btn btn-primary",
         cancelButton: "btn btn-outline-danger ms-1",
@@ -108,14 +107,15 @@ export default function LeaveRequestIndex() {
       if (result.value) {
         try {
           const itemPut = {
-            status: y,
-            note: x? x.rejected_note : " "
+            leave_request_id: y.id,
+            status: z,
+            note: x.rejected_note? x.rejected_note : " "
           };
 
-          const status = await Api.put(`/hris/leave-approval-status`,itemPut);
-          return console.log(status, "put leave request")
+          const status = await Api.put(`/hris/leave-approval-aprove`,itemPut);
+          console.log(itemPut, status,  "put leave request")
           if (!status)
-            return toast.error(`Error : ${data}`, {
+            return toast.error(`Error : ${status}`, {
               position: "top-center",
             });
           fetchLeave();
@@ -135,13 +135,14 @@ export default function LeaveRequestIndex() {
   };
 
   const renderStatus = (arg) => {
-    if (!arg.status)
+    // return console.log(arg, "arg status")
+    if (!arg)
       return <Badge color="light-warning">Requested</Badge>;
-    if (arg.status === "requested")
+    if (arg === "requested")
       return <Badge color="light-primary">Requested</Badge>;
-    if (arg.status === "Approved")
+    if (arg === "approve")
       return <Badge color="light-success">Approved</Badge>;
-    if (arg.status === "Rejected")
+    if (arg === "reject")
       return <Badge color="light-danger">Rejected</Badge>;
     return <Badge color="light-info">Processed</Badge>;
   };
@@ -260,6 +261,7 @@ export default function LeaveRequestIndex() {
             <></>
           )}
         </ModalBody>
+        {selectItem?.status === "waiting" ?
         <ModalFooter>
           {selectItem ? (
             <div className="">
@@ -272,7 +274,7 @@ export default function LeaveRequestIndex() {
               >
                   <Modal
                     isOpen={nestedToggle}
-                    toggle={onReject}
+                    toggle={() => onReject(selectItem)}
                     className={`modal-dialog-centered modal-lg`}
                     backdrop={"static"}
 
@@ -323,7 +325,7 @@ export default function LeaveRequestIndex() {
             <></>
           )}
 
-        </ModalFooter>
+        </ModalFooter> : <></>} 
       </Modal>
     </>
   );

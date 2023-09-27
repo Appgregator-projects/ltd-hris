@@ -30,8 +30,9 @@ export default function PayrollForm() {
   const periodeRef = useRef()
   const currentMonth = dayjs().format('M')
   const [info, setInfo] = useState(null)
+  const [loans, setLoans] = useState(null)
   const [periode, setPeriode] = useState('')
-  const [addjusment, setAddjusment] = useState([{name:'Basic salary', amount:0}])
+  const [addjustment, setAddjustment] = useState([{name:'Basic salary', amount:0}])
   const [deductions, setDeductions] =  useState([
     {name:'Pajak Penghasilan', amount:0},
     {name:'BPJS (JHT)', amount:0},
@@ -41,7 +42,7 @@ export default function PayrollForm() {
     {name:'Potongan Keterlambatan', amount:0},
     {name:'Potongan Pinjaman', amount:0}
   ])
-  const [totalAddjusment, setTotalAddjusment] = useState(0)
+  const [totalAddjustment, setTotalAddjustment] = useState(0)
   const [totalDeduction, setTotalDeduction] = useState(0)
 
   const fetchUser = async () => {
@@ -66,6 +67,7 @@ export default function PayrollForm() {
     fetchUser()
   }, [])
 
+  
   const fetchPayroll = async () => {
     try {
       if (!id) return
@@ -73,8 +75,8 @@ export default function PayrollForm() {
       const addj = data.items.filter(x => x.flag === 'addjusment')
       const dedu = data.items.filter(x => x.flag !== 'addjusment')
       if (addj.length) {
-        setAddjusment([
-        ...addj.map(x => {
+        setAddjustment([
+          ...addj.map(x => {
             x.name = x.label
             return x
           })
@@ -91,21 +93,21 @@ export default function PayrollForm() {
       }
       setTotalDeduction(
         dedu.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
-      )
-      setTotalAddjusment(
-        addj.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
-      )
-
-      periodeRef.current.value = dayjs(data.periode).format('M')
-      setUserSelect({
-        value:data.user.id,
-        label:data.user.email
-      })
-    } catch (error) {
-      throw error
-    }
-  }
-
+        )
+        setTotalAddjustment(
+          addj.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
+          )
+          
+          periodeRef.current.value = dayjs(data.periode).format('M')
+          setUserSelect({
+            value:data.user.id,
+            label:data.user.email
+          })
+        } catch (error) {
+          throw error
+        }
+      }
+      
   useEffect(() => {
     fetchPayroll()
   }, [])
@@ -120,10 +122,10 @@ export default function PayrollForm() {
 
   }
 
-  const calcualteSalary = (addjusmentArr = [], deductionArr = []) => {
-    const sumAddjusment = addjusmentArr.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
+  const calcualteSalary = (addjustmentArr = [], deductionArr = []) => {
+    const sumAddjustment = addjustmentArr.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
     const sumDeduction = deductionArr.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
-    setTotalAddjusment(sumAddjusment)
+    setTotalAddjustment(sumAddjustment)
     setTotalDeduction(sumDeduction)
   }
 
@@ -135,14 +137,30 @@ export default function PayrollForm() {
       try {
         const data = await Api.get(`/hris/payroll/by-user?user_id=${uid}&periode=${periode}`)
         setInfo(data)
+
+        const loans_per_month = data.loans.map(x => (
+          x.loan_amount / x.tenor
+        ))
+        sumLoans(loans_per_month)
         const p = `${dayjs(data.cut_off_start).format('DD-MMM')  } - ${  dayjs(data.cut_off_end).format('DD-MMM')  } ${  dayjs(data.cut_off_end).format('YYYY')}`
         setPeriode(p)
-        setAddjusment([...data.income_list])
+        setAddjustment([...data.income_list])
         calcualteSalary(data.income_list, deductions)
       } catch (error) {
         throw error
       }
     }
+  }
+  
+  const sumLoans = (loans) => {
+    console.log(loans, "loans params")
+    let sum =0 
+    for (let i=0; i<loans.length; i++){
+      sum += loans[i]
+    }
+    setLoans(parseInt(sum))
+    console.log(sum,"sum ")
+    return sum
   }
 
   const onSelectEmployee = (arg) => {
@@ -151,9 +169,9 @@ export default function PayrollForm() {
     fetchAttendance(arg.value)
   }
 
-  const onNewAddjusment = (income = true) => {
+  const onNewAddjustment = (income = true) => {
     const params = {
-      title: "Add Addjusment",
+      title: "Add Addjustment",
       mode: "income",
       item: null
     }
@@ -165,16 +183,16 @@ export default function PayrollForm() {
   }
 
   const onSubmitIncome = (arg) => {
-    if (modal.title === 'Add Addjusment') {
-      const oldIncome = addjusment
+    if (modal.title === 'Add Addjustment') {
+      const oldIncome = addjustment
       oldIncome.push(arg)
-      setAddjusment([...oldIncome])
+      setAddjustment([...oldIncome])
       calcualteSalary(oldIncome, deductions)
     } else {
       const oldDeduction = deductions
       oldDeduction.push(arg)
       setDeductions([...oldDeduction])
-      calcualteSalary(addjusment, oldDeduction)
+      calcualteSalary(addjustment, oldDeduction)
 
     }
     setToggleModal(false)
@@ -185,7 +203,7 @@ export default function PayrollForm() {
       user:userSelect ? userSelect.value : null,
       periode:periodeRef.current.value,
       deductions,
-      addjustment:addjusment,
+      addjustment,
       approved
     }
 
@@ -202,30 +220,30 @@ export default function PayrollForm() {
       } else {
         data = await Api.post(url, params)
       }
+      console.log(data, 'data');
       if (typeof data.status !== 'undefined' && !data.status) return toast.error(`Error : ${data.data}`, {
         position: "top-center"
       })
-      toast.success(data, {
+      toast.success(data.data, {
         position: "top-center"
       })
 
-      const lastId = data.id
+      const lastId = data.data.id
 
-      navigate(`/payroll/${lastId}`)
+      window.location.href = `/payroll/${lastId}`
 
     } catch (error) {
       toast.error(`Error : ${error.message}`, {
         position: "top-center"
       })
     }
-
   }
 
-  const handleInputAddjusment = (e, index) => {
+  const handleInputAddjustment = (e, index) => {
     const value = e.target.value
-    const old = addjusment
+    const old = addjustment
     old[index].amount = value
-    setAddjusment([...old])
+    setAddjustment([...old])
     calcualteSalary(old, deductions)
   }
 
@@ -234,7 +252,7 @@ export default function PayrollForm() {
     const old = deductions
     old[index].amount = value
     setDeductions([...old])
-    calcualteSalary(addjusment, old)
+    calcualteSalary(addjustment, old)
   }
 
   const onDeleteItem = (d, index) => {
@@ -256,14 +274,13 @@ export default function PayrollForm() {
         oldD.splice(index, 1)
         setDeductions([...oldD])
       } else {
-        const oldA  = addjusment
+        const oldA  = addjustment
         oldA.splice(index, 1)
-        setAddjusment([...oldA])
+        setAddjustment([...oldA])
       }
-      calcualteSalary(addjusment, deductions)
+      calcualteSalary(addjustment, deductions)
     })
   }
- 
 
   return (
     <>
@@ -301,26 +318,26 @@ export default function PayrollForm() {
         <Col lg="8">
           <Card>
             <CardHeader>
-              <CardTitle>Addjusments</CardTitle>
+              <CardTitle>Addjustments</CardTitle>
             </CardHeader>
             <CardBody>
               {
-                addjusment.map((x, index) => (
+                addjustment.map((x, index) => (
                   <div key={index} className='invoice-total-item d-flex flex-row justify-content-between align-items-center mb-2'>
                     <div className="" style={{width:'30%'}}>
                       {x.name}
                     </div>
                     <div className="w-50">
-                      <Input value={x.amount} className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputAddjusment(e, index)}/>
+                      <Input value={x.amount} className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputAddjustment(e, index)}/>
                     </div>
                     <div className="">
-                      {addjusment.length > 1 ? <Button outline color="danger" size="sm" onClick={() => onDeleteItem('a', index)}>X</Button> : <></>}
+                      {addjustment.length > 1 ? <Button outline color="danger" size="sm" onClick={() => onDeleteItem('a', index)}>X</Button> : <></>}
                     </div>
                   </div>
                 ))
               }
               <div className='invoice-total-item d-flex flex-row justify-content-end'>
-                <Button size="sm" onClick={onNewAddjusment}>Add</Button>
+                <Button size="sm" onClick={onNewAddjustment}>Add</Button>
               </div>
             </CardBody>
           </Card>
@@ -336,7 +353,7 @@ export default function PayrollForm() {
                       {x.name}
                     </div>
                     <div className="w-50">
-                      <Input value={x.amount} className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputDeduction(e, index)}/>
+                      <Input value={loans && x.name == "Potongan Pinjaman"? loans : x.value} className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputDeduction(e, index)}/>
                     </div>
                     <div className="">
                       {deductions.length > 1 ? <Button outline color="danger" size="sm" onClick={() => onDeleteItem('d', index)}>X</Button> : <></>}
@@ -345,7 +362,7 @@ export default function PayrollForm() {
                 ))
               }
               <div className='invoice-total-item d-flex flex-row justify-content-end'>
-                <Button size="sm" onClick={() => onNewAddjusment(false)}>Add</Button>
+                <Button size="sm" onClick={() => onNewAddjustment(false)}>Add</Button>
               </div>
             </CardBody>
           </Card>
@@ -388,8 +405,8 @@ export default function PayrollForm() {
               <Col className='d-flex justify-content-end' md='12'>
                 <div className='invoice-total-wrapper w-100'>
                   <div className='invoice-total-item d-flex flex-row justify-content-between'>
-                    <p className='invoice-total-title'>Total Addjusment</p>
-                    <p className='invoice-total-title'>Rp {numberFormat(totalAddjusment)}</p>
+                    <p className='invoice-total-title'>Total Addjustment</p>
+                    <p className='invoice-total-title'>Rp {numberFormat(totalAddjustment)}</p>
                   </div>
                   <div className='invoice-total-item d-flex flex-row justify-content-between'>
                     <p className='invoice-total-title'>Total Deductions</p>
@@ -397,7 +414,7 @@ export default function PayrollForm() {
                   </div>
                   <div className='invoice-total-item d-flex flex-row justify-content-between'>
                     <p className='invoice-total-title fw-bold'>TOTAL SALARY</p>
-                    <p className='invoice-total-title fw-bold'>Rp {numberFormat(totalAddjusment - totalDeduction)}</p>
+                    <p className='invoice-total-title fw-bold'>Rp {numberFormat(totalAddjustment - totalDeduction)}</p>
                   </div>
                 </div>
               </Col>

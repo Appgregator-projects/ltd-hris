@@ -1,27 +1,30 @@
 // ** React Imports
-import { Fragment } from "react";
+import { Fragment } from "react"
 
 // ** Third Party Components
-import Proptypes from "prop-types";
-import classnames from "classnames";
+import Proptypes from "prop-types"
+import classnames from "classnames"
 
 // ** Reactstrap Imports
-import { UncontrolledTooltip } from "reactstrap";
+import { UncontrolledTooltip } from "reactstrap"
 
 // ** Custom Components Imports
-import Avatar from "@components/avatar";
+import Avatar from "@components/avatar"
 
 const AvatarGroup = (props) => {
   // ** Props
-  const { data, tag, className } = props;
+  const { data, tag, className } = props
 
   // ** Conditional Tag
-  const Tag = tag ? tag : "div";
+  const Tag = tag ? tag : "div"
 
   // ** Render Data
   const renderData = () => {
-    return data.map((item, i) => {
-      const ItemTag = item.tag ? item.tag : "div";
+    return data?.map((item, i) => {
+      const ItemTag = item.tag ? item.tag : "div"
+      if (item.avatar) {
+        item.img = item.avatar
+      }
       return (
         <Fragment key={i}>
           {item.title ? (
@@ -36,11 +39,15 @@ const AvatarGroup = (props) => {
             <Avatar
               tag={ItemTag}
               className={classnames("pull-up", {
-                [item.className]: item.className,
+                [item.className]: item.className
               })}
-              {...(item.title ? { id: item.title.split(" ").join("-") } : {})}
+              {...(item.title ? {
+                    id: item.title.split(" ").join("-")
+                  } : {})}
               {...item}
+              content={item?.label}
               title={undefined}
+              initials
               meta={undefined}
             />
           ) : null}
@@ -50,25 +57,25 @@ const AvatarGroup = (props) => {
             </ItemTag>
           ) : null}
         </Fragment>
-      );
-    });
-  };
+      )
+    })
+  }
 
   return (
     <Tag
       className={classnames("avatar-group", {
-        [className]: className,
+        [className]: className
       })}
     >
       {renderData()}
     </Tag>
-  );
-};
+  )
+}
 
-export default AvatarGroup;
+export default AvatarGroup
 
 // ** PropTypes
 AvatarGroup.propTypes = {
   data: Proptypes.array.isRequired,
-  tag: Proptypes.oneOfType([Proptypes.func, Proptypes.string]),
-};
+  tag: Proptypes.oneOfType([Proptypes.func, Proptypes.string])
+}

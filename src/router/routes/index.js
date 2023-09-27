@@ -48,11 +48,15 @@ const Attendance = lazy(() => import("../../views/pages/Attendance/AttendanceInd
 const CorrectionRequest = lazy(() => import("../../views/pages/CorrectionRequest"))
 const LeaveRequest = lazy(() => import("../../views/pages/LeaveRequest/LeaveRequest"))
 const CompanyIndex = lazy(() => import("../../views/pages/Company/CompanyIndex"))
+const DaysOff = lazy(() =>  import("../../views/pages/DaysOff/DaysOffIndex"))
 const PayrollDeduction = lazy(() => import("../../views/pages/Payroll/PayrollDeduction"))
 const PayrollIndex = lazy(() => import("../../views/pages/Payroll/PayrolIndex"))
 const PayrollForm = lazy(() => import("../../views/pages/Payroll/PayrollForm"))
 const PayrollView = lazy(() => import("../../views/pages/Payroll/PayrollView"))
 const AssetIndex = lazy(() => import("../../views/pages/Assets/AssetIndex"))
+const Announcement = lazy(() => import("../../views/pages/Announcement/AnnouncementIndex"))
+const Penalty = lazy(() => import("../../views/pages/Penalty/PenaltyIndex"))
+const OvertimeRequest = lazy(() => import("../../views/pages/Overtime Request/OvertimeRequest"))
 
 // ** Merge Routes
 const Routes = [
@@ -68,6 +72,22 @@ const Routes = [
     meta: {
       action: "read",
       resource: "MENU HOME"
+    }
+  },
+  {
+    path: "/announcement",
+    element: <Announcement />,
+    meta: {
+      action: "read",
+      resource: "MENU ANNOUNCEMENT"
+    }
+  },
+    {
+    path: "/penalty",
+    element: <Penalty />,
+    meta: {
+      action: "read",
+      resource: "MENU PENALTY"
     }
   },
   {
@@ -89,6 +109,14 @@ const Routes = [
   {
     path: "/leave-request",
     element: <LeaveRequest />,
+    meta: {
+      action: "read",
+      resource: "MENU LEAVE REQUEST"
+    }
+  },
+  {
+    path: "/overtime-request",
+    element: <OvertimeRequest />,
     meta: {
       action: "read",
       resource: "MENU LEAVE REQUEST"
@@ -118,14 +146,6 @@ const Routes = [
       resource: "BRANCHES"
     }
   },
-    // {
-    //   path: "/office/:office_id",
-    //   element: <OfficeDetail />,
-    //   meta: {
-    //     action: "read",
-    //     resource: "BRANCHES",
-    //   },
-    // },
   {
     path: "/division",
     element: <Division />,
@@ -206,6 +226,22 @@ const Routes = [
       resource: "PAYROLL_FORM"
     }
   },
+  {
+    path: "/days-off",
+    element: <DaysOff />,
+    meta: {
+      action: "read",
+      resource: "DAYSOFF"
+    }
+  },
+  // {
+  //   path: "/login",
+  //   element: <Login />,
+  //   meta: {
+  //     action: "read",
+  //     resource: "MENU HOME",
+  //   },
+  // },
   {
     path: "/register",
     element: <Register />,

@@ -24,7 +24,7 @@ function AttandanceDetail({attendance}) {
     </ul>
     {/* NO detail needed */}
     </>
-  )
+  ) 
 }
 
 export default AttandanceDetail

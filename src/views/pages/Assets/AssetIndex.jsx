@@ -114,6 +114,8 @@ export default function AssetIndex() {
                     <tr key={i}>
                       <td style={{fontSize:'9pt', backgroundColor:'white'}}>assets code</td>
                       <td style={{fontSize : '9pt', backgroundColor:'white', cursor:'pointer'}} className="user_name text-truncate text-body"><span className="fw-light text-capitalize">{x.user_id}</span></td>
+                      <td style={{fontSize : '9pt', backgroundColor:'white', cursor:'pointer'}} className="user_name text-truncate text-body"><span className="fw-light text-capitalize">{x.users.name}</span></td>
+                      <td style={{fontSize:'9pt', backgroundColor:'white'}}>{x.title}</td>
                       <td style={{fontSize : '9pt', backgroundColor:'white'}} colSpan={3}>{x.description}</td>
                       <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.brand}</td>
                       <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.model}</td>

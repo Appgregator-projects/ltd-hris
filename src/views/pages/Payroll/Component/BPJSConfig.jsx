@@ -32,9 +32,8 @@ const BPJSConfig = ({isLoading, close, item, onSubmit}) => {
   return (
     <>
     <Form onSubmit={handleSubmit(onSubmitAssurance)}>
-    <div className='py-1'>
-        <Col>
-        <FormGroup>
+    <div className='pb-1'>
+        <Col className='pb-1'>
             <Label for="form-label">
             BPJS
             </Label>
@@ -51,11 +50,8 @@ const BPJSConfig = ({isLoading, close, item, onSubmit}) => {
                 />
             )}/>
             {errors.name && <FormFeedback>{errors.name.message}</FormFeedback>}
-
-        </FormGroup>
         </Col>
-        <Col>
-        <FormGroup>
+        <Col className='pb-1'>
             <Label className="form-label" for="payment">
             Payment type
             </Label>
@@ -71,18 +67,16 @@ const BPJSConfig = ({isLoading, close, item, onSubmit}) => {
                 value={item?.is_employee}
                 invalid={errors.payment && true}
                 >
-                <option value=''>Select</option>                                                                  
+                <option value=''>Select type</option>                                                                  
                 <option value='true'>by Employee</option>                                                                  
                 <option value='false'>by Company</option>
                 </Input>
             )}
             />
             {errors.peyment && <FormFeedback>{errors.payment.message}</FormFeedback>}
-        </FormGroup>
         </Col>
-        <Row className='mb-1'>
-        <Col md='6' sm='12' className='mb-1'>
-            <FormGroup>
+        <Row className='pb-1'>
+        <Col md='6' sm='12' className='pb-1'>
             <Label className='form-label'>Percentage</Label>
             <Controller
             name='percentage'
@@ -96,10 +90,8 @@ const BPJSConfig = ({isLoading, close, item, onSubmit}) => {
                 />
             )}/>
             {errors.percentage && <FormFeedback>{errors.percentage.message}</FormFeedback>}
-            </FormGroup>
         </Col>
-        <Col md='6' sm='12' className='mb-1'>
-            <FormGroup>
+        <Col md='6' sm='12' className='pb-1'>
             <Label className='form-label'>Topper</Label>
             <Controller
             name='topper'
@@ -114,13 +106,11 @@ const BPJSConfig = ({isLoading, close, item, onSubmit}) => {
                 />
             )}/>
             {errors.topper && <FormFeedback>{errors.topper.message}</FormFeedback>}
-            </FormGroup>
         </Col>
-
         </Row>
         <Col>
             <Button type='button' size='md' color='danger' className='mx-1' onClick={close}>Cancel</Button>
-            <ButtonSpinner label="Submit" type="submit" className="m-1"/>
+            <ButtonSpinner label="Submit" type="submit" className="mx-1"/>
         </Col>
 
     </div>

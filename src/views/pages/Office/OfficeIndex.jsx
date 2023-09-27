@@ -210,8 +210,8 @@ export default function OfficeIndex(){
 		}
 		try {
 			const status = await Api.patch(`/hris/office/${modal.item.id}/assign-user`,itemPatch)
-			return console.log(status, itemPatch, "params userselect")
-			if(!status) return toast.error(`Error : ${data}`, {
+			console.log(status, itemPatch, "params userselect")
+			if(!status) return toast.error(`Error : ${status}`, {
 				position: 'top-center'
 			}) 
 			fetchOffice()

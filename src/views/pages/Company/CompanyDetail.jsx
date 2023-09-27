@@ -13,6 +13,7 @@ export default function CompanyDetail({item}){
         <>
         <div className="">
             <p className="h3 text-center">{item?.name}</p>
+            <p className='text-center'>{item? item.company_npwp: " "}</p>
             <p className='text-center'>{item? item.address: "-"}</p>
             <div className='d-flex align-items-center justify-content-center'>
             <Avatar color="light-info" icon={<User size={24} />} className='me-1' />
