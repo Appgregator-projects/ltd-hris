@@ -47,6 +47,28 @@ const OvertimeRequest = () => {
         throw(error)
       }
     }
+
+    const fetchUser = async () => {
+      try {
+        const data = await Api.get(`/hris/employee?no_paginate=true`)
+        if (data) {
+          const userData = data.map((x) => {
+            return {
+              value: x.id,
+              label: x.email
+            }
+          })
+          setUsers([...userData])
+        }
+      } catch (error) {
+        throw error
+      }
+    }
+    useEffect(() => {
+      fetchUser()
+      getDataUser()
+    },[])
+
     
     const getOvertime = async() => {
       const conditions = []
@@ -60,6 +82,9 @@ const OvertimeRequest = () => {
       if (startDate !== '' || endDate !== '') {
         conditions.push({field: 'date', operator: '>=', value: startDate})
         conditions.push({field: 'date', operator: '<=', value: endDate})
+      }
+      if (dataUser?.title === "Manager") {
+        conditions.push({field: 'division_id', operator: '==', value:dataUser?.division_id})
       }
 
       const sortBy = {field: "date", direction: "desc"}
@@ -230,23 +255,7 @@ const OvertimeRequest = () => {
       
     }
 
-    const fetchUser = async () => {
-      try {
-        const data = await Api.get(`/hris/employee?no_paginate=true`)
-        if (data) {
-          const userData = data.map((x) => {
-            return {
-              value: x.id,
-              label: x.email
-            }
-          })
-          setUsers([...userData])
-        }
-      } catch (error) {
-        throw error
-      }
-    }
-
+    
     const totalDuration = overtime?.reduce((total, item) => {
       if (item.duration) {
         // Mengubah string duration menjadi angka dan menambahkannya ke total
@@ -254,11 +263,6 @@ const OvertimeRequest = () => {
       }
       return total;
     }, 0)
-
-    useEffect(() => {
-      fetchUser()
-      getDataUser()
-    },[])
   
     console.log({users})
     console.log({dataUser})
@@ -273,6 +277,8 @@ const OvertimeRequest = () => {
     return(
       <>
         <Row>
+          {dataUser?.title === "HR" ? 
+          <>
           <Col>
             <Card>
               <CardHeader>
@@ -331,8 +337,6 @@ const OvertimeRequest = () => {
                     }}
                   />
                 </Col>
-                
-                
               </CardHeader>
               <CardBody>
                 <Table responsive>
@@ -381,6 +385,9 @@ const OvertimeRequest = () => {
               </CardBody>
             </Card>
           </Col>
+          </> : 
+          dataUser?.title === "Manager" ? 
+          <>
           <Col>
             <Card>
                 <CardHeader>
@@ -449,7 +456,12 @@ const OvertimeRequest = () => {
                   </Table>
                 </CardBody>
             </Card>
-            <Card>
+            
+          </Col>
+          </> : 
+          <>
+          <Col>
+          <Card>
               <CardHeader>
               <CardTitle>Form Pengajuan Lembur</CardTitle>
               </CardHeader>
@@ -501,6 +513,10 @@ const OvertimeRequest = () => {
             
             </Card>
           </Col>
+          </>}
+          
+
+          
         </Row>
         <Modal
             isOpen={toggleModal}
