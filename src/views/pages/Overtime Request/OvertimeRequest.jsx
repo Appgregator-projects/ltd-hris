@@ -8,60 +8,101 @@ import toast from 'react-hot-toast'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 import { Controller, useForm } from "react-hook-form";
-import { addDoc, collection, doc, getDocs, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, getDocs, query, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../../../configs/firebase';
+import Select from 'react-select'
+import makeAnimated from 'react-select/animated'
+import FormUserAssign from '../Components/FormUserAssign';
+import { getCollectionFirebase, getCollectionFirebaseV2 } from '../../../sevices/FirebaseApi';
 const MySwal = withReactContent(Swal)
+const animatedComponents = makeAnimated()
 
 const OvertimeRequest = () => {
     const user = auth.currentUser
+    const [users, setUsers] = useState([])
     const [overtime, setOvertime] = useState([])
-    const [dataUser, setDataUser] = useState(null)
+    const [dataUser, setDataUser] = useState()
     const [toggleModal, setToggleModal] = useState(false)
     const [selectItem, setSelectItem] = useState(null)
-    //**State filtering */
+    const [selectItem2, setSelectItem2] = useState(null)
+    /*State filtering */
     const [filterStatus, setFilterStatus] = useState("")
-    const [filteredOvertime, setFilteredOvertime] = useState(overtime)
-    
+    const [filterUser, setFilterUser] = useState("")
+    const [filterDate, setFilterDate] = useState("")
+    const [selectedUsers, setSelectedUsers] = useState([])
+    const [selectedDate, setSelectedDate] = useState("");
+    const [startDate, setStartDate] = useState("")
+    const [endDate, setEndDate] = useState("")
+    const [startIndex, setStartIndex] = useState(0);
+    const itemsPerPage = 10 
     const {
       setValue, control, handleSubmit, formState: {errors}
     } = useForm({ mode: "onChange"});
-    
-    const getOvertime = async () => {
-      let arr = []
-      const fetchData = await getDocs(collection(db,'overtimes'))
-      fetchData.forEach((doc) => {
-        const data = doc.data()
-        arr.push({...data, id:doc.id})
-        setOvertime(arr)
-      })
+    console.log(user?.uid,'oop')
+    const getDataUser = async () => {
+      try {
+        const data = await Api.get(`/hris/employee/${user?.uid}`)
+        setDataUser(data)
+      } catch (error) {
+        throw(error)
+      }
     }
+    
+    const getOvertime = async() => {
+      const conditions = []
+      if (filterStatus !== '') {
+        console.log({filterStatus})
+        conditions.push({field: 'status', operator: '==', value:filterStatus})
+      }
+      if (selectedUsers.length > 0) {
+        conditions.push({field: 'employee_id', operator: '==', value:selectedUsers[0]})
+      }
+      if (startDate !== '' || endDate !== '') {
+        conditions.push({field: 'date', operator: '>=', value: startDate})
+        conditions.push({field: 'date', operator: '<=', value: endDate})
+      }
+
+      const sortBy = {field: "date", direction: "desc"}
+      const limitValue = startIndex + itemsPerPage
+      try {
+      const res = await getCollectionFirebaseV2('overtimes', 
+      conditions,
+      sortBy,
+      limitValue,
+      )
+      setOvertime(res)
+      console.log(res, 'ini res')        
+      } catch (error) {
+        console.log(error,'ini error firebaseovertime')
+      }
+    }
+
+    const handleLoadMore = () => {
+      setStartIndex(prev => prev + itemsPerPage); // Tambahkan jumlah data per halaman saat tombol "Load More" diklik
+    };
+
+    // useEffect(() => {
+    //   getDataUser()
+    // },[])
+
     useEffect(() => {
       getOvertime()
-    }, [])
+    }, [filterStatus,selectedUsers, startDate, endDate, dataUser, startIndex])
 
-    console.log(overtime,'ceks')
+
     const onDetail = (arg) => {
       setSelectItem(arg)
       setToggleModal(true)
     }
-    
+
+    const onDetail2 = (arg) => {
+      setSelectItem2(arg)
+      setToggleModal(true)
+    }
+
     const handleFilter = (e) => {
       setFilterStatus(e.target.value)
     }
-
-    const filterOvertime = () => {
-      if (filterStatus === '') {
-        setFilteredOvertime(overtime)
-      } else {
-        const filtered = overtime.filter((x) => x.status === filterStatus);
-        setFilteredOvertime(filtered);
-      }
-    };
-
-    useEffect(() => {
-      filterOvertime();
-    }, [filterStatus, overtime]);
-  
 
     const onApprove = (select) => {
       console.log('approve', select)
@@ -81,6 +122,31 @@ const OvertimeRequest = () => {
           const data = await doc(db,'overtimes',`${select.id}`)
           await updateDoc(data, {
             status:'approved'
+          })
+        }
+        setToggleModal(false)
+        getOvertime()
+      })
+    }
+
+    const onProcess = (select) => {
+      console.log('approve', select)
+      return MySwal.fire({
+        icon: 'info',
+        title: 'Do you want to approve this request?',
+        showDenyButton: true,
+        confirmButtonText: 'Approve',
+        denyButtonText: `Cancel`,
+        customClass: {
+          confirmButton: 'btn btn-primary me-1',
+          denyButton: 'btn btn-danger me-1',
+          title: "fs-13"
+        }
+      }).then(async(result) => {
+        if (result.isConfirmed) {
+          const data = await doc(db,'overtimes',`${select.id}`)
+          await updateDoc(data, {
+            status:'processed'
           })
         }
         setToggleModal(false)
@@ -112,57 +178,91 @@ const OvertimeRequest = () => {
         getOvertime()
       })
     }
-    const getDataUser = async () => {
-      try {
-        const data = await Api.get(`/hris/employee/${user.uid}`)
-        setDataUser(data)
-        console.log(data)
-      } catch (error) {
-        throw(error)
-      }
-    }
-    useEffect(() => {
-      getDataUser()
-    },[])
-
-
+    
     const onSubmitForm = async (payload) => {
       console.log(payload,'aaa')
-      if (dataUser.id === dataUser.division.manager_id) {
+      if (dataUser?.id === dataUser?.division?.manager_id) {
         const newData = {
           approvals:[{id:'xxx', name:'hr'}],
           approved_hr:null,
-          company_id: dataUser.company_id,
+          company_id: dataUser?.company_id,
           date: payload.date,
           duration: payload.duration,
-          employee: dataUser.name,
-          manager_id:dataUser.division.manager_id,
+          employee: dataUser?.name,
+          employee_id:user.uid,
+          manager_id:dataUser?.division?.manager_id,
           status:'process',
           createdAt: serverTimestamp(),
-          division_id: dataUser.division_id,
+          division_id: dataUser?.division_id,
 
         }
         const set = await addDoc(collection(db,"overtimes"), newData)
         console.log(set.id,'ini manager')
       } else {
         const newDatas = {
-          approvals:[{id:'xxx', name:'hr'}, {id:dataUser.division.manager_id, name:'manager'}],
+          approvals:[{id:'xxx', name:'hr'}, {id:dataUser?.division?.manager_id, name:'manager'}],
           approved_hr:null,
           approved_manager:null,
-          company_id: dataUser.company_id,
+          company_id: dataUser?.company_id,
           date: payload.date,
           duration: payload.duration,
-          employee: dataUser.name,
-          manager_id:dataUser.division.manager_id,
+          employee: dataUser?.name,
+          employee_id:user.uid,
+          manager_id:dataUser?.division?.manager_id,
           status:'waiting',
           createdAt: serverTimestamp(),
-          division_id: dataUser.division_id,
+          division_id: dataUser?.division_id,
         }
         const set = await addDoc(collection(db,"overtimes"), newDatas)
         console.log(set.id,'ini user biasa')
       }
+      MySwal.fire({
+        position: 'center',
+        icon: 'success',
+        title: 'Your work has been saved',
+        showConfirmButton: false,
+        timer: 1500
+      })
+      getOvertime()
+      setTimeout(() => {
+        window.location.reload()
+      }, 500)
+      
     }
+
+    const fetchUser = async () => {
+      try {
+        const data = await Api.get(`/hris/employee?no_paginate=true`)
+        if (data) {
+          const userData = data.map((x) => {
+            return {
+              value: x.id,
+              label: x.email
+            }
+          })
+          setUsers([...userData])
+        }
+      } catch (error) {
+        throw error
+      }
+    }
+
+    const totalDuration = overtime?.reduce((total, item) => {
+      if (item.duration) {
+        // Mengubah string duration menjadi angka dan menambahkannya ke total
+        total += parseInt(item.duration);
+      }
+      return total;
+    }, 0)
+
+    useEffect(() => {
+      fetchUser()
+      getDataUser()
+    },[])
   
+    console.log({users})
+    console.log({dataUser})
+
     const renderStatus = (arg) => {
       if(arg.status === 'waiting') return <Badge color="light-warning">Waiting</Badge>
       if(arg.status === 'approved') return <Badge color="light-success">Approved</Badge>
@@ -176,9 +276,36 @@ const OvertimeRequest = () => {
           <Col>
             <Card>
               <CardHeader>
-                <CardTitle>Overtime Request</CardTitle>
-                <Col className="d-flex align-items-center justify-content-sm-end mt-sm-0 mt-1" sm="3">
-                  <Label className="me-1 w-50" for="filtering">Filter status</Label>
+                <Col className="px-1 align-items-center justify-content-sm-end mt-sm-0 mt-1">
+                  <CardTitle>Overtime Request</CardTitle>
+                  {selectedUsers?.length === 0 ? 
+                  <></> 
+                  : 
+                  <Label>Total : {totalDuration} Hours</Label>
+                  }
+                  </Col>
+                <Col className="px-1 align-items-center justify-content-sm-end mt-sm-0 mt-1" >
+                </Col>
+                <Col className="px-1 align-items-center justify-content-sm-end mt-sm-0 mt-1" sm="3">
+                <Label className="form-label" for="filtering">Date</Label>
+                  <Input
+                    type="date"
+                    id="filter-by-start-date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+
+                  <Label className="form-label" for="filtering">End Date</Label>
+                  <Input
+                    type="date"
+                    id="filter-by-end-date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
+                </Col>
+                
+                <Col className="px-1 align-items-center justify-content-sm-end mt-sm-0 mt-1" sm="3">
+                  <Label className="form-label" for="filtering">Filter status</Label>
                   <Input
                   type="select"
                   id="filter-by-sttus"
@@ -191,7 +318,21 @@ const OvertimeRequest = () => {
                     <option value="process">Processed</option>
                     <option value="waiting">Waiting</option>
                   </Input>
+                  <Label className='form-label' for='amount'>Select User</Label>
+                  <Select
+                    isDisabled={false}
+                    closeMenuOnSelect={false}
+                    components={animatedComponents}
+                    isMulti={true}
+                    options={users}
+                    onChange={(selectedOptions) => {
+                      const selectedUserIds = selectedOptions.map((option) => option.value);
+                      setSelectedUsers(selectedUserIds);
+                    }}
+                  />
                 </Col>
+                
+                
               </CardHeader>
               <CardBody>
                 <Table responsive>
@@ -205,37 +346,38 @@ const OvertimeRequest = () => {
                       <th className='fs-6'>
                         <Col className="d-flex justify-content-between">
                         Action
-                        
                         </Col>
                       </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {!filteredOvertime.approved_manager ? 
-                    <>
-                      {
-                      filteredOvertime?.map((x,index) => (
-                        <tr key={x.id}>
-                          <td>{x?.employee}</td>
-                          <td>{dateFormat(x.date)}</td>
-                          <td>{x.duration} Hours</td>
-                          <td>
-                            {renderStatus(x)}
-                          </td>
-                          <td>{dateTimeFormat(x.createdAt)}</td>
-                          <td>
-                            <div className='column-action d-flex align-items-center d-flex justify-content-center'>
+                  {
+                        overtime?.map((x,index) => (
+                          <tr key={index}>
+                            <td>{x?.employee}</td>
+                            <td>{dateFormat(x.date)}</td>
+                            <td>{x.duration} Hours</td>
+                            <td>
+                              {renderStatus(x)}
+                            </td>
+                            <td>{dateTimeFormat(x.createdAt.seconds * 1000)}</td>
+                            <td>
+                            
+                              <div className='column-action d-flex align-items-center d-flex justify-content-center'>
                               <div className='text-body pointer' onClick={() => onDetail(x)} id={`pw-tooltip-${x.id}`}>
                                 <Eye size={17} className='mx-1' />
                               </div>
                             </div>
-                          </td>
-                        </tr>
-                      ))
-                    }
-                    </> : <></>}
+                            
+                            </td>
+                          </tr>
+                        ))
+                      }
                   </tbody>
                 </Table>
+                <Col className='d-flex align-items-center justify-content-center py-1'>
+                  <Button color='primary' onClick={handleLoadMore}>Load more</Button>
+                </Col>
               </CardBody>
             </Card>
           </Col>
@@ -276,26 +418,33 @@ const OvertimeRequest = () => {
                       </tr>
                     </thead>
                     <tbody>
+                    {!overtime?.approved_manager ? 
+                    <>
                       {
-                        filteredOvertime?.map((x,index) => (
-                          <tr key={index}>
-                            <td>{x?.employee}</td>
-                            <td>{dateFormat(x.date)}</td>
-                            <td>{x.duration} Hours</td>
-                            <td>
-                              {renderStatus(x)}
-                            </td>
-                            <td>{dateTimeFormat(x.createdAt)}</td>
-                            <td>
+                      overtime?.map((x,index) => (
+                        <tr key={x.id}>
+                          <td>{x?.employee}</td>
+                          <td>{dateFormat(x.date)}</td>
+                          <td>{x.duration} Hours</td>
+                          <td>
+                            {renderStatus(x)}
+                          </td>
+                          <td>{dateTimeFormat(x.createdAt.seconds * 1000)}</td>
+                          <td>
+                            
                               <div className='column-action d-flex align-items-center d-flex justify-content-center'>
-                                <div className='text-body pointer' onClick={() => onDetail(x)} id={`pw-tooltip-${x.id}`}>
-                                  <Eye size={17} className='mx-1' />
-                                </div>
+                              <div className='text-body pointer' onClick={() => onDetail2(x)} id={`pw-tooltip-${x.id}`}>
+                                <Eye size={17} className='mx-1' />
                               </div>
-                            </td>
-                          </tr>
-                        ))
-                      }
+                            </div>
+                            
+                            
+                          </td>
+                        </tr>
+                      ))
+                    }
+                    </> : <></>}
+                      
                     </tbody>
                   </Table>
                 </CardBody>
@@ -320,11 +469,9 @@ const OvertimeRequest = () => {
                         type="date"
                         {...field}
                         name="date"
-                        // invalid={errors.name && true}
                       />
                     )}
                   />
-                  {/* {errors.name && <FormFeedback>{errors.name.message}</FormFeedback>} */}
                 </Col>
                 <Col md="12" sm="12" className="mb-1">
                   <Label className="form-label" for="duration">
@@ -339,11 +486,9 @@ const OvertimeRequest = () => {
                         type="number"
                         {...field}
                         name="duration"
-                        // invalid={errors.name && true}
                       />
                     )}
                   />
-                  {/* {errors.name && <FormFeedback>{errors.name.message}</FormFeedback>} */}
                 </Col>
                 <Col>
                   <Button type="submit" size="md" color="primary" className="m-1">
@@ -404,18 +549,69 @@ const OvertimeRequest = () => {
                       </li> */}
                   </ul>
                   </>
-                : <></>
+                : selectItem2 ? 
+                <>
+                    <ul className="list-none padding-none">
+                      <li className="d-flex justify-content-between pb-1">
+                        <span className="fw-bold">Employee Name</span>
+                        <span className="capitalize">{selectItem2.employee}</span>
+                      </li>
+                      
+                      <li className="d-flex justify-content-between pb-1">
+                        <span className="fw-bold">Created At</span>
+                        <span>{dateFormat(selectItem2.createdAt)}</span>
+                      </li>
+                      <li className="d-flex justify-content-between pb-1">
+                        <span className="fw-bold">Date</span>
+                        <span>{dateTimeFormat(selectItem2.date)}</span>
+                      </li>
+                      <li className="d-flex justify-content-between pb-1">
+                        <span className="fw-bold">Overtime Duration</span>
+                        <span>{selectItem2.duration}</span>
+                      </li>
+                      <li className="d-flex justify-content-between pb-1">
+                        <span className="fw-bold">Current Status</span>
+                        <span>{selectItem2.status ? selectItem2.status : " "}</span>
+                      </li>
+                      
+                      {/* <li className="d-flex justify-content-between pb-1">
+                        <span className="fw-bold">Attachment</span>
+                        <span>
+                          <Link to={selectItem.image} target="_blank">attachment</Link>
+                        </span>
+                      </li> */}
+                      {/* <li className="d-flex justify-content-between pb-1">
+                        <span className="fw-bold">Reason</span>
+                        <span>{selectItem.reason}</span>
+                      </li> */}
+                  </ul>
+                  </> :''
               }
             </ModalBody>
             <ModalFooter>
               {
                 selectItem ? 
+                
                 <div className="">
+                  {selectItem.status === 'processed' ? 
+                  <>
                   <Button type="button" size="md" color='danger' onClick={() => onReject(selectItem)}>  
                     Reject
                   </Button>
                   <Button type="submit" size="md" color='primary' className="m-1" onClick={() => onApprove(selectItem)}>Approve</Button>
-                </div> : <></>
+                  </> : <></>}
+                  
+                </div> : selectItem2? 
+                <div className="">
+                  {selectItem2.status === 'waiting' ? 
+                  <>
+                  <Button type="button" size="md" color='danger' onClick={() => onReject(selectItem2)}>  
+                  Reject
+                </Button>
+                <Button type="submit" size="md" color='primary' className="m-1" onClick={() => onProcess(selectItem2)}>Approve</Button>
+                  </> : <></>}
+                
+              </div> :''
               }
             </ModalFooter>
         </Modal>
