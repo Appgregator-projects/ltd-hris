@@ -160,7 +160,7 @@ const PenaltyCategoryIndex = () => {
                   penalty.map((x,index) => (
                     <tr key={x.id}>
                       <td>{x.title}</td>
-                      <td>{x.duration === 30? "1 month" : x.duration === 60? "2 month" : "3 month"} </td>
+                      <td>{x.duration === 1? "1 month" : x.duration === 2? "2 month" : "3 month"} </td>
                       <td>
                         <div className="pointer">
                           <Trash className='me-50' size={15} onClick={() => onDelete(x, index)}/> <span className='align-middle'></span>
