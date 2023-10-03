@@ -213,7 +213,7 @@ const QuizAccordion = ({
 			<AccordionItem>
 				<Row>
 					{!editQuiz ? (
-						<Col className="pt-1">
+						<Col className="pt-1" >
 							{data?.question_img && (
 								<img
 									src={data?.question_img}
@@ -360,7 +360,7 @@ const QuizAccordion = ({
 						</Row>
 					)}
 
-					<Col className="d-flex justify-content-end">
+					<Col className="d-flex justify-content-end col-2" >
 						<div className="py-1">
 							{!editQuiz && (
 								<Col className="d-flex">

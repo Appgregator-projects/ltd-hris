@@ -26,22 +26,23 @@ import { toast } from "react-hot-toast";
 import {
 	arrayRemoveFirebase,
 	deleteDocumentFirebase,
-	deleteFileFirebase,
 } from "../../../../../sevices/FirebaseApi";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { db } from "../../../../../configs/firebase";
 import { arrayRemove, doc, updateDoc } from "firebase/firestore";
 
 const DeleteButton = ({
 	type,
-	item,
+	Api,
+	id,
+	data,
+	getCourseDetail,
 	fetchDataSection,
 	lesson,
 	section,
 }) => {
 	const param = useParams();
 	const MySwal = withReactContent(Swal);
-	const navigate = useNavigate()
 	const [isHovered, setIsHovered] = useState(false);
 
 	const iconHoverStyle = {
@@ -136,37 +137,6 @@ const DeleteButton = ({
 					} catch (error) {
 						throw error;
 					}
-				} else if (type === "course") {
-					if (item?.course_thumbnail) {
-						const split = item.course_thumbnail.split("%2F");
-						const finalSplit = split[1].split("?");
-						const finalString = decodeURIComponent(
-							finalSplit[0]
-						);
-
-						try {
-							deleteFileFirebase(finalString, "courses");
-						} catch (error) {
-							throw error;
-						}
-					}
-
-					deleteDocumentFirebase("courses", param.id).then(
-						(deleteCourse) => {
-							if (deleteCourse) {
-								MySwal.fire({
-									icon: "success",
-									title: "Deleted!",
-									text: "Your file has been deleted.",
-									customClass: {
-										confirmButton:
-											"btn btn-success",
-									},
-								});
-								navigate('/courses')
-							}
-						}
-					);
 				}
 			}
 		});
@@ -183,14 +153,6 @@ const DeleteButton = ({
 						onMouseLeave={() => setIsHovered(false)}
 						id={`delete-lesson`}
 					/>
-				) : type === "course" ? (
-					<Button.Ripple
-						className="btn-icon"
-						color={"danger"}
-						id={"delete-course"}
-					>
-						<Trash size={14} />
-					</Button.Ripple>
 				) : (
 					<Trash size={21} id={`delete-section`} />
 				)}
