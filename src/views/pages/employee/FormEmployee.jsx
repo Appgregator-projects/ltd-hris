@@ -101,6 +101,7 @@ export default function FormEmployee({
       console.log(acceptedFiles, "acceptedFiles")
       try {
         const { size, name } = acceptedFiles[0];
+        // return console.log(size,name,  "size upload")
         if (size > 3000000)
           return toast.error(`Error : File size should not exceed 3mb`, {
             position: "top-center",
@@ -109,6 +110,7 @@ export default function FormEmployee({
         setIsLoading(true);
         const post = await upload(acceptedFiles[0], name, "attendance/user");
         setIsLoading(false);
+        return console.log(post, 'post employee attachment')
         setAttachment(post);
       } catch (error) {
         setIsLoading(false);
@@ -120,6 +122,7 @@ export default function FormEmployee({
   });
 
   const onSubmitForm = (arg) => {
+    return console.log(arg, "arg onSubmitform")
     arg.profile_picture = attachment;
     if (!item) {
       arg.password = arg.password ? arg.password : "121212";

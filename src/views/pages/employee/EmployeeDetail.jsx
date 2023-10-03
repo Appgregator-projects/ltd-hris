@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getUser } from "./store/index";
 import HealthForm from "./component/IncomeForm";
 import IncomeForm from "./component/IncomeForm";
+import PenaltyForm from "./component/Penalty/PenaltyForm";
 const MySwal = withReactContent(Swal);
 
 
@@ -191,13 +192,21 @@ export default function EmployeeDetail() {
 	const onEditIncome = (x) => {
 		console.log(x, "add config")
 		setModal({
-			title: "Employee Income",
+			title: "Employee Income Form",
 			mode: "income",
 			item: x
 		})
 		setToggleModal(true)	
-
 	}
+
+  const onEditPenalty = (x) => {
+    console.log("edit penalty")
+    setModal({
+      title : "Penalty Form",
+      mode: "penalty",
+      item:  x
+    })
+  }
 
 	const postLeave = async (arg) => {
 		try {
@@ -575,6 +584,13 @@ export default function EmployeeDetail() {
 						income={modal.item}
 						onSubmit={postIncome}
 						/> :<></>}
+          {modal.mode === "penalty" ?
+          <PenaltyForm
+            isLoading={isLoading}
+            close={() => setToggleModal(!toggleModal)}
+            onSubmit={postPenalty}
+            penalty={modal.item}
+            />:<></>}
 				</ModalBody>
 			</Modal>
 		</>
