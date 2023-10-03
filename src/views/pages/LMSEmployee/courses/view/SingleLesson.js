@@ -102,7 +102,6 @@ const SingleLesson = () => {
 		setQuestion(resQuestion);
 	};
 
-
 	const handleAnswerEmployee = (answerEmployee, question) => {
 		const findIndex = answer.findIndex(
 			(x) => x.id === question.question_index
@@ -175,7 +174,10 @@ const SingleLesson = () => {
 		const data = {
 			course_id: param.course_id,
 			uid: auth.currentUser.uid,
-			user: { name: auth.currentUser.displayName, email: auth.currentUser.email },
+			user: {
+				name: auth.currentUser.displayName,
+				email: auth.currentUser.email,
+			},
 		};
 
 		return MySwal.fire({
@@ -198,8 +200,11 @@ const SingleLesson = () => {
 						"scores",
 						{
 							uid: auth.currentUser.uid,
-
+							name: auth.currentUser.displayName,
+							email: auth.currentUser.email,
 							score: finalScore,
+							timestamp: new Date(),
+							answer: answer
 						}
 					).then((res) => {
 						if (res) {
@@ -221,7 +226,8 @@ const SingleLesson = () => {
 												),
 											section_title:
 												section.section_title,
-											section_id: param.section_id,
+											section_id:
+												param.section_id,
 										}
 									).then((final) => {
 										if (final) {

@@ -18,15 +18,24 @@ import avatar7 from "@src/assets/images/portrait/small/avatar-s-7.jpg";
 import avatar8 from "@src/assets/images/portrait/small/avatar-s-8.jpg";
 import avatar9 from "@src/assets/images/portrait/small/avatar-s-9.jpg";
 import avatar10 from "@src/assets/images/portrait/small/avatar-s-10.jpg";
+import { dateFormat, dateTimeFormat } from "../../../../Helper";
+import dayjs from "dayjs";
 
 // ** Vars
-export const states = ['success', 'danger', 'warning', 'info', 'dark', 'primary', 'secondary']
+export const states = [
+	"success",
+	"danger",
+	"warning",
+	"info",
+	"dark",
+	"primary",
+	"secondary",
+];
 
 const status = {
-  1: { title: 'Passed', color: 'light-success' },
-  2: { title: 'Failed', color: 'light-danger' },
-}
-
+	1: { title: "Passed", color: "light-success" },
+	2: { title: "Failed", color: "light-danger" },
+};
 
 export const data = [
 	{
@@ -1577,13 +1586,17 @@ export const columns = [
 	{
 		name: "Name",
 		minWidth: "250px",
-		sortable: (row) => row.full_name,
+		sortable: (row) => (row?.name ? row.name : false),
 		cell: (row) => (
 			<div className="d-flex align-items-center">
-				{row.avatar === "" ? (
+				{!row.avatar ? (
 					<Avatar
-						color={`light-${states[row.status]}`}
-						content={row.full_name}
+						color={
+							row.minGrade <= row.score
+								? "light-success"
+								: "light-danger"
+						}
+						content={row?.name ? row.name : row.email}
 						initials
 					/>
 				) : (
@@ -1591,7 +1604,7 @@ export const columns = [
 				)}
 				<div className="user-info text-truncate ms-1">
 					<span className="d-block fw-bold text-truncate">
-						{row.full_name}
+						{row?.name}
 					</span>
 					<small>{row.email}</small>
 				</div>
@@ -1600,33 +1613,46 @@ export const columns = [
 	},
 	{
 		name: "Score",
-		sortable: true,
+		sortable: (row) => row.score,
 		minWidth: "150px",
 		selector: (row) => row.score,
 	},
 	{
 		name: "Status",
 		minWidth: "150px",
-		sortable: (row) => row.status.title,
+		sortable: true,
 		cell: (row) => {
 			return (
-				<Badge color={status[row.status].color} pill>
-					{status[row.status].title}
+				<Badge
+					color={
+						row.minGrade <= row.score
+							? "light-success"
+							: "light-danger"
+					}
+					pill
+				>
+					{row.minGrade <= row.score ? "Passed" : "Failed"}
 				</Badge>
 			);
 		},
 	},
-	{
-		name: "Attempted",
-		sortable: true,
-		minWidth: "150px",
-		selector: (row) => row.attempted	,
-	},
+	// {
+	// 	name: "Attempted",
+	// 	sortable: true,
+	// 	minWidth: "150px",
+	// 	selector: (row) => row.attempted,
+	// },
 	{
 		name: "Date",
 		sortable: true,
 		minWidth: "150px",
-		selector: (row) => row.start_date,
+		selector: (row) => {
+			const timestamp = dayjs
+				.unix(row.timestamp.seconds)
+				.format("YYYY-MM-DD HH:mm:ss");
+			return dateTimeFormat(timestamp);
+			// 	dateTimeFormat(row.timestamp)
+		},
 	},
 	// {
 	// 	name: "Actions",

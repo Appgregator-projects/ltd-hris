@@ -77,17 +77,20 @@ const CoursesPage = () => {
 			]);
 
 			const coursesData = await Promise.all(
-				group.flatMap(async (e) => {
-					return await Promise.all(
-						e.group_courses.map(async (element) => {
-							const courseData =
-								await getSingleDocumentFirebase(
-									`courses`,
-									element
-								);
-							return { ...courseData, id: element };
-						})
-					);
+				group.map(async (e) => {
+					if (e.group_courses) {
+						return await Promise.all(
+							e.group_courses.map(async (element) => {
+								const courseData =
+									await getSingleDocumentFirebase(
+										`courses`,
+										element
+									);
+								return { ...courseData, id: element };
+							})
+						);
+					}
+					return;
 				})
 			);
 
@@ -97,7 +100,6 @@ const CoursesPage = () => {
 			throw error;
 		}
 	};
-
 
 	//** Handle
 	const toggle = (tab) => {

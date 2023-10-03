@@ -19,7 +19,6 @@ const LessonAccordion = ({
 	lesson,
 	section
 }) => {
-	console.log({lesson, section})
 	const [open, setOpen] = useState("0");
 
 	const toggle = (id) => {

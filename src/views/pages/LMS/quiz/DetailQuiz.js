@@ -139,6 +139,7 @@ const DetailQuiz = () => {
 							active={active}
 							toggleTab={toggleTab}
 							fetchDataQuiz={fetchDataQuiz}
+							dataQuiz={dataQuiz}
 						/>
 					</Col>
 				</Row>
