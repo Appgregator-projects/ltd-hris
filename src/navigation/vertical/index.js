@@ -18,7 +18,8 @@ import {
   File,
   Monitor,
   MessageSquare,
-  AlertCircle
+  AlertCircle,
+  AlertTriangle
 } from "react-feather"
 
 export default [
@@ -138,6 +139,12 @@ export default [
     title: "Leave Category",
     icon: <Hash size={20} />,
     navLink: "/leave-category"
+  },
+  {
+    id: "penalty-category",
+    title: "Penalty Category",
+    icon: <AlertTriangle size={20} />,
+    navLink: "/penalty-category"
   },
   {
     id: "Days Off",

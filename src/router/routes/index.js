@@ -56,6 +56,7 @@ const PayrollView = lazy(() => import("../../views/pages/Payroll/PayrollView"))
 const AssetIndex = lazy(() => import("../../views/pages/Assets/AssetIndex"))
 const Announcement = lazy(() => import("../../views/pages/Announcement/AnnouncementIndex"))
 const Penalty = lazy(() => import("../../views/pages/Penalty/PenaltyIndex"))
+const PenaltyCategory = lazy(() => import("../../views/pages/PenaltyCategory/PenaltyCategoryIndex"))
 
 // ** Merge Routes
 const Routes = [
@@ -159,6 +160,14 @@ const Routes = [
     meta: {
       action: "read",
       resource: "LEAVE CATEGORY"
+    }
+  },
+  {
+    path: "/penalty-category",
+    element: <PenaltyCategory />,
+    meta: {
+      action: "read",
+      resource: "PENALTY CATEGORY"
     }
   },
   {
