@@ -15,8 +15,10 @@ import {
 	Row,
 } from "reactstrap";
 import {
+	arrayUnionFirebase,
 	getCollectionFirebase,
 	getSingleDocumentFirebase,
+	setDocumentFirebase,
 } from "../../../../../sevices/FirebaseApi";
 import { useState } from "react";
 
@@ -28,9 +30,18 @@ import "@styles/react/apps/app-users.scss";
 import { useParams } from "react-router-dom";
 import { Save, List, ChevronRight, ChevronLeft } from "react-feather";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
+import { auth } from "../../../../../configs/firebase";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import { useSelector } from "react-redux";
+
+const MySwal = withReactContent(Swal);
+
+///ADAA TAMBAHAN DI SUBMIT USER
 
 const SingleLesson = () => {
 	const param = useParams();
+	const store = useSelector((state) => state.authentication.userData);
 
 	const [section, setSection] = useState({});
 	const [course, setCourse] = useState({});
@@ -38,7 +49,7 @@ const SingleLesson = () => {
 	const [detailQuiz, setDetailQuiz] = useState({});
 	const [question, setQuestion] = useState({});
 	const [open, setOpen] = useState("1");
-	const [answer, setAnswer] = useState(null);
+	const [answer, setAnswer] = useState([]);
 
 	const toggle = (id) => {
 		if (open === id) {
@@ -53,7 +64,7 @@ const SingleLesson = () => {
 			param.section_id
 		);
 		setSection(res);
-		console.log({ res });
+
 		const findLesson = res?.lesson_list?.find(
 			(x) => x.lesson_title === decodeURIComponent(param?.lesson_title)
 		);
@@ -84,11 +95,153 @@ const SingleLesson = () => {
 		];
 		const resQuiz = await getCollectionFirebase("quizzes", conditions);
 		setDetailQuiz(resQuiz[0]);
-		console.log({ resQuiz });
+
 		const resQuestion = await getCollectionFirebase(
 			`quizzes/${resQuiz[0].id}/questions`
 		);
 		setQuestion(resQuestion);
+	};
+
+
+	const handleAnswerEmployee = (answerEmployee, question) => {
+		const findIndex = answer.findIndex(
+			(x) => x.id === question.question_index
+		);
+		let arr = [...answer];
+		if (findIndex !== -1) {
+			arr = arr.filter((x) => x.id !== question.question_index);
+		}
+		arr.push({ id: question.question_index, answer: answerEmployee.id });
+		setAnswer(arr);
+		// let arr = answer;
+		// switch (true) {
+		// 	case findIndex !== -1:
+		// 		arr = arr.filter((x) => x.id !== question.question_index);
+		// 		arr.push({
+		// 			id: question.question_index,
+		// 			answer: answerEmployee.id,
+		// 		});
+		// 		setAnswer(arr);
+		// 		break;
+		// 	case findIndex === -1:
+		// 		arr.push({
+		// 			id: question.question_index,
+		// 			answer: answerEmployee.id,
+		// 		});
+		// 		setAnswer(arr);
+		// 		break;
+		// 	default:
+		// 		arr.push({
+		// 			id: question.question_index,
+		// 			answer: answerEmployee.id,
+		// 		});
+		// 		setAnswer(arr);
+		// }
+	};
+	function calculateScore(questions, answers) {
+		let totalScore = 0;
+
+		for (let i = 0; i < questions.length; i++) {
+			let question = questions[i];
+			let questionIndex = question.question_index;
+			let correctAnswer = question.isCorrectAnswer;
+
+			let participantAnswer = findParticipantAnswerById(
+				answers,
+				questionIndex
+			);
+
+			if (participantAnswer === correctAnswer) {
+				totalScore++;
+			}
+		}
+
+		let finalScore = (totalScore / questions.length) * 100;
+		return finalScore;
+	}
+
+	function findParticipantAnswerById(answers, questionIndex) {
+		for (let i = 0; i < answers.length; i++) {
+			let answer = answers[i];
+			if (answer.id === questionIndex) {
+				return answer.answer;
+			}
+		}
+		return null; // If no answer is found
+	}
+
+	const handleSubmitQuiz = () => {
+		const finalScore = calculateScore(question, answer);
+		const data = {
+			course_id: param.course_id,
+			uid: auth.currentUser.uid,
+			user: { name: auth.currentUser.displayName, email: auth.currentUser.email },
+		};
+
+		return MySwal.fire({
+			title: "Are you sure?",
+			text: "You want to submit this quiz?",
+			icon: "question",
+			showCancelButton: true,
+			confirmButtonText: "Confirm",
+			customClass: {
+				confirmButton: "btn btn-primary",
+				cancelButton: "btn btn-outline-danger ms-1",
+			},
+			buttonsStyling: false,
+		}).then((result) => {
+			if (result.isConfirmed) {
+				try {
+					arrayUnionFirebase(
+						"quizzes",
+						detailQuiz.id,
+						"scores",
+						{
+							uid: auth.currentUser.uid,
+
+							score: finalScore,
+						}
+					).then((res) => {
+						if (res) {
+							setDocumentFirebase(
+								"user_course_progress",
+								`${auth.currentUser.uid}-${param.course_id}`,
+								data
+							).then((response) => {
+								if (response) {
+									arrayUnionFirebase(
+										"user_course_progress",
+										`${auth.currentUser.uid}-${param.course_id}`,
+										"history",
+										{
+											lastUpdated: new Date(),
+											lesson_title:
+												decodeURIComponent(
+													param.lesson_title
+												),
+											section_title:
+												section.section_title,
+											section_id: param.section_id,
+										}
+									).then((final) => {
+										if (final) {
+											MySwal.fire(
+												"Submitted!",
+												"You already submit the quiz",
+												"success"
+											);
+											setAnswer([]);
+										}
+									});
+								}
+							});
+						}
+					});
+				} catch (error) {
+					throw error;
+				}
+			}
+		});
 	};
 
 	useEffect(() => {
@@ -99,6 +252,7 @@ const SingleLesson = () => {
 			setSection({});
 			setQuestion({});
 			setDetailQuiz({});
+			setAnswer([]);
 		};
 	}, []);
 
@@ -228,7 +382,7 @@ const SingleLesson = () => {
 							<Row id="dd-with-handle" className="pl-1">
 								{question?.length > 0 && (
 									<Col>
-										{question?.map((item) => {
+										{question?.map((item, id) => {
 											return (
 												<ListGroupItem
 													key={item.id}
@@ -339,8 +493,9 @@ const SingleLesson = () => {
 																											type="radio"
 																											className="me-1"
 																											onChange={() =>
-																												setAnswer(
-																													items.id
+																												handleAnswerEmployee(
+																													items,
+																													item
 																												)
 																											}
 																											id={
@@ -349,10 +504,15 @@ const SingleLesson = () => {
 																											name={
 																												question.question_title
 																											}
-																											checked={
-																												items.id ===
-																												answer
-																											}
+																											checked={answer.some(
+																												(
+																													ans
+																												) =>
+																													ans.id ===
+																														item.question_index &&
+																													ans.answer ===
+																														items.id
+																											)}
 																										/>
 																										<Label
 																											className="form-check-label"
@@ -388,6 +548,7 @@ const SingleLesson = () => {
 								color={"primary"}
 								className="me-1 mt-2"
 								block
+								onClick={() => handleSubmitQuiz()}
 							>
 								<Save size={14} />
 								<span className="align-middle ms-25">
