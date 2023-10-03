@@ -8,55 +8,16 @@ import Breadcrumbs from "@components/breadcrumbs";
 import {
 	Button,
 	Card,
-	CardBody,
-	Col,
-	Input,
-	InputGroup,
-	InputGroupText,
-	Row,
 	UncontrolledTooltip,
 } from "reactstrap";
 // ** Images
-import { Search } from "react-feather";
-
-import AvatarGroup from "@components/avatar-group";
 import react from "@src/assets/images/icons/react.svg";
-import avatar1 from "@src/assets/images/portrait/small/avatar-s-5.jpg";
-import avatar2 from "@src/assets/images/portrait/small/avatar-s-6.jpg";
-import avatar3 from "@src/assets/images/portrait/small/avatar-s-7.jpg";
-import { Edit, Trash } from "react-feather";
-import { Badge, Table } from "reactstrap";
 
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
-import DetailQuiz from "./DetailQuiz";
+import { Edit } from "react-feather";
+import { Table } from "reactstrap";
+
 import { useNavigate } from "react-router-dom";
 import { getCollectionFirebase } from "../../../../sevices/FirebaseApi";
-// import AddGroup from "./AddGroup";
-
-const MySwal = withReactContent(Swal);
-const data = [{}, {}, {}, {}, {}, {}, {}, {}];
-
-const avatarGroupData2 = [
-	{
-		title: "Diana",
-		img: avatar1,
-		imgHeight: 26,
-		imgWidth: 26,
-	},
-	{
-		title: "Rey",
-		img: avatar2,
-		imgHeight: 26,
-		imgWidth: 26,
-	},
-	{
-		title: "James",
-		img: avatar3,
-		imgHeight: 26,
-		imgWidth: 26,
-	},
-];
 
 const QuizPage = () => {
 	const [quizData, setQuizData] = useState([]);
@@ -71,47 +32,6 @@ const QuizPage = () => {
 		}
 	};
 
-	const thumbnailCourses = [
-		{
-			title: "Introduction to Web Development",
-			img: "https://i.ytimg.com/vi/w__n0BvkqB4/maxresdefault.jpg",
-			imgHeight: 26,
-			imgWidth: 26,
-		},
-		{
-			title: "Python for Beginners",
-			img: "https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F549550559%2F1234433154323%2F1%2Foriginal.20230706-115709?w=1000&auto=format%2Ccompress&q=75&sharp=10&rect=0%2C0%2C2160%2C1080&s=84e3c74c34b060e7d28ccef3f6a5a6ec",
-			imgHeight: 26,
-			imgWidth: 26,
-		},
-	];
-
-	const handleConfirmText = () => {
-		return MySwal.fire({
-			title: "Are you sure?",
-			text: "You won't be able to revert this!",
-			icon: "warning",
-			showCancelButton: true,
-			confirmButtonText: "Yes, delete it!",
-			customClass: {
-				confirmButton: "btn btn-primary",
-				cancelButton: "btn btn-outline-danger ms-1",
-			},
-			buttonsStyling: false,
-		}).then(function (result) {
-			if (result.value) {
-				MySwal.fire({
-					icon: "success",
-					title: "Deleted!",
-					text: "Your file has been deleted.",
-					customClass: {
-						confirmButton: "btn btn-success",
-					},
-				});
-			}
-		});
-	};
-
 	useEffect(() => {
 		fetchDataQuiz();
 		return () => {
@@ -124,7 +44,6 @@ const QuizPage = () => {
 			<Breadcrumbs
 				title="Quiz"
 				data={[{ title: "Quiz" }]}
-				// rightMenu={<AddGroup type={"Create"} />}
 			/>
 
 			<Card>
@@ -155,19 +74,15 @@ const QuizPage = () => {
 
 								<td>{item.quiz_description}</td>
 								<td>
-									<a onClick={()=>navigate(`/courses/${item.course.course_id}`)}>{item.course.course_title}</a>
+									<a onClick={()=>navigate(`/courses-employee/${item.course.course_id}`)}>{item.course.course_title}</a>
 								</td>
 								<td width={250}>
-									{/* <GroupMembers />
-									<GroupCourses />
-									<AddGroup type={"Edit"} /> */}
-									{/* <DetailQuiz/> */}
 									<Button.Ripple
 										className={"btn-icon me-1"}
-										color={"warning"}
+										color={"primary"}
 										onClick={() =>
 											navigate(
-												`/quiz/${item.id}`,
+												`/quiz-employee/${item.id}`,
 												{
 													state: {
 														question:
@@ -211,23 +126,7 @@ const QuizPage = () => {
 										placement="top"
 										target="edit-quiz"
 									>
-										Edit Quiz
-									</UncontrolledTooltip>
-									<Button.Ripple
-										className={"btn-icon"}
-										color={"danger"}
-										onClick={() =>
-											handleConfirmText()
-										}
-										id="delete-quiz"
-									>
-										<Trash size={14} />
-									</Button.Ripple>
-									<UncontrolledTooltip
-										placement="top"
-										target="delete-quiz"
-									>
-										Delete Quiz
+										Assign Quiz
 									</UncontrolledTooltip>
 								</td>
 							</tr>
