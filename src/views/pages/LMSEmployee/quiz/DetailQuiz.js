@@ -5,36 +5,31 @@ import { Fragment, useState } from "react";
 import Breadcrumbs from "@components/breadcrumbs";
 
 // ** Reactstrap Imports
-import { Button, Card, CardBody, Col, Row } from "reactstrap";
+import { Card, CardBody, Col, Row } from "reactstrap";
+
 // ** Styles
 import "@styles/react/apps/app-users.scss";
 import "@styles/react/libs/react-select/_react-select.scss";
 
-import { Edit } from "react-feather";
 import { useLocation, useParams } from "react-router-dom";
 
 // ** Styles
 import "@styles/react/libs/drag-and-drop/drag-and-drop.scss";
 
-import QuizTabs from "./QuizTabs";
 import { useEffect } from "react";
 import { getSingleDocumentFirebase } from "../../../../sevices/FirebaseApi";
+import QuestionAnswerTabs from "./tabs/QuestionAnswerTabs";
 
-// const defaultValues = {
-// 	lesson_title: lesson.lesson_title,
-// 	lesson_description: lesson.lesson_description,
-// 	lesson_video: `https://www.youtube.com/watch?v=${lesson.lesson_video}`,
-// };
 
 const DetailQuiz = () => {
-	const location = useLocation();
-	const param = useParams();
+	const param = useParams()
 
 	const [active, setActive] = useState("1");
 	const [dataQuiz, setDataQuiz] = useState([]);
+	
 
 	const fetchDataQuiz = async () => {
-		const res = await getSingleDocumentFirebase(`quizzes`, param.id);
+		const res = await getSingleDocumentFirebase(`quizzes`,param.id);
 		setDataQuiz(res);
 	};
 
@@ -56,20 +51,15 @@ const DetailQuiz = () => {
 			<Breadcrumbs
 				title="Course"
 				data={[
-					{ title: "Course", link: "/courses" },
+					{ title: "Course", link: "/courses-employee" },
 					{
 						title: dataQuiz?.course?.course_title,
-						link: `/courses/${dataQuiz?.course?.course_id}`,
+						link: `/courses-employee/${dataQuiz?.course?.course_id}`,
 					},
 					{
 						title: dataQuiz?.quiz_title,
 					},
 				]}
-				rightMenu={
-					<Button.Ripple className="btn-icon" color={"warning"}>
-						<Edit size={14} />
-					</Button.Ripple>
-				}
 			/>
 
 			<div className="app-user-view">
@@ -88,17 +78,15 @@ const DetailQuiz = () => {
 							<CardBody>
 								<div className="user-avatar-section">
 									<div className="d-flex align-items-center flex-column">
-										{dataQuiz?.quiz_thumbnail && (
-											<img
-												// height="110"
-												// width="110"
-												alt="user-avatar"
-												src={
-													dataQuiz?.quiz_thumbnail
-												}
-												className="img-fluid rounded mt-0 mb-2"
-											/>
-										)}
+										<img
+											// height="110"
+											// width="110"
+											alt="user-avatar"
+											src={
+												dataQuiz?.quiz_thumbnail
+											}
+											className="img-fluid rounded mt-0 mb-2"
+										/>
 
 										<div className="d-flex flex-column align-items-center text-center">
 											<div className="user-info mt-1">
@@ -135,7 +123,7 @@ const DetailQuiz = () => {
 						xs={{ order: 0 }}
 						md={{ order: 1, size: 7 }}
 					>
-						<QuizTabs
+						<QuestionAnswerTabs
 							active={active}
 							toggleTab={toggleTab}
 							fetchDataQuiz={fetchDataQuiz}

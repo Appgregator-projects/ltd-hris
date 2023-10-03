@@ -1,5 +1,13 @@
 // ** Reactstrap Imports
-import { Col, Form, Input, InputGroup, InputGroupText, Row, UncontrolledTooltip } from "reactstrap";
+import {
+	Col,
+	Form,
+	Input,
+	InputGroup,
+	InputGroupText,
+	Row,
+	UncontrolledTooltip,
+} from "reactstrap";
 
 // ** Third Party Components
 import Prism from "prismjs";
@@ -122,6 +130,7 @@ const AnswerAccordion = ({
 						<div className="form-check">
 							<h6>
 								<Input
+									disabled
 									type="radio"
 									className="me-1"
 									defaultChecked={

@@ -78,7 +78,6 @@ const GroupsPage = () => {
 	const [groupData, setGroupData] = useState([]);
 
 	const store = useSelector((state) => state.coursesSlice);
-	const stores = useSelector((state) => state);
 
 	//** Fetch Data
 	const fetchDataGroup = async () => {
@@ -189,7 +188,7 @@ const GroupsPage = () => {
 					<AddGroup
 						type={"Create"}
 						fetchDataGroup={fetchDataGroup}
-						image={store.image}
+						image={store?.image}
 					/>
 				}
 			/>
@@ -264,7 +263,8 @@ const GroupsPage = () => {
 										fetchDataGroup={
 											fetchDataGroup
 										}
-										image={store.image}
+										image={store?.image}
+
 									/>
 									<Button.Ripple
 										className={"btn-icon"}
