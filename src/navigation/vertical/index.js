@@ -19,7 +19,8 @@ import {
   Monitor,
   MessageSquare,
   AlertCircle,
-  AlertTriangle
+  AlertTriangle,
+  Clock
 } from "react-feather"
 
 export default [
@@ -77,7 +78,14 @@ export default [
   },
 
   {
-    header: "e-Learning HR"
+    id: "overtime-request",
+    title: "Overtime Request",
+    icon: <Clock size={20} />,
+    navLink: "/overtime-request"
+  },
+
+  {
+    header: "e-Learning"
   },
   {
     id: "courses",

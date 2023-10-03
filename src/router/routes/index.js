@@ -57,6 +57,7 @@ const AssetIndex = lazy(() => import("../../views/pages/Assets/AssetIndex"))
 const Announcement = lazy(() => import("../../views/pages/Announcement/AnnouncementIndex"))
 const Penalty = lazy(() => import("../../views/pages/Penalty/PenaltyIndex"))
 const PenaltyCategory = lazy(() => import("../../views/pages/PenaltyCategory/PenaltyCategoryIndex"))
+const OvertimeRequest = lazy(() => import("../../views/pages/Overtime Request/OvertimeRequest"))
 
 // ** Merge Routes
 const Routes = [
@@ -109,6 +110,14 @@ const Routes = [
   {
     path: "/leave-request",
     element: <LeaveRequest />,
+    meta: {
+      action: "read",
+      resource: "MENU LEAVE REQUEST"
+    }
+  },
+  {
+    path: "/overtime-request",
+    element: <OvertimeRequest />,
     meta: {
       action: "read",
       resource: "MENU LEAVE REQUEST"
