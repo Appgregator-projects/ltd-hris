@@ -120,54 +120,50 @@ export const getCollectionFirebase = async (
 
 export const getCollectionFirebaseV2 = async (
 	collectionName,
-	{ conditions = [] },
-	{ sortBy = null },
-	{ limitValue = null },
-	{ startAfterData = null }
-) => {
+	conditions = [],
+	sortBy = null,
+	limitValue = null,
+	startAfterData = null
+  ) => {
 	try {
-		let collectionRef = collection(db, collectionName);
-
-		// Tambahkan kondisi filter jika ada
-		if (conditions.length > 0) {
-			conditions.forEach((condition) => {
-				const { field, operator, value } = condition;
-				collectionRef = query(
-					collectionRef,
-					where(field, operator, value)
-				);
-			});
-		}
-
-		// Tambahkan pengurutan jika ada
-		if (sortBy) {
-			const { field, direction } = sortBy;
-			collectionRef = query(collectionRef, orderBy(field, direction));
-		}
-
-		// Tambahkan batasan jumlah dokumen jika ada
-		if (limitValue) {
-			collectionRef = query(collectionRef, limit(limitValue));
-		}
-
-		if (startAfterData) {
-			// console.log(startAfterData)
-			collectionRef = query(collectionRef, startAfter(startAfterData));
-		}
-
-		const querySnapshot = await getDocs(collectionRef);
-		const collectionData = [];
-		querySnapshot.forEach((doc) => {
-			const docData = doc.data();
-			// Lakukan manipulasi data atau operasi lain jika diperlukan
-			collectionData.push({ id: doc.id, ...docData });
+	  let collectionRef = collection(db, collectionName);
+  
+	  // Tambahkan kondisi filter jika ada
+	  if (conditions.length > 0) {
+		conditions.forEach((condition) => {
+		  const { field, operator, value } = condition;
+		  collectionRef = query(collectionRef, where(field, operator, value));
 		});
-		//   console.log(collectionData,'ini data di collectiondata')
-		return collectionData; // Outputkan data koleksi ke konsol (bisa diganti sesuai kebutuhan)
+	  }
+  
+	  // Tambahkan pengurutan jika ada
+	  if (sortBy) {
+		const { field, direction } = sortBy;
+		collectionRef = query(collectionRef, orderBy(field, direction));
+	  }
+  
+	  // Tambahkan batasan jumlah dokumen jika ada
+	  if (limitValue) {
+		collectionRef = query(collectionRef, limit(limitValue));
+	  }
+  
+	  if (startAfterData) {
+		// console.log(startAfterData)
+		// collectionRef = query(collectionRef, startAt(startAfterData));
+	  }
+  
+	  const querySnapshot = await getDocs(collectionRef);
+	  const collectionData = [];
+	  querySnapshot.forEach((doc) => {
+		const docData = doc.data();
+		// Lakukan manipulasi data atau operasi lain jika diperlukan
+		collectionData.push({ id: doc.id, ...docData });
+	  });
+	  return collectionData; // Outputkan data koleksi ke konsol (bisa diganti sesuai kebutuhan)
 	} catch (error) {
-		console.log("Terjadi kesalahan:", error);
+	  console.log("Terjadi kesalahan:", error);
 	}
-};
+  };
 
 // Example Call :
 

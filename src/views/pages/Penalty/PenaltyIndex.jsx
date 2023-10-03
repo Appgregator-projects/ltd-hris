@@ -7,12 +7,16 @@ import PenaltyForm from './PenaltyForm'
 import PenaltyDetail from './PenaltyDetail'
 import Api from "../../../sevices/Api";
 import { useEffect } from 'react'
+import FormUserAssign from '../Components/FormUserAssign'
 
 
 const PenaltyIndex = () => {
   const [penalty, setPenalty] = useState([])
+  const [history, setHistory] = useState([])
   const [employee, setEmployee] = useState([])
+  const [selectUser, setSelectUser] = useState(null)
   const [toggleModal, setToggleModal] = useState(false)
+  const [nestedModal, setNestedModal] = useState(false)
   const [modal, setModal] = useState({
     title : "",
     mode : "",
@@ -43,7 +47,15 @@ const PenaltyIndex = () => {
   const fetchEmployee= async() => {
     try {
       const data = await Api.get(`/hris/employee?no_paginate=true`);
-      setEmployee([...data])
+      if (data) {
+        const userData = data.map((x) => {
+          return {
+            value: x.id,
+            label: x.name
+          }
+        })
+        setEmployee([...userData])
+      }
     } catch (error) {
       throw error
     }
@@ -51,6 +63,34 @@ const PenaltyIndex = () => {
 
   useEffect(() => {
     fetchEmployee()
+  },[])
+
+  const fetchHistory = async(arg) => {
+    try {
+      const data = await Api.get(`/hris/warning-letter/${arg.value}/history`)
+      setHistory(data)
+      console.log(data, "history")
+    } catch (error) {
+      throw error
+    }
+    setToggleModal(false)
+  }
+
+  useEffect(() => {
+    fetchHistory()
+  },[])
+
+  const fetchPenalty = async() => {
+    try {
+      const data = await Api.get(`/hris/warning-letter`)
+      setPenalty([...data.data])
+    } catch (error) {
+      throw error
+    }
+  }
+
+  useEffect(() => {
+    fetchPenalty()
   },[])
 
   const onAdd = () => {
@@ -72,6 +112,29 @@ const PenaltyIndex = () => {
     setToggleModal(true)
   }
 
+  const postForm = async (params) => {
+    // return console.log(params, itemActive, "params");
+    try {
+      if (itemActive) return postEdit(params);
+      dispatch(handlePreloader(true));
+      const status = await Api.post(`/hris/warning-letter`, params);
+      dispatch(handlePreloader(false));
+      if (!status)
+        return toast.error(`Error : ${data}`, {
+          position: "top-center",
+        });
+      toast.success("Successfully added employee!", {
+        position: "top-center",
+      });
+    } catch (error) {
+      dispatch(handlePreloader(false))
+			toast.error(`Error : ${error.message}`, {
+				position: 'top-center'
+      })
+    }
+  };
+
+
   return (
     <>
     <Row>
@@ -86,31 +149,31 @@ const PenaltyIndex = () => {
     </Row>
     <Row>
         {
-          penaltys.map((x, index) => (
+          penalty.map((x, index) => (
             <Col md="4" key={index} className="position-relative">
               <Card>
                 <CardBody>
                   <div className="pointer" onClick={() => onDetail(x)}>
                     <CardTitle tag='h4' className='my-0'>
-                      {readMore(x.name,18)}
+                      {readMore(x.users.name,16)}
                     </CardTitle>
                     <p className='text-body-tertiary pb-1 my-0'><small>{x.email}</small></p>
                   </div>
                   <div className='d-flex align-items-center pointer'>
                     <Avatar color="light-info" icon={<User size={24} />} className='me-2' />
                     <div className='my-auto'>
-                      <h4 className='fw-bolder mb-0'>{x.total_employee}</h4>
-                      <CardText className='font-small-3 mb-0 text-secondary'>{x.title} {x.penalty_type}</CardText>
+                      <h4 className='fw-bolder mb-0'>{x.message}</h4>
+                      <CardText className='font-small-3 mb-0'>{x.title}</CardText>
                     </div>
                   </div>
                 </CardBody>
               </Card>
               <div className="d-flex px-2 project-card-action">
-								{/* <div className="pointer">
-									<Edit className='me-50' size={15} onClick={console.log("jajaja")}/> <span className='align-middle'></span>
-								</div> */}
 								<div className="pointer">
-									<Trash className='me-50' size={15} onClick={console.log("haaha")}/> <span className='align-middle'></span>
+									{/* <Edit className='me-50' size={15} onClick={onEdit}/> <span className='align-middle'></span> */}
+								</div>
+								<div className="pointer">
+									{/* <Trash className='me-50' size={15} onClick={console.log("haaha")}/> <span className='align-middle'></span> */}
 								</div>
               </div>
             </Col>
@@ -126,7 +189,9 @@ const PenaltyIndex = () => {
         {modal.title}
       </ModalHeader>
       <ModalBody>
-        {modal.mode === "add" ? <PenaltyForm item={penaltys} user={employee} close={() => setToggleModal(false)}/> : <></>}
+        {modal.mode === "add" ?
+        <PenaltyForm item={penalty} user={employee} close={() => setToggleModal(false)}/>
+         : <></>}
         {modal.mode === "detail" ? <PenaltyDetail item={modal.item} /> : <></>}
       </ModalBody>
     </Modal>
@@ -135,3 +200,5 @@ const PenaltyIndex = () => {
 }
 
 export default PenaltyIndex
+
+{/* <PenaltyForm item={penaltys} user={employee} close={() => setToggleModal(false)}/> */}

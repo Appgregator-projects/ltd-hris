@@ -21,8 +21,6 @@ export default function LeaveCategoryIndex(){
     item:null
   })
 
-  console.log(categories, "ini categories")
-
   const fetchCategories = async() => {
     try {
       const data = await Api.get(`/hris/leave-category`)
