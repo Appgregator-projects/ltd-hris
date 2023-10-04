@@ -1,21 +1,25 @@
-import React, { useState } from "react";
+import React, { forwardRef, useState } from "react";
 import { Fragment } from "react";
 import { Check, ChevronDown, User } from "react-feather";
-import { Card, CardBody, Col, Input, Label, Row } from "reactstrap";
-
+import { Card, CardBody, CardHeader, Col, Input, Label, Row } from "reactstrap";
 // ** Custom Components
 import Avatar from "../../../../../@core/components/avatar/index";
 import DataTable from "react-data-table-component";
-import { columns } from "../../store/data";
+import { columns, data, states } from "../../store/data";
 import ReactPaginate from "react-paginate";
+import { getCollectionFirebase } from "../../../../../sevices/FirebaseApi";
 import { useEffect } from "react";
 
-const LogActivityTabs = ({ quizList, dataQuiz }) => {
+const LogActivityTabs = ({ quizList, setQuizList, dataQuiz }) => {
 	const [searchValue, setSearchValue] = useState([]);
 	const [filteredData, setFilteredData] = useState([]);
 	const [currentPage, setCurrentPage] = useState(0);
 	const [dataUser, setDataUser] = useState([]);
 	const [activityQuiz, setActivityQuiz] = useState({});
+	// Fetch data activity log
+	// const fetchDataActivity = async () =>{
+	// 	const res = getCollectionFirebase('quizzes')
+	// }
 
 	//** Handle
 	const handleFilter = (e) => {
@@ -117,7 +121,7 @@ const LogActivityTabs = ({ quizList, dataQuiz }) => {
 		if (newData.length !== 0) {
 			const newDataQuizScores = newData.scores.map((score) => ({
 				...score,
-				minGrade: parseInt(newData.quiz_minGrade),
+				minGrade: parseInt(newData.quiz_minGrade), // Ganti 'xx' dengan id yang Anda inginkan
 			}));
 			const seenUIDs = new Set();
 			let passed = 0;
@@ -152,6 +156,12 @@ const LogActivityTabs = ({ quizList, dataQuiz }) => {
 				<Col>
 					<h3>Log Activity</h3>
 				</Col>
+
+				{/* <Col className="d-flex justify-content-end">
+                <Button.Ripple className="btn-icon" color={"primary"} outline>
+                  <Settings size={14} />
+                </Button.Ripple>
+              </Col> */}
 			</Row>
 			<Row className="mb-1">
 				<Col lg="6" sm="6">
@@ -167,6 +177,12 @@ const LogActivityTabs = ({ quizList, dataQuiz }) => {
 							</h2>
 							<p className="card-text">Enrolled</p>
 						</CardBody>
+						{/* <Chart
+							options={options}
+							series={series}
+							type={type}
+							height={height ? height : 100}
+						/> */}
 					</Card>
 				</Col>
 				<Col lg="6" sm="6">
@@ -182,6 +198,12 @@ const LogActivityTabs = ({ quizList, dataQuiz }) => {
 							</h2>
 							<p className="card-text">Passed</p>
 						</CardBody>
+						{/* <Chart
+							options={options}
+							series={series}
+							type={type}
+							height={height ? height : 100}
+						/> */}
 					</Card>
 				</Col>
 
@@ -211,6 +233,7 @@ const LogActivityTabs = ({ quizList, dataQuiz }) => {
 					<DataTable
 						noHeader
 						pagination
+						// data={searchValue.length ? filteredData : data}
 						data={
 							searchValue.length ? filteredData : dataUser
 						}
@@ -227,6 +250,7 @@ const LogActivityTabs = ({ quizList, dataQuiz }) => {
 				</div>
 			</Row>
 		</Fragment>
+		// <></>
 	);
 };
 
