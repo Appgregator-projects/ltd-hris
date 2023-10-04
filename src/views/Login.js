@@ -92,7 +92,8 @@ const Login = () => {
       const token = submitLogin.user;
       const checkCompany = await fetchCompany();
       
-      // const userDetail = await submitLogin.user
+      const userDetail = await submitLogin.user;
+      console.log(userDetail, "userdetail")
       // const {status, data} = await fetchMe(token)
       const accessToken = await token.getIdToken(true);
       console.log(checkCompany, "checkCompany");
@@ -105,6 +106,7 @@ const Login = () => {
           let arrList = [];
           userAbility["data"]["permissions"][0]["role_permissions"].map(
             (item, index) => {
+              // console.log(item, "item ability")
               if (item["create"] === 1) {
                 arrList.push({
                   action: "create",
