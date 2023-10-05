@@ -31,9 +31,9 @@ import CourseCard from "./CourseCard";
 
 import {
 	getCollectionFirebase,
-	getCollectionWhereFirebase,
 	getSingleDocumentFirebase,
 } from "../../../../sevices/FirebaseApi";
+
 
 const avatarGroupData2 = [
 	{
@@ -95,6 +95,7 @@ const CoursesPage = () => {
 			);
 
 			const courses = coursesData.flat();
+
 			setDataCourse(courses);
 		} catch (error) {
 			throw error;

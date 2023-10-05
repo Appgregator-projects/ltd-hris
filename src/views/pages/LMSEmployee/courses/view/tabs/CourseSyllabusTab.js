@@ -16,11 +16,13 @@ import "@styles/react/libs/drag-and-drop/drag-and-drop.scss";
 
 //** Api
 import Api from "../../../../../../sevices/Api";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getCollectionFirebase } from "../../../../../../sevices/FirebaseApi";
+import { getSections } from "../../../../LMS/store/courses";
 
 const CourseSyllabusTab = ({ courseData, getCourseDetail }) => {
 	const param = useParams();
+	const dispatch = useDispatch();
 
 	const [sectionList, setSectionList] = useState([]);
 
@@ -28,10 +30,17 @@ const CourseSyllabusTab = ({ courseData, getCourseDetail }) => {
 
 	//** Fetch data
 	const fetchDataSection = async () => {
-		const res = await getCollectionFirebase(
-			`courses/${param.id}/course_section`
-		);
-		setSectionList(res);
+		try {
+			const res = await getCollectionFirebase(
+				`courses/${param.id}/course_section`
+			);
+			if (res) {
+				dispatch(getSections(res));
+				setSectionList(res);
+			}
+		} catch (error) {
+			throw error;
+		}
 	};
 
 	useEffect(() => {
@@ -64,12 +73,12 @@ const CourseSyllabusTab = ({ courseData, getCourseDetail }) => {
 									>
 										<SectionAccordion
 											data={item}
+											dispatch={dispatch}
 										/>
 									</Card>
 								</ListGroupItem>
 							);
-						})
-					}
+						})}
 				</Col>
 			</Row>
 		</Fragment>

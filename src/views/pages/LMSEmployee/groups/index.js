@@ -18,6 +18,7 @@ import {
 	getCollectionFirebase,
 	getCollectionWhereFirebase,
 } from "../../../../sevices/FirebaseApi";
+import SingleAvatarGroup from "../../../../@core/components/single-avatar-group";
 
 const GroupsPage = () => {
 	//** State
@@ -73,7 +74,6 @@ const GroupsPage = () => {
 							<th>Tag</th>
 							<th>Courses</th>
 							<th>Members</th>
-							{/* <th>Actions</th> */}
 						</tr>
 					</thead>
 					<tbody>
@@ -105,14 +105,34 @@ const GroupsPage = () => {
 									</Badge>
 								</td>
 								<td>
-									<AvatarGroup
-										data={item.groupCourses}
-									/>
+									<div className="avatar-group">
+										{item?.groupCourses?.map(
+											(x, id) => {
+												return (
+													<SingleAvatarGroup
+														key={id}
+														id={id}
+														data={x}
+													/>
+												);
+											}
+										)}
+									</div>
 								</td>
 								<td>
-									<AvatarGroup
-										data={item.groupMembers}
-									/>
+									<div className="avatar-group">
+										{item?.groupMembers?.map(
+											(x, id) => {
+												return (
+													<SingleAvatarGroup
+														key={id}
+														id={id}
+														data={x}
+													/>
+												);
+											}
+										)}
+									</div>
 								</td>
 							</tr>
 						))}

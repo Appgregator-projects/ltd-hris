@@ -1,4 +1,4 @@
-import React, { forwardRef, useState } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
 import { Fragment } from "react";
 import { Check, ChevronDown, User } from "react-feather";
 import { Card, CardBody, CardHeader, Col, Input, Label, Row } from "reactstrap";
@@ -7,14 +7,20 @@ import Avatar from "../../../../../../@core/components/avatar/index";
 import DataTable from "react-data-table-component";
 import { columnsLogCourse, dataLogCourse, states } from "../../../store/data";
 import ReactPaginate from "react-paginate";
+import {
+	getCollectionFirebase,
+	getSingleDocumentFirebase,
+} from "../../../../../../sevices/FirebaseApi";
+import { auth } from "../../../../../../configs/firebase";
+import { useParams } from "react-router-dom";
 
-const LogActivityTab = ({ courseData, setQuizList }) => {
+const LogActivityTab = ({ courseData }) => {
+	const param = useParams();
 	const [searchValue, setSearchValue] = useState("");
 	const [filteredData, setFilteredData] = useState([]);
 	const [currentPage, setCurrentPage] = useState(0);
-	const [currentPageCard, setCurrentPageCard] = useState(0);
-	const [searchValueCard, setSearchValueCard] = useState("");
-	const [filteredDataCard, setFilteredDataCard] = useState([]);
+	const [logActivity, setLogActivity] = useState([]);
+
 	// ** Bootstrap Checkbox Component
 	const BootstrapCheckbox = forwardRef((props, ref) => (
 		<div className="form-check">
@@ -22,92 +28,123 @@ const LogActivityTab = ({ courseData, setQuizList }) => {
 		</div>
 	));
 
-	const startIndex = currentPageCard * 7;
-	const endIndex = startIndex + 7;
-	const paginatedData = searchValueCard.length
-		? filteredDataCard.slice(startIndex, endIndex)
-		: dataLogCourse.slice(startIndex, endIndex);
+	console.log(courseData.course_title);
 
-	//** Handle
-	const handleFilter = (e) => {
-		const value = e.target.value;
-		let updatedData = [];
-		setSearchValue(value);
+	//** Fetch data
+	const fetchLogActivity = async () => {
+		try {
+			const conditions = [
+				{
+					field: "course_id",
+					operator: "==",
+					value: param.id,
+				},
+			];
+			const res = await getCollectionFirebase(
+				"user_course_progress",
+				conditions
+			);
+			if (res) {
+				console.log({ res });
+				let newLogActivity = res
+					.map((item) => {
+						console.log({ item });
+						return item.history.map((log) => ({
+							...log,
+							name: item?.user?.name, // Pastikan item.name adalah nama yang diinginkan
+							email: item?.user?.email, // Pastikan item.email adalah email yang diinginkan
+							course: courseData?.course_title, // Pastikan courseData.course_title adalah judul kursus yang diinginkan
+						}));
+					})
+					.flat(); // Menggunakan flat untuk menggabungkan array dalam array
 
-		const status = {
-			1: { title: "Current", color: "light-primary" },
-			2: { title: "Professional", color: "light-success" },
-			3: { title: "Rejected", color: "light-danger" },
-			4: { title: "Resigned", color: "light-warning" },
-			5: { title: "Applied", color: "light-info" },
-		};
+				console.log({ newLogActivity });
 
-		if (value.length) {
-			updatedData = dataLogCourse.filter((item) => {
-				const startsWith =
-					item.full_name
-						.toLowerCase()
-						.startsWith(value.toLowerCase()) ||
-					item.lesson
-						.toLowerCase()
-						.startsWith(value.toLowerCase()) ||
-					item.email
-						.toLowerCase()
-						.startsWith(value.toLowerCase()) ||
-					item.section
-						.toLowerCase()
-						.startsWith(value.toLowerCase()) ||
-					item.course
-						.toLowerCase()
-						.startsWith(value.toLowerCase()) ||
-					item.start_date
-						.toLowerCase()
-						.startsWith(value.toLowerCase()) ||
-					status[item.status].title
-						.toLowerCase()
-						.startsWith(value.toLowerCase());
+				setLogActivity(newLogActivity);
+			}
 
-				const includes =
-					item.full_name
-						.toLowerCase()
-						.includes(value.toLowerCase()) ||
-					item.section
-						.toLowerCase()
-						.includes(value.toLowerCase()) ||
-					item.email
-						.toLowerCase()
-						.includes(value.toLowerCase()) ||
-					item.lesson
-						.toLowerCase()
-						.includes(value.toLowerCase()) ||
-					item.course
-						.toLowerCase()
-						.includes(value.toLowerCase()) ||
-					item.start_date
-						.toLowerCase()
-						.includes(value.toLowerCase()) ||
-					status[item.status].title
-						.toLowerCase()
-						.includes(value.toLowerCase());
-
-				if (startsWith) {
-					return startsWith;
-				} else if (!startsWith && includes) {
-					return includes;
-				} else return null;
-			});
-			setFilteredData(updatedData);
-			setSearchValue(value);
+		} catch (error) {
+			throw error;
 		}
 	};
+	console.log({ logActivity });
+	//** Handle
+	// const handleFilter = (e) => {
+	// 	const value = e.target.value;
+	// 	let updatedData = [];
+	// 	setSearchValue(value);
+
+	// 	const status = {
+	// 		1: { title: "Current", color: "light-primary" },
+	// 		2: { title: "Professional", color: "light-success" },
+	// 		3: { title: "Rejected", color: "light-danger" },
+	// 		4: { title: "Resigned", color: "light-warning" },
+	// 		5: { title: "Applied", color: "light-info" },
+	// 	};
+
+	// 	if (value.length) {
+	// 		updatedData = dataLogCourse.filter((item) => {
+	// 			const startsWith =
+	// 				item.full_name
+	// 					.toLowerCase()
+	// 					.startsWith(value.toLowerCase()) ||
+	// 				item.lesson
+	// 					.toLowerCase()
+	// 					.startsWith(value.toLowerCase()) ||
+	// 				item.email
+	// 					.toLowerCase()
+	// 					.startsWith(value.toLowerCase()) ||
+	// 				item.section
+	// 					.toLowerCase()
+	// 					.startsWith(value.toLowerCase()) ||
+	// 				item.course
+	// 					.toLowerCase()
+	// 					.startsWith(value.toLowerCase()) ||
+	// 				item.start_date
+	// 					.toLowerCase()
+	// 					.startsWith(value.toLowerCase()) ||
+	// 				status[item.status].title
+	// 					.toLowerCase()
+	// 					.startsWith(value.toLowerCase());
+
+	// 			const includes =
+	// 				item.full_name
+	// 					.toLowerCase()
+	// 					.includes(value.toLowerCase()) ||
+	// 				item.section
+	// 					.toLowerCase()
+	// 					.includes(value.toLowerCase()) ||
+	// 				item.email
+	// 					.toLowerCase()
+	// 					.includes(value.toLowerCase()) ||
+	// 				item.lesson
+	// 					.toLowerCase()
+	// 					.includes(value.toLowerCase()) ||
+	// 				item.course
+	// 					.toLowerCase()
+	// 					.includes(value.toLowerCase()) ||
+	// 				item.start_date
+	// 					.toLowerCase()
+	// 					.includes(value.toLowerCase()) ||
+	// 				status[item.status].title
+	// 					.toLowerCase()
+	// 					.includes(value.toLowerCase());
+
+	// 			if (startsWith) {
+	// 				return startsWith;
+	// 			} else if (!startsWith && includes) {
+	// 				return includes;
+	// 			} else return null;
+	// 		});
+	// 		setFilteredData(updatedData);
+	// 		setSearchValue(value);
+	// 	}
+	// };
 
 	// ** Function to handle Pagination
-	const handlePagination = (page) => {
-		setCurrentPage(page.selected);
-	};
-	const handleCardPagination = (page) => {
-		setCurrentPageCard(page.selected);
-	};
+	// const handlePagination = (page) => {
+	// 	setCurrentPage(page.selected);
+	// };
 
 	// ** Expandable table component
 	const ExpandableTable = ({ data }) => {
@@ -120,59 +157,41 @@ const LogActivityTab = ({ courseData, setQuizList }) => {
 	};
 
 	// ** Custom Pagination
-	const CustomPagination = () => (
-		<ReactPaginate
-			previousLabel=""
-			nextLabel=""
-			forcePage={currentPage}
-			onPageChange={(page) => handlePagination(page)}
-			pageCount={
-				searchValue.length
-					? Math.ceil(filteredData.length / 10)
-					: Math.ceil(dataLogCourse.length / 10) || 1
-			}
-			breakLabel="..."
-			pageRangeDisplayed={2}
-			marginPagesDisplayed={2}
-			activeClassName="active"
-			pageClassName="page-item"
-			breakClassName="page-item"
-			nextLinkClassName="page-link"
-			pageLinkClassName="page-link"
-			breakLinkClassName="page-link"
-			previousLinkClassName="page-link"
-			nextClassName="page-item next-item"
-			previousClassName="page-item prev-item"
-			containerClassName="pagination react-paginate separated-pagination pagination-sm justify-content-end pe-1 mt-1"
-		/>
-	);
-	const CustomCardPagination = () => (
-		<ReactPaginate
-			previousLabel=""
-			nextLabel=""
-			forcePage={currentPageCard}
-			onPageChange={(page) => handleCardPagination(page)}
-			pageCount={
-				searchValueCard.length
-					? Math.ceil(filteredDataCard.length / 10)
-					: Math.ceil(dataLogCourse.length / 10) || 1
-			}
-			breakLabel="..."
-			pageRangeDisplayed={2}
-			marginPagesDisplayed={2}
-			activeClassName="active"
-			pageClassName="page-item"
-			breakClassName="page-item"
-			nextLinkClassName="page-link"
-			pageLinkClassName="page-link"
-			breakLinkClassName="page-link"
-			previousLinkClassName="page-link"
-			nextClassName="page-item next-item"
-			previousClassName="page-item prev-item"
-			containerClassName="pagination react-paginate separated-pagination pagination-sm justify-content-end pe-1 mt-1"
-		/>
-	);
+	// const CustomPagination = () => (
+	// 	<ReactPaginate
+	// 		previousLabel=""
+	// 		nextLabel=""
+	// 		forcePage={currentPage}
+	// 		onPageChange={(page) => handlePagination(page)}
+	// 		pageCount={
+	// 			searchValue.length
+	// 				? Math.ceil(filteredData.length / 10)
+	// 				: Math.ceil(dataLogCourse.length / 10) || 1
+	// 		}
+	// 		breakLabel="..."
+	// 		pageRangeDisplayed={2}
+	// 		marginPagesDisplayed={2}
+	// 		activeClassName="active"
+	// 		pageClassName="page-item"
+	// 		breakClassName="page-item"
+	// 		nextLinkClassName="page-link"
+	// 		pageLinkClassName="page-link"
+	// 		breakLinkClassName="page-link"
+	// 		previousLinkClassName="page-link"
+	// 		nextClassName="page-item next-item"
+	// 		previousClassName="page-item prev-item"
+	// 		containerClassName="pagination react-paginate separated-pagination pagination-sm justify-content-end pe-1 mt-1"
+	// 	/>
+	// );
+	useEffect(() => {
+		fetchLogActivity();
 
+		return () => {
+			setLogActivity([]);
+		};
+	}, []);
+
+	useEffect(() => {}, [courseData]);
 	return (
 		<Fragment>
 			<Row className="mb-1">
@@ -244,7 +263,7 @@ const LogActivityTab = ({ courseData, setQuizList }) => {
 							bsSize="sm"
 							id="search-input"
 							value={searchValue}
-							onChange={handleFilter}
+							// onChange={handleFilter}
 						/>
 					</Col>
 				</Row>
@@ -252,18 +271,17 @@ const LogActivityTab = ({ courseData, setQuizList }) => {
 					<DataTable
 						noHeader
 						pagination
-						data={
-							searchValue.length
-								? filteredData
-								: dataLogCourse
-						}
+						data={logActivity.length > 0 ? logActivity : []}
+						// searchValue.length
+						// 		? filteredData
+						// 		:
 						// expandableRows
 						columns={columnsLogCourse}
 						// expandOnRowClicked
 						className="react-dataTable"
 						// sortIcon={<ChevronDown size={10} />}
-						paginationComponent={CustomPagination}
-						paginationDefaultPage={currentPage + 1}
+						// paginationComponent={CustomPagination}
+						// paginationDefaultPage={currentPage + 1}
 						// expandableRowsComponent={ExpandableTable}
 						paginationRowsPerPageOptions={[10, 25, 50, 100]}
 					/>

@@ -5,86 +5,42 @@ import { Fragment, useEffect, useState } from "react";
 import Breadcrumbs from "@components/breadcrumbs";
 
 // ** Reactstrap Imports
-import {
-	Button,
-	Card,
-	CardBody,
-	Col,
-	Input,
-	InputGroup,
-	InputGroupText,
-	Row,
-	UncontrolledTooltip,
-} from "reactstrap";
-// ** Images
-import { Search } from "react-feather";
+import { Button, Card, UncontrolledTooltip } from "reactstrap";
 
 import AvatarGroup from "@components/avatar-group";
 import react from "@src/assets/images/icons/react.svg";
-import avatar1 from "@src/assets/images/portrait/small/avatar-s-5.jpg";
-import avatar2 from "@src/assets/images/portrait/small/avatar-s-6.jpg";
-import avatar3 from "@src/assets/images/portrait/small/avatar-s-7.jpg";
-import { Edit, Trash } from "react-feather";
-import { Badge, Table } from "reactstrap";
+import { Edit, Rss, Trash } from "react-feather";
+import { Table } from "reactstrap";
 
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import DetailQuiz from "./DetailQuiz";
 import { useNavigate } from "react-router-dom";
 import { getCollectionFirebase } from "../../../../sevices/FirebaseApi";
-// import AddGroup from "./AddGroup";
+import SingleAvatarGroup from "../../../../@core/components/single-avatar-group";
 
 const MySwal = withReactContent(Swal);
-const data = [{}, {}, {}, {}, {}, {}, {}, {}];
-
-const avatarGroupData2 = [
-	{
-		title: "Diana",
-		img: avatar1,
-		imgHeight: 26,
-		imgWidth: 26,
-	},
-	{
-		title: "Rey",
-		img: avatar2,
-		imgHeight: 26,
-		imgWidth: 26,
-	},
-	{
-		title: "James",
-		img: avatar3,
-		imgHeight: 26,
-		imgWidth: 26,
-	},
-];
 
 const QuizPage = () => {
 	const [quizData, setQuizData] = useState([]);
+	const [groupList, setGroupList] = useState([]);
+
 	const navigate = useNavigate();
 
 	const fetchDataQuiz = async () => {
 		try {
 			const res = await getCollectionFirebase("quizzes");
-			setQuizData(res);
+			if (res) {
+				setQuizData(res);
+
+				const resGroup = await getCollectionFirebase("groups");
+				setGroupList(resGroup);
+			}
 		} catch (error) {
 			throw error;
 		}
 	};
 
-	const thumbnailCourses = [
-		{
-			title: "Introduction to Web Development",
-			img: "https://i.ytimg.com/vi/w__n0BvkqB4/maxresdefault.jpg",
-			imgHeight: 26,
-			imgWidth: 26,
-		},
-		{
-			title: "Python for Beginners",
-			img: "https://img.evbuc.com/https%3A%2F%2Fcdn.evbuc.com%2Fimages%2F549550559%2F1234433154323%2F1%2Foriginal.20230706-115709?w=1000&auto=format%2Ccompress&q=75&sharp=10&rect=0%2C0%2C2160%2C1080&s=84e3c74c34b060e7d28ccef3f6a5a6ec",
-			imgHeight: 26,
-			imgWidth: 26,
-		},
-	];
+	console.log({ groupList });
 
 	const handleConfirmText = () => {
 		return MySwal.fire({
@@ -121,11 +77,7 @@ const QuizPage = () => {
 
 	return (
 		<Fragment>
-			<Breadcrumbs
-				title="Quiz"
-				data={[{ title: "Quiz" }]}
-				// rightMenu={<AddGroup type={"Create"} />}
-			/>
+			<Breadcrumbs title="Quiz" data={[{ title: "Quiz" }]} />
 
 			<Card>
 				<Table responsive>
@@ -134,6 +86,7 @@ const QuizPage = () => {
 							<th>Title</th>
 							<th>Description</th>
 							<th>Course</th>
+							<th>Groups</th>
 							<th>Actions</th>
 						</tr>
 					</thead>
@@ -155,7 +108,45 @@ const QuizPage = () => {
 
 								<td>{item.quiz_description}</td>
 								<td>
-									<a onClick={()=>navigate(`/courses/${item.course.course_id}`)}>{item.course.course_title}</a>
+									<a
+										onClick={() =>
+											navigate(
+												`/courses/${item.course.course_id}`
+											)
+										}
+									>
+										{item.course.course_title}
+									</a>
+								</td>
+
+								<td>
+									<div className="avatar-group">
+										{groupList.map((x, id) => {
+											let data = {
+												avatar: x.group_thumbnail,
+												label: x.group_name,
+											};
+
+											if (
+												x.group_courses.includes(
+													item.course_id
+												)
+											) {
+												return (
+													<div key={id} onClick={()=>navigate('/groups')}>
+														<SingleAvatarGroup
+															id={
+																id
+															}
+															data={
+																data
+															}
+														/>
+													</div>
+												);
+											}
+										})}
+									</div>
 								</td>
 								<td width={250}>
 									{/* <GroupMembers />

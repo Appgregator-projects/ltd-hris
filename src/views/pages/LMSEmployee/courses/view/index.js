@@ -5,12 +5,7 @@ import { Fragment, useEffect, useState } from "react";
 import Breadcrumbs from "@components/breadcrumbs";
 
 // ** Reactstrap Imports
-import {
-	Card,
-	CardBody,
-	Col,
-	Row,
-} from "reactstrap";
+import { Card, CardBody, Col, Row } from "reactstrap";
 
 // ** Styles
 import "@styles/react/apps/app-users.scss";
@@ -24,8 +19,10 @@ import "@styles/react/libs/drag-and-drop/drag-and-drop.scss";
 import { getSingleDocumentFirebase } from "../../../../../sevices/FirebaseApi";
 import CourseSyllabusTab from "./tabs/CourseSyllabusTab";
 
+
 const CourseDetailPage = () => {
 	const param = useParams();
+
 
 	const [courseData, setCourseData] = useState([]);
 	const [active, setActive] = useState("1");
@@ -37,14 +34,23 @@ const CourseDetailPage = () => {
 	};
 
 	const getCourseDetail = async () => {
-		const getData = await getSingleDocumentFirebase("courses", param.id);
-		setCourseData(getData);
+		try {
+			const getData = await getSingleDocumentFirebase(
+				"courses",
+				param.id
+			);
+			if (getData) {
+				setCourseData(getData)
+			}
+		} catch (error) {
+			throw error;
+		}
 	};
 
 	useEffect(() => {
-		getCourseDetail()
+		getCourseDetail();
 		return () => {
-			setCourseData({})
+			setCourseData({});
 		};
 	}, []);
 	return (
@@ -67,7 +73,7 @@ const CourseDetailPage = () => {
 					>
 						<Card
 							style={{
-								backgroundColor: "#FFFFFF", 
+								backgroundColor: "#FFFFFF",
 							}}
 						>
 							<CardBody>

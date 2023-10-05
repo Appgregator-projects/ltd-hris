@@ -66,6 +66,7 @@ const AddLesson = ({
 			section_id: section.section_index,
 			chosen: false,
 			selected: false,
+			createdAt: new Date(),
 		};
 
 		if (Object.values(data).every((field) => field.length > 0)) {

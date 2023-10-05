@@ -39,7 +39,7 @@ const LessonAccordion = ({
 				<Row>
 					<Col className="pt-1 ms-1 d-flex">
 							<Play size={22} className="me-1 handle" />
-						<h6 onClick={()=>navigate(`/course/${param.id}/section/${section.id}/lesson/${lesson.lesson_title}`)} style={{'cursor':'pointer'}}>
+						<h6 onClick={()=>navigate(`/course/${param.id}/section/${section.id}/lesson/${encodeURIComponent(lesson.lesson_title)}`)} style={{'cursor':'pointer'}}>
 							{lesson.lesson_title}
 						</h6>
 					</Col>
