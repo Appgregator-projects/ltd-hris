@@ -52,7 +52,7 @@ export default function EmployeeDetail() {
 			throw error
 		}
 	}
-
+	console.log(user, "user detail")
 	useEffect(() => {
 		fetchUser()
 	}, [])

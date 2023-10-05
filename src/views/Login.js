@@ -92,15 +92,13 @@ const Login = () => {
       const token = submitLogin.user;
       const checkCompany = await fetchCompany();
       
-      const userDetail = await submitLogin.user;
-      console.log(userDetail, "userdetail")
-      // const {status, data} = await fetchMe(token)
+      console.log(token, "userdetail")
       const accessToken = await token.getIdToken(true);
-      console.log(checkCompany, "checkCompany");
+      console.log(accessToken,"accessToken");
       token.access_token = accessToken;
 
       if ((token, checkCompany)) {
-        console.log(token.access_token, "token")
+        console.log(token, "token")
         if (checkCompany) {
           const userAbility = await Me(accessToken);
           let arrList = [];
@@ -131,11 +129,9 @@ const Login = () => {
                   subject: item["permission_name"]["name"],
                 });
               }
-              // console.log(item, "map");
             }
           );
           ability.update(arrList);
-
           dispatch(
             handleLogin({
               token,
@@ -143,7 +139,10 @@ const Login = () => {
               ...userAbility["data"],
               access_token: accessToken,
             })
-          );
+            );
+          dispatch(
+            handlePermission({...userAbility["data"]}
+          ));
           dispatch(handleCompany(checkCompany));
           navigate("/home");
           toast.success("Login succes", {

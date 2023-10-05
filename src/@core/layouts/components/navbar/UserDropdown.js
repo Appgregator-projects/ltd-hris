@@ -67,14 +67,13 @@ const UserDropdown = () => {
           <span className="user-status text-capitalize">{(userData && userData['role_name']) || 'Staff'}</span>
         </div>
         <Avatar
-          img={defaultAvatar}
+          img={userData && userData['avatar']}
           imgHeight="40"
           imgWidth="40"
           status="online"
         />
       </DropdownToggle>
       <DropdownMenu end>
-        <DropdownItem divider />
         <DropdownItem
           tag={Link}
           to="/setting/account"
