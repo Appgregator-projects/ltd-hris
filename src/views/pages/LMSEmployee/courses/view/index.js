@@ -5,12 +5,7 @@ import { Fragment, useEffect, useState } from "react";
 import Breadcrumbs from "@components/breadcrumbs";
 
 // ** Reactstrap Imports
-import {
-	Card,
-	CardBody,
-	Col,
-	Row,
-} from "reactstrap";
+import { Card, CardBody, Col, Row } from "reactstrap";
 
 // ** Styles
 import "@styles/react/apps/app-users.scss";
@@ -23,12 +18,14 @@ import { useParams } from "react-router-dom";
 import "@styles/react/libs/drag-and-drop/drag-and-drop.scss";
 import { getSingleDocumentFirebase } from "../../../../../sevices/FirebaseApi";
 import CourseSyllabusTab from "./tabs/CourseSyllabusTab";
+import { auth } from "../../../../../configs/firebase";
 
 const CourseDetailPage = () => {
 	const param = useParams();
 
 	const [courseData, setCourseData] = useState([]);
 	const [active, setActive] = useState("1");
+	const [logActivity, setLogActivity] = useState([]);
 
 	const toggleTab = (tab) => {
 		if (active !== tab) {
@@ -37,14 +34,31 @@ const CourseDetailPage = () => {
 	};
 
 	const getCourseDetail = async () => {
-		const getData = await getSingleDocumentFirebase("courses", param.id);
-		setCourseData(getData);
+		try {
+			const getData = await getSingleDocumentFirebase(
+				"courses",
+				param.id
+			);
+			if (getData) {
+				setCourseData(getData);
+
+				const activities = await getSingleDocumentFirebase(
+					"user_course_progress",
+					`${auth.currentUser.uid}-${param.id}`
+				);
+				if(activities){
+					setLogActivity(activities)
+				}
+			}
+		} catch (error) {
+			throw error;
+		}
 	};
 
 	useEffect(() => {
-		getCourseDetail()
+		getCourseDetail();
 		return () => {
-			setCourseData({})
+			setCourseData({});
 		};
 	}, []);
 	return (
@@ -67,7 +81,7 @@ const CourseDetailPage = () => {
 					>
 						<Card
 							style={{
-								backgroundColor: "#FFFFFF", 
+								backgroundColor: "#FFFFFF",
 							}}
 						>
 							<CardBody>
@@ -111,6 +125,7 @@ const CourseDetailPage = () => {
 						md={{ order: 1, size: 7 }}
 					>
 						<CourseSyllabusTab
+						logActivity={logActivity}
 							setCourseData={setCourseData}
 							courseData={courseData}
 							active={active}

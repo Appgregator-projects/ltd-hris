@@ -41,7 +41,6 @@ import { useEffect } from "react";
 const MySwal = withReactContent(Swal);
 
 const AddCourse = ({ type, id, image, fetchDataCourse, data }) => {
-	console.log(data);
 	const defaultValues = {
 		course_title: data?.course_title ? data.course_title : "",
 		course_description: data?.course_description
@@ -49,7 +48,6 @@ const AddCourse = ({ type, id, image, fetchDataCourse, data }) => {
 			: "",
 		course_tag: data?.course_tag ? data.course_tag : "",
 	};
-	console.log({ defaultValues });
 
 	const navigate = useNavigate();
 

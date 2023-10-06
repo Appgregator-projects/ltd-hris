@@ -13,6 +13,7 @@ import react from "@src/assets/images/icons/react.svg";
 import avatar1 from "@src/assets/images/portrait/small/avatar-s-5.jpg";
 import avatar2 from "@src/assets/images/portrait/small/avatar-s-6.jpg";
 import avatar3 from "@src/assets/images/portrait/small/avatar-s-7.jpg";
+import Avatar from "@components/avatar";
 
 //** Icons
 import { Edit, Trash } from "react-feather";
@@ -34,6 +35,7 @@ import {
 	deleteFileFirebase,
 	getCollectionFirebase,
 } from "../../../../sevices/FirebaseApi";
+import SingleAvatarGroup from "../../../../@core/components/single-avatar-group";
 
 // const data = [{}, {}, {}, {}, {}, {}, {}, {}];
 
@@ -232,14 +234,34 @@ const GroupsPage = () => {
 									</Badge>
 								</td>
 								<td>
-									<AvatarGroup
-										data={item.groupCourses}
-									/>
+									<div className="avatar-group">
+										{item?.groupCourses?.map(
+											(x, id) => {
+												return (
+													<SingleAvatarGroup
+														key={id}
+														id={id}
+														data={x}
+													/>
+												);
+											}
+										)}
+									</div>
 								</td>
 								<td>
-									<AvatarGroup
-										data={item.groupMembers}
-									/>
+									<div className="avatar-group">
+										{item?.groupMembers?.map(
+											(x, id) => {
+												return (
+													<SingleAvatarGroup
+														key={id}
+														id={id}
+														data={x}
+													/>
+												);
+											}
+										)}
+									</div>
 								</td>
 								<td width={250}>
 									<GroupMembers
@@ -264,7 +286,6 @@ const GroupsPage = () => {
 											fetchDataGroup
 										}
 										image={store?.image}
-
 									/>
 									<Button.Ripple
 										className={"btn-icon"}

@@ -297,10 +297,10 @@ const GroupCourses = ({ group_id, courses, fetchDataGroup }) => {
 							: "0 Course"}
 					</p>
 					<ListGroup flush className="mb-2">
-						{courses?.map((item) => {
+						{courses?.map((item, index) => {
 							return (
 								<ListGroupItem
-									key={item.name}
+									key={index}
 									className="d-flex align-items-start border-0 px-0"
 								>
 									{item.avatar ? (

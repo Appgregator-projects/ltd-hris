@@ -16,10 +16,9 @@ import Prism from "prismjs";
 
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 import { List } from "react-feather";
+import { getLessons } from "../../../../LMS/store/courses";
 
-const SectionAccordion = ({
-	data,
-}) => {
+const SectionAccordion = ({ data, dispatch, logActivity }) => {
 	const [lessonList, setLessonList] = useState([]);
 	const [open, setOpen] = useState("1");
 	const toggle = (id) => {
@@ -33,10 +32,11 @@ const SectionAccordion = ({
 	useEffect(() => {
 		if (data?.lesson_list) {
 			setLessonList([...data.lesson_list]);
+			dispatch(getLessons([...data.lesson_list]));
 		}
 		Prism.highlightAll();
 	}, [data?.lesson_list]);
-	
+
 	return (
 		<Accordion open={open} toggle={toggle}>
 			<AccordionItem>
@@ -76,8 +76,11 @@ const SectionAccordion = ({
 									key={index}
 									className="p-0 border-0"
 								>
-									<LessonAccordion lesson={item} 
-									section={data}/>
+									<LessonAccordion
+										lesson={item}
+										section={data}
+										logActivity={logActivity}
+									/>
 								</ListGroupItem>
 							);
 						})}

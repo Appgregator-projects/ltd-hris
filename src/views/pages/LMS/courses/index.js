@@ -11,15 +11,7 @@ import {
 	Button,
 	ButtonGroup,
 	Card,
-	CardBody,
-	CardLink,
-	CardSubtitle,
-	CardText,
-	CardTitle,
 	Col,
-	Input,
-	InputGroup,
-	InputGroupText,
 	Row,
 	TabContent,
 	TabPane,
@@ -27,9 +19,7 @@ import {
 } from "reactstrap";
 
 // ** Images
-import img3 from "@src/assets/images/slider/06.jpg";
 import AvatarGroup from "@components/avatar-group";
-import react from "@src/assets/images/icons/react.svg";
 import avatar1 from "@src/assets/images/portrait/small/avatar-s-5.jpg";
 import avatar2 from "@src/assets/images/portrait/small/avatar-s-6.jpg";
 import avatar3 from "@src/assets/images/portrait/small/avatar-s-7.jpg";
@@ -37,22 +27,17 @@ import { Badge, Table } from "reactstrap";
 
 // ** Third Party Components
 import { Eye, List, Search, Square, Edit, Trash } from "react-feather";
-// import { FaUserCircle } from "react-icons/fa";
-// import { HiOutlineUserGroup } from "react-icons/hi";
+
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import CourseCard from "./CourseCard";
 
-//** API
-import Api from "../../../../sevices/Api";
-
-import data from "./course.json";
 import {
 	deleteDocumentFirebase,
 	deleteFileFirebase,
 	getCollectionFirebase,
 } from "../../../../sevices/FirebaseApi";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 const MySwal = withReactContent(Swal);
 
@@ -80,6 +65,7 @@ const avatarGroupData2 = [
 const CoursesPage = () => {
 	const navigate = useNavigate();
 	const store = useSelector((state) => state.coursesSlice);
+	const dispatch = useDispatch();
 
 	//** Initial State
 	const [active, setActive] = useState("1");
@@ -87,9 +73,20 @@ const CoursesPage = () => {
 
 	//** Fetch Data
 	const fetchDataCourse = async () => {
-		const condition = [{ field: "isOpen", operator: "==", value: true }];
-		const getData = await getCollectionFirebase("courses", condition);
-		setDataCourse(getData);
+		try {
+			const condition = [
+				{ field: "isOpen", operator: "==", value: true },
+			];
+			const getData = await getCollectionFirebase(
+				"courses",
+				condition
+			);
+			if (getData) {
+				setDataCourse(getData);
+			}
+		} catch (error) {
+			throw error;
+		}
 	};
 
 	//** Handle
@@ -146,8 +143,9 @@ const CoursesPage = () => {
 
 	useEffect(() => {
 		fetchDataCourse();
-		console.log(store, "stores");
-		return () => {};
+		return () => {
+			setDataCourse([]);
+		};
 	}, [active]);
 
 	return (

@@ -46,7 +46,7 @@ const AddQuiz = ({ lesson, course, image, section }) => {
 	const param = useParams();
 	const [show, setShow] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
-	console.log({lesson})
+	
 	const iconHoverStyle = {
 		// Set the desired background color on hover
 		cursor: "pointer", // Optional: Change the cursor to a pointer on hover
@@ -63,7 +63,6 @@ const AddQuiz = ({ lesson, course, image, section }) => {
 	} = useForm({ defaultValues });
 
 	const onSubmit = async (data) => {
-		console.log(Object.values(data)[2]);
 		// if (Object.values(data).every((field) => field.length > 0)) {
 		if (
 			Object.values(data)[0].length > 0 &&

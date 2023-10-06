@@ -5,36 +5,17 @@ import { Fragment, useEffect, useState } from "react";
 import Breadcrumbs from "@components/breadcrumbs";
 
 // ** Reactstrap Imports
-import {
-	Badge,
-	Button,
-	Card,
-	CardBody,
-	CardHeader,
-	Col,
-	Form,
-	Input,
-	Label,
-	ListGroupItem,
-	Row,
-	UncontrolledTooltip,
-} from "reactstrap";
+import { Card, CardBody, Col, Row } from "reactstrap";
 // ** Styles
 import "@styles/react/apps/app-users.scss";
 import "@styles/react/libs/react-select/_react-select.scss";
 
 // ** Third Party Components
-import { ReactSortable } from "react-sortablejs";
-
-import { Edit, List, Plus, Save, Trash, X } from "react-feather";
-import SectionAccordion from "./sectionAccordion";
 import { useParams } from "react-router-dom";
-
-import data from "../course.json";
 
 // ** Styles
 import "@styles/react/libs/drag-and-drop/drag-and-drop.scss";
-import { FaSort } from "react-icons/fa";
+
 import CourseTabs from "../CourseTabs";
 import { getSingleDocumentFirebase } from "../../../../../sevices/FirebaseApi";
 import DeleteButton from "./DeleteButton";
@@ -55,8 +36,17 @@ const CourseDetailPage = () => {
 	};
 
 	const getCourseDetail = async () => {
-		const getData = await getSingleDocumentFirebase("courses", param.id);
-		setCourseData(getData);
+		try {
+			const getData = await getSingleDocumentFirebase(
+				"courses",
+				param.id
+			);
+			if (getData) {
+				setCourseData(getData);
+			}
+		} catch (error) {
+			throw error;
+		}
 	};
 
 	useEffect(() => {
@@ -65,6 +55,7 @@ const CourseDetailPage = () => {
 			setCourseData({});
 		};
 	}, []);
+
 	return (
 		<Fragment>
 			<Breadcrumbs

@@ -14,12 +14,10 @@ import Prism from "prismjs";
 import { useEffect, useState } from "react";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 import { useNavigate, useParams } from "react-router-dom";
+import { arrayUnionFirebase } from "../../../../../../sevices/FirebaseApi";
+import { auth } from "../../../../../../configs/firebase";
 
-const LessonAccordion = ({
-	lesson,
-	section
-}) => {
-	console.log({lesson, section})
+const LessonAccordion = ({ lesson, section, logActivity }) => {
 	const [open, setOpen] = useState("0");
 
 	const toggle = (id) => {
@@ -29,8 +27,51 @@ const LessonAccordion = ({
 			setOpen(id);
 		}
 	};
-	const param = useParams()
-	const navigate = useNavigate()
+	const param = useParams();
+	const navigate = useNavigate();
+
+	const handleLogActivity = async () => {
+		if (logActivity) {
+			const findActivity = await logActivity.history.findIndex(
+				(x) => x.lesson_title === lesson.lesson_title
+			);
+
+			if (findActivity === -1) {
+				try {
+					const res = await arrayUnionFirebase(
+						"user_course_progress",
+						`${auth.currentUser.uid}-${param.id}`,
+						"history",
+						{
+							lastUpdated: new Date(),
+							lesson_title: decodeURIComponent(
+								lesson.lesson_title
+							),
+							section_title: section.section_title,
+							section_id: section.id,
+						}
+					);
+					if (res) {
+						navigate(
+							`/course/${param.id}/section/${
+								section.id
+							}/lesson/${encodeURIComponent(
+								lesson.lesson_title
+							)}`
+						);
+					}
+				} catch (error) {
+					throw error;
+				}
+			} else {
+				navigate(
+					`/course/${param.id}/section/${
+						section.id
+					}/lesson/${encodeURIComponent(lesson.lesson_title)}`
+				);
+			}
+		}
+	};
 	useEffect(() => {
 		Prism.highlightAll();
 	}, []);
@@ -39,8 +80,11 @@ const LessonAccordion = ({
 			<AccordionItem>
 				<Row>
 					<Col className="pt-1 ms-1 d-flex">
-							<Play size={22} className="me-1 handle" />
-						<h6 onClick={()=>navigate(`/course/${param.id}/section/${section.id}/lesson/${lesson.lesson_title}`)} style={{'cursor':'pointer'}}>
+						<Play size={22} className="me-1 handle" />
+						<h6
+							onClick={() => handleLogActivity()}
+							style={{ cursor: "pointer" }}
+						>
 							{lesson.lesson_title}
 						</h6>
 					</Col>
