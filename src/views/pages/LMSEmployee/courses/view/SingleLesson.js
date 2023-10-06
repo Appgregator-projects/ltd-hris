@@ -28,7 +28,7 @@ import Breadcrumbs from "@components/breadcrumbs";
 // ** Styles
 import "@styles/react/apps/app-users.scss";
 import { useNavigate, useParams } from "react-router-dom";
-import { Save, List, ChevronRight, ChevronLeft } from "react-feather";
+import { Save, List, ChevronRight, ChevronLeft, Check } from "react-feather";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 import { auth } from "../../../../../configs/firebase";
 import Swal from "sweetalert2";
@@ -169,7 +169,6 @@ const SingleLesson = () => {
 					}
 				}
 
-				
 				setIsLoading(false);
 			}
 		} catch (error) {
@@ -177,27 +176,24 @@ const SingleLesson = () => {
 			throw error;
 		}
 	};
-	
-	const fetchLogActivity = async () =>{
+
+	const fetchLogActivity = async () => {
 		const activities = await getSingleDocumentFirebase(
 			"user_course_progress",
 			`${auth.currentUser.uid}-${param.course_id}`
 		);
 
 		if (activities) {
- 
 			const findActivity = await activities.history.findIndex(
 				(x) => x.lesson_title === param.lesson_title
-				
 			);
-		 
+
 			if (findActivity === -1) {
 				setLogActivity(true);
 			}
 		}
-	}
+	};
 
-	 
 	//Functions
 	function calculateScore(questions, answers) {
 		let totalScore = 0;
@@ -240,7 +236,6 @@ const SingleLesson = () => {
 		}
 	};
 	const handleButtonAction = async (type) => {
-		
 		if (logActivity) {
 			await arrayUnionFirebase(
 				"user_course_progress",
@@ -266,6 +261,8 @@ const SingleLesson = () => {
 					param.section_id
 				}/lesson/${encodeURIComponent(prevPage?.lesson_title)}`
 			);
+		} else if (type === "finish") {
+			navigate(`/courses-employee/${param.course_id}`);
 		}
 	};
 
@@ -353,7 +350,7 @@ const SingleLesson = () => {
 											setAnswer([]);
 										}
 									});
-								}else if(response){
+								} else if (response) {
 									MySwal.fire(
 										"Submitted!",
 										"You already submit the quiz",
@@ -375,7 +372,7 @@ const SingleLesson = () => {
 	const ButtonActionComponent = ({ type }) => {
 		return (
 			<Button.Ripple
-				color={"primary"}
+				color={"success"}
 				onClick={() => handleButtonAction(type)}
 			>
 				{type === "next" ? (
@@ -383,10 +380,15 @@ const SingleLesson = () => {
 						Next
 						<ChevronRight size={14} className="ms-1" />
 					</>
-				) : (
+				) : type === "back" ? (
 					<>
 						<ChevronLeft size={14} className="me-1" />
 						Back
+					</>
+				) : (
+					<>
+						Finish
+						<Check size={14} className="ms-1" />
 					</>
 				)}
 			</Button.Ripple>
@@ -395,7 +397,7 @@ const SingleLesson = () => {
 
 	useEffect(() => {
 		fetchDataLesson();
-		fetchLogActivity()
+		fetchLogActivity();
 		if (
 			storeCourses.sections.length === 0 ||
 			storeCourses.lessons.length === 0
@@ -416,15 +418,11 @@ const SingleLesson = () => {
 			});
 			setIsLoading(false);
 			setAnswer([]);
-			setLogActivity(false)
+			setLogActivity(false);
 		};
 	}, []);
 
-	useEffect(()=>{
-
-	},[nextPage, lesson.lesson_video, logActivity])
-
-	
+	useEffect(() => {}, [nextPage, lesson.lesson_video, logActivity]);
 
 	return (
 		<UILoader blocking={isLoading.page} overlayColor={"white"}>
@@ -760,7 +758,16 @@ const SingleLesson = () => {
 						</div>
 					) : currentLesson.idLesson ===
 					  section?.lesson_list?.length ? (
-						<ButtonActionComponent type={"back"} />
+						<div
+							className="d-flex justify-content-between"
+							style={{
+								position: "sticky",
+								bottom: 0,
+							}}
+						>
+							<ButtonActionComponent type={"back"} />
+							<ButtonActionComponent type={"finish"} />
+						</div>
 					) : (
 						<div
 							className="d-flex justify-content-between"

@@ -8,6 +8,7 @@ export const coursesSlice = createSlice({
 		course: [],
 		sections: [],
 		lessons: [],
+		lessonPerCourse: [],
 	},
 	reducers: {
 		getImage(state, action) {
@@ -22,9 +23,18 @@ export const coursesSlice = createSlice({
 		getLessons(state, action) {
 			state.lessons = action.payload;
 		},
+		getAllLessonPerCourse(state, action) {
+			state.lessonPerCourse = action.payload;
+		},
 	},
 	extraReducers: (builder) => {},
 });
 
-export const { getImage, getCourse, getSections, getLessons } = coursesSlice.actions;
+export const {
+	getImage,
+	getCourse,
+	getSections,
+	getLessons,
+	getAllLessonPerCourse,
+} = coursesSlice.actions;
 export default coursesSlice.reducer;

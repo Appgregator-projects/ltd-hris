@@ -39,16 +39,18 @@ import { FaSort } from "react-icons/fa";
 //** Api
 import Api from "../../../../../../sevices/Api";
 import { toast } from "react-hot-toast";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
 	addDocumentFirebase,
 	arrayUnionFirebase,
 	getCollectionFirebase,
 } from "../../../../../../sevices/FirebaseApi";
 import ButtonSpinner from "../../../../components/ButtonSpinner";
+import { getAllLessonPerCourse } from "../../../store/courses";
 
 const CourseSyllabusTab = ({ courseData, setCourseData, getCourseDetail }) => {
 	const param = useParams();
+	const dispatch = useDispatch()
 	// let sectionListData = [...courseData?.course_section];
 	// console.log(sectionListData, "sasa");
 
@@ -68,7 +70,19 @@ const CourseSyllabusTab = ({ courseData, setCourseData, getCourseDetail }) => {
 			`courses/${param.id}/course_section`
 		);
 		setSectionList(res);
+
+		const combinedLessonList = res.reduce(
+			(accumulator, currentSection) => {
+				return accumulator.concat(currentSection.lesson_list);
+			},
+			[]
+		);
+		
+		dispatch(getAllLessonPerCourse(combinedLessonList));
+		
 	};
+
+	
 
 	// ** handle
 	const handleAddSection = async (type) => {

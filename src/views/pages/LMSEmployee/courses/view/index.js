@@ -18,14 +18,14 @@ import { useParams } from "react-router-dom";
 import "@styles/react/libs/drag-and-drop/drag-and-drop.scss";
 import { getSingleDocumentFirebase } from "../../../../../sevices/FirebaseApi";
 import CourseSyllabusTab from "./tabs/CourseSyllabusTab";
-
+import { auth } from "../../../../../configs/firebase";
 
 const CourseDetailPage = () => {
 	const param = useParams();
 
-
 	const [courseData, setCourseData] = useState([]);
 	const [active, setActive] = useState("1");
+	const [logActivity, setLogActivity] = useState([]);
 
 	const toggleTab = (tab) => {
 		if (active !== tab) {
@@ -40,7 +40,15 @@ const CourseDetailPage = () => {
 				param.id
 			);
 			if (getData) {
-				setCourseData(getData)
+				setCourseData(getData);
+
+				const activities = await getSingleDocumentFirebase(
+					"user_course_progress",
+					`${auth.currentUser.uid}-${param.id}`
+				);
+				if(activities){
+					setLogActivity(activities)
+				}
 			}
 		} catch (error) {
 			throw error;
@@ -117,6 +125,7 @@ const CourseDetailPage = () => {
 						md={{ order: 1, size: 7 }}
 					>
 						<CourseSyllabusTab
+						logActivity={logActivity}
 							setCourseData={setCourseData}
 							courseData={courseData}
 							active={active}

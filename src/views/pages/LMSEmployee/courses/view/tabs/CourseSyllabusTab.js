@@ -20,7 +20,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getCollectionFirebase } from "../../../../../../sevices/FirebaseApi";
 import { getSections } from "../../../../LMS/store/courses";
 
-const CourseSyllabusTab = ({ courseData, getCourseDetail }) => {
+const CourseSyllabusTab = ({ logActivity }) => {
 	const param = useParams();
 	const dispatch = useDispatch();
 
@@ -74,6 +74,7 @@ const CourseSyllabusTab = ({ courseData, getCourseDetail }) => {
 										<SectionAccordion
 											data={item}
 											dispatch={dispatch}
+											logActivity={logActivity}
 										/>
 									</Card>
 								</ListGroupItem>

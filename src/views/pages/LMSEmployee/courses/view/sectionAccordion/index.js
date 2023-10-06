@@ -18,7 +18,7 @@ import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 import { List } from "react-feather";
 import { getLessons } from "../../../../LMS/store/courses";
 
-const SectionAccordion = ({ data, dispatch }) => {
+const SectionAccordion = ({ data, dispatch, logActivity }) => {
 	const [lessonList, setLessonList] = useState([]);
 	const [open, setOpen] = useState("1");
 	const toggle = (id) => {
@@ -79,6 +79,7 @@ const SectionAccordion = ({ data, dispatch }) => {
 									<LessonAccordion
 										lesson={item}
 										section={data}
+										logActivity={logActivity}
 									/>
 								</ListGroupItem>
 							);
