@@ -199,15 +199,6 @@ export default function EmployeeDetail() {
 		setToggleModal(true)	
 	}
 
-  const onEditPenalty = (x) => {
-    console.log("edit penalty")
-    setModal({
-      title : "Penalty Form",
-      mode: "penalty",
-      item:  x
-    })
-  }
-
 	const postLeave = async (arg) => {
 		try {
 			arg.users = user.id
@@ -253,13 +244,6 @@ export default function EmployeeDetail() {
 		}
 	}
 
-	const postFile = async(arg) => {
-		return console.log(arg, "e")
-		const file = e.target.files[0];
-		setUploadFile(file)
-
-	}
-
 	const onDelete = (x) => {
 		console.log(x,"test delete")
 		return MySwal.fire({
@@ -299,7 +283,7 @@ export default function EmployeeDetail() {
 	return (
 		<>
 			<Row>
-				<Col>
+				
 				<Col xl='12' lg='12' xs={{ order: 1 }} md={{ order: 0, size: 5 }}>
 					<Card>
 						<CardBody>
@@ -407,27 +391,6 @@ export default function EmployeeDetail() {
 							</div>
 						</CardBody>
 					</Card>
-				</Col>
-				<Col xl='12' lg='12' xs={{ order: 2 }} md={{ order: 0, size: 5 }}>
-					<Card>
-							<Form onSubmit={postFile}>
-						<CardHeader>
-							<CardTitle>Upload File</CardTitle>
-						</CardHeader>
-						<CardBody>
-								<Label for="upload_file">File</Label>
-								<Input
-								id="upload_file"
-								name="file"
-								type="file"></Input>
-						</CardBody>
-						<CardFooter>
-							<Button color="warning" type="submit">Upload</Button>
-						</CardFooter>
-							</Form>
-						
-					</Card>
-				</Col>
 				</Col>
 				<Col>
 				<Col>

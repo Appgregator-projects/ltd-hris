@@ -15,10 +15,9 @@ const BPJSConfig = ({isLoading, close, item, onSubmit}) => {
       console.log(errors, "error");
 
     useEffect(() => {
-        // return console.log(item)
-        if(item !== undefined) {
+        if(item) {
         setValue("name", item.name);
-        setValue("payment type", item.is_employee)
+        setValue("payment", item.is_employee)
         setValue("percentage", item.percentage)
         setValue("topper", item.topper)
         }
@@ -64,7 +63,7 @@ const BPJSConfig = ({isLoading, close, item, onSubmit}) => {
                 type="select"
                 {...field}
                 name='payment'
-                value={item?.is_employee}
+                // value={item?.is_employee}
                 invalid={errors.payment && true}
                 >
                 <option value=''>Select type</option>                                                                  

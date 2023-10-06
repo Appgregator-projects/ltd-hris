@@ -250,7 +250,7 @@ export default function FormEmployee({
                 type="select"
                 {...field}
                 name="gender"
-                value={item?.employee_attribute.gender}
+                // value={item?.employee_attribute.gender}
                 invalid={errors.gender && true}
               >
                 <option value="">Select gender</option>

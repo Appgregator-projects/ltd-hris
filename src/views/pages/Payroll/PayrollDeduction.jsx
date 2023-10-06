@@ -45,12 +45,12 @@ export default function PayrollDeduction() {
   const postUpdate = async (params) => {
     const itemUpdate = {
       name : params.name,
-      is_employee : params.is_employee,
+      is_employee : params.payment,
       percentage : params.percentage,
       topper : params.topper
     }
     try {
-      const status = await Api.put(`/hris/bpjs-rule/${modal.item.id}`, params)
+      const status = await Api.put(`/hris/bpjs-rule/${modal.item.id}`, itemUpdate)
       console.log(status, "has updated")
       if (!status) return toast.error(`Error : ${status}`, {
           position: "top-center"
@@ -69,7 +69,6 @@ export default function PayrollDeduction() {
   }
 
   const onSubmit = async (params) => {
-    // return console.log(params, "params")  
     try {
       if (modal.item) return postUpdate(params)
       const status = await Api.post(`/hris/bpjs-rule`, params)

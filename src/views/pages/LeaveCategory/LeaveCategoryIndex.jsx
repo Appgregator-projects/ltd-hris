@@ -42,7 +42,6 @@ export default function LeaveCategoryIndex(){
     })
     setToggleModal(true)
   }
-
   
   const onSubmit = async(arg) => {
     try {
@@ -61,9 +60,7 @@ export default function LeaveCategoryIndex(){
       toast.error(`Error : ${error.message}`, {
         position: 'top-center'
 			})
-      
     }
-    
   }
   
   const postDelete = (id) => {

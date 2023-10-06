@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Col, Input, Label, Modal, ModalBody, ModalHeader, Row, Table } from "reactstrap"
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Col, Input, Label, Modal, ModalBody, ModalHeader, Row, Table, UncontrolledTooltip } from "reactstrap"
 import Api from "../../../sevices/Api"
 import { numberFormat } from "../../../Helper"
 import dayjs from "dayjs"
@@ -39,21 +39,21 @@ export default function PayrolIndex() {
       },
       buttonsStyling: false
     }).then(async (result) => {
-      if (!result) return
-
-      try {
-        const data = await Api.delete(`/hris/payroll/${id}`)
-        if (typeof data.status !== 'undefined') return toast.error(`Error : ${data.data}`, {
-          position: "top-center"
-        })
-        toast.success(data, {
-          position: "top-center"
-        })
-        return fetchPayroll()
-      } catch (error) {
-        toast.error(`Error : ${error.message}`, {
-          position: "top-center"
-        })
+      if (result.isConfirmed){
+        try {
+          const data = await Api.delete(`/hris/payroll/${id}`)
+          if (typeof data.status !== 'undefined') return toast.error(`Error : ${data.data}`, {
+            position: "top-center"
+          })
+          toast.success(data, {
+            position: "top-center"
+          })
+          return fetchPayroll()
+        } catch (error) {
+          toast.error(`Error : ${error.message}`, {
+            position: "top-center"
+          })
+        }
       }
     })
   }
@@ -71,21 +71,21 @@ export default function PayrolIndex() {
       },
       buttonsStyling: false
     }).then(async (result) => {
-      if (!result) return
-
-      try {
-        const data = await Api.patch(`/hris/payroll/${id}`)
-        if (typeof data.status !== 'undefined') return toast.error(`Error : ${data.data}`, {
-          position: "top-center"
-        })
-        toast.success(data, {
-          position: "top-center"
-        })
-        return fetchPayroll()
-      } catch (error) {
-        toast.error(`Error : ${error.message}`, {
-          position: "top-center"
-        })
+      if (result.isConfirmed){
+        try {
+          const data = await Api.patch(`/hris/payroll/${id}`)
+          if (typeof data.status !== 'undefined') return toast.error(`Error : ${data.data}`, {
+            position: "top-center"
+          })
+          toast.success(data, {
+            position: "top-center"
+          })
+          return fetchPayroll()
+        } catch (error) {
+          toast.error(`Error : ${error.message}`, {
+            position: "top-center"
+          })
+        }
       }
     })
   }
@@ -133,41 +133,76 @@ export default function PayrolIndex() {
                           className="me-1"
                         >
                           {x.approved_at ? "Approved" : "Waiting"}
+
                         </Badge>
                       </td>
                       <td>
                         <div className="d-flex">
                           <div className="pointer">
-                          {
-                              !x.approved_at ?  <Trash className="me-50" size={15} title="Delete" onClick={() => onDelete(x.id)}/> : <></>
+                            { 
+                              !x.approved_at ? 
+                              <div>
+                              <Trash className="me-50" size={15} title="Delete" 
+                              onClick={() => onDelete(x.id)}
+                              id={`payrol-delete-${x.id}`}/> 
+                              <UncontrolledTooltip
+                                placement="top"
+                                target={`payrol-delete-${x.id}`}>
+                                Delete
+                              </UncontrolledTooltip>
+                              </div> 
+                              : <></>
                             }
-                           
                             <span className="align-middle"></span>
-                            <Link to={`/payroll/${x.id}`} title="Detail">
+                            <Link to={`/payroll/${x.id}`} 
+                            // title="Detail"
+                            >
                               <Eye
                                 className="me-50"
                                 size={15}
+                                id={`paycheck-${x.id}`}
+                                
                               />
                             </Link>
+                              <UncontrolledTooltip
+                              placement="top"
+                              target={`paycheck-${x.id}`}
+                              >Detail</UncontrolledTooltip>
                             <span className="align-middle"></span>
                             {
-                              !x.approved_at ? <Link to={`/payroll/${x.id}/edit`} title="Edit">
+                              !x.approved_at ? 
+                              <Link to={`/payroll/${x.id}/edit`}>
                                   <Edit
                                     className="me-50"
                                     size={15}
+                                    id={`payroll-edit-${x.id}`}
                                   />
-                                </Link> : <></>
+                                <UncontrolledTooltip
+                                placement="top"
+                                target={`payroll-edit-${x.id}`}
+                                >Edit
+                                </UncontrolledTooltip>
+                              </Link> 
+                              : <></>
                             }
-
                             {
-                              !x.approved_at ? <CheckCircle
-                                    className="me-50"
-                                    title="Approve"
-                                    size={15}
-                                    onClick={() => onApprove(x.id)}
-                                  /> : <></>
+                              !x.approved_at ? 
+                              <div>
+                              <CheckCircle
+                                className="me-50"
+                                title="Approve"
+                                size={15}
+                                onClick={() => onApprove(x.id)}
+                                id={`payrol-approve-${x.id}`}
+                                /> 
+                              <UncontrolledTooltip
+                                placement="top"
+                                target={`payrol-approve-${x.id}`}>
+                                Approve
+                              </UncontrolledTooltip>
+                              </div>
+                              : <></>
                             }
-
 
                           </div>
                         </div>

@@ -137,7 +137,7 @@ export default function PayrollForm() {
       try {
         const data = await Api.get(`/hris/payroll/by-user?user_id=${uid}&periode=${periode}`)
         setInfo(data)
-
+        console.log(data, "data fetchAttendance di payroll index")
         const loans_per_month = data.loans.map(x => (
           x.loan_amount / x.tenor
         ))

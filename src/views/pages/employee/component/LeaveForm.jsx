@@ -6,10 +6,8 @@ export default function LeaveForm ({leave, close, balance, onSubmit, isLoading})
 
   const [formLeave, setFormLeave] = useState([])
 
-
   const generateForm = () => {
     if(balance.length){
-
       const g = leave.map(x => {
         x.defaultValue = 0
         const check = balance.find(y => y.leave_id == x.id) 
@@ -19,7 +17,6 @@ export default function LeaveForm ({leave, close, balance, onSubmit, isLoading})
         }
         return x
       })  
-
       return setFormLeave([...g])
     }
     setFormLeave([...leave.map(x => {
@@ -27,6 +24,7 @@ export default function LeaveForm ({leave, close, balance, onSubmit, isLoading})
       return x
     })])
   }
+
   useEffect(() => {
     generateForm()
   }, [leave, balance])
