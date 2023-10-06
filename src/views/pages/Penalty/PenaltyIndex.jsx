@@ -23,27 +23,6 @@ const PenaltyIndex = () => {
     item : null
   })
 
-  const penaltys = [
-    {
-      name : "nata", 
-      email : "nata@gmail.com",
-      division : "time management",
-      title : "makan di ruangan IT",
-      penalty_type : "1",
-      massage : "jangan suka bawa makanan ke dalam ruangan kantor yg sudah tertulis tidak boleh membawa makanan",
-      file : "jkjbsdkjbf"
-    },
-    {
-      name : "audy", 
-      email : "audy@gmail.com",
-      division : "time management",
-      title : "gapake sepatu",
-      penalty_type : "2",
-      massage : "jangan suka bawa makanan ke dalam ruangan kantor yg sudah tertulis tidak boleh membawa makanan",
-      file : "jkjbsdkjbf"
-    }
-  ]
-
   const fetchEmployee= async() => {
     try {
       const data = await Api.get(`/hris/employee?no_paginate=true`);

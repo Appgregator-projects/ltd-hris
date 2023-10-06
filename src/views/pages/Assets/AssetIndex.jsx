@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardHeader, CardTitle, Col, Input, Label, Row, Table } from "reactstrap"
+import { Button, Card, CardBody, CardHeader, CardTitle, Col, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table } from "reactstrap"
 import Api from "../../../sevices/Api"
 import { useEffect, useState } from "react"
 import { Fragment } from "react"
@@ -11,12 +11,41 @@ const MySwal = withReactContent(Swal);
 export default function AssetIndex() {
 
   const [assets, setAssets] = useState(null)
+  const [listAsset, setList] = useState([])
+  const [employee, setEmployee] = useState([])
+  const [toggleModal, setToggleModal] = useState(false)
+  const [modal, setModal] = useState({
+    title:"",
+    mode: "",
+    item: null
+  })
+
+  const fetchEmployee = async () => {
+    try {
+      const data = await Api.get(`/hris/employee?no_paginate=true`)
+      if (data) {
+        const userData = data.map((x) => {
+          return {
+            value: x.id,
+            label: x.email
+          }
+        })
+        setEmployee([...userData])
+      }
+    } catch (error) {
+      throw error
+    }
+  }
+  
+  useEffect(() => {
+    fetchEmployee()
+  },[])
 
   const fetchAssets = async () => {
     try {
       const data = await Api.get('/hris/assets')
       setAssets(data)
-      console.log({data})
+      // console.log({data})
     } catch (error) {
       console.log(error.message)
     }
@@ -24,6 +53,22 @@ export default function AssetIndex() {
 
   useEffect(() => {
     fetchAssets()
+  },[])
+
+  const fetchList = async () => {
+    try {
+      const data = await Api.get(`/api/v1/accurate/master-data/fixed-asset/11?sp.page=0&sp.pageSize=5`)
+      console.log(data.s, "data list")
+      if (data.data.s === true){
+        setList(data.data.d)
+      }
+    } catch (error) {
+      console.log(error.message)
+    }
+  }
+  console.log(listAsset, "listAsset")
+  useEffect(() =>{
+    fetchList()
   },[])
 
   // const handleDelete = async (x) => {
@@ -61,61 +106,58 @@ export default function AssetIndex() {
 
   return (
     <>
-      {/* <Row className="d-flex justify-content-between">
+      <Row className="d-flex justify-content-between">
         <Col lg="2" sm="12" className="mb-1">
           <Fragment>
             <Button.Ripple size="sm" color="warning" >
               <Plus size={14} />
-              <span className="align-middle ms-25">Add</span>
+              <span className="align-middle ms-25">Add Asset</span>
             </Button.Ripple>
           </Fragment>
         </Col>
-      </Row> */}
+      </Row>
       <Row style={{backgroundColor:'white', margin:'auto'}}>
         <Card Row style={{backgroundColor:'white'}}>
           <CardHeader >
             <CardTitle>Assets Management</CardTitle>
-            <Col
-            className="d-flex align-items-center justify-content-sm-end mt-sm-0 mt-1"
-            sm="3"
-          >
-            <Label className="me-1" for="search-input">
-              Search
-            </Label>
-            <Input
-              className="dataTable-filter"
-              type="text"
-              bsSize="sm"
-              id="search-input"
-            //   value={searchValue}
-            //   onChange={handleFilter}
-            />
-          </Col>
+              <Col className="d-flex align-items-center justify-content-sm-end mt-sm-0 mt-1" sm="3">
+                <Label className="me-1" for="search-input">
+                  Search
+                </Label>
+                <Input
+                  className="dataTable-filter"
+                  type="text"
+                  bsSize="sm"
+                  id="search-input"
+                //   value={searchValue}
+                //   onChange={handleFilter}
+                />
+              </Col>
           </CardHeader>
           <CardBody>
-            <Table responsive size="sm">
+            <Table responsive size="md">
               <thead>
                 <tr className="text-xs">
                   <th style={{fontSize : 'sm'}}>Name</th>
-                  <th style={{fontSize : 'sm'}}>Assets</th>
-                  <th style={{fontSize : 'sm'}}>Description</th>
-                  <th></th>
-                  <th></th>
-                  <th style={{fontSize : 'sm'}}>Type</th>
-                  <th style={{fontSize : 'sm'}}>Model</th>
-                  <th style={{fontSize : 'sm'}}>Price</th>
+                  <th style={{fontSize : 'sm'}}>Division</th>
+                  {/* <th></th> */}
+                  {/* <th></th> */}
+                  <th style={{fontSize : 'sm'}}>Asset</th>
+                  <th style={{fontSize : 'sm'}}>Kode Asset</th>
+                  <th style={{fontSize : 'sm'}}>Asset Cost</th>
+                  <th style={{fontSize : 'sm'}}>Quantity Available</th>
                   <th style={{fontSize : 'sm'}}>Actions</th>
                 </tr>
               </thead>
               <tbody style={{backgroundColor:'transparent'}}>
-                {assets?.map((x,i) => (
+                {listAsset?.map((x,i) => (
                     <tr key={i}>
-                      <td style={{fontSize : '9pt', backgroundColor:'white', cursor:'pointer'}} className="user_name text-truncate text-body"><span className="fw-light text-capitalize">{x.users.name}</span></td>
-                      <td style={{fontSize:'9pt', backgroundColor:'white'}}>{x.title}</td>
+                      {/* <td style={{fontSize : '9pt', backgroundColor:'white', cursor:'pointer'}} className="user_name text-truncate text-body"><span className="fw-light text-capitalize">{x.users.name}</span></td> */}
+                      {/* <td style={{fontSize:'9pt', backgroundColor:'white'}}>{x.title}</td> */}
                       <td style={{fontSize : '9pt', backgroundColor:'white'}} colSpan={3}>{x.description}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.brand}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.model}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>Rp {numberFormat(x.price)}</td>
+                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.number}</td>
+                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>Rp{numberFormat(x.assetCost)}</td>
+                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.quantityAvailable}</td>
                       <td style={{fontSize : '9pt', backgroundColor:'white'}}>
                         <div className="d-flex">
                           <div className="pointer">
@@ -142,6 +184,19 @@ export default function AssetIndex() {
           </CardBody>
         </Card>
       </Row>
+      <Modal>
+        <ModalHeader
+        isOpen={toggleModal}
+        toggle={() => setToggleModal(!toggleModal)}
+        className={`modal-dialog-centered modal-lg`}>
+          {modal.title}
+        </ModalHeader>
+        <ModalBody toggle={() => setToggleModal(!toggleModal)}>
+        </ModalBody>
+        <ModalFooter>
+
+        </ModalFooter>
+      </Modal>
     </>
   )
 }
