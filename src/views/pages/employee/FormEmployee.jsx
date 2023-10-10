@@ -122,7 +122,7 @@ export default function FormEmployee({
   });
 
   const onSubmitForm = (arg) => {
-    return console.log(arg, "arg onSubmitform")
+    // return console.log(arg, "arg onSubmitform")
     arg.profile_picture = attachment;
     if (!item) {
       arg.password = arg.password ? arg.password : "121212";

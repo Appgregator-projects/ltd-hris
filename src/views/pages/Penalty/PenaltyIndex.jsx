@@ -158,7 +158,7 @@ const PenaltyIndex = () => {
             </Col>
           ))
         }
-        {!penaltys.length ? <div className="text-center">No Office found</div> : <></>}
+        {!penalty.length ? <div className="text-center">No Office found</div> : <></>}
     </Row>
     <Modal
       isOpen={toggleModal}

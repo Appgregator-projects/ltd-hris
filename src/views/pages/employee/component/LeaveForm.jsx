@@ -5,18 +5,22 @@ import ButtonSpinner from "../../components/ButtonSpinner"
 export default function LeaveForm ({leave, close, balance, onSubmit, isLoading}) {
 
   const [formLeave, setFormLeave] = useState([])
+  console.log(balance,"balance")
+  console.log(leave,"leave")
 
   const generateForm = () => {
-    if(balance.length){
-      const g = leave.map(x => {
+    if(balance?.length && leave.length){
+      const g = leave?.map(x => {
         x.defaultValue = 0
-        const check = balance.find(y => y.leave_id == x.id) 
-        if(check){
-          x.defaultValue = check.balance
-          console.log(x.defaultValue , "isinya apa")
+        const check = balance.find(y => y.leave_category_id ===  x.id) 
+        console.log(check, "check")
+        if(check !== null){
+          x.defaultValue = check ? check?.balance : 0
+          // x.initial_balance = x.initial_balance - check.balance
         }
         return x
       })  
+      console.log(g, "G")
       return setFormLeave([...g])
     }
     setFormLeave([...leave.map(x => {
@@ -25,6 +29,7 @@ export default function LeaveForm ({leave, close, balance, onSubmit, isLoading})
     })])
   }
 
+
   useEffect(() => {
     generateForm()
   }, [leave, balance])
@@ -32,23 +37,30 @@ export default function LeaveForm ({leave, close, balance, onSubmit, isLoading})
   const onChangeBalance = (e, index) => {
     const value = e.target.value
     const old = formLeave
-    console.log(old, "old")
     old[index].defaultValue = value
     return setFormLeave([...old])
   }
 
 
   const onSubmitForm = (arg) => {
-    // console.log(arg, "onsubmitform")
     const params = {
       leaves:formLeave.map(x => {
+        const check = leave.find(y => y.id == x.id) 
+        const current = check.initial_balance - x.defaultValue
+        // return console.log(current, "ini current")
+        if(current >= 0){
+          return{
+            leave_id:x.id,
+            balance:current
+          }
+        }
         return{
           leave_id:x.id,
-          balance:x.defaultValue
+          balance: check.initial_balance
         }
       })
     }
-    console.log(params, "onsubmitform")
+    console.log(params, "kakakak")
     return onSubmit(params)
   }
 

@@ -30,11 +30,9 @@ export default function EmployeeDetail() {
 	const [user, setUser] = useState([])
 	const [balance, setBalance] = useState([])
 	const [userBalance, setUserBalance] = useState([])
-	const [usersGetBalance, setUsersGetBalance] = useState([])
 	const [userDivision, setUserDivision] = useState([])
-  	const [logUser, setLogUser] = useState([])
-	const [uploadFile, setUploadFile] = useState([])
-	const [leaveCategories, setLaeveCategories] = useState([])
+  const [logUser, setLogUser] = useState([])
+	const [leaveCategories, setLeaveCategories] = useState([])
 	const [isLoading, setIsLoading] = useState(false)
 	const [income, setIncome] = useState([])
 	const [modal, setModal] =useState({
@@ -52,7 +50,7 @@ export default function EmployeeDetail() {
 			throw error
 		}
 	}
-	console.log(user, "user detail")
+  console.log(user, "balance di detail")
 	useEffect(() => {
 		fetchUser()
 	}, [])
@@ -80,23 +78,10 @@ export default function EmployeeDetail() {
 		fetchUserTeam()
 	},[])
 
-	const fetchUsersBalance = async () => {
-		try {
-			const dataUsers = await Api.get(`/hris/employee/${id.uid}`)
-			setUsersGetBalance([...dataUsers.leave_balances])
-		} catch (error) {
-			throw error
-		}
-	}
-	
-	useEffect(() => {
-		fetchUsersBalance()
-	}, [])
-
 	const fetchLeaveCategories = async () => {
 		try {
 			const data = await Api.get(`/hris/leave-category`)
-			setLaeveCategories([...data])
+			setLeaveCategories([...data])
 
 		} catch (error) {
 			throw error
@@ -200,12 +185,12 @@ export default function EmployeeDetail() {
 	}
 
 	const postLeave = async (arg) => {
+    // return console.log(arg, "arg apa isinya")
 		try {
-			arg.users = user.id
 			setIsLoading(true)
 			const status = await Api.post(`/hris/employee/${id.uid}/assign-leave`, arg)
+			// return console.log(status, "status")
 			setUserBalance(status)
-			console.log(status, "status")
 			setIsLoading(false)
 			if (!status) return toast.error(data, {
 				position: 'top-center'
@@ -223,6 +208,7 @@ export default function EmployeeDetail() {
 			throw error
 		}
 	}
+  console.log(userBalance, "userBalance")
 
 	const postIncome = async(params) => {
 		try {
@@ -284,7 +270,7 @@ export default function EmployeeDetail() {
 		<>
 			<Row>
 				
-				<Col xl='12' lg='12' xs={{ order: 1 }} md={{ order: 0, size: 5 }}>
+				<Col xl='4' lg='4' xs={{ order: 1 }} md={{ order: 0, size: 5 }}>
 					<Card>
 						<CardBody>
 							<div className='user-avatar-section'>
@@ -446,18 +432,19 @@ export default function EmployeeDetail() {
 									<thead>
 										<tr className='text-xs'>
 											<th className='fs-6'>Leave Name</th>
-											<th className='fs-6'>Balance</th>
+											<th className='fs-6'>Current Balance</th>
 										</tr>
 									</thead>
 									<tbody>
 										{
-											usersGetBalance.length ?
-												usersGetBalance.map(x => (
+											balance.length ?
+												balance.map(x => x.category !== null ?
+                          (
 													<tr key={x.id}>
 														<td>{x.category? x.category.name : '-'}</td>
 														<td>{x.balance ? x.balance : "0"} days</td>
 													</tr>
-												)) : <>
+												) :  null ) : <>
 													<tr>
 														<td colSpan={2} className="text-center">Empty leave</td>
 													</tr>
@@ -492,7 +479,7 @@ export default function EmployeeDetail() {
 								</div>
 								<div className='d-flex justify-content-between align-items-end mt-1 pt-25'>
 									<div className='role-heading'>
-										<h4 className='fw-bolder'>{usersGetBalance.category?.name}</h4>
+										<h4 className='fw-bolder'>{balance.category?.name}</h4>
 										<Link
 											to='/'
 											className='role-edit-modal'

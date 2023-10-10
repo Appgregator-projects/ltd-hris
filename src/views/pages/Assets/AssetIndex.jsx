@@ -2,10 +2,12 @@ import { Button, Card, CardBody, CardHeader, CardTitle, Col, Input, Label, Modal
 import Api from "../../../sevices/Api"
 import { useEffect, useState } from "react"
 import { Fragment } from "react"
-import { Edit, Plus, Trash } from "react-feather"
+import { Edit, Eye, Plus, Trash } from "react-feather"
 import { numberFormat } from "../../../Helper"
 import withReactContent from "sweetalert2-react-content"
 import Swal from "sweetalert2"
+import AssetForm from "./AssetForm"
+import toast from "react-hot-toast"
 const MySwal = withReactContent(Swal);
 
 export default function AssetIndex() {
@@ -41,75 +43,145 @@ export default function AssetIndex() {
     fetchEmployee()
   },[])
 
-  const fetchAssets = async () => {
+  const fetchList = async () => {
     try {
-      const data = await Api.get('/hris/assets')
-      setAssets(data)
-      // console.log({data})
+      const data = await Api.get(`/api/v1/accurate/master-data/fixed-asset/11?sp.page=0&sp.pageSize=5`)
+      if (data.data.s === true){
+        const listAsset = data.data.d.map((x) => {
+          return {
+            value: x.id,
+            label: x.description,
+            asset_code : x.number,
+            asset_cost : x.assetCost
+          }
+        })
+        setList(listAsset)
+      }
+    } catch (error) {
+      console.log(error.message)
+    }
+  }
+
+  useEffect(() =>{
+    fetchList()
+  },[])
+
+  const fetchAsset = async () =>{
+    try {
+      const data = await Api.get(`/hris/assets/assign/index`)
+      if(data){
+        setAssets(data)
+      }
     } catch (error) {
       console.log(error.message)
     }
   }
 
   useEffect(() => {
-    fetchAssets()
+    fetchAsset()
   },[])
 
-  const fetchList = async () => {
-    try {
-      const data = await Api.get(`/api/v1/accurate/master-data/fixed-asset/11?sp.page=0&sp.pageSize=5`)
-      console.log(data.s, "data list")
-      if (data.data.s === true){
-        setList(data.data.d)
-      }
-    } catch (error) {
-      console.log(error.message)
-    }
+  const onAdd = () => {
+    setModal({
+      title : "Add Asset",
+      mode : "add",
+      item : null
+    })
+    setToggleModal(true)
+    console.log("button add")
   }
-  console.log(listAsset, "listAsset")
-  useEffect(() =>{
-    fetchList()
-  },[])
 
-  // const handleDelete = async (x) => {
-  //   MySwal.fire({
-  //     title: "Are you sure?",
-  //     text: "You won't be able to revert this!",
-  //     icon: "warning",
-  //     showCancelButton: true,
-  //     confirmButtonText: "Yes, delete it!",
-  //     customClass: {
-  //       confirmButton: "btn btn-primary",
-  //       cancelButton: "btn btn-outline-danger ms-1",
-  //     },
-  //     buttonsStyling: false,
-  //   }).then(async (result) => {
-  //     if (result.value) {
-  //       const data = await Api.delete(`/hris/assets/${x.id}`)
-  //       if (data) {
-  //         return MySwal.fire({
-  //           icon: "success",
-  //           title: "Deleted!",
-  //           text: "Division has deleted.",
-  //           customClass: {
-  //             confirmButton: "btn btn-success",
-  //           },
-  //         });
-  //       }
-  //       return toast.error(`Error : ${data}`, {
-  //         position: "top-center",
-  //       });
-  //     }
-  //   });
-  //   fetchAssets()
-  // }
+  const postUpdate = async (params) => {
+    const itemUpdate = {
+      name : params.name,
+      asset : params.parent.value,
+    }
+    try {
+      const status = await Api.put(`/hris/division/${modal.item.id}`, itemUpdate);
+      if (!status)
+        return toast.error(`Error : ${status}`, {
+          position: "top-center",
+        });
+      fetchDivision();
+      toast.success("Asset has updated", {
+        position: "top-center",
+      });
+      setToggleModal(false);
+    } catch (error) {
+      setToggleModal(false);
+      toast.error(`Error : ${error.message}`, {
+        position: "top-center",
+      });
+    }
+  };
+
+  const onSubmit = async (params) => {
+    const itemPost = {
+      uid : params.name.value,
+      accurate_id : params.asset.value,
+      asset_name : params.asset.label,
+      asset_code : params.asset.asset_code,
+      asset_cost : params.asset.asset_cost
+    }
+    try {
+      if (modal.item) return postUpdate(params);
+      const {status,data} = await Api.post(`/hris/assets/assign`, itemPost);
+      console.log(status,"post asset")
+      if (!status)
+        return toast.error(`Error : ${data}`, {
+          position: "top-center",
+        });
+      fetchDivision();
+      toast.success("Asset has updated", {
+        position: "top-center",
+      });
+      setToggleModal(false);
+    } catch (error) {
+      toast.error(`Error : ${error.message}`, {
+        position: "top-center",
+      });
+    }
+  };
+
+  const handleDelete = async (x) => {
+    MySwal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      customClass: {
+        confirmButton: "btn btn-primary",
+        cancelButton: "btn btn-outline-danger ms-1",
+      },
+      buttonsStyling: false,
+    }).then(async (result) => {
+      if (result.value) {
+        const data = await Api.delete(`/hris/assets/${x.id}`)
+        if (data) {
+          return MySwal.fire({
+            icon: "success",
+            title: "Deleted!",
+            text: "Division has deleted.",
+            customClass: {
+              confirmButton: "btn btn-success",
+            },
+          });
+        }
+        return toast.error(`Error : ${data}`, {
+          position: "top-center",
+        });
+      }
+    });
+    // fetchAssets()
+  }
 
   return (
     <>
       <Row className="d-flex justify-content-between">
         <Col lg="2" sm="12" className="mb-1">
           <Fragment>
-            <Button.Ripple size="sm" color="warning" >
+            <Button.Ripple size="sm" color="warning" onClick={onAdd}>
               <Plus size={14} />
               <span className="align-middle ms-25">Add Asset</span>
             </Button.Ripple>
@@ -138,10 +210,7 @@ export default function AssetIndex() {
             <Table responsive size="md">
               <thead>
                 <tr className="text-xs">
-                  <th style={{fontSize : 'sm'}}>Name</th>
-                  <th style={{fontSize : 'sm'}}>Division</th>
-                  {/* <th></th> */}
-                  {/* <th></th> */}
+                  <th style={{fontSize : 'sm'}}>Accurate ID</th>
                   <th style={{fontSize : 'sm'}}>Asset</th>
                   <th style={{fontSize : 'sm'}}>Kode Asset</th>
                   <th style={{fontSize : 'sm'}}>Asset Cost</th>
@@ -150,21 +219,20 @@ export default function AssetIndex() {
                 </tr>
               </thead>
               <tbody style={{backgroundColor:'transparent'}}>
-                {listAsset?.map((x,i) => (
+                {assets?.map((x,i) => (
                     <tr key={i}>
-                      {/* <td style={{fontSize : '9pt', backgroundColor:'white', cursor:'pointer'}} className="user_name text-truncate text-body"><span className="fw-light text-capitalize">{x.users.name}</span></td> */}
-                      {/* <td style={{fontSize:'9pt', backgroundColor:'white'}}>{x.title}</td> */}
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}} colSpan={3}>{x.description}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.number}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>Rp{numberFormat(x.assetCost)}</td>
+                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.accurate_id}</td>
+                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.asset_name}</td>
+                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.asset_code}</td>
+                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>Rp{numberFormat(x.asset_cost)}</td>
                       <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.quantityAvailable}</td>
                       <td style={{fontSize : '9pt', backgroundColor:'white'}}>
                         <div className="d-flex">
                           <div className="pointer">
-                            <Trash
+                            <Eye
                               className="me-50"
                               size={15}
-                              // onClick={() => handleDelete(x)}
+                              onClick={() => handleDelete(x)}
                             />{" "}
                             <span className="align-middle"></span>
                             <Edit
@@ -184,19 +252,22 @@ export default function AssetIndex() {
           </CardBody>
         </Card>
       </Row>
-      <Modal>
-        <ModalHeader
+      <Modal
         isOpen={toggleModal}
-        toggle={() => setToggleModal(!toggleModal)}
+        toggle={() => {setToggleModal(!toggleModal); console.log("asukgas")}}
         className={`modal-dialog-centered modal-lg`}>
+        <ModalHeader toggle={() => setToggleModal(!toggleModal)}>
           {modal.title}
         </ModalHeader>
-        <ModalBody toggle={() => setToggleModal(!toggleModal)}>
+        <ModalBody >
+        {modal.mode === "add" ?
+        <AssetForm asset={listAsset} onSubmit={onSubmit} user= {employee} close={() => setToggleModal(false)}/>
+         : <></>}
         </ModalBody>
-        <ModalFooter>
-
-        </ModalFooter>
       </Modal>
     </>
   )
 }
+
+  /* <td style={{fontSize : '9pt', backgroundColor:'white', cursor:'pointer'}} className="user_name text-truncate text-body"><span className="fw-light text-capitalize">{x.users.name}</span></td> */
+

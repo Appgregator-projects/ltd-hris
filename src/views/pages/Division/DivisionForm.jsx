@@ -41,6 +41,7 @@ export default function DivisionForm({
   } = useForm({ mode: "onChange", resolver: yupResolver(ItemSchema) });
 
   const onSubmitForm = (arg) => {
+    // return console.log(arg, "jajaj")
     onSubmit(arg);
   };
 

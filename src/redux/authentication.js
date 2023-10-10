@@ -3,19 +3,19 @@ import { createSlice } from "@reduxjs/toolkit";
 import Cookies from "js-cookie";
 
 const initialUser = () => {
-  const item = 
-  // Cookies.get("userData")
-  {
-    id : Cookies.get("id"),
-    name : Cookies.get("name"),
-    email : Cookies.get("email"),
-    ability : JSON.parse(localStorage.getItem("userData"))?.ability,
-    role_id : Cookies.get("role_id"),
-    role_name : Cookies.get("role_name"),
-    access_token : Cookies.get("access_token"),
-    avatar : JSON.parse(localStorage.getItem("userData"))?.avatar
-  }
-  return item ? item : {};
+  // const item = 
+  // {
+  //   id : Cookies.get("id"),
+  //   name : Cookies.get("name"),
+  //   email : Cookies.get("email"),
+  //   ability : JSON.parse(localStorage.getItem("userData"))?.ability,
+  //   role_id : Cookies.get("role_id"),
+  //   role_name : Cookies.get("role_name"),
+  //   access_token : Cookies.get("access_token"),
+  //   avatar : JSON.parse(localStorage.getItem("userData"))?.avatar
+  // }
+  const items = JSON.parse(localStorage.getItem("userData"))
+  return items ? items : {};
   // return item ? JSON.parse(item) : {}
 };
 
@@ -73,13 +73,13 @@ export const authSlice = createSlice({
         ...state.can,
         ...action.payload.permissions[0].role_permissions,
       };
-      Cookies.set("id", params.id, { expires: 1 });
-      Cookies.set("name", params.name, { expires: 1 });
-      Cookies.set("email", params.email, { expires: 1 });
-      Cookies.set("ability", JSON.stringify(params.ability), { expires: 1 });
-      Cookies.set("role_id", params.role_id, { expires: 1 });
-      Cookies.set("role_name", params.role_name, { expires: 1 });
-      Cookies.set("avatar", JSON.stringify(params.avatar), { expires: 1 });
+      // Cookies.set("id", params.id, { expires: 1 });
+      // Cookies.set("name", params.name, { expires: 1 });
+      // Cookies.set("email", params.email, { expires: 1 });
+      // Cookies.set("ability", JSON.stringify(params.ability), { expires: 1 });
+      // Cookies.set("role_id", params.role_id, { expires: 1 });
+      // Cookies.set("role_name", params.role_name, { expires: 1 });
+      // Cookies.set("avatar", JSON.stringify(params.avatar), { expires: 1 });
       Cookies.set("access_token", params.access_token, { expires: 1 });
       // Cookies.set("userData", JSON.stringify(params), { expires: 1})
       Cookies.set("accessToken", action.payload.access_token, {

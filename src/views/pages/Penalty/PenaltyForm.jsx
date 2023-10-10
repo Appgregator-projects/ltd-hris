@@ -27,7 +27,7 @@ const PenaltyForm = ({item, close, user}) => {
 		// name: yup.string().required(),
 		title: yup.string().required(),
 		message: yup.string().required(),
-		file: yup.string().required(),
+		// file: yup.string().required(),
   	})
 
   const {
