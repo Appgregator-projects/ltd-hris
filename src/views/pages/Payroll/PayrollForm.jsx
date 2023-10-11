@@ -142,7 +142,7 @@ export default function PayrollForm() {
           x.loan_amount / x.tenor
         ))
         sumLoans(loans_per_month)
-        const p = `${dayjs(data.cut_off_start).format('DD-MMM')  } - ${  dayjs(data.cut_off_end).format('DD-MMM')  } ${  dayjs(data.cut_off_end).format('YYYY')}`
+        const p = `${dayjs(data.cut_off_start).format('DD-MMM')  } - ${dayjs(data.cut_off_end).format('DD-MMM')  } ${  dayjs(data.cut_off_end).format('YYYY')}`
         setPeriode(p)
         setAddjustment([...data.income_list])
         calcualteSalary(data.income_list, deductions)

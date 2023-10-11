@@ -247,7 +247,7 @@ export default function AssetIndex() {
           </Col>
           </CardHeader>
           <CardBody>
-            <Table responsive>
+            <Table responsive striped>
               <thead>
                 <tr className="text-xs">
                   <th style={{fontSize : 'sm'}}>Employee</th>
