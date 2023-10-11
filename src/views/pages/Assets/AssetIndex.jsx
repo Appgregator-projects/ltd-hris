@@ -3,19 +3,26 @@ import Api from "../../../sevices/Api"
 import { useEffect, useState } from "react"
 import { Fragment } from "react"
 import { Edit, Eye, Plus, Trash } from "react-feather"
-import { numberFormat } from "../../../Helper"
+import { dateTimeFormat, numberFormat } from "../../../Helper"
 import withReactContent from "sweetalert2-react-content"
 import Swal from "sweetalert2"
 import AssetForm from "./AssetForm"
 import toast from "react-hot-toast"
+import AssetDetail from "./AssetDetail"
+import { handlePreloader } from "../../../redux/layout"
+import { useDispatch } from "react-redux"
 const MySwal = withReactContent(Swal);
 
 export default function AssetIndex() {
-
+  const dispatch = useDispatch()
   const [assets, setAssets] = useState(null)
+  const [userAsset, setUserAssets] = useState(null)
   const [listAsset, setList] = useState([])
   const [employee, setEmployee] = useState([])
   const [toggleModal, setToggleModal] = useState(false)
+  const [isRefresh, setIsRefresh] = useState(false)
+  const [searchValue, setSearchValue] = useState("")
+
   const [modal, setModal] = useState({
     title:"",
     mode: "",
@@ -66,11 +73,11 @@ export default function AssetIndex() {
     fetchList()
   },[])
 
-  const fetchAsset = async () =>{
+  const fetchAsset = async (params) =>{
     try {
-      const data = await Api.get(`/hris/assets/assign/index`)
-      if(data){
-        setAssets(data)
+      const {status,data} = await Api.get(`/hris/assets-search?search=${params.search}`)
+      if(status){
+        setAssets([...data])
       }
     } catch (error) {
       console.log(error.message)
@@ -78,8 +85,42 @@ export default function AssetIndex() {
   }
 
   useEffect(() => {
-    fetchAsset()
-  },[])
+    fetchAsset({search: ""})
+  }, [])
+
+  const handleFilter = (e) => {
+    setSearchValue(e.target.value);
+    fetchAsset({
+      search: e.target.value
+    })
+  }
+
+  const fetchDivision = async (params) =>{
+    try {
+      const {status,data} = await Api.get(`/hris/division?search=${params.search}`)
+      if(status){
+        const dataAsset = assets?.map(x => {
+          x.division = null
+          const check = data?.find(y => y.id === x.division_id)
+          if(check){
+            x.division = check? check.name : "-"
+          }
+          return x
+        })
+        return setUserAssets([...dataAsset])
+      }
+      setUserAssets([...assets.map(x => {
+        x.division = null
+        return x
+      })])
+    } catch (error) {
+      console.log(error.message)
+    }
+  }
+
+  useEffect(() => {
+    fetchDivision({search: ""})
+  }, [assets])
 
   const onAdd = () => {
     setModal({
@@ -88,32 +129,16 @@ export default function AssetIndex() {
       item : null
     })
     setToggleModal(true)
-    console.log("button add")
   }
 
-  const postUpdate = async (params) => {
-    const itemUpdate = {
-      name : params.name,
-      asset : params.parent.value,
-    }
-    try {
-      const status = await Api.put(`/hris/division/${modal.item.id}`, itemUpdate);
-      if (!status)
-        return toast.error(`Error : ${status}`, {
-          position: "top-center",
-        });
-      fetchDivision();
-      toast.success("Asset has updated", {
-        position: "top-center",
-      });
-      setToggleModal(false);
-    } catch (error) {
-      setToggleModal(false);
-      toast.error(`Error : ${error.message}`, {
-        position: "top-center",
-      });
-    }
-  };
+  const onDetail = (item) => {
+    setModal({
+      title : "Detail Asset",
+      mode : "detail",
+      item : item
+    })
+    setToggleModal(true)
+  }
 
   const onSubmit = async (params) => {
     const itemPost = {
@@ -124,14 +149,16 @@ export default function AssetIndex() {
       asset_cost : params.asset.asset_cost
     }
     try {
-      if (modal.item) return postUpdate(params);
+			dispatch(handlePreloader(true))
       const {status,data} = await Api.post(`/hris/assets/assign`, itemPost);
-      console.log(status,"post asset")
+      console.log(status,data,"post asset")
+			dispatch(handlePreloader(true))
       if (!status)
-        return toast.error(`Error : ${data}`, {
-          position: "top-center",
-        });
-      fetchDivision();
+      return toast.error(`Error : ${data}`, {
+        position: "top-center",
+      });
+      fetchAsset();
+      fetchDivision({search: " "})
       toast.success("Asset has updated", {
         position: "top-center",
       });
@@ -143,7 +170,15 @@ export default function AssetIndex() {
     }
   };
 
-  const handleDelete = async (x) => {
+  const postDelete = (id) => {
+    return new Promise((resolve, reject) => {
+      Api.delete(`/hris/assets/assign/${id}`)
+        .then((res) => resolve(res))
+        .catch((err) => reject(err.message));
+    });
+  };
+
+  const handleDelete = async (x, i) => {
     MySwal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -157,12 +192,15 @@ export default function AssetIndex() {
       buttonsStyling: false,
     }).then(async (result) => {
       if (result.value) {
-        const data = await Api.delete(`/hris/assets/${x.id}`)
+        const oldCom = assets;
+        oldCom.splice(i, 1);
+        setAssets([...oldCom]);
+        const data = await postDelete(x)
         if (data) {
           return MySwal.fire({
             icon: "success",
             title: "Deleted!",
-            text: "Division has deleted.",
+            text: "Asset user has deleted.",
             customClass: {
               confirmButton: "btn btn-success",
             },
@@ -173,7 +211,6 @@ export default function AssetIndex() {
         });
       }
     });
-    // fetchAssets()
   }
 
   return (
@@ -192,53 +229,54 @@ export default function AssetIndex() {
         <Card Row style={{backgroundColor:'white'}}>
           <CardHeader >
             <CardTitle>Assets Management</CardTitle>
-              <Col className="d-flex align-items-center justify-content-sm-end mt-sm-0 mt-1" sm="3">
-                <Label className="me-1" for="search-input">
-                  Search
-                </Label>
-                <Input
-                  className="dataTable-filter"
-                  type="text"
-                  bsSize="sm"
-                  id="search-input"
-                //   value={searchValue}
-                //   onChange={handleFilter}
-                />
-              </Col>
+            <Col
+            className="d-flex align-items-center justify-content-sm-end mt-sm-0 mt-1"
+            sm="3"
+          >
+            <Label className="me-1" for="search-input">
+              Search
+            </Label>
+            <Input
+              className="dataTable-filter"
+              type="text"
+              bsSize="sm"
+              id="search-input"
+              value={searchValue}
+              onChange={handleFilter}
+            />
+          </Col>
           </CardHeader>
           <CardBody>
-            <Table responsive size="md">
+            <Table responsive>
               <thead>
                 <tr className="text-xs">
+                  <th style={{fontSize : 'sm'}}>Employee</th>
+                  <th style={{fontSize : 'sm'}}>Division</th>
                   <th style={{fontSize : 'sm'}}>Accurate ID</th>
                   <th style={{fontSize : 'sm'}}>Asset</th>
                   <th style={{fontSize : 'sm'}}>Kode Asset</th>
                   <th style={{fontSize : 'sm'}}>Asset Cost</th>
-                  <th style={{fontSize : 'sm'}}>Quantity Available</th>
+                  <th style={{fontSize : 'sm'}}>created time</th>
                   <th style={{fontSize : 'sm'}}>Actions</th>
                 </tr>
               </thead>
               <tbody style={{backgroundColor:'transparent'}}>
                 {assets?.map((x,i) => (
                     <tr key={i}>
+                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x?.name}</td>
+                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x?.division}</td>
                       <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.accurate_id}</td>
                       <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.asset_name}</td>
                       <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.asset_code}</td>
                       <td style={{fontSize : '9pt', backgroundColor:'white'}}>Rp{numberFormat(x.asset_cost)}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.quantityAvailable}</td>
+                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{dateTimeFormat(x.createdAt)}</td>
                       <td style={{fontSize : '9pt', backgroundColor:'white'}}>
                         <div className="d-flex">
                           <div className="pointer">
-                            <Eye
-                              className="me-50"
+                            <Trash
+                              className="me-20"
                               size={15}
-                              onClick={() => handleDelete(x)}
-                            />{" "}
-                            <span className="align-middle"></span>
-                            <Edit
-                              className="me-50"
-                              size={15}
-                              // onClick={() => handleEdit()}
+                              onClick={() => handleDelete(x.id, i)}
                             />{" "}
                             <span className="align-middle"></span>
                           </div>
@@ -259,10 +297,9 @@ export default function AssetIndex() {
         <ModalHeader toggle={() => setToggleModal(!toggleModal)}>
           {modal.title}
         </ModalHeader>
-        <ModalBody >
+        <ModalBody>
         {modal.mode === "add" ?
-        <AssetForm asset={listAsset} onSubmit={onSubmit} user= {employee} close={() => setToggleModal(false)}/>
-         : <></>}
+        <AssetForm asset={listAsset} onSubmit={onSubmit} user= {employee} close={() => setToggleModal(false)}/> : <></>}
         </ModalBody>
       </Modal>
     </>

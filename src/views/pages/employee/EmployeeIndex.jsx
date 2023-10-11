@@ -53,8 +53,10 @@ const UsersList = () => {
 
   const fetchCompany = async () => {
     try {
-      const data = await Api.get("/hris/company");
-      setCompanies([...data]);
+      const {status,data} = await Api.get("/hris/company");
+      if(status){
+        setCompanies([...data]);
+      }
     } catch (error) {
       throw error;
     }
@@ -67,8 +69,10 @@ const UsersList = () => {
   const fetchDivision = async () => {
     // return console.log(params, "params")
     try {
-      const data = await Api.get(`/hris/division?search=`);
-      setDivisions([...data]);
+      const {status,data} = await Api.get(`/hris/division?search=`);
+      if(status){
+        setDivisions([...data]);
+      }
     } catch (error) {
       throw error;
     }
@@ -95,8 +99,10 @@ const UsersList = () => {
 
   const fetchOffice = async () => {
     try {
-      const data = await Api.get("/hris/office");
-      setOffice([...data]);
+      const {status,data} = await Api.get("/hris/office");
+      if(status){
+        setOffice([...data]);
+      }
     } catch (error) {
       throw error;
     }

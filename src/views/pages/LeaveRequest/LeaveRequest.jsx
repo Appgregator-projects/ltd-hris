@@ -52,10 +52,11 @@ export default function LeaveRequestIndex() {
 
   const fetchLeave = async () => {
     try {
-      const data = await Api.get("hris/leave-request");
-      setRequest([...data]);
-      // console.log(data[0]['userReq.name'],'data')
-      
+      const {status,data} = await Api.get("hris/leave-request");
+      if(status){
+        setRequest([...data]);
+        // console.log(data[0]['userReq.name'],'data')
+      }
     } catch (error) {
       throw error;
     }

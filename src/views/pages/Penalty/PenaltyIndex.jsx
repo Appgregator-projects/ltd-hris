@@ -44,25 +44,12 @@ const PenaltyIndex = () => {
     fetchEmployee()
   },[])
 
-  const fetchHistory = async(arg) => {
-    try {
-      const data = await Api.get(`/hris/warning-letter/${arg.value}/history`)
-      setHistory(data)
-      console.log(data, "history")
-    } catch (error) {
-      throw error
-    }
-    setToggleModal(false)
-  }
-
-  useEffect(() => {
-    fetchHistory()
-  },[])
-
   const fetchPenalty = async() => {
     try {
-      const data = await Api.get(`/hris/warning-letter`)
-      setPenalty([...data.data])
+      const {status,data} = await Api.get(`/hris/warning-letter`)
+      if(status){
+        setPenalty([...data])
+      }
     } catch (error) {
       throw error
     }

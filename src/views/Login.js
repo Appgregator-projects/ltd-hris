@@ -44,40 +44,22 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsloading] = useState(false);
 
-  // const fetchPermission = async() => {
-  //   try {
-  //     const {data, status} = await api.get('/api/permissions')
-  //     if (status) {
-  //       dispatch(handlePermission(data))
-  //     }
-  //   } catch (error) {
-  //     throw error
-  //   }
-  // }
-
   const fetchCompany = async () => {
     try {
-      const data = await Api.get(`/hris/company`);
-      const selectedCompany = data[0];
-      console.log(data[0],"selectedCompany")
-      return selectedCompany;
+      const {status,data} = await Api.get(`/hris/company`);
+      console.log(data,"selectedCompany")
+      if(status, data){
+        const selectedCompany = data[0];
+        return selectedCompany;
+      }
     } catch (error) {
       throw error;
     }
   };
 
-
   useEffect(() => {
     fetchCompany();
   }, []);
-
-  // const fetchMe = (token) => {
-  //   return new Promise((resolve, reject) => {
-  //     api.get(`/api/me?token=${token}`)
-  //       .then(res => resolve(res))
-  //       .catch(err => reject(err))
-  //   })
-  // }
 
   const onSubmit = async (e) => {
     try {
@@ -94,7 +76,6 @@ const Login = () => {
       
       console.log(token, "userdetail")
       const accessToken = await token.getIdToken(true);
-      console.log(accessToken,"accessToken");
       token.access_token = accessToken;
 
       if ((token, checkCompany)) {
@@ -104,7 +85,6 @@ const Login = () => {
           let arrList = [];
           userAbility["data"]["permissions"][0]["role_permissions"].map(
             (item, index) => {
-              // console.log(item, "item ability")
               if (item["create"] === 1) {
                 arrList.push({
                   action: "create",
@@ -150,7 +130,6 @@ const Login = () => {
           });
         }
       } else {
-        // const errorMessage = error.message
         toast.error(`Error : ${data}`, {
           position: "top-center",
         });

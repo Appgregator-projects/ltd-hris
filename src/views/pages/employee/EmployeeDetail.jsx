@@ -31,7 +31,7 @@ export default function EmployeeDetail() {
 	const [balance, setBalance] = useState([])
 	const [userBalance, setUserBalance] = useState([])
 	const [userDivision, setUserDivision] = useState([])
-  const [logUser, setLogUser] = useState([])
+ 	const [logUser, setLogUser] = useState([])
 	const [leaveCategories, setLeaveCategories] = useState([])
 	const [isLoading, setIsLoading] = useState(false)
 	const [income, setIncome] = useState([])
@@ -43,31 +43,35 @@ export default function EmployeeDetail() {
 
 	const fetchUser = async () => {
 		try {
-			const data = await Api.get(`/hris/employee/${id.uid}`)
-			setUser(data)
-			setBalance([...data.leave_balances])
+			const {status,data} = await Api.get(`/hris/employee/${id.uid}`)
+			if(status){
+				setUser(data)
+				setBalance([...data.leave_balances])
+			}
 		} catch (error) {
 			throw error
 		}
 	}
-  console.log(user, "balance di detail")
+
 	useEffect(() => {
 		fetchUser()
 	}, [])
 
 	const fetchUserTeam = async() => {
 		try {
-			const data = await Api.get(`/hris/employee/division/${id.uid}`)
-			const dataTeam = data.map((x) => {
-				return {
-					title: x.name,
-					img: x.avatar,
-					imgHeight: 26,
-					imgWidth: 26
-
-				}
-			})
-			setUserDivision(dataTeam)
+			const {status,data} = await Api.get(`/hris/employee/division/${id.uid}`)
+      if(status){
+        const dataTeam = data.map((x) => {
+          return {
+            title: x.name,
+            img: x.avatar,
+            imgHeight: 26,
+            imgWidth: 26
+  
+          }
+        })
+        setUserDivision(dataTeam)
+      }
 		} catch (error) {
 			throw error
 			
@@ -80,9 +84,10 @@ export default function EmployeeDetail() {
 
 	const fetchLeaveCategories = async () => {
 		try {
-			const data = await Api.get(`/hris/leave-category`)
-			setLeaveCategories([...data])
-
+			const {status,data} = await Api.get(`/hris/leave-category`)
+      if(status){
+        setLeaveCategories([...data])
+      }
 		} catch (error) {
 			throw error
 		}
@@ -94,8 +99,10 @@ export default function EmployeeDetail() {
 
 	const fetchIncome = async () => {
 		try {
-		  const data = await Api.get(`/hris/employee-income/${id.uid}`)
-		  setIncome([...data])
+		  const {status,data} = await Api.get(`/hris/employee-income/${id.uid}`)
+      if(status){
+        setIncome([...data])
+      }
 		} catch (error) {
 		  throw error
 		}
@@ -185,14 +192,14 @@ export default function EmployeeDetail() {
 	}
 
 	const postLeave = async (arg) => {
-    // return console.log(arg, "arg apa isinya")
 		try {
 			setIsLoading(true)
-			const status = await Api.post(`/hris/employee/${id.uid}/assign-leave`, arg)
-			// return console.log(status, "status")
-			setUserBalance(status)
-			setIsLoading(false)
-			if (!status) return toast.error(data, {
+			const {status, data} = await Api.post(`/hris/employee/${id.uid}/assign-leave`, arg)
+      if(status){
+        setUserBalance(data)
+        setIsLoading(false)
+      }
+      toast.error(data, {
 				position: 'top-center'
 			})
 			toast.success('Successfully added employee!', {
@@ -208,7 +215,6 @@ export default function EmployeeDetail() {
 			throw error
 		}
 	}
-  console.log(userBalance, "userBalance")
 
 	const postIncome = async(params) => {
 		try {

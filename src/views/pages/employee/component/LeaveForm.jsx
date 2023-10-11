@@ -16,7 +16,6 @@ export default function LeaveForm ({leave, close, balance, onSubmit, isLoading})
         console.log(check, "check")
         if(check !== null){
           x.defaultValue = check ? check?.balance : 0
-          // x.initial_balance = x.initial_balance - check.balance
         }
         return x
       })  
@@ -47,7 +46,6 @@ export default function LeaveForm ({leave, close, balance, onSubmit, isLoading})
       leaves:formLeave.map(x => {
         const check = leave.find(y => y.id == x.id) 
         const current = check.initial_balance - x.defaultValue
-        // return console.log(current, "ini current")
         if(current >= 0){
           return{
             leave_id:x.id,

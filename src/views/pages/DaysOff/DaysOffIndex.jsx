@@ -120,11 +120,13 @@ export default function DaysOffIndex() {
 
   const fetchDaysOff = async (year, month) => {
     try {
-      const data = await Api.get(`/hris/day-off?month=${month}&year=${year}`);
-      return data.map(x => {
-        x.date = dayjs(x.date).format('YYYY-MM-DD')
-        return x
-      })
+      const {status,data} = await Api.get(`/hris/day-off?month=${month}&year=${year}`);
+      if(status){
+        return data.map(x => {
+          x.date = dayjs(x.date).format('YYYY-MM-DD')
+          return x
+        })
+      }
     } catch (error) {
       return []
     }
@@ -146,9 +148,9 @@ export default function DaysOffIndex() {
         date: selectDate.periode,
         descriptions: arg.descriptions,
       };
-      const status = await Api.post(`hris/day-off`, itemPost);
+      const {status,data} = await Api.post(`hris/day-off`, itemPost);
       if (!status)
-        return toast.error(`Error : ${status}`, {
+        return toast.error(`Error : ${data}`, {
           position: "top-center",
         });
       setNestedToggle(!nestedToggle)
@@ -167,8 +169,7 @@ export default function DaysOffIndex() {
   const submitEdit = async (arg, params) => {
     try {
       dispatch(handlePreloader(true));
-      const status = await Api.put(`/hris/day-off/${params.id}`, arg);
-      console.log(status, params, "ini params edit")
+      const {status,data} = await Api.put(`/hris/day-off/${params.id}`, arg);
       dispatch(handlePreloader(false));
       if (!status)
         return toast.error(`Error : ${data}`, {

@@ -15,11 +15,16 @@ const AssetForm = ({user,asset, onSubmit, close}) => {
   const [selectAsset, setSelectAsset] = useState(null)
 
   const ItemSchema = yup.object().shape({
-		// name: yup.string().required(),
-		// title: yup.string().required(),
-		// message: yup.string().required(),
-		// file: yup.string().required(),
+		name: yup.object().shape({
+      value: yup.string().required("Name is required"),
+      label: yup.string().required("Name is required"),
+    }),
+    asset: yup.object().shape({
+      value: yup.string().required("Asset is required"),
+      label: yup.string().required("Asset is required"),
+    }),
   	})
+  console.log(ItemSchema, "itschema")
 
   const {
 		setValue,
@@ -45,6 +50,7 @@ const AssetForm = ({user,asset, onSubmit, close}) => {
 								control={control}
 								render={({ field }) => 
                   <Select 
+                  name='name'
                   className='react-select'
                   classNamePrefix="select"
                   id='label'
@@ -53,33 +59,34 @@ const AssetForm = ({user,asset, onSubmit, close}) => {
                   closeMenuOnSelect={true}
                   options={user}
                   invalid={errors.name && true}
-                  // onChange={(arg) => {setSelectUser(arg); console.log(arg, "arg name")}}
+                  // onChange={(arg) => {setSelectUser(arg.value); console.log(arg, "arg name")}}
                   />
 							}
 						/>
-							{errors.name && <FormFeedback>{errors.name.message}</FormFeedback>}
+							{errors.name && <span style={{ color: "red" }}>Name is Required</span>}
 					</Col>
 					<Col md='12' sm='12' className='mb-1'>
-						<Label className='form-label' for='asset'>Message</Label>
+						<Label className='form-label' for='asset'>Assets</Label>
 						<Controller
 								name='asset'
 								defaultValue=''
 								control={control}
 								render={({ field }) => 
                 <Select 
-                className='react-select'
+                name='asset'
+                  className='react-select'
                   classNamePrefix="select"
-                  id='label'
+                  id='asset'
                   {...field}
+                  // value={field.value}
                   placeholder="Select Asset"
                   closeMenuOnSelect={true}
                   options={asset}
                   invalid={errors.asset && true}
-                  // onChange={(arg) => {setSelectAsset(arg); console.log(arg, "arg asset")}}
                 />
 							}
 						/>
-							{errors.asset && <FormFeedback>{errors.asset.message}</FormFeedback>}
+							{errors.asset && <span style={{ color: "red" }}>Asset is required</span>}
 					</Col>
 					<Col>
 						<Button type="button" size="md" color='danger' onClick={close}>Cancel</Button>
