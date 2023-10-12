@@ -6,7 +6,7 @@ import {
 import Avatar from '@components/avatar'
 import Api from '../../../sevices/Api'
 import { Link, useParams } from 'react-router-dom'
-import { capitalize, dateFormat } from "../../../Helper/index";
+import { capitalize, dateFormat, numberFormat } from "../../../Helper/index";
 import { Copy, Edit, Trash } from "react-feather";
 import LeaveForm from "./component/LeaveForm";
 import toast from 'react-hot-toast'
@@ -106,9 +106,9 @@ export default function EmployeeDetail() {
 		} catch (error) {
 		  throw error
 		}
-	  }
+	}
 
-	  useEffect(() =>{
+	useEffect(() => {
 		fetchIncome()
 	},[])
 
@@ -394,18 +394,16 @@ export default function EmployeeDetail() {
 							<Table responsive>
 								<thead>
 									<tr className="text-xs">
-										<th className="fs-6">Name</th>
-										<th className="fs-6">Amount</th>
 										<th className="fs-6">Flag</th>
+										<th className="fs-6">Amount</th>
 										<th className="fs-6">Action</th>
 									</tr>
 								</thead>
 								<tbody>
 									{income.map((x) => (
 										<tr key={x.id}>
-											<td>{x.name}</td>
-											<td>{x.amount}</td>
 											<td>{x.flag}</td>
+											<td>Rp {numberFormat(x.amount)},-</td>
 											<td>
 												<Trash className="me-50 pointer" size={15} onClick={() => onDelete(x)}></Trash>
 											</td>

@@ -165,8 +165,8 @@ export default function PayrollDeduction() {
 									<thead>
 										<tr className='text-xs'>
 											<th className='fs-6'>Name</th>
-											<th className='fs-6'>Type</th>
-											<th className='fs-6'>Percentage</th>
+											<th className='fs-6'>Company</th>
+											<th className='fs-6'>Employee</th>
 											<th className='fs-6'>Topper</th>
 											<th className='fs-6'></th>
 										</tr>
@@ -176,8 +176,8 @@ export default function PayrollDeduction() {
 												bpjsRule?.map((x, i) => (
 													<tr key={x.id}>
 														<td>{x ? x.name : '-'}</td>
-														<td>{x.is_employee === false ? "By Company" : "By Employee"}</td>
-														<td>{x?.percentage}%</td>
+														<td>{x?.percent_company}</td>
+														<td>{x?.percent_employee}%</td>
 														<td>Rp {x?.topper},-</td>
                             <td>
                             <div className="d-flex">

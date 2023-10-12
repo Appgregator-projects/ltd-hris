@@ -50,35 +50,11 @@ const BPJSConfig = ({isLoading, close, item, onSubmit}) => {
             )}/>
             {errors.name && <FormFeedback>{errors.name.message}</FormFeedback>}
         </Col>
-        <Col className='pb-1'>
-            <Label className="form-label" for="payment">
-            Payment type
-            </Label>
-            <Controller
-            name="payment"
-            defaultValue=""
-            control={control}
-            render={({field})=> (
-                <Input
-                type="select"
-                {...field}
-                name='payment'
-                // value={item?.is_employee}
-                invalid={errors.payment && true}
-                >
-                <option value=''>Select type</option>                                                                  
-                <option value='true'>by Employee</option>                                                                  
-                <option value='false'>by Company</option>
-                </Input>
-            )}
-            />
-            {errors.peyment && <FormFeedback>{errors.payment.message}</FormFeedback>}
-        </Col>
         <Row className='pb-1'>
         <Col md='6' sm='12' className='pb-1'>
-            <Label className='form-label'>Percentage</Label>
+            <Label className='form-label'>Percent Company</Label>
             <Controller
-            name='percentage'
+            name='percent_company'
             defaultValue=''
             control={control}
             render={({field}) => (
@@ -86,11 +62,28 @@ const BPJSConfig = ({isLoading, close, item, onSubmit}) => {
                 type="number"
                 {...field}
                 defaultValue={0}
+                name='percent_company'
                 />
             )}/>
-            {errors.percentage && <FormFeedback>{errors.percentage.message}</FormFeedback>}
+            {errors.percent_company && <FormFeedback>{errors.percent_company.message}</FormFeedback>}
         </Col>
         <Col md='6' sm='12' className='pb-1'>
+            <Label className='form-label'>Percent Employee</Label>
+            <Controller
+            name='percent_employee'
+            defaultValue=''
+            control={control}
+            render={({field}) => (
+                <Input
+                type="number"
+                {...field}
+                defaultValue={0}
+                name='percent_employee'
+                />
+            )}/>
+            {errors.percent_employee && <FormFeedback>{errors.percent_employee.message}</FormFeedback>}
+        </Col>
+        <Col md='12' sm='12' className='pb-1'>
             <Label className='form-label'>Topper</Label>
             <Controller
             name='topper'
