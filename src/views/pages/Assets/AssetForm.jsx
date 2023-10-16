@@ -9,10 +9,9 @@ import Api from '../../../sevices/Api'
 import toast from 'react-hot-toast'
 import { DownloadCloud } from 'react-feather'
 import CardLoader from '../Components/CardLoader'
+import AsyncSelect from "react-select/async";
 
-const AssetForm = ({user,asset, onSubmit, close}) => {
-  const [selectUser, setSelectUser] = useState(null)
-  const [selectAsset, setSelectAsset] = useState(null)
+const AssetForm = ({user,asset, onSubmit, close, fetch, load}) => {
 
   const ItemSchema = yup.object().shape({
 		name: yup.object().shape({
@@ -24,7 +23,6 @@ const AssetForm = ({user,asset, onSubmit, close}) => {
       label: yup.string().required("Asset is required"),
     }),
   	})
-  console.log(ItemSchema, "itschema")
 
   const {
 		setValue,
@@ -33,6 +31,7 @@ const AssetForm = ({user,asset, onSubmit, close}) => {
 		formState: { errors }
 	} = useForm({ mode: 'onChange', resolver: yupResolver(ItemSchema) })
 	console.log(errors, "error")
+  
 
   const onSubmitForm = (params) => {
 		return onSubmit(params)
@@ -61,6 +60,7 @@ const AssetForm = ({user,asset, onSubmit, close}) => {
                   invalid={errors.name && true}
                   // onChange={(arg) => {setSelectUser(arg.value); console.log(arg, "arg name")}}
                   />
+
 							}
 						/>
 							{errors.name && <span style={{ color: "red" }}>Name is Required</span>}
@@ -72,17 +72,13 @@ const AssetForm = ({user,asset, onSubmit, close}) => {
 								defaultValue=''
 								control={control}
 								render={({ field }) => 
-                <Select 
-                name='asset'
-                  className='react-select'
-                  classNamePrefix="select"
-                  id='asset'
+                <AsyncSelect
                   {...field}
-                  // value={field.value}
-                  placeholder="Select Asset"
-                  closeMenuOnSelect={true}
-                  options={asset}
-                  invalid={errors.asset && true}
+                  isClearable
+                  cacheOptions
+                  loadOptions={load}
+                  defaultOptions
+                  // onChange={(e) => selectedCustomer(e)}
                 />
 							}
 						/>
