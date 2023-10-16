@@ -12,6 +12,7 @@ import {
 	ModalBody,
 	ModalHeader,
 	Row,
+	UncontrolledTooltip,
 } from "reactstrap";
 
 // ** Third Party Components
@@ -31,22 +32,28 @@ import {
 	uploadFile,
 } from "../../../../sevices/FirebaseApi";
 import { getImage } from "../store/courses";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
-
+import ButtonSpinner from "../../components/ButtonSpinner";
+import { useEffect } from "react";
 
 const MySwal = withReactContent(Swal);
 
 const AddCourse = ({ type, id, image, fetchDataCourse, data }) => {
 	const defaultValues = {
-		course_title: data?.course_title,
-		course_description: data?.course_description,
-		course_tag: data?.course_tag,
+		course_title: data?.course_title ? data.course_title : "",
+		course_description: data?.course_description
+			? data.course_description
+			: "",
+		course_tag: data?.course_tag ? data.course_tag : "",
 	};
+
+	const navigate = useNavigate();
 
 	const dispatch = useDispatch();
 	const param = useParams();
+	
 	// ** States
 	const [show, setShow] = useState(false);
 	const [groupData, setGroupData] = useState({
@@ -56,6 +63,7 @@ const AddCourse = ({ type, id, image, fetchDataCourse, data }) => {
 		course_tag: [],
 		course_author: "",
 	});
+	const [isLoading, setIsloading] = useState(false);
 
 	// ** Hooks
 	const {
@@ -69,6 +77,7 @@ const AddCourse = ({ type, id, image, fetchDataCourse, data }) => {
 	const onSubmit = async (item) => {
 		if (Object.values(item).every((field) => field.length > 0)) {
 			try {
+				setIsloading(true);
 				let newData = {
 					course_title: item.course_title,
 					course_description: item.course_description,
@@ -79,7 +88,7 @@ const AddCourse = ({ type, id, image, fetchDataCourse, data }) => {
 					course_tag: item.course_tag,
 					isOpen: true,
 				};
-				if (image[0]) {
+				if (image.length !== 0 || image[0]) {
 					const res = await uploadFile(
 						item.course_title,
 						"courses",
@@ -96,6 +105,9 @@ const AddCourse = ({ type, id, image, fetchDataCourse, data }) => {
 						"courses",
 						newData
 					);
+					if (response) {
+						navigate(`/courses/${response}`);
+					}
 				} else {
 					response = await setDocumentFirebase(
 						"courses",
@@ -104,16 +116,18 @@ const AddCourse = ({ type, id, image, fetchDataCourse, data }) => {
 					);
 				}
 				if (response) {
+					setIsloading(false);
 					toast.success(`Course has ${type}ed`, {
 						position: "top-center",
 					});
-					if (image[0]) {
+					if (image.length !== 0 || image[0]) {
 						dispatch(getImage());
 					}
 					reset(defaultValues);
 					setShow(false);
 					fetchDataCourse();
 				} else {
+					setIsloading(false);
 					return toast.error(`Error : ${response}`, {
 						position: "top-center",
 					});
@@ -122,8 +136,8 @@ const AddCourse = ({ type, id, image, fetchDataCourse, data }) => {
 				throw error;
 			}
 		} else {
-			for (const key in data) {
-				if (data[key].length === 0) {
+			for (const key in item) {
+				if (item[key].length === 0) {
 					setError(key, {
 						type: "manual",
 					});
@@ -135,7 +149,7 @@ const AddCourse = ({ type, id, image, fetchDataCourse, data }) => {
 	const handleDeleteImage = () => {
 		const split = data.course_thumbnail.split("%2F");
 		const finalSplit = split[1].split("?");
-		const finalString = decodeURI(finalSplit[0]);
+		const finalString = decodeURIComponent(finalSplit[0]);
 		return MySwal.fire({
 			title: "Are you sure?",
 			text: "You won't be able to revert this!",
@@ -175,13 +189,22 @@ const AddCourse = ({ type, id, image, fetchDataCourse, data }) => {
 					<span className="align-middle ms-25">Course</span>
 				</Button.Ripple>
 			) : (
-				<Button.Ripple
-					className="btn-icon me-1"
-					color="warning"
-					onClick={() => setShow(true)}
-				>
-					<Edit size={14} />
-				</Button.Ripple>
+				<>
+					<Button.Ripple
+						className="btn-icon me-1"
+						color="warning"
+						onClick={() => setShow(true)}
+						id="edit-course"
+					>
+						<Edit size={14} />
+					</Button.Ripple>
+					<UncontrolledTooltip
+						placement="top"
+						target="edit-course"
+					>
+						Edit Course
+					</UncontrolledTooltip>
+				</>
 			)}
 
 			<Modal
@@ -210,7 +233,7 @@ const AddCourse = ({ type, id, image, fetchDataCourse, data }) => {
 					>
 						{type === "Add" ? (
 							<UploadSingleFile
-								data={groupData.course_thumbnail}
+								data={[]}
 							/>
 						) : data?.course_thumbnail ? (
 							<Col style={{ position: "relative" }}>
@@ -237,7 +260,7 @@ const AddCourse = ({ type, id, image, fetchDataCourse, data }) => {
 							</Col>
 						) : (
 							<UploadSingleFile
-								data={groupData.course_thumbnail}
+								data={[]}
 							/>
 						)}
 						<Col xs={12}>
@@ -259,6 +282,7 @@ const AddCourse = ({ type, id, image, fetchDataCourse, data }) => {
 											errors.course_title &&
 											true
 										}
+										
 									/>
 								)}
 							/>
@@ -322,23 +346,30 @@ const AddCourse = ({ type, id, image, fetchDataCourse, data }) => {
 							/>
 							{errors.course_tag && (
 								<FormFeedback>
-									Please enter a valid URL
+									Please enter a valid tag
 								</FormFeedback>
 							)}
 						</Col>
 						<Col xs={12} className="text-center mt-2 pt-50">
-							<Button
+							<ButtonSpinner
+								type={"submit"}
+								isLoading={isLoading}
+								color={"primary"}
+								label={"Submit"}
+							/>
+							{/* <Button
 								type="submit"
 								className="me-1"
 								color="primary"
 							>
 								Submit
-							</Button>
+							</Button> */}
 							<Button
 								type="reset"
 								color="secondary"
 								outline
 								onClick={() => setShow(false)}
+								className="ms-1"
 							>
 								Discard
 							</Button>

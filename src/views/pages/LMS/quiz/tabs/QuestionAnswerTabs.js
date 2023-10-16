@@ -25,7 +25,7 @@ import "@styles/react/libs/react-select/_react-select.scss";
 import { ReactSortable } from "react-sortablejs";
 
 import { Plus, Save, X } from "react-feather";
-import { useLocation, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 // ** Styles
 import "@styles/react/libs/drag-and-drop/drag-and-drop.scss";
@@ -36,20 +36,17 @@ import { useSelector } from "react-redux";
 import {
 	addDocumentFirebase,
 	arrayUnionFirebase,
-	setDocumentFirebase,
 	uploadFile,
 } from "../../../../../sevices/FirebaseApi";
 import { toast } from "react-hot-toast";
 
 const QuestionAnswerTabs = ({
 	quizList,
-	dataQuiz,
 	setQuizList,
 	fetchDataQuiz,
 	fetchDataQuestion,
 }) => {
-	// console.log(quizList, "quizlist");
-	const location = useLocation();
+
 	const param = useParams();
 
 	const store = useSelector((state) => state.coursesSlice);
@@ -69,11 +66,10 @@ const QuestionAnswerTabs = ({
 	const [answerCount, setAnswerCount] = useState([1, 2]);
 	const [isHovered, setIsHovered] = useState(
 		Array(answerCount.length).fill(false)
-	); // Buat array state untuk menyimpan status hover
+	); 
 
 	const iconHoverStyle = {
-		// Set the desired background color on hover
-		cursor: "pointer", // Optional: Change the cursor to a pointer on hover
+		cursor: "pointer", 
 		color: "red",
 	};
 
@@ -107,7 +103,6 @@ const QuestionAnswerTabs = ({
 			});
 		} else if (type === "submit") {
 			try {
-				// Validasi sebelum menambahkan quiz
 				const errors = {};
 
 				if (newQuiz.question_title.trim() === "") {

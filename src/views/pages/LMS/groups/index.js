@@ -5,7 +5,7 @@ import { Fragment, useEffect, useState } from "react";
 import Breadcrumbs from "@components/breadcrumbs";
 
 // ** Reactstrap Imports
-import { Button, Card } from "reactstrap";
+import { Button, Card, UncontrolledTooltip } from "reactstrap";
 
 // ** Images
 import AvatarGroup from "@components/avatar-group";
@@ -13,6 +13,7 @@ import react from "@src/assets/images/icons/react.svg";
 import avatar1 from "@src/assets/images/portrait/small/avatar-s-5.jpg";
 import avatar2 from "@src/assets/images/portrait/small/avatar-s-6.jpg";
 import avatar3 from "@src/assets/images/portrait/small/avatar-s-7.jpg";
+import Avatar from "@components/avatar";
 
 //** Icons
 import { Edit, Trash } from "react-feather";
@@ -28,14 +29,13 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 const MySwal = withReactContent(Swal);
 
-//** API
-import Api from "../../../../sevices/Api";
 import { useSelector } from "react-redux";
 import {
 	deleteDocumentFirebase,
 	deleteFileFirebase,
 	getCollectionFirebase,
 } from "../../../../sevices/FirebaseApi";
+import SingleAvatarGroup from "../../../../@core/components/single-avatar-group";
 
 // const data = [{}, {}, {}, {}, {}, {}, {}, {}];
 
@@ -80,7 +80,6 @@ const GroupsPage = () => {
 	const [groupData, setGroupData] = useState([]);
 
 	const store = useSelector((state) => state.coursesSlice);
-	const stores = useSelector((state) => state);
 
 	//** Fetch Data
 	const fetchDataGroup = async () => {
@@ -127,7 +126,7 @@ const GroupsPage = () => {
 				if (item.group_thumbnail) {
 					const split = item.group_thumbnail.split("%2F");
 					const finalSplit = split[1].split("?");
-					const finalString = decodeURI(finalSplit[0]);
+					const finalString = decodeURIComponent(finalSplit[0]);
 					try {
 						deleteFileFirebase(finalString, "groups");
 					} catch (error) {
@@ -191,37 +190,10 @@ const GroupsPage = () => {
 					<AddGroup
 						type={"Create"}
 						fetchDataGroup={fetchDataGroup}
-						image={store.image}
+						image={store?.image}
 					/>
 				}
 			/>
-
-			{/* <Card>
-        <CardBody className="px-1">
-          <Row>
-            <Col lg="6" md="12">
-              <InputGroup>
-                <InputGroupText>Search</InputGroupText>
-                <Input />
-                <Button color="secondary">
-                  <Search size={12} />
-                </Button>
-              </InputGroup>
-            </Col>
-
-            <Col lg="6" md="12">
-              <InputGroup>
-                <InputGroupText>Search</InputGroupText>
-                <Input />
-                <Button color="secondary">
-                  <Search size={12} />
-                </Button>
-              </InputGroup>
-            </Col>
-          </Row>
-        </CardBody>
-      </Card> */}
-
 			<Card>
 				<Table responsive>
 					<thead>
@@ -262,14 +234,34 @@ const GroupsPage = () => {
 									</Badge>
 								</td>
 								<td>
-									<AvatarGroup
-										data={item.groupCourses}
-									/>
+									<div className="avatar-group">
+										{item?.groupCourses?.map(
+											(x, id) => {
+												return (
+													<SingleAvatarGroup
+														key={id}
+														id={id}
+														data={x}
+													/>
+												);
+											}
+										)}
+									</div>
 								</td>
 								<td>
-									<AvatarGroup
-										data={item.groupMembers}
-									/>
+									<div className="avatar-group">
+										{item?.groupMembers?.map(
+											(x, id) => {
+												return (
+													<SingleAvatarGroup
+														key={id}
+														id={id}
+														data={x}
+													/>
+												);
+											}
+										)}
+									</div>
 								</td>
 								<td width={250}>
 									<GroupMembers
@@ -293,7 +285,7 @@ const GroupsPage = () => {
 										fetchDataGroup={
 											fetchDataGroup
 										}
-										image={store.image}
+										image={store?.image}
 									/>
 									<Button.Ripple
 										className={"btn-icon"}
@@ -305,9 +297,16 @@ const GroupsPage = () => {
 												item.group_courses
 											)
 										}
+										id="delete-group"
 									>
 										<Trash size={14} />
 									</Button.Ripple>
+									<UncontrolledTooltip
+										placement="top"
+										target="delete-group"
+									>
+										Delete Group
+									</UncontrolledTooltip>
 								</td>
 							</tr>
 						))}

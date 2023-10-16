@@ -28,14 +28,13 @@ import { getSingleDocumentFirebase } from "../../../../sevices/FirebaseApi";
 
 const DetailQuiz = () => {
 	const location = useLocation();
-	const param = useParams()
+	const param = useParams();
 
 	const [active, setActive] = useState("1");
 	const [dataQuiz, setDataQuiz] = useState([]);
-	
 
 	const fetchDataQuiz = async () => {
-		const res = await getSingleDocumentFirebase(`quizzes`,param.id);
+		const res = await getSingleDocumentFirebase(`quizzes`, param.id);
 		setDataQuiz(res);
 	};
 
@@ -89,15 +88,17 @@ const DetailQuiz = () => {
 							<CardBody>
 								<div className="user-avatar-section">
 									<div className="d-flex align-items-center flex-column">
-										<img
-											// height="110"
-											// width="110"
-											alt="user-avatar"
-											src={
-												dataQuiz?.quiz_thumbnail
-											}
-											className="img-fluid rounded mt-0 mb-2"
-										/>
+										{dataQuiz?.quiz_thumbnail && (
+											<img
+												// height="110"
+												// width="110"
+												alt="user-avatar"
+												src={
+													dataQuiz?.quiz_thumbnail
+												}
+												className="img-fluid rounded mt-0 mb-2"
+											/>
+										)}
 
 										<div className="d-flex flex-column align-items-center text-center">
 											<div className="user-info mt-1">
@@ -138,6 +139,7 @@ const DetailQuiz = () => {
 							active={active}
 							toggleTab={toggleTab}
 							fetchDataQuiz={fetchDataQuiz}
+							dataQuiz={dataQuiz}
 						/>
 					</Col>
 				</Row>

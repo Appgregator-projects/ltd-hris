@@ -1,5 +1,13 @@
 // ** Reactstrap Imports
-import { Col, Form, Input, InputGroup, InputGroupText, Row } from "reactstrap";
+import {
+	Col,
+	Form,
+	Input,
+	InputGroup,
+	InputGroupText,
+	Row,
+	UncontrolledTooltip,
+} from "reactstrap";
 
 // ** Third Party Components
 import Prism from "prismjs";
@@ -8,6 +16,8 @@ import { Trash } from "react-feather";
 
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
+import { setDocumentFirebase } from "../../../../../../sevices/FirebaseApi";
+import { useParams } from "react-router-dom";
 const AnswerAccordion = ({
 	answer,
 	quiz,
@@ -15,11 +25,11 @@ const AnswerAccordion = ({
 	answerLength,
 	newDataQuiz,
 	setNewDataQuiz,
-	setAnswerList
+	fetchDataQuestion,
 }) => {
+	const param = useParams();
 	const MySwal = withReactContent(Swal);
 	const [isHovered, setIsHovered] = useState(false);
-console.log(answer,'answer nih')
 	const iconHoverStyle = {
 		cursor: "pointer",
 	};
@@ -65,7 +75,6 @@ console.log(answer,'answer nih')
 			default:
 				newDataQuiz.answer[findIndex].answerTitle = value;
 		}
-
 	};
 
 	const handleConfirmText = (index) => {
@@ -86,19 +95,24 @@ console.log(answer,'answer nih')
 					(x) => x.id === index
 				);
 
-				const newData = newDataQuiz.answer.splice(findIndex, 1);
+				newDataQuiz.answer.splice(findIndex, 1);
 
-				setNewDataQuiz({ ...newDataQuiz, answer: newData });
-				setAnswerList([...newDataQuiz.answer]);
-
-
-				MySwal.fire({
-					icon: "success",
-					title: "Deleted!",
-					text: "Your file has been deleted.",
-					customClass: {
-						confirmButton: "btn btn-success",
-					},
+				setDocumentFirebase(
+					`quizzes/${param.id}/questions`,
+					quiz.id,
+					{ answer: newDataQuiz.answer }
+				).then((res) => {
+					if (res) {
+						fetchDataQuestion();
+						MySwal.fire({
+							icon: "success",
+							title: "Deleted!",
+							text: "Your file has been deleted.",
+							customClass: {
+								confirmButton: "btn btn-success",
+							},
+						});
+					}
 				});
 			}
 		});
@@ -116,10 +130,11 @@ console.log(answer,'answer nih')
 						<div className="form-check">
 							<h6>
 								<Input
+									disabled
 									type="radio"
 									className="me-1"
 									defaultChecked={
-										quiz?.isCorrectAnswer ===
+										newDataQuiz?.isCorrectAnswer ===
 										answer?.id
 									}
 								/>
@@ -189,7 +204,17 @@ console.log(answer,'answer nih')
 									onClick={() =>
 										handleConfirmText(answer?.id)
 									}
+									id="delete-answer"
 								/>
+								<UncontrolledTooltip
+									placement="top"
+									target={`delete-answer`}
+									style={{
+										textTransform: "capitalize",
+									}}
+								>
+									delete answer
+								</UncontrolledTooltip>
 							</div>
 						</Col>
 					)}

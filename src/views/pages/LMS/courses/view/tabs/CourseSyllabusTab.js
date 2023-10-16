@@ -17,6 +17,7 @@ import {
 	Label,
 	ListGroupItem,
 	Row,
+	Spinner,
 } from "reactstrap";
 // ** Styles
 import "@styles/react/apps/app-users.scss";
@@ -38,15 +39,18 @@ import { FaSort } from "react-icons/fa";
 //** Api
 import Api from "../../../../../../sevices/Api";
 import { toast } from "react-hot-toast";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
 	addDocumentFirebase,
 	arrayUnionFirebase,
 	getCollectionFirebase,
 } from "../../../../../../sevices/FirebaseApi";
+import ButtonSpinner from "../../../../components/ButtonSpinner";
+import { getAllLessonPerCourse } from "../../../store/courses";
 
 const CourseSyllabusTab = ({ courseData, setCourseData, getCourseDetail }) => {
 	const param = useParams();
+	const dispatch = useDispatch()
 	// let sectionListData = [...courseData?.course_section];
 	// console.log(sectionListData, "sasa");
 
@@ -56,16 +60,29 @@ const CourseSyllabusTab = ({ courseData, setCourseData, getCourseDetail }) => {
 		section_title: "",
 		section_description: "",
 	});
+	const [isLoading, setIsLoading] = useState(false);
+
 	const store = useSelector((state) => state.coursesSlice);
 
-
 	//** Fetch data
-	const fetchDataSection = async ()=>{
+	const fetchDataSection = async () => {
 		const res = await getCollectionFirebase(
 			`courses/${param.id}/course_section`
 		);
-		setSectionList(res)
-	}
+		setSectionList(res);
+
+		const combinedLessonList = res.reduce(
+			(accumulator, currentSection) => {
+				return accumulator.concat(currentSection.lesson_list);
+			},
+			[]
+		);
+		
+		dispatch(getAllLessonPerCourse(combinedLessonList));
+		
+	};
+
+	
 
 	// ** handle
 	const handleAddSection = async (type) => {
@@ -79,6 +96,7 @@ const CourseSyllabusTab = ({ courseData, setCourseData, getCourseDetail }) => {
 			});
 		} else if (type === "submit") {
 			try {
+				setIsLoading(true);
 				let newData = {
 					// course_id: courseData.id,
 					section_title: newSection?.section_title,
@@ -103,6 +121,7 @@ const CourseSyllabusTab = ({ courseData, setCourseData, getCourseDetail }) => {
 						submitDoc
 					).then((arraySubmit) => {
 						if (arraySubmit) {
+							setIsLoading(false);
 							toast.success(`Section has created`, {
 								position: "top-center",
 							});
@@ -113,6 +132,7 @@ const CourseSyllabusTab = ({ courseData, setCourseData, getCourseDetail }) => {
 							});
 							fetchDataSection();
 						} else {
+							setIsLoading(false);
 							return toast.error(
 								`Error : ${arraySubmit}`,
 								{
@@ -133,9 +153,9 @@ const CourseSyllabusTab = ({ courseData, setCourseData, getCourseDetail }) => {
 	};
 
 	useEffect(() => {
-		fetchDataSection()
+		fetchDataSection();
 		return () => {
-			setSectionList()
+			setSectionList();
 		};
 	}, []);
 
@@ -252,18 +272,28 @@ const CourseSyllabusTab = ({ courseData, setCourseData, getCourseDetail }) => {
 								/>
 							</Form>
 						</Row>
-
-						<Button.Ripple
-							color={"success"}
-							className={"mt-2"}
-							onClick={() => handleAddSection("submit")}
-							block
-						>
-							<Save size={14} />
-							<span className="align-middle ms-25">
-								Submit
-							</span>
-						</Button.Ripple>
+						{!isLoading ? (
+							<Button.Ripple
+								color={"success"}
+								className={"mt-2"}
+								onClick={() =>
+									handleAddSection("submit")
+								}
+								block
+							>
+								<Save size={14} />
+								<span className="align-middle ms-25">
+									Submit
+								</span>
+							</Button.Ripple>
+						) : (
+							<Button className={"mt-2"} block>
+								<Spinner size={"sm"} type="grow" />
+								<span className="align-middle ms-25">
+									Loading...
+								</span>
+							</Button>
+						)}
 					</CardBody>
 				</Card>
 			)}

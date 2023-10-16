@@ -12,6 +12,7 @@ import {
 	ModalBody,
 	ModalHeader,
 	Row,
+	UncontrolledTooltip,
 } from "reactstrap";
 
 // ** Third Party Components
@@ -27,6 +28,7 @@ import {
 } from "../../../../../../sevices/FirebaseApi";
 import { useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import ButtonSpinner from "../../../../components/ButtonSpinner";
 
 const defaultValues = {
 	lesson_title: "",
@@ -44,6 +46,8 @@ const AddLesson = ({
 	const param = useParams();
 	// ** States
 	const [show, setShow] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const [URLvalid, setURLvalid] = useState(false);
 
 	// ** Hooks
 	const {
@@ -55,20 +59,29 @@ const AddLesson = ({
 	} = useForm({ defaultValues });
 
 	const onSubmit = async (data) => {
+		setIsLoading(true);
+
 		let newData = {
 			...data,
 			section_id: section.section_index,
 			chosen: false,
 			selected: false,
+			createdAt: new Date(),
 		};
 
 		if (Object.values(data).every((field) => field.length > 0)) {
-			if (data.lesson_video.includes("?v=")) {
+			if (data.lesson_video.includes("youtube.com")) {
 				const newString = data.lesson_video.split("?v=");
 				newData.lesson_video = newString[1];
-			} else {
+			} else if (data.lesson_video.includes("youtu.be")) {
 				const newString = data.lesson_video.split("be/");
 				newData.lesson_video = newString[1];
+			} else {
+				setError("lesson_video", {
+					type: "manual",
+				});
+
+				return setIsLoading(false);
 			}
 
 			let newSection = {
@@ -83,6 +96,7 @@ const AddLesson = ({
 			);
 
 			if (resDel) {
+				setIsLoading(false);
 				fetchDataSection();
 				toast.success(`Lesson has created`, {
 					position: "top-center",
@@ -94,11 +108,14 @@ const AddLesson = ({
 				reset(defaultValues);
 				setShow(false);
 			} else {
+				setIsLoading(false);
 				return toast.error(`Error : ${resDel}`, {
 					position: "top-center",
 				});
 			}
 		} else {
+			setIsLoading(false);
+
 			for (const key in data) {
 				if (data[key].length === 0) {
 					setError(key, {
@@ -112,7 +129,10 @@ const AddLesson = ({
 	return (
 		<Fragment>
 			<div className="py-1 me-1" onClick={() => setShow(true)}>
-				<MdOutlineBookmarkAdd size={24} />
+				<MdOutlineBookmarkAdd size={24} id="add-lesson" />
+				<UncontrolledTooltip placement="top" target="add-lesson">
+					Add Lesson
+				</UncontrolledTooltip>
 			</div>
 
 			<Modal
@@ -215,23 +235,30 @@ const AddLesson = ({
 							/>
 							{errors.lesson_video && (
 								<FormFeedback>
-									Please enter a valid URL
+									Please enter a valid Youtube URL
 								</FormFeedback>
 							)}
 						</Col>
 						<Col xs={12} className="text-center mt-2 pt-50">
-							<Button
+							<ButtonSpinner
+								type={"submit"}
+								isLoading={isLoading}
+								color={"primary"}
+								label={"Submit"}
+							/>
+							{/* <Button
 								type="submit"
 								className="me-1"
 								color="primary"
 							>
 								Submit
-							</Button>
+							</Button> */}
 							<Button
 								type="reset"
 								color="secondary"
 								outline
 								onClick={() => setShow(false)}
+								className="ms-1"
 							>
 								Discard
 							</Button>

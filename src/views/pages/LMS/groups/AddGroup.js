@@ -5,17 +5,19 @@ import { Fragment, useState } from "react";
 import {
 	Button,
 	Col,
+	FormFeedback,
 	Input,
 	Label,
 	Modal,
 	ModalBody,
 	ModalHeader,
 	Row,
+	UncontrolledTooltip,
 } from "reactstrap";
 
 // ** Third Party Components
 import { Edit, Plus, Trash } from "react-feather";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 
 // ** Utils
 import Api from "../../../../sevices/Api";
@@ -34,6 +36,7 @@ import { useDispatch } from "react-redux";
 import { getImage } from "../store/courses";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
+import ButtonSpinner from "../../components/ButtonSpinner";
 
 const statusOptions = [
 	{ value: "active", label: "Active" },
@@ -65,14 +68,18 @@ const defaultValues = {
 const MySwal = withReactContent(Swal);
 
 const AddGroup = ({ type, singleGroup, fetchDataGroup, image }) => {
-	console.log(singleGroup, "singleGroup");
+	console.log({ image });
 	// ** States
 	const [show, setShow] = useState(false);
 	const [groupData, setGroupData] = useState({
-		group_name: singleGroup?.group_name,
-		group_description: singleGroup?.group_description,
-		group_tag: singleGroup?.group_tag,
+		group_name: singleGroup?.group_name ? singleGroup?.group_name : "",
+		group_description: singleGroup?.group_description
+			? singleGroup?.group_description
+			: "",
+		group_tag: singleGroup?.group_tag ? singleGroup?.group_tag : "",
 	});
+	const [isLoading, setIsLoading] = useState(false);
+
 	const dispatch = useDispatch();
 
 	// ** Hooks
@@ -81,18 +88,22 @@ const AddGroup = ({ type, singleGroup, fetchDataGroup, image }) => {
 		setError,
 		handleSubmit,
 		formState: { errors },
-	} = useForm({ defaultValues });
+		reset,
+	} = useForm({ groupData });
 
 	const onSubmit = async (data) => {
 		if (Object.values(groupData).every((field) => field.length > 0)) {
+			setIsLoading(true);
 			const newData = {
 				...groupData,
 			};
 
-			if (image[0]) {
+			if (image.length !== 0 || image[0]) {
 				try {
 					const res = await uploadFile(
-						groupData.group_name,
+						`${groupData.group_name}-${Math.floor(
+							Math.random() * 5
+						)}`,
 						"groups",
 						image[0]
 					);
@@ -107,11 +118,15 @@ const AddGroup = ({ type, singleGroup, fetchDataGroup, image }) => {
 			let response = "";
 
 			if (type === "Edit") {
-				response = await setDocumentFirebase(
-					"groups",
-					singleGroup.id,
-					newData
-				);
+				try {
+					response = await setDocumentFirebase(
+						"groups",
+						singleGroup.id,
+						newData
+					);
+				} catch (error) {
+					throw error;
+				}
 			} else {
 				try {
 					response = await addDocumentFirebase(
@@ -124,20 +139,36 @@ const AddGroup = ({ type, singleGroup, fetchDataGroup, image }) => {
 			}
 
 			if (response) {
-				fetchDataGroup();
+				setIsLoading(false);
 				toast.success(`Group has ${type}ed`, {
 					position: "top-center",
 				});
 				setShow(false);
-				dispatch(getImage());
+				if (image.length !== 0 || image[0]) {
+					dispatch(getImage());
+				}
+				setGroupData({
+					group_name: singleGroup?.group_name
+						? singleGroup?.group_name
+						: "",
+					group_description: singleGroup?.group_description
+						? singleGroup?.group_description
+						: "",
+					group_tag: singleGroup?.group_tag
+						? singleGroup?.group_tag
+						: "",
+				});
+				fetchDataGroup();
 			} else {
+				setIsLoading(false);
 				return toast.error(`Error : ${response}`, {
 					position: "top-center",
 				});
 			}
 		} else {
-			for (const key in data) {
-				if (data[key].length === 0) {
+			setIsLoading(false);
+			for (const key in groupData) {
+				if (groupData[key].length === 0) {
 					setError(key, {
 						type: "manual",
 					});
@@ -148,7 +179,7 @@ const AddGroup = ({ type, singleGroup, fetchDataGroup, image }) => {
 	const handleDeleteImage = () => {
 		const split = singleGroup.group_thumbnail.split("%2F");
 		const finalSplit = split[1].split("?");
-		const finalString = decodeURI(finalSplit[0]);
+		const finalString = decodeURIComponent(finalSplit[0]);
 		return MySwal.fire({
 			title: "Are you sure?",
 			text: "You won't be able to revert this!",
@@ -166,11 +197,10 @@ const AddGroup = ({ type, singleGroup, fetchDataGroup, image }) => {
 					deleteFileFirebase(finalString, "groups").then(() => {
 						setDocumentFirebase("groups", singleGroup.id, {
 							group_thumbnail: "",
-						}).then((response) => {
-							if (response) fetchDataGroup();
+						}).then(() => {
+							fetchDataGroup();
 						});
 					});
-					fetchDataGroup();
 				} catch (error) {
 					throw error;
 				}
@@ -188,13 +218,22 @@ const AddGroup = ({ type, singleGroup, fetchDataGroup, image }) => {
 					<span className="align-middle ms-25">Group</span>
 				</Button.Ripple>
 			) : (
-				<Button.Ripple
-					className={"btn-icon me-1"}
-					color={"warning"}
-					onClick={() => setShow(true)}
-				>
-					<Edit size={14} />
-				</Button.Ripple>
+				<>
+					<Button.Ripple
+						className={"btn-icon me-1"}
+						color={"warning"}
+						onClick={() => setShow(true)}
+						id="edit-group"
+					>
+						<Edit size={14} />
+					</Button.Ripple>
+					<UncontrolledTooltip
+						placement="top"
+						target="edit-group"
+					>
+						Edit Group
+					</UncontrolledTooltip>
+				</>
 			)}
 
 			<Modal
@@ -244,77 +283,138 @@ const AddGroup = ({ type, singleGroup, fetchDataGroup, image }) => {
 								/>
 							</Col>
 						) : (
-							<UploadSingleFile data={image} />
+							<UploadSingleFile data={[]} />
 						)}
 						<Col md={12} xs={12}>
-							<Label className="form-label" for="lastName">
+							<Label
+								className="form-label"
+								for="group_name"
+							>
 								Name
 							</Label>
-							<Input
-								value={groupData?.group_name}
-								id="lastName"
-								placeholder="IT"
-								onChange={(e) =>
-									setGroupData({
-										...groupData,
-										group_name: e.target.value,
-									})
-								}
+							<Controller
+								name="group_name"
+								control={control}
+								render={({ field }) => (
+									<Input
+										{...field}
+										value={groupData?.group_name}
+										id="group_name"
+										placeholder="IT"
+										onChange={(e) =>
+											setGroupData({
+												...groupData,
+												group_name:
+													e.target.value,
+											})
+										}
+										invalid={
+											errors.group_name && true
+										}
+									/>
+								)}
 							/>
+							{errors.group_name && (
+								<FormFeedback>
+									Please enter a valid group name
+								</FormFeedback>
+							)}
 						</Col>
 
 						<Col md={12} xs={12}>
-							<Label className="form-label" for="lastName">
+							<Label
+								className="form-label"
+								for="group_description"
+							>
 								Description
 							</Label>
-							<Input
-								type={"textarea"}
-								id="lastName"
-								value={groupData?.group_description}
-								placeholder="This is group for IT Division"
-								onChange={(e) =>
-									setGroupData({
-										...groupData,
-										group_description:
-											e.target.value,
-									})
-								}
+							<Controller
+								name="group_description"
+								control={control}
+								render={({ field }) => (
+									<Input
+										{...field}
+										type={"textarea"}
+										id="group_description"
+										value={
+											groupData?.group_description
+										}
+										placeholder="This is group for IT Division"
+										onChange={(e) =>
+											setGroupData({
+												...groupData,
+												group_description:
+													e.target.value,
+											})
+										}
+										invalid={
+											errors.group_description &&
+											true
+										}
+									/>
+								)}
 							/>
+							{errors.group_description && (
+								<FormFeedback>
+									Please enter a valid group
+									description
+								</FormFeedback>
+							)}
 						</Col>
 
 						<Col md={12} xs={12}>
-							<Label className="form-label" for="lastName">
+							<Label
+								className="form-label me-1"
+								for="group_tag"
+							>
 								Tag
-							</Label>{" "}
-							<small className="text-muted">
-								eg. <i>IT</i>
-							</small>
-							<Input
-								id="lastName"
-								placeholder="IT"
-								value={groupData?.group_tag}
-								onChange={(e) =>
-									setGroupData({
-										...groupData,
-										group_tag: e.target.value,
-									})
-								}
+								<small className="text-muted">
+									eg. <i>IT</i>
+								</small>
+							</Label>
+
+							<Controller
+								name="group_tag"
+								control={control}
+								render={({ field }) => (
+									<Input
+										{...field}
+										placeholder="IT"
+										value={groupData?.group_tag}
+										onChange={(e) =>
+											setGroupData({
+												...groupData,
+												group_tag:
+													e.target.value,
+											})
+										}
+										invalid={
+											errors.group_tag && true
+										}
+									/>
+								)}
 							/>
+							{errors.group_tag && (
+								<FormFeedback>
+									Please enter a valid group tag
+								</FormFeedback>
+							)}
 						</Col>
 
 						<Col xs={12} className="text-center mt-2 pt-50">
-							<Button
-								type="submit"
-								className="me-1"
-								color="primary"
-							>
-								Submit
-							</Button>
+							<ButtonSpinner
+								type={"submit"}
+								isLoading={isLoading}
+								color={"primary"}
+								label={"Submit"}
+							/>
+
 							<Button
 								type="reset"
 								color="secondary"
 								outline
 								onClick={() => setShow(false)}
+								className="ms-1"
 							>
 								Discard
 							</Button>

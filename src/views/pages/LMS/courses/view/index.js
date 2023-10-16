@@ -5,40 +5,26 @@ import { Fragment, useEffect, useState } from "react";
 import Breadcrumbs from "@components/breadcrumbs";
 
 // ** Reactstrap Imports
-import {
-	Badge,
-	Button,
-	Card,
-	CardBody,
-	CardHeader,
-	Col,
-	Form,
-	Input,
-	Label,
-	ListGroupItem,
-	Row,
-} from "reactstrap";
+import { Card, CardBody, Col, Row } from "reactstrap";
 // ** Styles
 import "@styles/react/apps/app-users.scss";
 import "@styles/react/libs/react-select/_react-select.scss";
 
 // ** Third Party Components
-import { ReactSortable } from "react-sortablejs";
-
-import { Edit, List, Plus, Save, X } from "react-feather";
-import SectionAccordion from "./sectionAccordion";
 import { useParams } from "react-router-dom";
-
-import data from "../course.json";
 
 // ** Styles
 import "@styles/react/libs/drag-and-drop/drag-and-drop.scss";
-import { FaSort } from "react-icons/fa";
+
 import CourseTabs from "../CourseTabs";
 import { getSingleDocumentFirebase } from "../../../../../sevices/FirebaseApi";
+import DeleteButton from "./DeleteButton";
+import AddCourse from "../AddCourse";
+import { useSelector } from "react-redux";
 
 const CourseDetailPage = () => {
 	const param = useParams();
+	const store = useSelector((state) => state.coursesSlice);
 
 	const [courseData, setCourseData] = useState([]);
 	const [active, setActive] = useState("1");
@@ -50,16 +36,26 @@ const CourseDetailPage = () => {
 	};
 
 	const getCourseDetail = async () => {
-		const getData = await getSingleDocumentFirebase("courses", param.id);
-		setCourseData(getData);
+		try {
+			const getData = await getSingleDocumentFirebase(
+				"courses",
+				param.id
+			);
+			if (getData) {
+				setCourseData(getData);
+			}
+		} catch (error) {
+			throw error;
+		}
 	};
 
 	useEffect(() => {
-		getCourseDetail()
+		getCourseDetail();
 		return () => {
-			setCourseData({})
+			setCourseData({});
 		};
 	}, []);
+
 	return (
 		<Fragment>
 			<Breadcrumbs
@@ -68,11 +64,7 @@ const CourseDetailPage = () => {
 					{ title: "Course", link: "/courses" },
 					{ title: courseData.course_title },
 				]}
-				rightMenu={
-					<Button.Ripple className="btn-icon" color={"warning"}>
-						<Edit size={14} />
-					</Button.Ripple>
-				}
+				rightMenu={<DeleteButton type={"course"} />}
 			/>
 
 			<div className="app-user-view">
@@ -91,15 +83,46 @@ const CourseDetailPage = () => {
 							<CardBody>
 								<div className="user-avatar-section">
 									<div className="d-flex align-items-center flex-column">
-										<img
-											// height="110"
-											// width="110"
-											alt="user-avatar"
-											src={
-												courseData?.course_thumbnail
-											}
-											className="img-fluid rounded mt-0 mb-2"
-										/>
+										<div
+											style={{
+												position:
+													"relative",
+											}}
+										>
+											<div
+												className="d-flex justify-content-end"
+												style={{
+													position:
+														"absolute",
+													top: 0,
+													right: -15,
+												}}
+											>
+												<AddCourse
+													type={"Update"}
+													id={param.id}
+													data={{
+														...courseData,
+														id: param.id,
+													}}
+													image={
+														store.image
+													}
+													fetchDataCourse={
+														getCourseDetail
+													}
+												/>
+											</div>
+											<img
+												// height="110"
+												// width="110"
+												alt="user-avatar"
+												src={
+													courseData?.course_thumbnail
+												}
+												className="img-fluid rounded mt-0 mb-2"
+											/>
+										</div>
 										<div className="d-flex flex-column align-items-center text-center">
 											<div className="user-info mt-1">
 												<h4>

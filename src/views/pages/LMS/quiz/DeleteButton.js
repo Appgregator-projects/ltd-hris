@@ -12,6 +12,7 @@ import {
 	arrayRemoveFirebase,
 	deleteDocumentFirebase,
 } from "../../../../sevices/FirebaseApi";
+import { UncontrolledTooltip } from "reactstrap";
 
 const DeleteButton = ({ type, id, newDataQuiz, fetchDataQuestion }) => {
 	const MySwal = withReactContent(Swal);
@@ -82,10 +83,17 @@ const DeleteButton = ({ type, id, newDataQuiz, fetchDataQuestion }) => {
 						style={isHovered ? iconHoverStyle : iconStyle}
 						onMouseEnter={() => setIsHovered(true)}
 						onMouseLeave={() => setIsHovered(false)}
+						id="deleted"
 					/>
 				) : (
-					<Trash size={20} />
+					<Trash size={20} id="delete-question" />
 				)}
+				<UncontrolledTooltip
+					placement="top"
+					target={`delete-question`}
+				>
+					Delete Question
+				</UncontrolledTooltip>
 			</div>
 		</Fragment>
 	);

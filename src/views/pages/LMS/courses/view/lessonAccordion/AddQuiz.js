@@ -13,6 +13,7 @@ import {
 	ModalBody,
 	ModalHeader,
 	Row,
+	UncontrolledTooltip,
 } from "reactstrap";
 
 // ** Third Party Components
@@ -39,13 +40,13 @@ const defaultValues = {
 	quiz_description: "",
 	quiz_minGrade: "",
 };
-const AddQuiz = ({ lesson, course, image }) => {
+const AddQuiz = ({ lesson, course, image, section }) => {
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const param = useParams();
 	const [show, setShow] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
-
+	
 	const iconHoverStyle = {
 		// Set the desired background color on hover
 		cursor: "pointer", // Optional: Change the cursor to a pointer on hover
@@ -59,11 +60,9 @@ const AddQuiz = ({ lesson, course, image }) => {
 		setError,
 		handleSubmit,
 		formState: { errors },
-		reset,
 	} = useForm({ defaultValues });
 
 	const onSubmit = async (data) => {
-		console.log(Object.values(data)[2]);
 		// if (Object.values(data).every((field) => field.length > 0)) {
 		if (
 			Object.values(data)[0].length > 0 &&
@@ -78,7 +77,9 @@ const AddQuiz = ({ lesson, course, image }) => {
 						course_title: course.course_title,
 						course_id: param.id,
 					},
-					// section_id: lesson.section_id,
+					course_id: param.id,
+					section_id: section.id,
+					lesson_title: lesson.lesson_title
 				};
 				if (image) {
 					const res = await uploadFile(
@@ -127,7 +128,11 @@ const AddQuiz = ({ lesson, course, image }) => {
 					style={isHovered ? iconHoverStyle : iconStyle}
 					onMouseEnter={() => setIsHovered(true)}
 					onMouseLeave={() => setIsHovered(false)}
+					id='add-quiz'
 				/>
+				<UncontrolledTooltip placement="top" target="add-quiz">
+					Add Quiz
+				</UncontrolledTooltip>
 			</div>
 			<Modal
 				isOpen={show}

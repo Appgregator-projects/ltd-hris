@@ -19,7 +19,8 @@ import {
   Monitor,
   MessageSquare,
   AlertCircle,
-  AlertTriangle
+  AlertTriangle,
+  Clock
 } from "react-feather"
 
 export default [
@@ -62,6 +63,27 @@ export default [
     icon: <Twitch size={20} />,
     navLink: "/leave-request"
   },
+  { header: "e-Learning Employee" },
+  {
+    id: "courses-employee",
+    title: "Courses",
+    icon: <BookOpen size={20} />,
+    navLink: "/courses-employee"
+  },
+  {
+    id: "group-employee",
+    title: "Group",
+    icon: <Users size={20} />,
+    navLink: "/groups-employee"
+  },
+
+  {
+    id: "overtime-request",
+    title: "Overtime Request",
+    icon: <Clock size={20} />,
+    navLink: "/overtime-request"
+  },
+
   {
     header: "e-Learning"
   },
@@ -107,16 +129,6 @@ export default [
   },
 
   {
-    header: "Master data"
-  },
-  {
-    id: "employee",
-    title: "Users",
-    icon: <User size={20} />,
-    navLink: "/employee"
-  },
-
-  {
     id: "company",
     title: "Company",
     icon: <Target size={20} />,
@@ -150,7 +162,7 @@ export default [
     id: "Days Off",
     title: "Days Off",
     icon: <Slash size={20} />,
-    navLink: "/days-off",
+    navLink: "/days-off"
   },
   {
     id: "assest",

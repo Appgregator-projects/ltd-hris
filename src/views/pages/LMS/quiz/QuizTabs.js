@@ -21,7 +21,7 @@ import LogActivityTabs from "./tabs/LogActivityTabs";
 import { useLocation, useParams } from "react-router-dom";
 import { getCollectionFirebase } from "../../../../sevices/FirebaseApi";
 
-const QuizTabs = ({ active, toggleTab, question, fetchDataQuiz }) => {
+const QuizTabs = ({ active, toggleTab, dataQuiz, fetchDataQuiz }) => {
 	const location = useLocation();
 
 	const param = useParams();
@@ -40,6 +40,7 @@ const QuizTabs = ({ active, toggleTab, question, fetchDataQuiz }) => {
 			setQuizList([]);
 		};
 	}, []);
+	
 	return (
 		<Fragment>
 			<Nav pills className="mb-2">
@@ -107,6 +108,7 @@ const QuizTabs = ({ active, toggleTab, question, fetchDataQuiz }) => {
 					<LogActivityTabs
 						quizList={quizList}
 						setQuizList={setQuizList}
+						dataQuiz={dataQuiz}
 					/>
 				</TabPane>
 				{/* <TabPane tabId="3"><BillingPlanTab /></TabPane> */}

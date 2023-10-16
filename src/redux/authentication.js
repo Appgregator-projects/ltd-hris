@@ -35,6 +35,7 @@ const intialCompany = () => {
   const company_name = Cookies.get("company_name");
   const company = { id: company_id, name: company_name };
   return company;
+  // return console.log(company_id,"company_id")
 };
 
 export const authSlice = createSlice({
@@ -59,12 +60,11 @@ export const authSlice = createSlice({
       const params = {
         id: action.payload.profile.token.uid,
         name: action.payload.profile.token.name,
-        email: action.payload.token.email,
+        email: action.payload.email,
         ability: action.payload.ability,
         role_id: action.payload.permissions[0].id,
         role_name: action.payload.permissions[0].name,
-        access_token: action.payload.access_token,
-        avatar: action.payload.profile.token.picture
+        access_token: action.payload.access_token
       };
       console.log(action.payload, "action payload")
       state.userData = params;
@@ -73,15 +73,13 @@ export const authSlice = createSlice({
         ...state.can,
         ...action.payload.permissions[0].role_permissions,
       };
-      // Cookies.set("id", params.id, { expires: 1 });
-      // Cookies.set("name", params.name, { expires: 1 });
-      // Cookies.set("email", params.email, { expires: 1 });
-      // Cookies.set("ability", JSON.stringify(params.ability), { expires: 1 });
-      // Cookies.set("role_id", params.role_id, { expires: 1 });
-      // Cookies.set("role_name", params.role_name, { expires: 1 });
-      // Cookies.set("avatar", JSON.stringify(params.avatar), { expires: 1 });
+      Cookies.set("id", params.id, { expires: 1 });
+      Cookies.set("name", params.name, { expires: 1 });
+      Cookies.set("email", params.email, { expires: 1 });
+      Cookies.set("ability", JSON.stringify(params.ability), { expires: 1 });
+      Cookies.set("role_id", params.role_id, { expires: 1 });
+      Cookies.set("role_name", params.role_name, { expires: 1 });
       Cookies.set("access_token", params.access_token, { expires: 1 });
-      // Cookies.set("userData", JSON.stringify(params), { expires: 1})
       Cookies.set("accessToken", action.payload.access_token, {
         expires: 1,
       });

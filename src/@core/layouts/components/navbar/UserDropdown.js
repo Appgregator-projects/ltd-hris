@@ -43,7 +43,6 @@ const UserDropdown = () => {
   //** ComponentDidMount
   useEffect(() => {
     if (store.userData) {
-      console.log(store)
       setUserData(store.userData)
     }
   }, [])
@@ -64,7 +63,7 @@ const UserDropdown = () => {
       >
         <div className="user-nav d-sm-flex d-none">
           <span className="user-name fw-bold text-capitalize">{(userData && userData['name']) || 'John Doe'}</span>
-          <span className="user-status text-capitalize">{(userData && userData['role_name']) || 'Staff'}</span>
+          <span className="user-status text-capitalize">{(userData && userData['role']) || 'Staff'}</span>
         </div>
         <Avatar
           img={userData && userData['avatar']}
@@ -80,6 +79,14 @@ const UserDropdown = () => {
         >
           <Settings size={14} className="me-75" />
           <span className="align-middle">Settings</span>
+        </DropdownItem>
+        <DropdownItem tag={Link} to="/" onClick={(e) => e.preventDefault()}>
+          <CreditCard size={14} className="me-75" />
+          <span className="align-middle">Pricing</span>
+        </DropdownItem>
+        <DropdownItem tag={Link} to="/" onClick={(e) => e.preventDefault()}>
+          <HelpCircle size={14} className="me-75" />
+          <span className="align-middle">FAQ</span>
         </DropdownItem>
         <DropdownItem onClick={logout}>
           <Power size={14} className="me-75" />

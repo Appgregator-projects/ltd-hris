@@ -14,6 +14,7 @@ import {
 	Modal,
 	ModalBody,
 	ModalHeader,
+	UncontrolledTooltip,
 } from "reactstrap";
 
 // ** Third Party Components
@@ -48,7 +49,9 @@ import { useEffect } from "react";
 import { toast } from "react-hot-toast";
 import {
 	addDocumentFirebase,
+	arrayRemoveFirebase,
 	arrayUnionFirebase,
+	deleteDocumentFirebase,
 	setDocumentFirebase,
 } from "../../../../sevices/FirebaseApi";
 
@@ -150,8 +153,6 @@ const GroupMembers = ({ group_id, fetchDataGroup, members }) => {
 	const [dataUser, setDataUser] = useState([]);
 	const [selectedOption, setSelectedOption] = useState(null);
 
-	console.log(group_id, "datauser");
-
 	// Fetch data
 	const fetchDataUser = async () => {
 		const res = await Api.get("/hris/employee?no_paginate=true");
@@ -170,7 +171,7 @@ const GroupMembers = ({ group_id, fetchDataGroup, members }) => {
 	};
 
 	// Handle
-	const handleConfirmText = () => {
+	const handleConfirmText = (item) => {
 		return MySwal.fire({
 			title: "Are you sure?",
 			text: "You won't be able to revert this!",
@@ -184,14 +185,36 @@ const GroupMembers = ({ group_id, fetchDataGroup, members }) => {
 			buttonsStyling: false,
 		}).then(function (result) {
 			if (result.value) {
-				MySwal.fire({
-					icon: "success",
-					title: "Deleted!",
-					text: "Your file has been deleted.",
-					customClass: {
-						confirmButton: "btn btn-success",
-					},
-				});
+				try {
+					arrayRemoveFirebase(
+						"groups",
+						group_id,
+						"group_members",
+						item.id
+					).then((res) => {
+						if (res) {
+							deleteDocumentFirebase(
+								`groups/${group_id}/group_members`,
+								item.id
+							).then((response) => {
+								if (response) {
+									fetchDataGroup();
+									MySwal.fire({
+										icon: "success",
+										title: "Deleted!",
+										text: "Your file has been deleted.",
+										customClass: {
+											confirmButton:
+												"btn btn-success",
+										},
+									});
+								}
+							});
+						}
+					});
+				} catch (error) {
+					throw error;
+				}
 			}
 		});
 	};
@@ -262,10 +285,13 @@ const GroupMembers = ({ group_id, fetchDataGroup, members }) => {
 				color="primary"
 				className="btn-icon me-1"
 				onClick={() => setShow(true)}
+				id='add-member'
 			>
 				<UserPlus size={14} />
 			</Button>
-
+			<UncontrolledTooltip placement="top" target="add-member">
+				Add Member
+			</UncontrolledTooltip>
 			<Modal
 				isOpen={show}
 				toggle={() => handleDiscard()}
@@ -351,7 +377,9 @@ const GroupMembers = ({ group_id, fetchDataGroup, members }) => {
 											className={"btn-icon"}
 											color={"danger"}
 											onClick={() =>
-												handleConfirmText()
+												handleConfirmText(
+													item
+												)
 											}
 										>
 											<Trash size={15} />
