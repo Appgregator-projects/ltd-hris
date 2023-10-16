@@ -1,10 +1,15 @@
+<<<<<<< HEAD
 import { Button, Card, CardBody, Col, Row, Table, Badge } from "reactstrap"
+=======
+import { useEffect, useState } from "react"
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Col, Input, Label, Modal, ModalBody, ModalHeader, Row, Table, UncontrolledTooltip } from "reactstrap"
+>>>>>>> e5ce312d0f7de79f3d10d5f464bca72ecc1b6c60
 import Api from "../../../sevices/Api"
 import { useEffect, useState } from "react"
 import { numberFormat } from "../../../Helper"
 import dayjs from "dayjs"
 import { Link } from "react-router-dom"
-import { Trash, Edit, Eye, CheckCircle } from "react-feather"
+import { Trash, Edit, Eye, CheckCircle, Plus } from "react-feather"
 import toast from 'react-hot-toast'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
@@ -39,21 +44,21 @@ export default function PayrolIndex() {
       },
       buttonsStyling: false
     }).then(async (result) => {
-      if (!result) return
-
-      try {
-        const data = await Api.delete(`/hris/payroll/${id}`)
-        if (typeof data.status !== 'undefined') return toast.error(`Error : ${data.data}`, {
-          position: "top-center"
-        })
-        toast.success(data, {
-          position: "top-center"
-        })
-        return fetchPayroll()
-      } catch (error) {
-        toast.error(`Error : ${error.message}`, {
-          position: "top-center"
-        })
+      if (result.isConfirmed){
+        try {
+          const data = await Api.delete(`/hris/payroll/${id}`)
+          if (typeof data.status !== 'undefined') return toast.error(`Error : ${data.data}`, {
+            position: "top-center"
+          })
+          toast.success(data, {
+            position: "top-center"
+          })
+          return fetchPayroll()
+        } catch (error) {
+          toast.error(`Error : ${error.message}`, {
+            position: "top-center"
+          })
+        }
       }
     })
   }
@@ -71,21 +76,21 @@ export default function PayrolIndex() {
       },
       buttonsStyling: false
     }).then(async (result) => {
-      if (!result) return
-
-      try {
-        const data = await Api.patch(`/hris/payroll/${id}`)
-        if (typeof data.status !== 'undefined') return toast.error(`Error : ${data.data}`, {
-          position: "top-center"
-        })
-        toast.success(data, {
-          position: "top-center"
-        })
-        return fetchPayroll()
-      } catch (error) {
-        toast.error(`Error : ${error.message}`, {
-          position: "top-center"
-        })
+      if (result.isConfirmed){
+        try {
+          const data = await Api.patch(`/hris/payroll/${id}`)
+          if (typeof data.status !== 'undefined') return toast.error(`Error : ${data.data}`, {
+            position: "top-center"
+          })
+          toast.success(data, {
+            position: "top-center"
+          })
+          return fetchPayroll()
+        } catch (error) {
+          toast.error(`Error : ${error.message}`, {
+            position: "top-center"
+          })
+        }
       }
     })
   }
@@ -95,12 +100,12 @@ export default function PayrolIndex() {
       <Row>
         <Col lg="6" className="mb-2">
           <Button.Ripple
-            size="md"
+            size="sm"
             color="primary"
             tag={Link}
-            to="/payroll-form"
-          >
-            <span className="align-middle text-sm">Create</span>
+            to="/payroll-form">
+            <Plus size={14}/>
+            <span className="align-middle text-sm ms-25">Create Payroll</span>
           </Button.Ripple>
         </Col>
         <Col lg="12">
@@ -133,41 +138,76 @@ export default function PayrolIndex() {
                           className="me-1"
                         >
                           {x.approved_at ? "Approved" : "Waiting"}
+
                         </Badge>
                       </td>
                       <td>
                         <div className="d-flex">
                           <div className="pointer">
-                          {
-                              !x.approved_at ?  <Trash className="me-50" size={15} title="Delete" onClick={() => onDelete(x.id)}/> : <></>
+                            { 
+                              !x.approved_at ? 
+                              <div>
+                              <Trash className="me-50" size={15} title="Delete" 
+                              onClick={() => onDelete(x.id)}
+                              id={`payrol-delete-${x.id}`}/> 
+                              <UncontrolledTooltip
+                                placement="top"
+                                target={`payrol-delete-${x.id}`}>
+                                Delete
+                              </UncontrolledTooltip>
+                              </div> 
+                              : <></>
                             }
-                           
                             <span className="align-middle"></span>
-                            <Link to={`/payroll/${x.id}`} title="Detail">
+                            <Link to={`/payroll/${x.id}`} 
+                            // title="Detail"
+                            >
                               <Eye
                                 className="me-50"
                                 size={15}
+                                id={`paycheck-${x.id}`}
+                                
                               />
                             </Link>
+                              <UncontrolledTooltip
+                              placement="top"
+                              target={`paycheck-${x.id}`}
+                              >Detail</UncontrolledTooltip>
                             <span className="align-middle"></span>
                             {
-                              !x.approved_at ? <Link to={`/payroll/${x.id}/edit`} title="Edit">
+                              !x.approved_at ? 
+                              <Link to={`/payroll/${x.id}/edit`}>
                                   <Edit
                                     className="me-50"
                                     size={15}
+                                    id={`payroll-edit-${x.id}`}
                                   />
-                                </Link> : <></>
+                                <UncontrolledTooltip
+                                placement="top"
+                                target={`payroll-edit-${x.id}`}
+                                >Edit
+                                </UncontrolledTooltip>
+                              </Link> 
+                              : <></>
                             }
-
                             {
-                              !x.approved_at ? <CheckCircle
-                                    className="me-50"
-                                    title="Approve"
-                                    size={15}
-                                    onClick={() => onApprove(x.id)}
-                                  /> : <></>
+                              !x.approved_at ? 
+                              <div>
+                              <CheckCircle
+                                className="me-50"
+                                title="Approve"
+                                size={15}
+                                onClick={() => onApprove(x.id)}
+                                id={`payrol-approve-${x.id}`}
+                                /> 
+                              <UncontrolledTooltip
+                                placement="top"
+                                target={`payrol-approve-${x.id}`}>
+                                Approve
+                              </UncontrolledTooltip>
+                              </div>
+                              : <></>
                             }
-
 
                           </div>
                         </div>

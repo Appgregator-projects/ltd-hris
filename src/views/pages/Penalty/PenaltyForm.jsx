@@ -27,7 +27,7 @@ const PenaltyForm = ({item, close, user}) => {
 		// name: yup.string().required(),
 		title: yup.string().required(),
 		message: yup.string().required(),
-		file: yup.string().required(),
+		// file: yup.string().required(),
   	})
 
   const {
@@ -49,8 +49,10 @@ const PenaltyForm = ({item, close, user}) => {
 
   const fetchCategory = async() => {
     try {
-      const data = await Api.get('/hris/penalty-category')
-      setPenalty([...data])
+      const {status,data} = await Api.get('/hris/penalty-category')
+      if(status){
+        setPenalty([...data])
+      }
     } catch (error) {
       throw error
     }
@@ -63,20 +65,21 @@ const PenaltyForm = ({item, close, user}) => {
   const fetchHistory = async(arg) => {
     try {
       let newArr = []
-      const data = await Api.get(`/hris/warning-letter/${arg.value}/history`)
-      if(data.data){
-        const createdDate = new Date(data.data.createdAt)
+      const{status,data} = await Api.get(`/hris/warning-letter/${arg.value}/history`)
+      console.log(data,"data")
+      if(status && data){
+        const createdDate = new Date(data.createdAt)
         const currentDate = new Date()
         const timeDifference = currentDate - createdDate
         const daysDifference = Math.floor(timeDifference /(1000 * 60 * 60 *24))
         if(daysDifference > 30) {
-          newArr.push({...data.data, daysDifference, status: "expired"})
+          newArr.push({...data, daysDifference, status: "expired"})
         } if (daysDifference < 30) {
-          newArr.push({...data.data, daysDifference, status: "active"})
+          newArr.push({...data, daysDifference, status: "active"})
         }
         setHistory([...newArr][0])
       } else {
-        newArr.push({...data.data, status: "no penalty"})
+        newArr.push({...data, status: "no penalty"})
         console.log( newArr, "no penalty")
         setHistory([...newArr][0])
       }
@@ -84,9 +87,6 @@ const PenaltyForm = ({item, close, user}) => {
       throw error
     }
   }
-
-  console.log(history, "history")
-  
 
   const { getRootProps, getInputProps } = useDropzone({
     multiple: false,
@@ -113,7 +113,6 @@ const PenaltyForm = ({item, close, user}) => {
 
 	const onSubmitForm = (params) => {
     params.file = attachment
-    // return console.log(params, "params")
 		return onSubmit(params)
 	}
   

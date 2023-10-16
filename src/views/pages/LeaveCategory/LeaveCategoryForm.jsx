@@ -25,7 +25,7 @@ export default function LeaveCategoryForm({item, close, onSubmit}){
   useEffect(() => {
     if(item){
       setValue('name', item.name)
-      setValue('initial_balance', item.balance)
+      setValue('initial_balance', item.initial_balance)
     }
   }, [item])
 

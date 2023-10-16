@@ -25,6 +25,7 @@ import { dateTimeFormat } from "../../../Helper/index"
 import { ChevronDown, Trash, Edit } from "react-feather"
 
 const renderClient = (row) => {
+  // console.log(row, "row")
   if (row.avatar) {
     return <Avatar className="me-1" img={row.avatar} width="32" height="32" />
   } else {
@@ -115,9 +116,11 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
 
   const fetchEmployee = async (params) => {
     try {
-      const data = await Api.get(`/hris/employee?page=${params.page}&limit=${params.perPage}&search=${params.search}`)
-      setEmployees([...data.rows])
-      setEmployeeTotal(data.pagination.totalItems)
+      const {status,data} = await Api.get(`/hris/employee?page=${params.page}&limit=${params.perPage}&search=${params.search}`)
+      if(status){
+        setEmployees([...data.rows])
+        setEmployeeTotal(data.pagination.totalItems)
+      }
     } catch (error) {
       throw error.message
     }

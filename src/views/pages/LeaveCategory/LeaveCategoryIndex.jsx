@@ -23,8 +23,10 @@ export default function LeaveCategoryIndex(){
 
   const fetchCategories = async() => {
     try {
-      const data = await Api.get(`/hris/leave-category`)
-      setCategories([...data])
+      const {status,data} = await Api.get(`/hris/leave-category`)
+      if(status){
+        setCategories([...data])
+      }
     } catch (error) {
       throw error
     }
@@ -42,13 +44,13 @@ export default function LeaveCategoryIndex(){
     })
     setToggleModal(true)
   }
-
   
   const onSubmit = async(arg) => {
     try {
       if(modal.item) return postUpdate(arg)
-      const status = await Api.post('/hris/leave-category', arg)
-      if(!status) return toast.error(`Error : ${data}`, {
+      const {status,data} = await Api.post('/hris/leave-category', arg)
+      if(!status) 
+      return toast.error(`Error : ${data}`, {
         position: 'top-center'
 			}) 
       fetchCategories()
@@ -61,9 +63,7 @@ export default function LeaveCategoryIndex(){
       toast.error(`Error : ${error.message}`, {
         position: 'top-center'
 			})
-      
     }
-    
   }
   
   const postDelete = (id) => {
@@ -120,8 +120,9 @@ export default function LeaveCategoryIndex(){
 
   const postUpdate = async(arg) => {
       try {
-      const status = await Api.put(`/hris/leave-category/${modal.item.id}`, arg)
-      if(!status) return toast.error(`Error : ${data}`, {
+      const {status,data} = await Api.put(`/hris/leave-category/${modal.item.id}`, arg)
+      if(!status) 
+      return toast.error(`Error : ${data}`, {
 				position: 'top-center'
 			}) 
       fetchCategories()

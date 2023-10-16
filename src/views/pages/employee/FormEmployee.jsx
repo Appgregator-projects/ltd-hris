@@ -122,7 +122,7 @@ export default function FormEmployee({
   });
 
   const onSubmitForm = (arg) => {
-    return console.log(arg, "arg onSubmitform")
+    // return console.log(arg, "arg onSubmitform")
     arg.profile_picture = attachment;
     if (!item) {
       arg.password = arg.password ? arg.password : "121212";
@@ -250,7 +250,7 @@ export default function FormEmployee({
                 type="select"
                 {...field}
                 name="gender"
-                value={item?.employee_attribute.gender}
+                // value={item?.employee_attribute.gender}
                 invalid={errors.gender && true}
               >
                 <option value="">Select gender</option>

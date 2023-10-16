@@ -1,20 +1,37 @@
 import axios from "axios";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../../configs/firebase";
 const endpoint = import.meta.env.VITE_BASEURL;
 
 //** AUTH
-const userProfile = localStorage.getItem("userData")
-  ? JSON.parse(localStorage.getItem("userData"))
-  : null;
+// const userProfile = localStorage.getItem("userData")
+//   ? JSON.parse(localStorage.getItem("userData"))
+//   : null;
 // console.log(
 //   userProfile !== null ? userProfile.access_token : "NULL",
 //   "API HEADER"
 // );
-if (userProfile !== null) {
-  axios.defaults.headers.common[
-    "Authorization"
-  ] = `Bearer ${userProfile.access_token}`;
-}
+// if (userProfile !== null) {
+//   axios.defaults.headers.common[
+//     "Authorization"
+//   ] = `Bearer ${userProfile.access_token}`;
+// }
 //** AUTH
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // User is signed in, see docs for a list of available properties
+    // https://firebase.google.com/docs/reference/js/auth.user
+    axios.defaults.headers.common[
+      "Authorization"
+    ] = `Bearer ${user.accessToken}`;
+    const uid = user.uid;
+    // ...
+  } else {
+    // User is signed out
+    // ...
+  }
+});
 
 export const serviceGetPipeline = async () => {
   const configurationObject = {

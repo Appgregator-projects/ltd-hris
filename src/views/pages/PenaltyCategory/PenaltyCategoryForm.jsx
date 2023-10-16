@@ -51,7 +51,8 @@ useEffect(() => {
                 name='duration'
                 defaultValue='0'
                 control={control}
-                render={({ field }) => (<Input type='select' {...field} name='duration' invalid={errors.duration && true}>
+                render={({ field }) => 
+                (<Input type='select' {...field} name='duration' invalid={errors.duration && true}>
                   <option>Select month</option>
                   <option value={1}>1 month</option>
                   <option value={2}>2 month</option>

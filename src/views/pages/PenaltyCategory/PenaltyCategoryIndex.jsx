@@ -18,8 +18,10 @@ const PenaltyCategoryIndex = () => {
 
   const fetchPenalty = async() => {
     try {
-      const data = await Api.get('/hris/penalty-category')
-      setPenalty([...data])
+      const {status,data} = await Api.get('/hris/penalty-category')
+      if(status){
+        setPenalty([...data])
+      }
     } catch (error) {
       throw error
     }
@@ -41,8 +43,9 @@ const PenaltyCategoryIndex = () => {
   const onSubmit = async(arg) => {
     try {
       if(modal.item) return postUpdate(arg)
-      const status = await Api.post('/hris/penalty-category', arg)
-      if(!status) return toast.error(`Error : ${data}`, {
+      const {status,data} = await Api.post('/hris/penalty-category', arg)
+      if(!status) 
+      return toast.error(`Error : ${data}`, {
         position: 'top-center'
 			}) 
       fetchPenalty()

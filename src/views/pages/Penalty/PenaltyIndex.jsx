@@ -23,27 +23,6 @@ const PenaltyIndex = () => {
     item : null
   })
 
-  const penaltys = [
-    {
-      name : "nata", 
-      email : "nata@gmail.com",
-      division : "time management",
-      title : "makan di ruangan IT",
-      penalty_type : "1",
-      massage : "jangan suka bawa makanan ke dalam ruangan kantor yg sudah tertulis tidak boleh membawa makanan",
-      file : "jkjbsdkjbf"
-    },
-    {
-      name : "audy", 
-      email : "audy@gmail.com",
-      division : "time management",
-      title : "gapake sepatu",
-      penalty_type : "2",
-      massage : "jangan suka bawa makanan ke dalam ruangan kantor yg sudah tertulis tidak boleh membawa makanan",
-      file : "jkjbsdkjbf"
-    }
-  ]
-
   const fetchEmployee= async() => {
     try {
       const data = await Api.get(`/hris/employee?no_paginate=true`);
@@ -65,25 +44,12 @@ const PenaltyIndex = () => {
     fetchEmployee()
   },[])
 
-  const fetchHistory = async(arg) => {
-    try {
-      const data = await Api.get(`/hris/warning-letter/${arg.value}/history`)
-      setHistory(data)
-      console.log(data, "history")
-    } catch (error) {
-      throw error
-    }
-    setToggleModal(false)
-  }
-
-  useEffect(() => {
-    fetchHistory()
-  },[])
-
   const fetchPenalty = async() => {
     try {
-      const data = await Api.get(`/hris/warning-letter`)
-      setPenalty([...data.data])
+      const {status,data} = await Api.get(`/hris/warning-letter`)
+      if(status){
+        setPenalty([...data])
+      }
     } catch (error) {
       throw error
     }
@@ -179,7 +145,7 @@ const PenaltyIndex = () => {
             </Col>
           ))
         }
-        {!penaltys.length ? <div className="text-center">No Office found</div> : <></>}
+        {!penalty.length ? <div className="text-center">No Office found</div> : <></>}
     </Row>
     <Modal
       isOpen={toggleModal}

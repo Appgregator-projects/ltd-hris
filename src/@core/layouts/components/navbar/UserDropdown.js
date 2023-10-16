@@ -66,13 +66,14 @@ const UserDropdown = () => {
           <span className="user-status text-capitalize">{(userData && userData['role']) || 'Staff'}</span>
         </div>
         <Avatar
-          img={defaultAvatar}
+          img={userData && userData['avatar']}
           imgHeight="40"
           imgWidth="40"
           status="online"
         />
       </DropdownToggle>
       <DropdownMenu end>
+<<<<<<< HEAD
         <DropdownItem tag={Link} to="/profile">
           <User size={14} className="me-75" />
           <span className="align-middle">Profile</span>
@@ -90,6 +91,8 @@ const UserDropdown = () => {
           <span className="align-middle">Chats</span>
         </DropdownItem>
         <DropdownItem divider />
+=======
+>>>>>>> e5ce312d0f7de79f3d10d5f464bca72ecc1b6c60
         <DropdownItem
           tag={Link}
           to="/setting/account"

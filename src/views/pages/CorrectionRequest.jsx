@@ -41,29 +41,31 @@ export default function CorrectionIndex(){
 
   const fetchCorrection = async() => {
     try {
-      const data = await Api.get('/hris/correction')
-      const filterData = data.filter((x) => filterStatus !== "Requested"?  
-      x.current_status === filterStatus : x.current_status === null)
-      if(filterStatus === ""){
-        setCorrection([...data])
-      } else{
-        if(data){
-          const updateDatFilter =  filterData.map((x) => {
-            return {
-              id : x.id,
-              clock_in : x.clock_in,
-              clock_out : x.clock_out,
-              current_status : x.current_status,
-              periode: x.periode,
-              rejected_note: x.rejected_note,
-              user_id : x.user_id,
-              users : x.users,
-              is_check : false,
-              createdAt : x.createdAt,
-              updateAt :  x.updateAt
-            }
-          })
-          setCorrection(updateDatFilter)
+      const {status,data} = await Api.get('/hris/correction')
+      if(status){
+        const filterData = data.filter((x) => filterStatus !== "Requested"?  
+        x.current_status === filterStatus : x.current_status === null)
+        if(filterStatus === ""){
+          setCorrection([...data])
+        } else{
+          if(data){
+            const updateDatFilter =  filterData.map((x) => {
+              return {
+                id : x.id,
+                clock_in : x.clock_in,
+                clock_out : x.clock_out,
+                current_status : x.current_status,
+                periode: x.periode,
+                rejected_note: x.rejected_note,
+                user_id : x.user_id,
+                users : x.users,
+                is_check : false,
+                createdAt : x.createdAt,
+                updateAt :  x.updateAt
+              }
+            })
+            setCorrection(updateDatFilter)
+          }
         }
       }
     } catch (error) {
@@ -144,6 +146,7 @@ export default function CorrectionIndex(){
       }
     })
   }
+  
   const onSubmitAll = async(x,y) => {
     console.log(x, y, "dfkshdfkj")
     return MySwal.fire({

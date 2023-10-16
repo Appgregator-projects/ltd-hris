@@ -6,7 +6,7 @@ import {
 import Avatar from '@components/avatar'
 import Api from '../../../sevices/Api'
 import { Link, useParams } from 'react-router-dom'
-import { capitalize, dateFormat } from "../../../Helper/index";
+import { capitalize, dateFormat, numberFormat } from "../../../Helper/index";
 import { Copy, Edit, Trash } from "react-feather";
 import LeaveForm from "./component/LeaveForm";
 import toast from 'react-hot-toast'
@@ -30,11 +30,9 @@ export default function EmployeeDetail() {
 	const [user, setUser] = useState([])
 	const [balance, setBalance] = useState([])
 	const [userBalance, setUserBalance] = useState([])
-	const [usersGetBalance, setUsersGetBalance] = useState([])
 	const [userDivision, setUserDivision] = useState([])
-  	const [logUser, setLogUser] = useState([])
-	const [uploadFile, setUploadFile] = useState([])
-	const [leaveCategories, setLaeveCategories] = useState([])
+ 	const [logUser, setLogUser] = useState([])
+	const [leaveCategories, setLeaveCategories] = useState([])
 	const [isLoading, setIsLoading] = useState(false)
 	const [income, setIncome] = useState([])
 	const [modal, setModal] =useState({
@@ -45,9 +43,11 @@ export default function EmployeeDetail() {
 
 	const fetchUser = async () => {
 		try {
-			const data = await Api.get(`/hris/employee/${id.uid}`)
-			setUser(data)
-			setBalance([...data.leave_balances])
+			const {status,data} = await Api.get(`/hris/employee/${id.uid}`)
+			if(status){
+				setUser(data)
+				setBalance([...data.leave_balances])
+			}
 		} catch (error) {
 			throw error
 		}
@@ -59,17 +59,19 @@ export default function EmployeeDetail() {
 
 	const fetchUserTeam = async() => {
 		try {
-			const data = await Api.get(`/hris/employee/division/${id.uid}`)
-			const dataTeam = data.map((x) => {
-				return {
-					title: x.name,
-					img: x.avatar,
-					imgHeight: 26,
-					imgWidth: 26
-
-				}
-			})
-			setUserDivision(dataTeam)
+			const {status,data} = await Api.get(`/hris/employee/division/${id.uid}`)
+      if(status){
+        const dataTeam = data.map((x) => {
+          return {
+            title: x.name,
+            img: x.avatar,
+            imgHeight: 26,
+            imgWidth: 26
+  
+          }
+        })
+        setUserDivision(dataTeam)
+      }
 		} catch (error) {
 			throw error
 			
@@ -80,24 +82,12 @@ export default function EmployeeDetail() {
 		fetchUserTeam()
 	},[])
 
-	const fetchUsersBalance = async () => {
-		try {
-			const dataUsers = await Api.get(`/hris/employee/${id.uid}`)
-			setUsersGetBalance([...dataUsers.leave_balances])
-		} catch (error) {
-			throw error
-		}
-	}
-	
-	useEffect(() => {
-		fetchUsersBalance()
-	}, [])
-
 	const fetchLeaveCategories = async () => {
 		try {
-			const data = await Api.get(`/hris/leave-category`)
-			setLaeveCategories([...data])
-
+			const {status,data} = await Api.get(`/hris/leave-category`)
+      if(status){
+        setLeaveCategories([...data])
+      }
 		} catch (error) {
 			throw error
 		}
@@ -109,14 +99,16 @@ export default function EmployeeDetail() {
 
 	const fetchIncome = async () => {
 		try {
-		  const data = await Api.get(`/hris/employee-income/${id.uid}`)
-		  setIncome([...data])
+		  const {status,data} = await Api.get(`/hris/employee-income/${id.uid}`)
+      if(status){
+        setIncome([...data])
+      }
 		} catch (error) {
 		  throw error
 		}
-	  }
+	}
 
-	  useEffect(() =>{
+	useEffect(() => {
 		fetchIncome()
 	},[])
 
@@ -199,24 +191,15 @@ export default function EmployeeDetail() {
 		setToggleModal(true)	
 	}
 
-  const onEditPenalty = (x) => {
-    console.log("edit penalty")
-    setModal({
-      title : "Penalty Form",
-      mode: "penalty",
-      item:  x
-    })
-  }
-
 	const postLeave = async (arg) => {
 		try {
-			arg.users = user.id
 			setIsLoading(true)
-			const status = await Api.post(`/hris/employee/${id.uid}/assign-leave`, arg)
-			setUserBalance(status)
-			console.log(status, "status")
-			setIsLoading(false)
-			if (!status) return toast.error(data, {
+			const {status, data} = await Api.post(`/hris/employee/${id.uid}/assign-leave`, arg)
+      if(status){
+        setUserBalance(data)
+        setIsLoading(false)
+      }
+      toast.error(data, {
 				position: 'top-center'
 			})
 			toast.success('Successfully added employee!', {
@@ -251,13 +234,6 @@ export default function EmployeeDetail() {
 				position: "top-center",
 			});
 		}
-	}
-
-	const postFile = async(arg) => {
-		return console.log(arg, "e")
-		const file = e.target.files[0];
-		setUploadFile(file)
-
 	}
 
 	const onDelete = (x) => {
@@ -299,8 +275,8 @@ export default function EmployeeDetail() {
 	return (
 		<>
 			<Row>
-				<Col>
-				<Col xl='12' lg='12' xs={{ order: 1 }} md={{ order: 0, size: 5 }}>
+				
+				<Col xl='4' lg='4' xs={{ order: 1 }} md={{ order: 0, size: 5 }}>
 					<Card>
 						<CardBody>
 							<div className='user-avatar-section'>
@@ -408,27 +384,6 @@ export default function EmployeeDetail() {
 						</CardBody>
 					</Card>
 				</Col>
-				<Col xl='12' lg='12' xs={{ order: 2 }} md={{ order: 0, size: 5 }}>
-					<Card>
-							<Form onSubmit={postFile}>
-						<CardHeader>
-							<CardTitle>Upload File</CardTitle>
-						</CardHeader>
-						<CardBody>
-								<Label for="upload_file">File</Label>
-								<Input
-								id="upload_file"
-								name="file"
-								type="file"></Input>
-						</CardBody>
-						<CardFooter>
-							<Button color="warning" type="submit">Upload</Button>
-						</CardFooter>
-							</Form>
-						
-					</Card>
-				</Col>
-				</Col>
 				<Col>
 				<Col>
 					<Card>
@@ -439,18 +394,16 @@ export default function EmployeeDetail() {
 							<Table responsive>
 								<thead>
 									<tr className="text-xs">
-										<th className="fs-6">Name</th>
-										<th className="fs-6">Amount</th>
 										<th className="fs-6">Flag</th>
+										<th className="fs-6">Amount</th>
 										<th className="fs-6">Action</th>
 									</tr>
 								</thead>
 								<tbody>
 									{income.map((x) => (
 										<tr key={x.id}>
-											<td>{x.name}</td>
-											<td>{x.amount}</td>
 											<td>{x.flag}</td>
+											<td>Rp {numberFormat(x.amount)},-</td>
 											<td>
 												<Trash className="me-50 pointer" size={15} onClick={() => onDelete(x)}></Trash>
 											</td>
@@ -483,18 +436,19 @@ export default function EmployeeDetail() {
 									<thead>
 										<tr className='text-xs'>
 											<th className='fs-6'>Leave Name</th>
-											<th className='fs-6'>Balance</th>
+											<th className='fs-6'>Current Balance</th>
 										</tr>
 									</thead>
 									<tbody>
 										{
-											usersGetBalance.length ?
-												usersGetBalance.map(x => (
+											balance.length ?
+												balance.map(x => x.category !== null ?
+                          (
 													<tr key={x.id}>
 														<td>{x.category? x.category.name : '-'}</td>
 														<td>{x.balance ? x.balance : "0"} days</td>
 													</tr>
-												)) : <>
+												) :  null ) : <>
 													<tr>
 														<td colSpan={2} className="text-center">Empty leave</td>
 													</tr>
@@ -529,7 +483,7 @@ export default function EmployeeDetail() {
 								</div>
 								<div className='d-flex justify-content-between align-items-end mt-1 pt-25'>
 									<div className='role-heading'>
-										<h4 className='fw-bolder'>{usersGetBalance.category?.name}</h4>
+										<h4 className='fw-bolder'>{balance.category?.name}</h4>
 										<Link
 											to='/'
 											className='role-edit-modal'
