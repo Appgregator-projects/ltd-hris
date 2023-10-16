@@ -98,6 +98,7 @@ export default function AssetIndex() {
   }
 
   const fetchDivision = async (params) =>{
+    console.log(params)
     try {
       const {status,data} = await Api.get(`/hris/division?search=${params.search}`)
       if(status){
@@ -120,42 +121,42 @@ export default function AssetIndex() {
     }
   }
 
-  // useEffect(() => {
-  //   fetchAsset()
-  // },[])
+  useEffect(() => {
+    fetchDivision()
+  },[])
 
-  // const handleDelete = async (x) => {
-  //   MySwal.fire({
-  //     title: "Are you sure?",
-  //     text: "You won't be able to revert this!",
-  //     icon: "warning",
-  //     showCancelButton: true,
-  //     confirmButtonText: "Yes, delete it!",
-  //     customClass: {
-  //       confirmButton: "btn btn-primary",
-  //       cancelButton: "btn btn-outline-danger ms-1",
-  //     },
-  //     buttonsStyling: false,
-  //   }).then(async (result) => {
-  //     if (result.value) {
-  //       const data = await Api.delete(`/hris/assets/${x.id}`)
-  //       if (data) {
-  //         return MySwal.fire({
-  //           icon: "success",
-  //           title: "Deleted!",
-  //           text: "Division has deleted.",
-  //           customClass: {
-  //             confirmButton: "btn btn-success",
-  //           },
-  //         });
-  //       }
-  //       return toast.error(`Error : ${data}`, {
-  //         position: "top-center",
-  //       });
-  //     }
-  //   });
-  //   fetchAssets()
-  // }
+  const handleDelete = async (x) => {
+    MySwal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      customClass: {
+        confirmButton: "btn btn-primary",
+        cancelButton: "btn btn-outline-danger ms-1",
+      },
+      buttonsStyling: false,
+    }).then(async (result) => {
+      if (result.value) {
+        const data = await Api.delete(`/hris/assets/${x.id}`)
+        if (data) {
+          return MySwal.fire({
+            icon: "success",
+            title: "Deleted!",
+            text: "Division has deleted.",
+            customClass: {
+              confirmButton: "btn btn-success",
+            },
+          });
+        }
+        return toast.error(`Error : ${data}`, {
+          position: "top-center",
+        });
+      }
+    });
+    fetchAssets()
+  }
 
   return (
     <>
@@ -200,7 +201,7 @@ export default function AssetIndex() {
                   <th style={{fontSize : 'sm'}}>Asset Name</th>
                   <th style={{fontSize : 'sm'}}>Asset Code</th>
                   <th style={{fontSize : 'sm'}}>Asset Cost</th>
-                  <th style={{fontSize : 'sm'}}>Created At</th>
+                  <th style={{fontSize : 'sm'}}>Created Time</th>
                   <th style={{fontSize : 'sm'}}>Actions</th>
                 </tr>
               </thead>
@@ -220,14 +221,14 @@ export default function AssetIndex() {
                             <Trash
                               className="me-20"
                               size={15}
-                              // onClick={() => handleDelete(x)}
+                              onClick={() => handleDelete(x)}
                             />{" "}
                             <span className="align-middle"></span>
-                            <Edit
+                            {/* <Edit
                               className="me-50"
                               size={15}
                               // onClick={() => handleEdit()}
-                            />{" "}
+                            />{" "} */}
                             <span className="align-middle"></span>
                           </div>
                         </div>
