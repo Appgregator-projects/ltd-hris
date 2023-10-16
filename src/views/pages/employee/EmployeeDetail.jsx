@@ -195,18 +195,15 @@ export default function EmployeeDetail() {
 		try {
 			setIsLoading(true)
 			const {status, data} = await Api.post(`/hris/employee/${id.uid}/assign-leave`, arg)
-      if(status){
-        setUserBalance(data)
-        setIsLoading(false)
-      }
-      toast.error(data, {
+      setToggleModal(false)
+      if(status)
+      return toast.error(data, {
 				position: 'top-center'
 			})
 			toast.success('Successfully added employee!', {
 				position: 'top-center'
 			})
 			fetchUser()
-			setToggleModal(false)
 		} catch (error) {
 			setIsLoading(false)
 			toast.error(error.message, {
