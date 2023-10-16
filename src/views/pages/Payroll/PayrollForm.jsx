@@ -146,12 +146,12 @@ export default function PayrollForm() {
   }
 
   const deductionsMath = async(item) => {
-    const income = item.income_list
-    const loans = item.loans
+    const income = item?.income_list
+    const loans = item?.loans
     let sumLoans = 0 
-    const basic= await income.find(x => x.flag == "Gaji pokok nett" || x.name == "Basic Salary")
-    console.log(item)
-    if(basic.amount || loans.length){
+    const basic= await income?.find(x => x.flag == "Gaji pokok nett" || x.name == "Basic Salary")
+    
+    if(basic?.amount || loans?.length){
       const amountBPJS = listDeductions.map(x => {
         x.percentage/100 * basic.amount
         return {
@@ -159,14 +159,13 @@ export default function PayrollForm() {
           amount : x.percent_company / 100 * basic.amount
         }
       })
-      console.log(amountBPJS, "kakak")
       setbpjs(amountBPJS)
-      
       const loans_per_month = loans.map(x => (x.loan_amount / x.tenor))
       for (let i=0; i<loans_per_month.length; i++){
         sumLoans += loans_per_month[i]
       }
       setLoans(sumLoans)
+
       const dataDeductions = deductions.map(x => {
         x.amount = 0
         const amountBPJS = bpjs?.find(y => y.name == x.name)
@@ -180,6 +179,8 @@ export default function PayrollForm() {
         setDeductions([...dataDeductions])
     }
   }
+
+
 
   const fetchAttendance = async(user = '') => {
     const uid = user ? user : userSelect.value 
@@ -199,6 +200,11 @@ export default function PayrollForm() {
       }
     }
   }
+  useEffect(()=> {
+    if(info){
+      deductionsMath(info)
+    }
+  },[info])
 
   const onSelectEmployee = (arg) => {
     setUserSelect({...arg})

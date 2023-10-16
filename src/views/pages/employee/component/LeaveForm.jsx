@@ -5,21 +5,19 @@ import ButtonSpinner from "../../components/ButtonSpinner"
 export default function LeaveForm ({leave, close, balance, onSubmit, isLoading}) {
 
   const [formLeave, setFormLeave] = useState([])
-  console.log(balance,"balance")
-  console.log(leave,"leave")
+  // console.log(balance,"balance")
+  // console.log(leave,"leave")
 
   const generateForm = () => {
     if(balance?.length && leave.length){
       const g = leave?.map(x => {
         x.defaultValue = 0
         const check = balance.find(y => y.leave_category_id ===  x.id) 
-        console.log(check, "check")
         if(check !== null){
           x.defaultValue = check ? check?.balance : 0
         }
         return x
       })  
-      console.log(g, "G")
       return setFormLeave([...g])
     }
     setFormLeave([...leave.map(x => {
