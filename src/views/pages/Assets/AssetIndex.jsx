@@ -11,6 +11,7 @@ import toast from "react-hot-toast"
 import AssetDetail from "./AssetDetail"
 import { handlePreloader } from "../../../redux/layout"
 import { useDispatch } from "react-redux"
+import ReactPaginate from "react-paginate"
 const MySwal = withReactContent(Swal);
 
 export default function AssetIndex() {
@@ -50,9 +51,9 @@ export default function AssetIndex() {
     fetchEmployee()
   },[])
 
-  const fetchList = async () => {
+  const fetchList = async (params) => {
     try {
-      const data = await Api.get(`/api/v1/accurate/master-data/fixed-asset/11?sp.page=0&sp.pageSize=5`)
+      const data = await Api.get(`/api/v1/accurate/master-data/fixed-asset/11?sp.page=${0}&sp.pageSize=${100}&keywords=${params}`)
       if (data.data.s === true){
         const listAsset = data.data.d.map((x) => {
           return {
@@ -63,6 +64,7 @@ export default function AssetIndex() {
           }
         })
         setList(listAsset)
+        return listAsset
       }
     } catch (error) {
       console.log(error.message)
@@ -72,6 +74,14 @@ export default function AssetIndex() {
   useEffect(() =>{
     fetchList()
   },[])
+
+  const loadOption = (params, callback) => {
+    setTimeout(() => {
+      fetchList(params).then((e) => {
+        callback(e);
+      });
+    }, 1000);
+  };
 
   const fetchAsset = async (params) =>{
     try {
@@ -299,7 +309,7 @@ export default function AssetIndex() {
         </ModalHeader>
         <ModalBody>
         {modal.mode === "add" ?
-        <AssetForm asset={listAsset} onSubmit={onSubmit} user= {employee} close={() => setToggleModal(false)}/> : <></>}
+        <AssetForm asset={listAsset} fetch={fetchList} load={loadOption} onSubmit={onSubmit} user= {employee} close={() => setToggleModal(false)}/> : <></>}
         </ModalBody>
       </Modal>
     </>
