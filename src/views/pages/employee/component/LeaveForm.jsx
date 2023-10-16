@@ -5,21 +5,19 @@ import ButtonSpinner from "../../components/ButtonSpinner"
 export default function LeaveForm ({leave, close, balance, onSubmit, isLoading}) {
 
   const [formLeave, setFormLeave] = useState([])
-  console.log(balance,"balance")
-  console.log(leave,"leave")
+  // console.log(balance,"balance")
+  // console.log(leave,"leave")
 
   const generateForm = () => {
     if(balance?.length && leave.length){
       const g = leave?.map(x => {
         x.defaultValue = 0
-        const check = balance?.find(y => y.leave_category_id ===  x.id) 
-        console.log(check, "check")
-        if(check !== null){
+        const check = balance?.find(y => y?.leave_category_id ===  x?.id) 
+        if(check){
           x.defaultValue = check ? check?.balance : 0
         }
         return x
       })  
-      console.log(g, "G")
       return setFormLeave([...g])
     }
     setFormLeave([...leave.map(x => {
@@ -40,12 +38,11 @@ export default function LeaveForm ({leave, close, balance, onSubmit, isLoading})
     return setFormLeave([...old])
   }
 
-  console.log(formLeave, "lalal")
 
   const onSubmitForm = (arg) => {
     const params = {
       leaves:formLeave?.map(x => {
-        const check = leave.find(y => y.id == x.id) 
+        const check = leave?.find(y => y.id == x.id) 
         const current = check.initial_balance - x.defaultValue
         if(current >= 0){
           return{
@@ -59,9 +56,10 @@ export default function LeaveForm ({leave, close, balance, onSubmit, isLoading})
         }
       })
     }
-    console.log(params, "kakakak")
+    // return console.log(params, "params")
     return onSubmit(params)
   }
+
 
   return(
     <>
@@ -88,7 +86,7 @@ export default function LeaveForm ({leave, close, balance, onSubmit, isLoading})
           </Col>
           <Col>
             <Button type="button" size="md" color='danger' className="mx-1" onClick={close}>Cancel</Button>
-            <ButtonSpinner isLoading={isLoading} label="Submit" type="button" onClick={onSubmitForm}/>
+            <ButtonSpinner label="Submit" type="button" onClick={onSubmitForm}/>
           </Col>
         </Row>
     </>

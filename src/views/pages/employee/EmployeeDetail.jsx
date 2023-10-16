@@ -182,7 +182,6 @@ export default function EmployeeDetail() {
 	}
 
 	const onEditIncome = (x) => {
-		console.log(x, "add config")
 		setModal({
 			title: "Employee Income Form",
 			mode: "income",
@@ -195,21 +194,17 @@ export default function EmployeeDetail() {
     try {
       setIsLoading(true)
 			const {status, data} = await Api.post(`/hris/employee/${id.uid}/assign-leave`, arg)
-      console.log(status, data, "arg")
-      if(status){
-        setUserBalance(data)
-        setIsLoading(false)
-      }
-      toast.error(data, {
+      setIsLoading(false)
+      if(!status)
+      return toast.error(data, {
 				position: 'top-center'
 			})
 			toast.success('Successfully added balance!', {
 				position: 'top-center'
 			})
-			fetchUser()
 			setToggleModal(false)
+			fetchUser()
 		} catch (error) {
-			setIsLoading(false)
 			toast.error(error.message, {
 				position: 'top-center'
 			})
@@ -220,7 +215,6 @@ export default function EmployeeDetail() {
 	const postIncome = async(params) => {
 		try {
 			const status = await Api.post(`/hris/employee-income/${id.uid}`, params)
-			console.log(status, "status")
 			if (!status)
 			return toast.error(`Error : ${data}`, {
 			  position: "top-center",
@@ -272,6 +266,7 @@ export default function EmployeeDetail() {
 
 
 	}
+  console.log(balance, "balance")
 
 	return (
 		<>
@@ -443,13 +438,13 @@ export default function EmployeeDetail() {
 									<tbody>
 										{
 											balance.length ?
-												balance.map(x => x.category !== null ?
+												balance.map(x =>
                           (
 													<tr key={x.id}>
 														<td>{x.category? x.category.name : '-'}</td>
 														<td>{x.balance ? x.balance : "0"} days</td>
 													</tr>
-												) :  null ) : <>
+												) ) : <>
 													<tr>
 														<td colSpan={2} className="text-center">Empty leave</td>
 													</tr>
