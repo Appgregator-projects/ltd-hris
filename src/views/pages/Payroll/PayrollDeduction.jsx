@@ -7,6 +7,7 @@ import Api from "../../../sevices/Api"
 import withReactContent from 'sweetalert2-react-content'
 import Swal from 'sweetalert2'
 import { toast } from 'react-hot-toast'
+import { numberFormat } from '../../../Helper'
 const MySwal = withReactContent(Swal)
 
 
@@ -176,9 +177,9 @@ export default function PayrollDeduction() {
 												bpjsRule?.map((x, i) => (
 													<tr key={x.id}>
 														<td>{x ? x.name : '-'}</td>
-														<td>{x?.percent_company}</td>
-														<td>{x?.percent_employee}%</td>
-														<td>Rp {x?.topper},-</td>
+														<td>{x?.percent_company} %</td>
+														<td>{x?.percent_employee} %</td>
+														<td>Rp {numberFormat(x?.topper)},-</td>
                             <td>
                             <div className="d-flex">
                               <div className="pointer">

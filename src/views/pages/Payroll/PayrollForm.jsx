@@ -146,34 +146,40 @@ export default function PayrollForm() {
   }
 
   const deductionsMath = async(item) => {
-
     const income = item.income_list
-    const basic= income.find(x => x.name === "Basic Salary")
-    console.log(basic, "basic")
-    if(basic.amount){
+    const loans = item.loans
+    let sumLoans = 0 
+    const basic= await income.find(x => x.flag == "Gaji pokok nett" || x.name == "Basic Salary")
+    console.log(item)
+    if(basic.amount || loans.length){
       const amountBPJS = listDeductions.map(x => {
         x.percentage/100 * basic.amount
         return {
           name : x.name,
-          amount : x.percentage / 100 * basic.amount
+          amount : x.percent_company / 100 * basic.amount
         }
       })
+      console.log(amountBPJS, "kakak")
       setbpjs(amountBPJS)
-      console.log(amountBPJS,deductions, "amountBPJS")
+      
+      const loans_per_month = loans.map(x => (x.loan_amount / x.tenor))
+      for (let i=0; i<loans_per_month.length; i++){
+        sumLoans += loans_per_month[i]
+      }
+      setLoans(sumLoans)
       const dataDeductions = deductions.map(x => {
         x.amount = 0
-        const test = amountBPJS?.find(y => y.name == x.name)
-        console.log( amountBPJS?.find(y => y.name == x.name), "testing")
-        if(test){
-          x.amount = test?.amount ? test.amount : 0
-        }
-        return x
-      })
-      return setDeductions([...dataDeductions])
+        const amountBPJS = bpjs?.find(y => y.name == x.name)
+        if(amountBPJS){
+            x.amount = amountBPJS ? amountBPJS.amount : 0
+          }
+          return x
+        })
+        const index = dataDeductions.findIndex(y => y.name === "Potongan Pinjaman")
+        dataDeductions[index].amount = sumLoans
+        setDeductions([...dataDeductions])
     }
   }
-
-  console.log(deductions, "deductions")
 
   const fetchAttendance = async(user = '') => {
     const uid = user ? user : userSelect.value 
@@ -183,11 +189,7 @@ export default function PayrollForm() {
         const data = await Api.get(`/hris/payroll/by-user?user_id=${uid}&periode=${periode}`)
         setInfo(data)
         deductionsMath(data)
-        const loans_per_month = data.loans.map(x => (
-          x.loan_amount / x.tenor
-        ))
-        console.log("dah sampe sini")
-        sumLoans(loans_per_month)
+        console.log("dapet disini")
         const p = `${dayjs(data.cut_off_start).format('DD-MMM')  } - ${dayjs(data.cut_off_end).format('DD-MMM')  } ${  dayjs(data.cut_off_end).format('YYYY')}`
         setPeriode(p)
         setAddjustment([...data.income_list])
@@ -196,15 +198,6 @@ export default function PayrollForm() {
         throw error
       }
     }
-  }
-
-  const sumLoans = (loans) => {
-    let sum =0 
-    for (let i=0; i<loans.length; i++){
-      sum += loans[i]
-    }
-    setLoans(parseInt(sum))
-    return sum
   }
 
   const onSelectEmployee = (arg) => {
@@ -369,7 +362,7 @@ export default function PayrollForm() {
                 addjustment.map((x, index) => (
                   <div key={index} className='invoice-total-item d-flex flex-row justify-content-between align-items-center mb-2'>
                     <div className="" style={{width:'30%'}}>
-                      {x.name}
+                      {x.flag ? x.flag : "Basic Salary"}
                     </div>
                     <div className="w-50">
                       <Input value={x.amount} className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputAddjustment(e, index)}/>

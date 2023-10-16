@@ -17,8 +17,8 @@ const BPJSConfig = ({isLoading, close, item, onSubmit}) => {
     useEffect(() => {
         if(item) {
         setValue("name", item.name);
-        setValue("payment", item.is_employee)
-        setValue("percentage", item.percentage)
+        setValue("percent_company", item.percent_company)
+        setValue("percent_employee", item.percent_employee)
         setValue("topper", item.topper)
         }
     },[item])
