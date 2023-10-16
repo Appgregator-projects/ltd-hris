@@ -88,8 +88,6 @@ export default function AssetIndex() {
     fetchAsset({search: ""})
   }, [])
 
-  console.log(assets, "Assets")
-
   const handleFilter = (e) => {
     setSearchValue(e.target.value);
     fetchAsset({
@@ -98,7 +96,6 @@ export default function AssetIndex() {
   }
 
   const fetchDivision = async (params) =>{
-    console.log(params)
     try {
       const {status,data} = await Api.get(`/hris/division?search=${params.search}`)
       if(status){
@@ -110,22 +107,78 @@ export default function AssetIndex() {
           }
           return x
         })
-        return setUserAssets([...dataAsset])
+        return setUserAssets(dataAsset)
       }
       setUserAssets([...assets.map(x => {
         x.division = null
         return x
       })])
     } catch (error) {
-      console.log(error.message)
+      throw error
     }
   }
 
   useEffect(() => {
-    fetchDivision()
-  },[])
+    fetchDivision({search: ""})
+  }, [assets])
 
-  const handleDelete = async (x) => {
+  const onAdd = () => {
+    setModal({
+      title : "Add Asset",
+      mode : "add",
+      item : null
+    })
+    setToggleModal(true)
+  }
+
+  const onDetail = (item) => {
+    setModal({
+      title : "Detail Asset",
+      mode : "detail",
+      item : item
+    })
+    setToggleModal(true)
+  }
+
+  const onSubmit = async (params) => {
+    const itemPost = {
+      uid : params.name.value,
+      accurate_id : params.asset.value,
+      asset_name : params.asset.label,
+      asset_code : params.asset.asset_code,
+      asset_cost : params.asset.asset_cost
+    }
+    try {
+			dispatch(handlePreloader(true))
+      const {status,data} = await Api.post(`/hris/assets/assign`, itemPost);
+      console.log(status,data,"post asset")
+			dispatch(handlePreloader(true))
+      if (!status)
+      return toast.error(`Error : ${data}`, {
+        position: "top-center",
+      });
+      fetchAsset();
+      fetchDivision({search: " "})
+      toast.success("Asset has updated", {
+        position: "top-center",
+      });
+      setToggleModal(false);
+    } catch (error) {
+      toast.error(`Error : ${error.message}`, {
+        position: "top-center",
+      });
+    }
+  };
+
+  const postDelete = (id) => {
+    return new Promise((resolve, reject) => {
+      Api.delete(`/hris/assets/assign/${id}`)
+        .then((res) => resolve(res))
+        .catch((err) => reject(err.message));
+    });
+  };
+
+  const handleDelete = async (x, i) => {
     MySwal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -139,12 +192,15 @@ export default function AssetIndex() {
       buttonsStyling: false,
     }).then(async (result) => {
       if (result.value) {
-        const data = await Api.delete(`/hris/assets/${x.id}`)
+        const oldCom = assets;
+        oldCom.splice(i, 1);
+        setAssets([...oldCom]);
+        const data = await postDelete(x)
         if (data) {
           return MySwal.fire({
             icon: "success",
             title: "Deleted!",
-            text: "Division has deleted.",
+            text: "Asset user has deleted.",
             customClass: {
               confirmButton: "btn btn-success",
             },
@@ -155,7 +211,6 @@ export default function AssetIndex() {
         });
       }
     });
-    fetchAssets()
   }
 
   return (
@@ -163,7 +218,7 @@ export default function AssetIndex() {
       <Row className="d-flex justify-content-between">
         <Col lg="2" sm="12" className="mb-1">
           <Fragment>
-            <Button.Ripple size="sm" color="warning" >
+            <Button.Ripple size="sm" color="warning" onClick={onAdd}>
               <Plus size={14} />
               <span className="align-middle ms-25">Add Asset</span>
             </Button.Ripple>
@@ -195,25 +250,25 @@ export default function AssetIndex() {
             <Table responsive striped>
               <thead>
                 <tr className="text-xs">
-                  <th style={{fontSize : 'sm'}}>Name</th>
+                  <th style={{fontSize : 'sm'}}>Employee</th>
                   <th style={{fontSize : 'sm'}}>Division</th>
                   <th style={{fontSize : 'sm'}}>Accurate ID</th>
-                  <th style={{fontSize : 'sm'}}>Asset Name</th>
-                  <th style={{fontSize : 'sm'}}>Asset Code</th>
+                  <th style={{fontSize : 'sm'}}>Asset</th>
+                  <th style={{fontSize : 'sm'}}>Kode Asset</th>
                   <th style={{fontSize : 'sm'}}>Asset Cost</th>
-                  <th style={{fontSize : 'sm'}}>Created Time</th>
+                  <th style={{fontSize : 'sm'}}>created time</th>
                   <th style={{fontSize : 'sm'}}>Actions</th>
                 </tr>
               </thead>
               <tbody style={{backgroundColor:'transparent'}}>
                 {assets?.map((x,i) => (
                     <tr key={i}>
-                      <td style={{fontSize : '9pt', backgroundColor:'white', cursor:'pointer'}} className="user_name text-truncate text-body"><span className="fw-light text-capitalize">{x.name}</span></td>
-                      <td style={{fontSize :'9pt', backgroundColor:'white'}}>{x.division_id}</td>
+                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x?.name}</td>
+                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x?.division}</td>
                       <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.accurate_id}</td>
                       <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.asset_name}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.asset_cost}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>Rp {numberFormat(x.asset_cost)}</td>
+                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.asset_code}</td>
+                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>Rp{numberFormat(x.asset_cost)}</td>
                       <td style={{fontSize : '9pt', backgroundColor:'white'}}>{dateTimeFormat(x.createdAt)}</td>
                       <td style={{fontSize : '9pt', backgroundColor:'white'}}>
                         <div className="d-flex">
@@ -221,14 +276,8 @@ export default function AssetIndex() {
                             <Trash
                               className="me-20"
                               size={15}
-                              onClick={() => handleDelete(x)}
+                              onClick={() => handleDelete(x.id, i)}
                             />{" "}
-                            <span className="align-middle"></span>
-                            {/* <Edit
-                              className="me-50"
-                              size={15}
-                              // onClick={() => handleEdit()}
-                            />{" "} */}
                             <span className="align-middle"></span>
                           </div>
                         </div>
@@ -241,6 +290,18 @@ export default function AssetIndex() {
           </CardBody>
         </Card>
       </Row>
+      <Modal
+        isOpen={toggleModal}
+        toggle={() => {setToggleModal(!toggleModal); console.log("asukgas")}}
+        className={`modal-dialog-centered modal-lg`}>
+        <ModalHeader toggle={() => setToggleModal(!toggleModal)}>
+          {modal.title}
+        </ModalHeader>
+        <ModalBody>
+        {modal.mode === "add" ?
+        <AssetForm asset={listAsset} onSubmit={onSubmit} user= {employee} close={() => setToggleModal(false)}/> : <></>}
+        </ModalBody>
+      </Modal>
     </>
   )
 }
