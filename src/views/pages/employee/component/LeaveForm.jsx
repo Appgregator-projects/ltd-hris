@@ -12,7 +12,7 @@ export default function LeaveForm ({leave, close, balance, onSubmit, isLoading})
     if(balance?.length && leave.length){
       const g = leave?.map(x => {
         x.defaultValue = 0
-        const check = balance.find(y => y.leave_category_id ===  x.id) 
+        const check = balance?.find(y => y.leave_category_id ===  x.id) 
         console.log(check, "check")
         if(check !== null){
           x.defaultValue = check ? check?.balance : 0
@@ -40,10 +40,11 @@ export default function LeaveForm ({leave, close, balance, onSubmit, isLoading})
     return setFormLeave([...old])
   }
 
+  console.log(formLeave, "lalal")
 
   const onSubmitForm = (arg) => {
     const params = {
-      leaves:formLeave.map(x => {
+      leaves:formLeave?.map(x => {
         const check = leave.find(y => y.id == x.id) 
         const current = check.initial_balance - x.defaultValue
         if(current >= 0){
@@ -69,7 +70,7 @@ export default function LeaveForm ({leave, close, balance, onSubmit, isLoading})
             <Table responsive>
               <tbody>
                 {
-                  formLeave.map((x,index) => (
+                  formLeave?.map((x,index) => (
                     <tr key={x.id}>
                       <td>{x.name}</td>
                       <td>

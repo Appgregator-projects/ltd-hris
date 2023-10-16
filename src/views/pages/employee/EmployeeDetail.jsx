@@ -192,9 +192,10 @@ export default function EmployeeDetail() {
 	}
 
 	const postLeave = async (arg) => {
-		try {
-			setIsLoading(true)
+    try {
+      setIsLoading(true)
 			const {status, data} = await Api.post(`/hris/employee/${id.uid}/assign-leave`, arg)
+      console.log(status, data, "arg")
       if(status){
         setUserBalance(data)
         setIsLoading(false)
@@ -202,7 +203,7 @@ export default function EmployeeDetail() {
       toast.error(data, {
 				position: 'top-center'
 			})
-			toast.success('Successfully added employee!', {
+			toast.success('Successfully added balance!', {
 				position: 'top-center'
 			})
 			fetchUser()
@@ -526,7 +527,6 @@ export default function EmployeeDetail() {
 					<LeaveForm
 						leave={leaveCategories}
 						balance={balance}
-						userBalance={userBalance}
 						onSubmit={postLeave}
 						isLoading={isLoading}
 						close={() => setToggleModal(!toggleModal)}
