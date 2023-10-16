@@ -30,14 +30,13 @@ export default function OfficeIndex(){
 		item:null
 	})
 	const [users, setUsers] = useState([])
-  	const [userSelect, setUserSelect] = useState([])
+  const [userSelect, setUserSelect] = useState([])
 	const [alluser, setAllUser] = useState(false);
 
 
 	const fetchUser = async() => {
 		try {
 		const data = await Api.get(`hris/employee?no_paginate=true`)
-		// return console.log(data," ini data office user")
 				if(data){
 					const userData = data.map(x => {
 						return {
@@ -56,9 +55,11 @@ export default function OfficeIndex(){
 	}, [])
 	
 	const fetchOffice = async() => {
-		try {
-			const data = await Api.get('/hris/office')
-			setOffices([...data])
+	try {
+		const {status,data} = await Api.get('/hris/office')
+    if(status){
+      setOffices([...data])
+    }
 		} catch (error) {
 			throw error
 		}
@@ -90,7 +91,7 @@ export default function OfficeIndex(){
 			buttonsStyling: false
 		}).then(async (result) => {
 			if (result.value) {
-				const status = await postDelete(item.id)
+				const {status,data} = await postDelete(item.id)
 				if (status) {
 				const oldCom = offices
 				oldCom.splice(index, 1)
@@ -124,8 +125,7 @@ export default function OfficeIndex(){
 		try {
 			if(modal.item) return postUpdate(params)
 			dispatch(handlePreloader(true))
-			const status = await Api.post('/hris/office', params)
-			// return console.log(status, 'params post office')
+			const {status,data} = await Api.post('/hris/office', params)
 			dispatch(handlePreloader(false))
 			if(!status) return toast.error(`Error : ${data}`, {
 				position: 'top-center'
@@ -145,7 +145,7 @@ export default function OfficeIndex(){
 	const postUpdate = async(params) => {
 		try {
 			dispatch(handlePreloader(true))
-			const status = await Api.put(`/hris/office/${modal.item.id}`, params)
+			const {status,data} = await Api.put(`/hris/office/${modal.item.id}`, params)
 			dispatch(handlePreloader(false))
 			setModal({
 				title:'Office Form',
@@ -177,16 +177,17 @@ export default function OfficeIndex(){
 	}
 
 	const onDetail = async(item) => {
-		// return console.log(item, "ini item")
+    console.log(item, "item")
 		try {
-			const data = await Api.get(`/hris/office/${item.id}`)
-			console.log(data,' data');
-			setModal({
-				title:'Office detail',
-				mode:'detail',
-				item:data
-			})
-			setModalToggle(true)
+			const data = await Api.get(`/hris/office/${item}`)
+      if(data.status){
+        setModal({
+          title:'Office detail',
+          mode:'detail',
+          item: data
+        })
+      }
+      setModalToggle(true)
 		} catch (error) {
 			console.log(error.message)
 		}
@@ -209,9 +210,10 @@ export default function OfficeIndex(){
 			is_all:alluser
 		}
 		try {
-			const status = await Api.patch(`/hris/office/${modal.item.id}/assign-user`,itemPatch)
+			const {status,data} = await Api.patch(`/hris/office/${modal.item.id}/assign-user`,itemPatch)
 			console.log(status, itemPatch, "params userselect")
-			if(!status) return toast.error(`Error : ${status}`, {
+			if(!status) 
+      return toast.error(`Error : ${data}`, {
 				position: 'top-center'
 			}) 
 			fetchOffice()
@@ -232,7 +234,7 @@ export default function OfficeIndex(){
 			const params = {
 				employee:arg.user_id
 			}
-			const {status} = await Api.delete(`/hris/office/${arg.office_id}/remove-user`)
+			const status = await Api.delete(`/hris/office/${arg.office_id}/remove-user`)
 			console.log(status, "status delete user")
 			setModalToggle(false)
 			fetchOffice()
@@ -264,7 +266,7 @@ export default function OfficeIndex(){
             <Col md="4" key={index} className="position-relative">
               <Card>
                 <CardBody>
-                  <div className="pointer" onClick={() => onDetail(x)}>
+                  <div className="pointer" onClick={() => onDetail(x.id)}>
                     <CardTitle tag='h4' className='my-0'>
                       {readMore(x.name,18)}
                     </CardTitle>

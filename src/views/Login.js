@@ -44,40 +44,22 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsloading] = useState(false);
 
-  // const fetchPermission = async() => {
-  //   try {
-  //     const {data, status} = await api.get('/api/permissions')
-  //     if (status) {
-  //       dispatch(handlePermission(data))
-  //     }
-  //   } catch (error) {
-  //     throw error
-  //   }
-  // }
-
   const fetchCompany = async () => {
     try {
-      const data = await Api.get(`/hris/company`);
-      const selectedCompany = data[0];
-      console.log(data[0],"selectedCompany")
-      return selectedCompany;
+      const {status,data} = await Api.get(`/hris/company`);
+      console.log(data,"selectedCompany")
+      if(status, data){
+        const selectedCompany = data[0];
+        return selectedCompany;
+      }
     } catch (error) {
       throw error;
     }
   };
 
-
   useEffect(() => {
     fetchCompany();
   }, []);
-
-  // const fetchMe = (token) => {
-  //   return new Promise((resolve, reject) => {
-  //     api.get(`/api/me?token=${token}`)
-  //       .then(res => resolve(res))
-  //       .catch(err => reject(err))
-  //   })
-  // }
 
   const onSubmit = async (e) => {
     try {
@@ -92,14 +74,12 @@ const Login = () => {
       const token = submitLogin.user;
       const checkCompany = await fetchCompany();
       
-      // const userDetail = await submitLogin.user
-      // const {status, data} = await fetchMe(token)
+      console.log(token, "userdetail")
       const accessToken = await token.getIdToken(true);
-      console.log(checkCompany, "checkCompany");
       token.access_token = accessToken;
 
       if ((token, checkCompany)) {
-        console.log(token.access_token, "token")
+        console.log(token, "token")
         if (checkCompany) {
           const userAbility = await Me(accessToken);
           let arrList = [];
@@ -129,11 +109,9 @@ const Login = () => {
                   subject: item["permission_name"]["name"],
                 });
               }
-              // console.log(item, "map");
             }
           );
           ability.update(arrList);
-
           dispatch(
             handleLogin({
               token,
@@ -141,7 +119,10 @@ const Login = () => {
               ...userAbility["data"],
               access_token: accessToken,
             })
-          );
+            );
+          dispatch(
+            handlePermission({...userAbility["data"]}
+          ));
           dispatch(handleCompany(checkCompany));
           navigate("/home");
           toast.success("Login succes", {
@@ -149,7 +130,6 @@ const Login = () => {
           });
         }
       } else {
-        // const errorMessage = error.message
         toast.error(`Error : ${data}`, {
           position: "top-center",
         });

@@ -10,7 +10,7 @@ import Api from "../../../../sevices/Api";
 export default function IncomeForm({isLoading, close, income, onSubmit}) {
 
     const ItemSchema = yup.object().shape({
-        name: yup.string().required("Name is required"),
+        // name: yup.string().required("Name is required"),
         amount: yup.string().required("Amount is required"),
         flag: yup.string().required()
     })
@@ -29,27 +29,8 @@ export default function IncomeForm({isLoading, close, income, onSubmit}) {
   return (
     <>
     <Form onSubmit={handleSubmit(onSubmitIncome)}>
-    <div className='py-2'>
-        <Col sm='12' className='mb-1'>
-            <Label for="form-label">
-            Name
-            </Label>
-            <Controller
-            name='name'
-            defaultValue=""
-            control={control}
-            render={({field}) => (
-                <Input
-                type="text"
-                {...field}
-                name='name'
-                invalid={errors.name && true}
-                />
-            )}/>
-            {errors.name && <FormFeedback>{errors.name.message}</FormFeedback>}
-        </Col>
-        <Row className='my-2'>
-        <Col md='6' sm='12' >
+    {/* <div className='pb-2'> */}
+        <Col md='12' sm='12' className='mb-1'>
             <Label className='form-label'>Amount (Rp)</Label>
             <Controller
             name='amount'
@@ -64,7 +45,7 @@ export default function IncomeForm({isLoading, close, income, onSubmit}) {
             )}/>
             {errors.amount && <FormFeedback>{errors.amount.message}</FormFeedback>}
         </Col>
-        <Col md='6' sm='12' className='mb-1'>
+        <Col md='12' sm='12' className='mb-2 pb-1'>
             <Label className='form-label'>Flag</Label>
             <Controller
             name='flag'
@@ -78,21 +59,20 @@ export default function IncomeForm({isLoading, close, income, onSubmit}) {
                 name='flag'
                 >
                     <option value=''>Select income category</option>
-                    <option value='gaji pokok'>Gaji pokok</option>
-                    <option value='tunjangan driver'>Tunjangan driver</option>
-                    <option value='tunjangan perusahaan'>Tunjangan perusahaan</option>
+                    <option value='Gaji pokok nett'>Gaji pokok nett</option>
+                    <option value='Gaji pokok gross'>Gaji pokok gross</option>
+                    <option value='Tunjangan driver'>Tunjangan driver</option>
+                    <option value='Tunjangan perusahaan'>Tunjangan perusahaan</option>
                 </Input>
             )}/>
             {errors.flag && <FormFeedback>{errors.flag.message}</FormFeedback>}
         </Col>
-
-        </Row >
-        <Col className='mt-2'>
+        <Col className='mt-2 mb-1 pl-0'>
             <Button type='button' size='md' color='danger' className='mx-1' onClick={close}>Cancel</Button>
             <ButtonSpinner label="Submit" type="submit" className="mx-1"/>
         </Col>
 
-    </div>
+    {/* </div> */}
     </Form>
     </>
   )

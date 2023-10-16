@@ -24,12 +24,14 @@ import toast from "react-hot-toast";
 import _ from "lodash";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
+import { useDispatch } from "react-redux";
 const MySwal = withReactContent(Swal);
 
 
 // dayjs.extend(utc)
 
 export default function DaysOffIndex() {
+  const dispatch = useDispatch()
   const [initalDate, setInitialDate] = useState(dayjs().format("YYYY-MM"));
   const dic = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const [calendar, setCalendar] = useState([]);
@@ -43,7 +45,11 @@ export default function DaysOffIndex() {
     handleSubmit,
     formState: { errors },
   } = useForm({ mode: "onChange" });
-  //       console.log(errors, "error");
+  console.log(errors, "error");
+
+  useEffect(() => {
+    setValue("descriptions", selectDate && selectDate.descriptions)
+  })
 
   const generateCalendarData = (month = "") => {
     const params = [];
@@ -114,11 +120,13 @@ export default function DaysOffIndex() {
 
   const fetchDaysOff = async (year, month) => {
     try {
-      const data = await Api.get(`/hris/day-off?month=${month}&year=${year}`);
-      return data.map(x => {
-        x.date = dayjs(x.date).format('YYYY-MM-DD')
-        return x
-      })
+      const {status,data} = await Api.get(`/hris/day-off?month=${month}&year=${year}`);
+      if(status){
+        return data.map(x => {
+          x.date = dayjs(x.date).format('YYYY-MM-DD')
+          return x
+        })
+      }
     } catch (error) {
       return []
     }
@@ -130,18 +138,19 @@ export default function DaysOffIndex() {
   };
 
   const setNote = (arg) => {
-    return onDaysOff(arg, selectDate);
+    return submitPost(arg, selectDate);
   };
 
-  const onDaysOff = async (arg, selectDate) => {
+  const submitPost = async (arg, selectDate) => {
     try {
+      if(selectDate.isOff === true) return submitEdit(arg, selectDate)
       const itemPost = {
         date: selectDate.periode,
         descriptions: arg.descriptions,
       };
-      const status = await Api.post(`hris/day-off`, itemPost);
+      const {status,data} = await Api.post(`hris/day-off`, itemPost);
       if (!status)
-        return toast.error(`Error : ${status}`, {
+        return toast.error(`Error : ${data}`, {
           position: "top-center",
         });
       setNestedToggle(!nestedToggle)
@@ -157,10 +166,26 @@ export default function DaysOffIndex() {
     }
   };
 
-  const setUpdate = () => {
-    console.log("test update")
-    setNestedToggle(true)
-  }
+  const submitEdit = async (arg, params) => {
+    try {
+      dispatch(handlePreloader(true));
+      const {status,data} = await Api.put(`/hris/day-off/${params.id}`, arg);
+      dispatch(handlePreloader(false));
+      if (!status)
+        return toast.error(`Error : ${data}`, {
+          position: "top-center",
+        });
+      fetchDaysOff()
+      toast.success("Successfully updated employee!", {
+        position: "top-center",
+      });
+    } catch (error) {
+      dispatch(handlePreloader(false));
+      toast.error(`Error : ${error.message}`, {
+        position: "top-center",
+      });
+    }
+  };
 
   const onDelete = async(x) => {
     return MySwal.fire({
@@ -236,6 +261,7 @@ export default function DaysOffIndex() {
                         }}
                       >
                         <span>{x.date}</span>
+                        <span>{x.descriptions}</span>
                       </li>
                     ))}
                   </ul>
@@ -272,11 +298,6 @@ export default function DaysOffIndex() {
               <li className="d-flex justify-content-between pb-1">
                 <span className="fw-bold">Descriptions</span>
                 <span className="capitalize">
-                  {selectDate?.descriptions ?
-                  <span className="pe-1">
-                  <Edit size={13} onClick={() => {setNestedToggle(!nestedToggle) ; setUpdate();}} />
-                  </span> :<></>
-                  }
                   {selectDate ? selectDate.descriptions : "-"}
                 </span>
               </li>
@@ -348,7 +369,7 @@ export default function DaysOffIndex() {
                 </ModalFooter>
               </Form>
             </Modal>
-            Days off
+            {selectDate.isOff === true ? "Edit" : "Days Off"}
           </Button>
         </ModalFooter>
       </Modal>

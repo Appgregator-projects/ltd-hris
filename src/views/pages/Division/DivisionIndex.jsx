@@ -74,10 +74,12 @@ export default function DivisionIndex() {
 
   const fetchDivision = async (params) => {
     try {
-      const data = await Api.get(`/hris/division?search=${params.search}`);
-      const result = getNestedChildren(data, null);
-      setDivisions(result.filter((x) => x.deletedAt === null));
-      setSelectDevision(data.filter((x) => x.deletedAt === null));
+      const {status,data} = await Api.get(`/hris/division?search=${params.search}`);
+      if(status){
+        const result = getNestedChildren(data, null);
+        setDivisions(result.filter((x) => x.deletedAt === null));
+        setSelectDevision(data.filter((x) => x.deletedAt === null));
+      }
     } catch (error) {
       throw error;
     }
@@ -123,7 +125,6 @@ export default function DivisionIndex() {
   };
 
   const onEdit = (item) => {
-    // return console.log(item, "edit button")
     setModal({
       title: "Division form",
       mode: "edit",
@@ -139,9 +140,9 @@ export default function DivisionIndex() {
       manager_id : params.manager_id.value
     }
     try {
-      const status = await Api.put(`/hris/division/${modal.item.id}`, itemUpdate);
+      const {status,data} = await Api.put(`/hris/division/${modal.item.id}`, itemUpdate);
       if (!status)
-        return toast.error(`Error : ${status}`, {
+        return toast.error(`Error : ${data}`, {
           position: "top-center",
         });
       fetchDivision();
@@ -165,7 +166,7 @@ export default function DivisionIndex() {
     }
     try {
       if (modal.item) return postUpdate(params);
-      const status = await Api.post(`/hris/division`, itemPost);
+      const {status,data} = await Api.post(`/hris/division`, itemPost);
       console.log(status,"post divisio")
       if (!status)
         return toast.error(`Error : ${data}`, {

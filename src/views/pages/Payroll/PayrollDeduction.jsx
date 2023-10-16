@@ -7,6 +7,7 @@ import Api from "../../../sevices/Api"
 import withReactContent from 'sweetalert2-react-content'
 import Swal from 'sweetalert2'
 import { toast } from 'react-hot-toast'
+import { numberFormat } from '../../../Helper'
 const MySwal = withReactContent(Swal)
 
 
@@ -45,12 +46,12 @@ export default function PayrollDeduction() {
   const postUpdate = async (params) => {
     const itemUpdate = {
       name : params.name,
-      is_employee : params.is_employee,
+      is_employee : params.payment,
       percentage : params.percentage,
       topper : params.topper
     }
     try {
-      const status = await Api.put(`/hris/bpjs-rule/${modal.item.id}`, params)
+      const status = await Api.put(`/hris/bpjs-rule/${modal.item.id}`, itemUpdate)
       console.log(status, "has updated")
       if (!status) return toast.error(`Error : ${status}`, {
           position: "top-center"
@@ -69,7 +70,6 @@ export default function PayrollDeduction() {
   }
 
   const onSubmit = async (params) => {
-    // return console.log(params, "params")  
     try {
       if (modal.item) return postUpdate(params)
       const status = await Api.post(`/hris/bpjs-rule`, params)
@@ -166,8 +166,8 @@ export default function PayrollDeduction() {
 									<thead>
 										<tr className='text-xs'>
 											<th className='fs-6'>Name</th>
-											<th className='fs-6'>Type</th>
-											<th className='fs-6'>Percentage</th>
+											<th className='fs-6'>Company</th>
+											<th className='fs-6'>Employee</th>
 											<th className='fs-6'>Topper</th>
 											<th className='fs-6'></th>
 										</tr>
@@ -177,9 +177,9 @@ export default function PayrollDeduction() {
 												bpjsRule?.map((x, i) => (
 													<tr key={x.id}>
 														<td>{x ? x.name : '-'}</td>
-														<td>{x.is_employee === false ? "By Company" : "By Employee"}</td>
-														<td>{x?.percentage}%</td>
-														<td>Rp {x?.topper},-</td>
+														<td>{x?.percent_company} %</td>
+														<td>{x?.percent_employee} %</td>
+														<td>Rp {numberFormat(x?.topper)},-</td>
                             <td>
                             <div className="d-flex">
                               <div className="pointer">

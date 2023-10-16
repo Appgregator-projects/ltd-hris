@@ -45,7 +45,7 @@ const Sidebar = (props) => {
 
   const fetchCompany = async() => {
     try {
-      const data = await Api.get(`/hris/company`)
+      const {status,data} = await Api.get(`/hris/company`)
       data.splice(0,0,{id : "all", name: "ALL COMPANY"})
       setCompanies([...data])
     } catch (error) {

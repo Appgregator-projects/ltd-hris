@@ -29,14 +29,13 @@ export default function CompanyIndex(){
 		mode:'add',
 		item:null
 	})
-	const [users, setUsers] = useState([])
-  	const [userSelect, setUserSelect] = useState([])
-	const [alluser, setAllUser] = useState(false);
 	
 	const fetchCompanies = async() => {
 		try {
-			const data = await Api.get('/hris/company')
-			setCompanies([...data])
+			const {status,data} = await Api.get('/hris/company')
+      if(status){
+        setCompanies([...data])
+      }
 		} catch (error) {
 			throw error
 		}
@@ -102,10 +101,10 @@ export default function CompanyIndex(){
 		try {
 			if(modal.item) return postUpdate(params)
 			dispatch(handlePreloader(true))
-			const status = await Api.post('/hris/company', params)
-			// return console.log(status, 'params post companies')
+			const {status,data} = await Api.post('/hris/company', params)
 			dispatch(handlePreloader(false))
-			if(!status) return toast.error(`Error : ${data}`, {
+			if(!status) 
+      return toast.error(`Error : ${data}`, {
 				position: 'top-center'
 			})
 			fetchCompanies()
@@ -123,14 +122,8 @@ export default function CompanyIndex(){
 	const postUpdate = async(params) => {
 		try {
 			dispatch(handlePreloader(true))
-			const status = await Api.put(`/hris/company/${modal.item.id}`, params)
-			// return console.log(status, params, "put company")
+			const {status,data} = await Api.put(`/hris/company/${modal.item.id}`, params)
 			dispatch(handlePreloader(false))
-			setModal({
-				title:'Office Form',
-				mode:'add',
-				item:null
-			})
 			if(!status) return toast.error(`Error : ${data}`, {
 				position: 'top-center'
 			})
@@ -159,12 +152,14 @@ export default function CompanyIndex(){
 	const onDetail = async(item) => {
 		try {
 			const data = await Api.get(`/hris/company/${item.id}`)
-			setModal({
-				title:'Company detail',
-				mode:'detail',
-				item:data
-			})
-			setModalToggle(true)
+      if(data){
+        setModal({
+          title:'Company detail',
+          mode:'detail',
+          item:data
+        })
+      }
+      setModalToggle(true)
 		} catch (error) {
 			console.log(error.message)
 		}

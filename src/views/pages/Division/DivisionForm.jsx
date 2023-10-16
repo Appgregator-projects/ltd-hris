@@ -18,6 +18,7 @@ export default function DivisionForm({
 }) {
   const ItemSchema = yup.object().shape({
     name: yup.string().required(),
+    parent: yup.string().required(),
   });
   
   const Option = users?.map((e) => ({ value: e.id, label: e.email }));
@@ -46,7 +47,6 @@ export default function DivisionForm({
 
   useEffect(() => {
     console.log(item, "item setvalue ")
-    // return console.log(DivitionOption.filter((e) => e.value === item.parent_id)[0],"blabla")
     if (item) {
       setValue("name", item.name)
       setValue("parent", item == undefined? item.parent_id : DivitionOption.filter((e) => e.value === item.parent_id)[0]) 
@@ -78,7 +78,7 @@ export default function DivisionForm({
             {errors.name && <FormFeedback>{errors.name.message}</FormFeedback>}
           </Col>
           <Col md="12" sm="12" className="mb-1">
-            <Label className="form-label" for="manager">
+            <Label className="form-label" for="parent">
               Division Parent
             </Label>
             <Controller
