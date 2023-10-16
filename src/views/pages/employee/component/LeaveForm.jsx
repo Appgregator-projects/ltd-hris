@@ -87,7 +87,7 @@ export default function LeaveForm ({leave, close, balance, onSubmit, isLoading})
           </Col>
           <Col>
             <Button type="button" size="md" color='danger' className="mx-1" onClick={close}>Cancel</Button>
-            <ButtonSpinner isLoading={isLoading} label="Submit" type="button" onClick={onSubmitForm}/>
+            <ButtonSpinner label="Submit" type="button" onClick={onSubmitForm}/>
           </Col>
         </Row>
     </>
