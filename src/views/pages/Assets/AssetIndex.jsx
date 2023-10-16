@@ -88,6 +88,8 @@ export default function AssetIndex() {
     fetchAsset({search: ""})
   }, [])
 
+  console.log(assets, "Assets")
+
   const handleFilter = (e) => {
     setSearchValue(e.target.value);
     fetchAsset({
@@ -118,9 +120,9 @@ export default function AssetIndex() {
     }
   }
 
-  useEffect(() => {
-    fetchAssets()
-  },[])
+  // useEffect(() => {
+  //   fetchAsset()
+  // },[])
 
   // const handleDelete = async (x) => {
   //   MySwal.fire({
@@ -193,25 +195,25 @@ export default function AssetIndex() {
               <thead>
                 <tr className="text-xs">
                   <th style={{fontSize : 'sm'}}>Name</th>
-                  <th style={{fontSize : 'sm'}}>Assets</th>
-                  <th style={{fontSize : 'sm'}}>Description</th>
-                  <th></th>
-                  <th></th>
-                  <th style={{fontSize : 'sm'}}>Type</th>
-                  <th style={{fontSize : 'sm'}}>Model</th>
-                  <th style={{fontSize : 'sm'}}>Price</th>
+                  <th style={{fontSize : 'sm'}}>Division</th>
+                  <th style={{fontSize : 'sm'}}>Accurate ID</th>
+                  <th style={{fontSize : 'sm'}}>Asset Name</th>
+                  <th style={{fontSize : 'sm'}}>Asset Code</th>
+                  <th style={{fontSize : 'sm'}}>Asset Cost</th>
+                  <th style={{fontSize : 'sm'}}>Created At</th>
                   <th style={{fontSize : 'sm'}}>Actions</th>
                 </tr>
               </thead>
               <tbody style={{backgroundColor:'transparent'}}>
                 {assets?.map((x,i) => (
                     <tr key={i}>
-                      <td style={{fontSize : '9pt', backgroundColor:'white', cursor:'pointer'}} className="user_name text-truncate text-body"><span className="fw-light text-capitalize">{x.users.name}</span></td>
-                      <td style={{fontSize:'9pt', backgroundColor:'white'}}>{x.title}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}} colSpan={3}>{x.description}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.brand}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.model}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>Rp {numberFormat(x.price)}</td>
+                      <td style={{fontSize : '9pt', backgroundColor:'white', cursor:'pointer'}} className="user_name text-truncate text-body"><span className="fw-light text-capitalize">{x.name}</span></td>
+                      <td style={{fontSize :'9pt', backgroundColor:'white'}}>{x.division_id}</td>
+                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.accurate_id}</td>
+                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.asset_name}</td>
+                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.asset_cost}</td>
+                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>Rp {numberFormat(x.asset_cost)}</td>
+                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{dateTimeFormat(x.createdAt)}</td>
                       <td style={{fontSize : '9pt', backgroundColor:'white'}}>
                         <div className="d-flex">
                           <div className="pointer">

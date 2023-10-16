@@ -15,9 +15,10 @@ export default function LoanIndex() {
 
     const fetchEmployeeLoans = async () => {
       try {
-        const data = await Api.get('/hris/loan')
-        console.log(data)
-        setLoan(data)
+        const {status,data} = await Api.get('/hris/loan')
+        if(status){
+          setLoan(data)
+        }
       } catch (error) {
         console.log(error.message)
       }
@@ -33,7 +34,6 @@ export default function LoanIndex() {
     }
 
     const handleReject = async (x) => {
-        console.log(x,'apayo')
         const oldData = x
         const newData = {
             status : 'rejected',
