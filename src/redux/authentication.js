@@ -15,6 +15,7 @@ const initialUser = () => {
   //   avatar : JSON.parse(localStorage.getItem("userData"))?.avatar
   // }
   const items = JSON.parse(localStorage.getItem("userData"))
+  console.log(items, "items")
   return items ? items : {};
   // return item ? JSON.parse(item) : {}
 };
@@ -82,9 +83,7 @@ export const authSlice = createSlice({
       // Cookies.set("avatar", JSON.stringify(params.avatar), { expires: 1 });
       Cookies.set("access_token", params.access_token, { expires: 1 });
       // Cookies.set("userData", JSON.stringify(params), { expires: 1})
-      Cookies.set("accessToken", action.payload.access_token, {
-        expires: 1,
-      });
+      Cookies.set("accessToken", action.payload.access_token, { expires: 1 });
       Cookies.set('userPermissions', JSON.stringify(state.can), { expires: 1 })
       localStorage.setItem("userData", JSON.stringify(params));
     },
