@@ -139,6 +139,7 @@ export default function PayrollForm() {
   }, [])
 
   const calcualteSalary = (addjustmentArr = [], deductionArr = []) => {
+    console.log(deductionArr, "arr")
     const sumAddjustment = addjustmentArr.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
     const sumDeduction = deductionArr.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
     setTotalAddjustment(sumAddjustment)
@@ -150,7 +151,7 @@ export default function PayrollForm() {
     const loans = item?.loans
     let sumLoans = 0 
     const basic= await income?.find(x => x.flag == "Gaji pokok nett" || x.name == "Basic Salary")
-    
+
     if(basic?.amount || loans?.length){
       const amountBPJS = listDeductions.map(x => {
         x.percentage/100 * basic.amount
@@ -190,11 +191,11 @@ export default function PayrollForm() {
         const data = await Api.get(`/hris/payroll/by-user?user_id=${uid}&periode=${periode}`)
         setInfo(data)
         deductionsMath(data)
-        console.log("dapet disini")
         const p = `${dayjs(data.cut_off_start).format('DD-MMM')  } - ${dayjs(data.cut_off_end).format('DD-MMM')  } ${  dayjs(data.cut_off_end).format('YYYY')}`
         setPeriode(p)
         setAddjustment([...data.income_list])
-        calcualteSalary(data.income_list, deductions)
+        // calcualteSalary(data.income_list, deductions)
+        console.log(deductions, "deduction after")
       } catch (error) {
         throw error
       }
@@ -205,6 +206,12 @@ export default function PayrollForm() {
       deductionsMath(info)
     }
   },[info])
+
+  useEffect(()=> {
+    if(info){
+      calcualteSalary(info.income_list, deductions)
+    }
+  },[deductions])
 
   const onSelectEmployee = (arg) => {
     setUserSelect({...arg})
