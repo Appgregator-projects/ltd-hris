@@ -259,19 +259,23 @@ export default function PayrollForm() {
   }
 
   const onSubmitForm = async(approved = false) => {
-    console.log("masuk", addjustment)
     const params = {
       user:userSelect ? userSelect.value : null,
       periode:periodeRef.current.value,
       type: salary.flag === "Gaji pokok gross"? "gross" : "nett",
       deductions,
-      addjustment : {
-        name: addjustment.flag
-      },
+      addjustment:addjustment?.map((item) => {
+        return {
+          name : item?.flag,
+          flag : "",
+          amount : item?.amount,
+          id : item?.id
+        }
+      }),
         approved
       }
       
-      return console.log(addjustment, deductions, params)
+      // return console.log(addjustment, deductions, params)
     if (!params.user || !params.periode || !params.deductions.length || !params.addjustment.length) return toast.error(`Error : Invalid form`, {
       position: "top-center"
     })
