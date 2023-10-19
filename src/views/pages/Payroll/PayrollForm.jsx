@@ -37,6 +37,8 @@ export default function PayrollForm() {
     {name:'Pajak Penghasilan', amount:0},
     {name:'BPJS (JHT)', amount:0},
     {name:'BPJS (JP)', amount:0},
+    {name:'BPJS (JKK)', amount:0},
+    {name:'BPJS (JKM)', amount:0},
     {name:'BPJS Kesehatan', amount:0},
     {name:'Potongan Absensi', amount:0},
     {name:'Potongan Keterlambatan', amount:0},
@@ -44,10 +46,10 @@ export default function PayrollForm() {
   ])
   const [listDeductions, setListDeductions] = useState([]);
   const [bpjs,setbpjs] = useState([])
-  const [amount,setAmount] = useState([])
+  const [salary,setSalary] = useState([])
   const [totalAddjustment, setTotalAddjustment] = useState(0)
   const [totalDeduction, setTotalDeduction] = useState(0)
-
+  console.log(addjustment, "addjuctment")
   const fetchUser = async () => {
     try {
       const data = await Api.get(`/hris/employee?no_paginate=true`)
@@ -69,7 +71,6 @@ export default function PayrollForm() {
     periodeRef.current.value = currentMonth
     fetchUser()
   }, [])
-
   
   const fetchPayroll = async () => {
     try {
@@ -80,7 +81,7 @@ export default function PayrollForm() {
       if (addj.length) {
         setAddjustment([
           ...addj.map(x => {
-            x.name = x.label
+            x.name = x.flag
             return x
           })
         ])
@@ -125,7 +126,7 @@ export default function PayrollForm() {
 
   }
 
-  const fetchDeductions = async() => {
+  const fetchBPJS = async() => {
     try {
       const data = await Api.get(`/hris/bpjs-rule`)
       setListDeductions([...data])
@@ -135,53 +136,60 @@ export default function PayrollForm() {
   }
 
   useEffect(() => {
-    fetchDeductions()
+    fetchBPJS()
   }, [])
 
   const calcualteSalary = (addjustmentArr = [], deductionArr = []) => {
-    console.log(deductionArr, "arr")
     const sumAddjustment = addjustmentArr.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
     const sumDeduction = deductionArr.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
     setTotalAddjustment(sumAddjustment)
     setTotalDeduction(sumDeduction)
   }
 
-  const deductionsMath = async(item) => {
+  const deductionsMath = (item) => {
     const income = item?.income_list
     const loans = item?.loans
     let sumLoans = 0 
-    const basic= await income?.find(x => x.flag == "Gaji pokok nett" || x.name == "Basic Salary")
+    setLoans(sumLoans)
+    const salaryGross= income?.find(x => x.flag == "Gaji pokok gross" || x.name == "Basic Salary")
+    const salaryNett= income?.find(x => x.flag == "Gaji pokok nett" || x.name == "Basic Salary")
 
-    if(basic?.amount || loans?.length){
-      const amountBPJS = listDeductions.map(x => {
-        x.percentage/100 * basic.amount
-        return {
-          name : x.name,
-          amount : x.percent_company / 100 * basic.amount
-        }
-      })
-      setbpjs(amountBPJS)
-      const loans_per_month = loans.map(x => (x.loan_amount / x.tenor))
-      for (let i=0; i<loans_per_month.length; i++){
-        sumLoans += loans_per_month[i]
-      }
-      setLoans(sumLoans)
-
-      const dataDeductions = deductions.map(x => {
-        x.amount = 0
-        const amountBPJS = bpjs?.find(y => y.name == x.name)
-        if(amountBPJS){
-            x.amount = amountBPJS ? amountBPJS.amount : 0
+    let salaryAmount = salaryGross !== undefined ? salaryGross : salaryNett
+    setSalary(salaryAmount)
+      try {
+        if(salaryAmount?.amount || loans?.length){
+          const amountBPJS = listDeductions.map(x => {
+          x.percentage/100 * salaryAmount.amount
+            return {
+              name : x.name,
+              amount : x.percent_employee / 100 * salaryAmount.amount}
+          })
+          setbpjs(amountBPJS);
+          const loans_per_month = loans.map(x => (x.loan_amount / x.tenor))
+          for (let i=0; i<loans_per_month.length; i++){
+            sumLoans += loans_per_month[i]
           }
-          return x
-        })
-        const index = dataDeductions.findIndex(y => y.name === "Potongan Pinjaman")
-        dataDeductions[index].amount = sumLoans
-        setDeductions([...dataDeductions])
-    }
+          const dataDeductions = deductions.map(x => {
+          x.amount = 0
+          const amountBPJS = bpjs?.find(y => y.name == x.name)
+            if(amountBPJS){
+                x.amount = amountBPJS ? amountBPJS.amount : 0
+              }
+              return x
+            })
+          const index = dataDeductions.findIndex(y => y.name === "Potongan Pinjaman")
+          dataDeductions[index].amount = sumLoans
+          setDeductions([...dataDeductions])
+        }
+      } catch (error) {
+        throw error
+      }
   }
 
+  const addjustmentMath = (item) => {
+    const income = item.income_lits
 
+  }
 
   const fetchAttendance = async(user = '') => {
     const uid = user ? user : userSelect.value 
@@ -194,6 +202,7 @@ export default function PayrollForm() {
         const p = `${dayjs(data.cut_off_start).format('DD-MMM')  } - ${dayjs(data.cut_off_end).format('DD-MMM')  } ${  dayjs(data.cut_off_end).format('YYYY')}`
         setPeriode(p)
         setAddjustment([...data.income_list])
+        addjustmentMath(data)
         // calcualteSalary(data.income_list, deductions)
         console.log(deductions, "deduction after")
       } catch (error) {
@@ -205,7 +214,7 @@ export default function PayrollForm() {
     if(info){
       deductionsMath(info)
     }
-  },[info])
+  },[info,salary])
 
   useEffect(()=> {
     if(info){
@@ -235,6 +244,7 @@ export default function PayrollForm() {
   const onSubmitIncome = (arg) => {
     if (modal.title === 'Add Addjustment') {
       const oldIncome = addjustment
+      console.log(oldIncome, "oldincome")
       oldIncome.push(arg)
       setAddjustment([...oldIncome])
       calcualteSalary(oldIncome, deductions)
@@ -249,14 +259,19 @@ export default function PayrollForm() {
   }
 
   const onSubmitForm = async(approved = false) => {
+    console.log("masuk", addjustment)
     const params = {
       user:userSelect ? userSelect.value : null,
       periode:periodeRef.current.value,
+      type: salary.flag === "Gaji pokok gross"? "gross" : "nett",
       deductions,
-      addjustment,
-      approved
-    }
-
+      addjustment : {
+        name: addjustment.flag
+      },
+        approved
+      }
+      
+      return console.log(addjustment, deductions, params)
     if (!params.user || !params.periode || !params.deductions.length || !params.addjustment.length) return toast.error(`Error : Invalid form`, {
       position: "top-center"
     })
@@ -291,6 +306,7 @@ export default function PayrollForm() {
 
   const handleInputAddjustment = (e, index) => {
     const value = e.target.value
+    console.log(value, "value")
     const old = addjustment
     old[index].amount = value
     setAddjustment([...old])
@@ -299,6 +315,7 @@ export default function PayrollForm() {
 
   const handleInputDeduction = (e, index) => {
     const value = e.target.value
+    console.log(value, "value deduc")
     const old = deductions
     old[index].amount = value
     setDeductions([...old])
@@ -378,7 +395,8 @@ export default function PayrollForm() {
                       {x.flag ? x.flag : "Basic Salary"}
                     </div>
                     <div className="w-50">
-                      <Input value={x.amount} className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputAddjustment(e, index)}/>
+                      <Input value={x.amount} 
+                      className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputAddjustment(e, index)}/>
                     </div>
                     <div className="">
                       {addjustment.length > 1 ? <Button outline color="danger" size="sm" onClick={() => onDeleteItem('a', index)}>X</Button> : <></>}

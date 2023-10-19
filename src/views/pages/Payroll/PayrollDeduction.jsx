@@ -46,8 +46,8 @@ export default function PayrollDeduction() {
   const postUpdate = async (params) => {
     const itemUpdate = {
       name : params.name,
-      is_employee : params.payment,
-      percentage : params.percentage,
+      percent_company : params.percent_company,
+      percent_employee : params.percent_employee,
       topper : params.topper
     }
     try {

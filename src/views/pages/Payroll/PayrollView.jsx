@@ -18,17 +18,22 @@ import { numberFormat } from "../../../Helper"
 export default function PayrollView() {
   const { id } = useParams()
   const [user, setUser] = useState(null)
+  const [allowance, setAllowance] = useState([])
   const [deductions, setDeductions] = useState([])
   const [addjusments, setAddjusments] = useState([])
   const [totalAddjusment, setTotalAddjusment] = useState(0)
   const [totalDeduction, setTotalDeduction] = useState(0)
   const [periode, setPeriode] = useState('')
+  
   const fetchPayroll = async () => {
     try {
       const data = await Api.get(`/hris/payroll/${id}`)
+      console.log(data, "data view")
       setUser({...data.user})
+      // const payrollType = data.type === "nett" ? undefined :
       const addj = data.items.filter(x => x.flag === 'addjusment')
       const deductions = data.items.filter(x => x.flag !== 'addjusment')
+      console.log(addj, "addjustment")
       setAddjusments([...addj])
       setDeductions([...deductions])
       setTotalDeduction(
@@ -45,6 +50,20 @@ export default function PayrollView() {
 
   useEffect(() => {
     fetchPayroll()
+  }, [])
+
+  
+  const fetchAllowance = async() => {
+    try {
+      const data = await Api.get(`/hris/bpjs-rule`)
+      console.log(data, "check data")
+    } catch (error) {
+      throw error
+    }
+  }
+
+  useEffect(() => {
+    fetchAllowance()
   }, [])
 
   return (

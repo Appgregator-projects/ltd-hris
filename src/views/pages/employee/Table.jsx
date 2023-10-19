@@ -25,7 +25,7 @@ import { dateTimeFormat } from "../../../Helper/index"
 import { ChevronDown, Trash, Edit } from "react-feather"
 
 const renderClient = (row) => {
-  // console.log(row, "row")
+  console.log(row, "row")
   if (row.avatar) {
     return <Avatar className="me-1" img={row.avatar} width="32" height="32" />
   } else {
