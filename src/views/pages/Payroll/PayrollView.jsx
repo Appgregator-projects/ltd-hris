@@ -18,6 +18,8 @@ import { numberFormat } from "../../../Helper"
 export default function PayrollView() {
   const { id } = useParams()
   const [user, setUser] = useState(null)
+  const [info, setInfo] = useState([])
+  const [ListDeduction, setListDeductions] = useState([])
   const [allowance, setAllowance] = useState([])
   const [deductions, setDeductions] = useState([])
   const [addjusments, setAddjusments] = useState([])
@@ -30,7 +32,7 @@ export default function PayrollView() {
       const data = await Api.get(`/hris/payroll/${id}`)
       console.log(data, "data view")
       setUser({...data.user})
-      // const payrollType = data.type === "nett" ? undefined :
+      setInfo({...data})
       const addj = data.items.filter(x => x.flag === 'addjusment')
       const deductions = data.items.filter(x => x.flag !== 'addjusment')
       console.log(addj, "addjustment")
@@ -52,11 +54,14 @@ export default function PayrollView() {
     fetchPayroll()
   }, [])
 
+  console.log(info, "kakak")
+
   
   const fetchAllowance = async() => {
     try {
       const data = await Api.get(`/hris/bpjs-rule`)
       console.log(data, "check data")
+      setListDeductions([...data])
     } catch (error) {
       throw error
     }
@@ -121,6 +126,10 @@ export default function PayrollView() {
                     <div className="w-50 pb-1 text-xs ">Bank Account Number</div>
                     <div className="w-50 pb-1 text-xs ">: {user ? user.employee_attribute.bank_Account_Number : '-'}</div>
                   </div>
+                  <div className="d-flex">
+                    <div className="w-50 pb-1 text-xs ">Payroll Type</div>
+                    <div className="w-50 pb-1 text-xs ">: {user ? info.type === 'gross'? "GROSS SALARY" : 'NETT SALARY' : "-"}</div>
+                  </div>
                 </Col>
                 <Col lg="6 mt-2">
                   <CardText className="w-full text-sm fw-bold">
@@ -143,7 +152,7 @@ export default function PayrollView() {
                         ))
                       }
                       <tr className="fw-bold">
-                        <td>TOTAL</td>
+                        <td>TOTAL GROSS EARNING</td>
                         <td className="text-right">Rp {numberFormat(totalAddjusment)}</td>
                       </tr>
                     </tbody>
@@ -170,7 +179,7 @@ export default function PayrollView() {
                         ))
                       }
                       <tr className="fw-bold">
-                        <td>TOTAL</td>
+                        <td>TOTAL DEDUCTIONS</td>
                         <td className="text-right">Rp {numberFormat(totalDeduction)}</td>
                       </tr>
                     </tbody>
@@ -183,7 +192,7 @@ export default function PayrollView() {
                       className="w-50 d-flex justify-content-between fw-bold"
                       style={{ color: "#000" }}
                     >
-                      <span className="text-left px-3">NET SALARY</span>
+                      <span className="text-left px-3">NETT SALARY (take home pay)</span>
                       <span className="text-right px-2">RP {numberFormat(totalAddjusment - totalDeduction)}</span>
                     </div>
                   </div>
