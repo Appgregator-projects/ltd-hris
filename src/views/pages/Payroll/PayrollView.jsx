@@ -192,7 +192,7 @@ export default function PayrollView() {
                       className="w-50 d-flex justify-content-between fw-bold"
                       style={{ color: "#000" }}
                     >
-                      <span className="text-left px-3">NETT SALARY (take home pay)</span>
+                      <span className="text-left px-3">SALARY (take home pay)</span>
                       <span className="text-right px-2">RP {numberFormat(totalAddjusment - totalDeduction)}</span>
                     </div>
                   </div>

@@ -160,11 +160,14 @@ export default function PayrollForm() {
       try {
         if(salaryAmount?.amount || loans?.length){
           const BPJSEmployee = listDeductions.map(x => {
-          x.percentage/100 * salaryAmount.amount
-            return {
-              name : x.name,
-              amount : x.percent_employee / 100 * salaryAmount.amount}
-          })
+          let value = x.percent_employee === 0? undefined : x.percent_employee
+            if(value !== undefined){
+              return {
+                name : x.name,
+                amount : Math.round(value / 100 * salaryAmount.amount)
+              }
+            }
+          }).filter(item => item !== undefined);
           setEmployee(BPJSEmployee);
 
           const BPJSCompany = listDeductions.map(x => {
@@ -174,6 +177,7 @@ export default function PayrollForm() {
                 amount : Math.round(x.percent_company / 100 * salaryAmount.amount)}
             })
           setCompany(BPJSCompany);
+          console.log(listDeductions, BPJSEmployee, "BPJS")
 
           const loans_per_month = loans.map(x => (x.loan_amount / x.tenor))
           for (let i=0; i<loans_per_month.length; i++){
@@ -199,6 +203,7 @@ export default function PayrollForm() {
   }
 
   const setAllPayroll = () => {
+    console.log(bpjs_employee, "info")
     const dataAddj = addjustment.map(x => {
       return {
         name : x?.flag,
@@ -214,11 +219,19 @@ export default function PayrollForm() {
         id : x?.id? x.id : null
       }
     });
-    const allAddj = [...dataAddj, ...combinedAddj]
+    const allAddjGross = [...dataAddj, ...combinedAddj]
+    const allAddjNett = [...dataAddj,...bpjs_employee, ...combinedAddj]
     const allDedu = [...deductions, ...combinedAddj]
-    setFinalAddj(allAddj)
-    setFinalDedu(allDedu)
-    console.log(allAddj, allDedu, deductions, "psofoirjf")
+    const typeSalary = salary.flag === "Gaji pokok nett" ? "nett" : "gross"
+    if(typeSalary == "gross"){
+      setFinalAddj(allAddjGross)
+      setFinalDedu(allDedu)
+    } else{
+      setFinalAddj(allAddjNett)
+      setFinalDedu(allDedu)
+    }
+
+    console.log(allAddjGross, allAddjNett, allDedu, "psofoirjf")
   }
 
   const fetchAttendance = async(user = '') => {
@@ -289,8 +302,7 @@ export default function PayrollForm() {
   }
 
   const onSubmitForm = async(approved = false) => {
-    const payrollType = info.type === "Gaji pokok gross"? "gross" : "nett"
-    console.log(payrollType, "payrolltype")
+    const payrollType = salary.flag === "Gaji pokok gross"? "gross" : "nett"
     const params = {
       user:userSelect ? userSelect.value : null,
       periode:periodeRef.current.value,
@@ -299,7 +311,7 @@ export default function PayrollForm() {
       deductions: finalDedu,
       approved
       }
-     console.log(finalAddj, finalDedu, params)
+    // return console.log(payrollType, params)
     if (!params.user || !params.periode || !params.deductions.length || !params.addjustment.length) return toast.error(`Error : Invalid form`, {
       position: "top-center"
     })
