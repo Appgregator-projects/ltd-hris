@@ -110,7 +110,6 @@ export default function FormEmployee({
         setIsLoading(true);
         const post = await upload(acceptedFiles[0], name, "attendance/user");
         setIsLoading(false);
-        return console.log(post, 'post employee attachment')
         setAttachment(post);
       } catch (error) {
         setIsLoading(false);

@@ -44,7 +44,6 @@ const UserDropdown = () => {
   useEffect(() => {
     if (store.userData) {
       setUserData(store.userData)
-      console.log(store.userData, "store")
     }
   }, [])
 

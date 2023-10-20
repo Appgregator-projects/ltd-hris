@@ -16,7 +16,7 @@ _axios.interceptors.request.use(
 
     const accessToken = Cookies.get("accessToken");
     const company_id = Cookies.get("company_id");
-    console.log(company_id, "company_id")
+    // console.log(company_id, "company_id")
 
     onAuthStateChanged(auth, (user) => {
       if (user) {

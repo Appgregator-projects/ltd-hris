@@ -15,6 +15,7 @@ const initialUser = () => {
   //   avatar : JSON.parse(localStorage.getItem("userData"))?.avatar
   // }
   const items = JSON.parse(localStorage.getItem("userData"))
+  return console.log(items, "items")
   return items ? items : {};
   // return item ? JSON.parse(item) : {}
 };
@@ -57,6 +58,7 @@ export const authSlice = createSlice({
 
     },
     handleLogin: (state, action) => {
+      console.log(action.payload, "login")
       const params = {
         id: action.payload.profile.token.uid,
         name: action.payload.profile.token.name,
