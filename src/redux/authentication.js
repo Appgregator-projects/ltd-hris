@@ -34,8 +34,8 @@ const intialCompany = () => {
   const company_id = Cookies.get("company_id");
   const company_name = Cookies.get("company_name");
   const company = { id: company_id, name: company_name };
-  return company;
   // return console.log(company_id,"company_id")
+  return company;
 };
 
 export const authSlice = createSlice({
@@ -88,6 +88,7 @@ export const authSlice = createSlice({
     },
     handleCompany: (state, action) => {
       state.company = action.payload;
+      console.log(action.payload, "ksksksk")
       Cookies.set("company_name", action.payload.name);
       Cookies.set("company_id", action.payload.id);
     },

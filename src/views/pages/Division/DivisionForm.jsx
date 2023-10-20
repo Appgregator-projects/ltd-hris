@@ -18,7 +18,7 @@ export default function DivisionForm({
 }) {
   const ItemSchema = yup.object().shape({
     name: yup.string().required(),
-    parent: yup.string().required(),
+    // parent: yup.string().required(),
   });
   
   const Option = users?.map((e) => ({ value: e.id, label: e.email }));
@@ -40,13 +40,15 @@ export default function DivisionForm({
     handleSubmit,
     formState: { errors },
   } = useForm({ mode: "onChange", resolver: yupResolver(ItemSchema) });
+  console.log(errors)
 
   const onSubmitForm = (arg) => {
+    // return console.log(arg, "kkk")
     onSubmit(arg);
   };
 
   useEffect(() => {
-    console.log(item, "item setvalue ")
+    // console.log(item, "item setvalue ")
     if (item) {
       setValue("name", item.name)
       setValue("parent", item == undefined? item.parent_id : DivitionOption.filter((e) => e.value === item.parent_id)[0]) 
@@ -94,10 +96,12 @@ export default function DivisionForm({
                   placeholder={"Select Parent Division"}
                   options={DivitionOption}
                   invalid={errors.parent && true}
+                  onChange={arg => {console.log(arg)}}
+
                 />
               )}
             />
-            {errors.manager_id && (
+            {errors.parent && (
               <FormFeedback>{errors.parent.message}</FormFeedback>
             )}
           </Col>
@@ -118,6 +122,7 @@ export default function DivisionForm({
                   placeholder={"Select Manager"}
                   options={Option}
                   invalid={errors.manager_id && true}
+                  onChange={arg => {console.log(arg)}}
                 />
               )}
             />

@@ -164,6 +164,7 @@ export default function DivisionIndex() {
       parent_id : params.parent.value,
       manager_id : params.manager_id.value
     }
+    // return console.log(params, "jsfgjhf")
     try {
       if (modal.item) return postUpdate(params);
       const {status,data} = await Api.post(`/hris/division`, itemPost);
@@ -178,6 +179,7 @@ export default function DivisionIndex() {
       });
       setToggleModal(false);
     } catch (error) {
+      console.log(error.message)
       toast.error(`Error : ${error.message}`, {
         position: "top-center",
       });

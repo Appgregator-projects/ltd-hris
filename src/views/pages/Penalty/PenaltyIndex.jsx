@@ -8,9 +8,14 @@ import PenaltyDetail from './PenaltyDetail'
 import Api from "../../../sevices/Api";
 import { useEffect } from 'react'
 import FormUserAssign from '../Components/FormUserAssign'
+import { useDispatch } from 'react-redux'
+import { handlePreloader } from '../../../redux/layout'
+import toast from 'react-hot-toast'
 
 
 const PenaltyIndex = () => {
+  const dispatch = useDispatch();
+
   const [penalty, setPenalty] = useState([])
   const [history, setHistory] = useState([])
   const [employee, setEmployee] = useState([])
@@ -71,7 +76,7 @@ const PenaltyIndex = () => {
   const onDetail = (x) => {
     console.log(x, "x")
     setModal({
-      title : "Detail Penalty",
+      title : " ",
       mode : "detail",
       item : x
     })
@@ -79,11 +84,11 @@ const PenaltyIndex = () => {
   }
 
   const postForm = async (params) => {
-    // return console.log(params, itemActive, "params");
     try {
-      if (itemActive) return postEdit(params);
+      // if (itemActive) return postEdit(params);
       dispatch(handlePreloader(true));
-      const status = await Api.post(`/hris/warning-letter`, params);
+      const {status,data} = await Api.post(`/hris/warning-letter`, params);
+      console.log(status, data)
       dispatch(handlePreloader(false));
       if (!status)
         return toast.error(`Error : ${data}`, {
@@ -92,6 +97,7 @@ const PenaltyIndex = () => {
       toast.success("Successfully added employee!", {
         position: "top-center",
       });
+      fetchPenalty()
     } catch (error) {
       dispatch(handlePreloader(false))
 			toast.error(`Error : ${error.message}`, {
@@ -128,7 +134,7 @@ const PenaltyIndex = () => {
                   <div className='d-flex align-items-center pointer'>
                     <Avatar color="light-info" icon={<User size={24} />} className='me-2' />
                     <div className='my-auto'>
-                      <h4 className='fw-bolder mb-0'>{x.message}</h4>
+                      <h6 className='fw-bolder mb-0'>{x.message}</h6>
                       <CardText className='font-small-3 mb-0'>{x.title}</CardText>
                     </div>
                   </div>
@@ -156,7 +162,7 @@ const PenaltyIndex = () => {
       </ModalHeader>
       <ModalBody>
         {modal.mode === "add" ?
-        <PenaltyForm item={penalty} user={employee} close={() => setToggleModal(false)}/>
+        <PenaltyForm item={penalty} user={employee} onSubmit={postForm} close={() => setToggleModal(false)}/>
          : <></>}
         {modal.mode === "detail" ? <PenaltyDetail item={modal.item} /> : <></>}
       </ModalBody>

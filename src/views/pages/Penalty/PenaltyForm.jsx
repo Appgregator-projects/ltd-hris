@@ -15,7 +15,7 @@ import CardLoader from '../Components/CardLoader'
 import { createTheme } from 'react-data-table-component'
 
 
-const PenaltyForm = ({item, close, user}) => {
+const PenaltyForm = ({item, close, user, onSubmit}) => {
   const [file, setFile] = useState(null)
   const [selectUser, setSelectUser] = useState(null)
   const [attachment, setAttachment] = useState(null);
@@ -111,8 +111,12 @@ const PenaltyForm = ({item, close, user}) => {
     },
   });
 
+  console.log(file, "file attriibute")
+  console.log(attachment, "attachment")
+
 	const onSubmitForm = (params) => {
     params.file = attachment
+    params.uid = selectUser
 		return onSubmit(params)
 	}
   
@@ -135,7 +139,7 @@ const PenaltyForm = ({item, close, user}) => {
                   closeMenuOnSelect={true}
                   options={user}
                   invalid={errors.name && true}
-                  onChange={(arg) => {setSelectUser(arg.value); fetchHistory(arg)}}
+                  onChange={(arg) => {setSelectUser(arg.value); fetchHistory(arg); console.log(arg.value)}}
                   />
 							}
 						/>

@@ -90,7 +90,6 @@ export default function AttendanceIndex() {
         dayname
       })
     }
-
     return params
   }
 

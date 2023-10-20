@@ -79,7 +79,7 @@ const Login = () => {
       token.access_token = accessToken;
 
       if ((token, checkCompany)) {
-        console.log(token, "token")
+        console.log(checkCompany, "token")
         if (checkCompany) {
           const userAbility = await Me(accessToken);
           let arrList = [];
