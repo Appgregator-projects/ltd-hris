@@ -23,6 +23,7 @@ export default function AttendanceIndex() {
   const [initalDate, setInitialDate] = useState(dayjs().format("YYYY-MM"))
   const dic = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
   const [calendar, setCalendar] = useState([])
+  const [plainCalendar, setPlainCalendar] = useState([])
   const [toggleModal, setToggleModal] = useState(false)
   const [users, setUsers] = useState([])
   const [userSelect, setUserSelect] = useState(null)
@@ -89,7 +90,6 @@ export default function AttendanceIndex() {
         dayname
       })
     }
-
     return params
   }
 
@@ -109,6 +109,7 @@ export default function AttendanceIndex() {
     })
     const calendar = [...getDateFromPrevious, ...currentParams]
     setCalendar([...calendar])
+    setPlainCalendar([...calendar])
   }
 
   useEffect(() => {
@@ -129,7 +130,7 @@ export default function AttendanceIndex() {
     setUserSelect(null)
   }
 
-  const generateCalendarEvent = (arg) => {
+  const generateCalendarEvent = async (arg) => {
     console.log(arg, "generateCalendarEvent arg")
     const attendances = arg
     const late = arg.filter((x) => parseFloat(x.late_count) > 0)
@@ -137,15 +138,14 @@ export default function AttendanceIndex() {
     setLate([...late])
     setAttendanceLog([...attendances])
 
-    let calendarArr = JSON.stringify(calendar)
+    let calendarArr = JSON.stringify(plainCalendar)
     calendarArr = JSON.parse(calendarArr)
-    // console.log(calendarArr, "generateCalendarEvent calendarArr")
+
     const result = []
     calendarArr.forEach((x) => {
       const find = attendances.find(
         (y) => dayjs(y.periode).format("YYYY-MM-DD") === x.periode
       )
-      // console.log(find, "generateCalendarEvent find")
       if (find) {
         x.is_filled = true
         x.clock_in = dayjs(find.clock_in).format("HH:mm")
@@ -155,11 +155,25 @@ export default function AttendanceIndex() {
     })
     setCalendar([])
     setCalendar([...result])
+
+    // const calendarProm = calendarArr?.map(async (x) => {
+    //   const date = x?.periode
+    //   const addAttendance = attendances?.find((y) => y.periode === date)
+    //   if (addAttendance) {
+    //     x.detail_attendance = addAttendance
+    //     x.is_filled = true
+    //   }
+    //   return x
+    // })
+    // const dataAttendance = await Promise.all(calendarProm)
+    // console.log(dataAttendance,'mewmewmewme')
+    // setCalendar(dataAttendance)
   }
 
   const fetchAttendance = async (arg, date) => {
-    const month = date.slice(6, 7)
-    const year = date.slice(0, 4)
+    const year = dayjs(date).format("YYYY")
+    const month = dayjs(date).format("MM")
+    
     try {
       const {status,data} = await Api.get(
         `/hris/attendance/employee?month=${month}&year=${year}&day=&uid=${arg.value}`

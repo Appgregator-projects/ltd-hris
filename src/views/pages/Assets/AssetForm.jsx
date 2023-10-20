@@ -60,7 +60,6 @@ const AssetForm = ({user,asset, onSubmit, close, fetch, load}) => {
                   invalid={errors.name && true}
                   // onChange={(arg) => {setSelectUser(arg.value); console.log(arg, "arg name")}}
                   />
-
 							}
 						/>
 							{errors.name && <span style={{ color: "red" }}>Name is Required</span>}

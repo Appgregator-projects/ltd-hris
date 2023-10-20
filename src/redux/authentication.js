@@ -15,6 +15,7 @@ const initialUser = () => {
   //   avatar : JSON.parse(localStorage.getItem("userData"))?.avatar
   // }
   const items = JSON.parse(localStorage.getItem("userData"))
+  return console.log(items, "items")
   return items ? items : {};
   // return item ? JSON.parse(item) : {}
 };
@@ -34,8 +35,8 @@ const intialCompany = () => {
   const company_id = Cookies.get("company_id");
   const company_name = Cookies.get("company_name");
   const company = { id: company_id, name: company_name };
-  return company;
   // return console.log(company_id,"company_id")
+  return company;
 };
 
 export const authSlice = createSlice({
@@ -57,14 +58,16 @@ export const authSlice = createSlice({
 
     },
     handleLogin: (state, action) => {
+      console.log(action.payload, "login")
       const params = {
         id: action.payload.profile.token.uid,
         name: action.payload.profile.token.name,
-        email: action.payload.email,
+        email: action.payload.token.email,
         ability: action.payload.ability,
         role_id: action.payload.permissions[0].id,
         role_name: action.payload.permissions[0].name,
-        access_token: action.payload.access_token
+        access_token: action.payload.access_token,
+        avatar: action.payload.profile.token.picture
       };
       console.log(action.payload, "action payload")
       state.userData = params;
@@ -88,6 +91,7 @@ export const authSlice = createSlice({
     },
     handleCompany: (state, action) => {
       state.company = action.payload;
+      console.log(action.payload, "ksksksk")
       Cookies.set("company_name", action.payload.name);
       Cookies.set("company_id", action.payload.id);
     },

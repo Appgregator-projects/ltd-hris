@@ -87,6 +87,7 @@ const UsersList = () => {
       const data = await Api.get(
         "/auth/role-and-permissions/roles-list-selectbox"
       );
+      console.log(data, "yakk")
       setRoles([...data]);
     } catch (error) {
       throw error;

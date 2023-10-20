@@ -33,6 +33,8 @@ export default function PayrollForm() {
   const [loans, setLoans] = useState(null)
   const [periode, setPeriode] = useState('')
   const [addjustment, setAddjustment] = useState([{name:'Basic salary', amount:0}])
+  const [finalAddj, setFinalAddj] = useState([])
+  const [finalDedu, setFinalDedu] = useState([])
   const [deductions, setDeductions] =  useState([
     {name:'Pajak Penghasilan', amount:0},
     {name:'BPJS (JHT)', amount:0},
@@ -43,8 +45,9 @@ export default function PayrollForm() {
     {name:'Potongan Pinjaman', amount:0}
   ])
   const [listDeductions, setListDeductions] = useState([]);
-  const [bpjs,setbpjs] = useState([])
-  const [amount,setAmount] = useState([])
+  const [bpjs_employee,setEmployee] = useState([])
+  const [bpjs_company,setCompany] = useState([])
+  const [salary,setSalary] = useState([])
   const [totalAddjustment, setTotalAddjustment] = useState(0)
   const [totalDeduction, setTotalDeduction] = useState(0)
 
@@ -69,7 +72,6 @@ export default function PayrollForm() {
     periodeRef.current.value = currentMonth
     fetchUser()
   }, [])
-
   
   const fetchPayroll = async () => {
     try {
@@ -80,7 +82,7 @@ export default function PayrollForm() {
       if (addj.length) {
         setAddjustment([
           ...addj.map(x => {
-            x.name = x.label
+            x.name = x.flag
             return x
           })
         ])
@@ -125,7 +127,7 @@ export default function PayrollForm() {
 
   }
 
-  const fetchDeductions = async() => {
+  const fetchBPJS = async() => {
     try {
       const data = await Api.get(`/hris/bpjs-rule`)
       setListDeductions([...data])
@@ -135,7 +137,7 @@ export default function PayrollForm() {
   }
 
   useEffect(() => {
-    fetchDeductions()
+    fetchBPJS()
   }, [])
 
   const calcualteSalary = (addjustmentArr = [], deductionArr = []) => {
@@ -145,40 +147,91 @@ export default function PayrollForm() {
     setTotalDeduction(sumDeduction)
   }
 
-  const deductionsMath = async(item) => {
-    const income = item.income_list
-    const loans = item.loans
+  const deductionsMath = (item) => {
+    const income = item?.income_list
+    const loans = item?.loans
     let sumLoans = 0 
-    const basic= await income.find(x => x.flag == "Gaji pokok nett" || x.name == "Basic Salary")
-    console.log(item)
-    if(basic.amount || loans.length){
-      const amountBPJS = listDeductions.map(x => {
-        x.percentage/100 * basic.amount
-        return {
-          name : x.name,
-          amount : x.percent_company / 100 * basic.amount
-        }
-      })
-      console.log(amountBPJS, "kakak")
-      setbpjs(amountBPJS)
-      
-      const loans_per_month = loans.map(x => (x.loan_amount / x.tenor))
-      for (let i=0; i<loans_per_month.length; i++){
-        sumLoans += loans_per_month[i]
-      }
-      setLoans(sumLoans)
-      const dataDeductions = deductions.map(x => {
-        x.amount = 0
-        const amountBPJS = bpjs?.find(y => y.name == x.name)
-        if(amountBPJS){
-            x.amount = amountBPJS ? amountBPJS.amount : 0
+    setLoans(sumLoans)
+    const salaryGross= income?.find(x => x.flag == "Gaji pokok gross" || x.name == "Basic Salary")
+    const salaryNett= income?.find(x => x.flag == "Gaji pokok nett" || x.name == "Basic Salary")
+
+    let salaryAmount = salaryGross !== undefined ? salaryGross : salaryNett
+    setSalary(salaryAmount)
+      try {
+        if(salaryAmount?.amount || loans?.length){
+          const BPJSEmployee = listDeductions.map(x => {
+          let value = x.percent_employee === 0? undefined : x.percent_employee
+            if(value !== undefined){
+              return {
+                name : x.name,
+                amount : Math.round(value / 100 * salaryAmount.amount)
+              }
+            }
+          }).filter(item => item !== undefined);
+          setEmployee(BPJSEmployee);
+
+          const BPJSCompany = listDeductions.map(x => {
+            x.percentage/100 * salaryAmount.amount
+              return {
+                name : x.name,
+                amount : Math.round(x.percent_company / 100 * salaryAmount.amount)}
+            })
+          setCompany(BPJSCompany);
+          console.log(listDeductions, BPJSEmployee, "BPJS")
+
+          const loans_per_month = loans.map(x => (x.loan_amount / x.tenor))
+          for (let i=0; i<loans_per_month.length; i++){
+            sumLoans += loans_per_month[i]
           }
-          return x
-        })
-        const index = dataDeductions.findIndex(y => y.name === "Potongan Pinjaman")
-        dataDeductions[index].amount = sumLoans
-        setDeductions([...dataDeductions])
+          const dataDeductions = deductions.map(x => {
+          x.amount = 0
+          const BPJSEmployee = bpjs_employee?.find(y => y.name == x.name)
+            if(BPJSEmployee){
+                x.amount = BPJSEmployee ? BPJSEmployee.amount : 0
+              }
+              return x
+            })
+          const index = dataDeductions.findIndex(y => y.name === "Potongan Pinjaman")
+          dataDeductions[index].amount = sumLoans
+          // let dataFinal =  dataDeductions
+          setDeductions([...dataDeductions])
+        }
+        setAllPayroll()
+      } catch (error) {
+        throw error
+      }
+  }
+
+  const setAllPayroll = () => {
+    console.log(bpjs_employee, "info")
+    const dataAddj = addjustment.map(x => {
+      return {
+        name : x?.flag,
+        amount : parseFloat(x?.amount),
+        flag : "",
+        id : x?.id
+      }
+    });
+    const combinedAddj = bpjs_company.map(x => {
+      return{
+        ...x, name : x.name + " Company", 
+        flag : "", 
+        id : x?.id? x.id : null
+      }
+    });
+    const allAddjGross = [...dataAddj, ...combinedAddj]
+    const allAddjNett = [...dataAddj,...bpjs_employee, ...combinedAddj]
+    const allDedu = [...deductions, ...combinedAddj]
+    const typeSalary = salary.flag === "Gaji pokok nett" ? "nett" : "gross"
+    if(typeSalary == "gross"){
+      setFinalAddj(allAddjGross)
+      setFinalDedu(allDedu)
+    } else{
+      setFinalAddj(allAddjNett)
+      setFinalDedu(allDedu)
     }
+
+    console.log(allAddjGross, allAddjNett, allDedu, "psofoirjf")
   }
 
   const fetchAttendance = async(user = '') => {
@@ -189,16 +242,28 @@ export default function PayrollForm() {
         const data = await Api.get(`/hris/payroll/by-user?user_id=${uid}&periode=${periode}`)
         setInfo(data)
         deductionsMath(data)
-        console.log("dapet disini")
         const p = `${dayjs(data.cut_off_start).format('DD-MMM')  } - ${dayjs(data.cut_off_end).format('DD-MMM')  } ${  dayjs(data.cut_off_end).format('YYYY')}`
         setPeriode(p)
         setAddjustment([...data.income_list])
+        // addjustmentMath(data)
         calcualteSalary(data.income_list, deductions)
+        console.log(deductions, "deduction after")
       } catch (error) {
         throw error
       }
     }
   }
+  useEffect(()=> {
+    if(info){
+      deductionsMath(info)
+    }
+  },[info,salary])
+
+  useEffect(()=> {
+    if(info){
+      calcualteSalary(info.income_list, deductions)
+    }
+  },[deductions])
 
   const onSelectEmployee = (arg) => {
     setUserSelect({...arg})
@@ -222,6 +287,7 @@ export default function PayrollForm() {
   const onSubmitIncome = (arg) => {
     if (modal.title === 'Add Addjustment') {
       const oldIncome = addjustment
+      console.log(oldIncome, "oldincome")
       oldIncome.push(arg)
       setAddjustment([...oldIncome])
       calcualteSalary(oldIncome, deductions)
@@ -236,14 +302,16 @@ export default function PayrollForm() {
   }
 
   const onSubmitForm = async(approved = false) => {
+    const payrollType = salary.flag === "Gaji pokok gross"? "gross" : "nett"
     const params = {
       user:userSelect ? userSelect.value : null,
       periode:periodeRef.current.value,
-      deductions,
-      addjustment,
+      type: payrollType,
+      addjustment: finalAddj,
+      deductions: finalDedu,
       approved
-    }
-
+      }
+    // return console.log(payrollType, params)
     if (!params.user || !params.periode || !params.deductions.length || !params.addjustment.length) return toast.error(`Error : Invalid form`, {
       position: "top-center"
     })
@@ -278,6 +346,7 @@ export default function PayrollForm() {
 
   const handleInputAddjustment = (e, index) => {
     const value = e.target.value
+    console.log(value, "value")
     const old = addjustment
     old[index].amount = value
     setAddjustment([...old])
@@ -286,6 +355,7 @@ export default function PayrollForm() {
 
   const handleInputDeduction = (e, index) => {
     const value = e.target.value
+    console.log(value, "value deduc")
     const old = deductions
     old[index].amount = value
     setDeductions([...old])
@@ -365,7 +435,8 @@ export default function PayrollForm() {
                       {x.flag ? x.flag : "Basic Salary"}
                     </div>
                     <div className="w-50">
-                      <Input value={x.amount} className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputAddjustment(e, index)}/>
+                      <Input value={x.amount} 
+                      className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputAddjustment(e, index)}/>
                     </div>
                     <div className="">
                       {addjustment.length > 1 ? <Button outline color="danger" size="sm" onClick={() => onDeleteItem('a', index)}>X</Button> : <></>}

@@ -52,6 +52,7 @@ export default function EmployeeDetail() {
 			throw error
 		}
 	}
+	console.log(user)
 
 	useEffect(() => {
 		fetchUser()

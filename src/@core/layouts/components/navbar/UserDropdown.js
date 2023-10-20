@@ -63,7 +63,7 @@ const UserDropdown = () => {
       >
         <div className="user-nav d-sm-flex d-none">
           <span className="user-name fw-bold text-capitalize">{(userData && userData['name']) || 'John Doe'}</span>
-          <span className="user-status text-capitalize">{(userData && userData['role']) || 'Staff'}</span>
+          <span className="user-status text-capitalize">{(userData && userData['role_name']) || 'Staff'}</span>
         </div>
         <Avatar
           img={userData && userData['avatar']}
