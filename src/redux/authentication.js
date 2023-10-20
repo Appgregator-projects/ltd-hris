@@ -62,11 +62,12 @@ export const authSlice = createSlice({
       const params = {
         id: action.payload.profile.token.uid,
         name: action.payload.profile.token.name,
-        email: action.payload.email,
+        email: action.payload.token.email,
         ability: action.payload.ability,
         role_id: action.payload.permissions[0].id,
         role_name: action.payload.permissions[0].name,
-        access_token: action.payload.access_token
+        access_token: action.payload.access_token,
+        avatar: action.payload.profile.token.picture
       };
       console.log(action.payload, "action payload")
       state.userData = params;
