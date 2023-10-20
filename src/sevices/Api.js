@@ -19,6 +19,7 @@ _axios.interceptors.request.use(
     // console.log(accessToken, "access_token")
 
     onAuthStateChanged(auth, (user) => {
+      console.log(user, "userrr");
       if (user) {
         const uid = user.uid;
         config.headers["Authorization"] = `Bearer ${user.accessToken}`;

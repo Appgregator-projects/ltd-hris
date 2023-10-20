@@ -1,5 +1,5 @@
-import dayjs from "dayjs"
-import { useEffect, useState } from "react"
+import dayjs from "dayjs";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Card,
@@ -11,174 +11,182 @@ import {
   Modal,
   ModalHeader,
   ModalBody,
-  NavLink
-} from "reactstrap"
-import { ChevronLeft, ChevronRight, ChevronDown, Link } from "react-feather"
-import FormUserAssign from "../Components/FormUserAssign"
-import Api from "../../../sevices/Api"
-import toast from "react-hot-toast"
-import AttandanceDetail from "./AttendanceDetail"
+  NavLink,
+} from "reactstrap";
+import { ChevronLeft, ChevronRight, ChevronDown, Link } from "react-feather";
+import FormUserAssign from "../Components/FormUserAssign";
+import Api from "../../../sevices/Api";
+import toast from "react-hot-toast";
+import AttandanceDetail from "./AttendanceDetail";
 
 export default function AttendanceIndex() {
-  const [initalDate, setInitialDate] = useState(dayjs().format("YYYY-MM"))
-  const dic = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-  const [calendar, setCalendar] = useState([])
-  const [toggleModal, setToggleModal] = useState(false)
-  const [users, setUsers] = useState([])
-  const [userSelect, setUserSelect] = useState(null)
-  const [attendanceLog, setAttendanceLog] = useState([])
-  const [late, setLate] = useState([])
-  const [attendance, setAttendance] = useState([])
+  const [initalDate, setInitialDate] = useState(dayjs().format("YYYY-MM"));
+  const dic = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const [calendar, setCalendar] = useState([]);
+  const [toggleModal, setToggleModal] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [userSelect, setUserSelect] = useState(null);
+  const [attendanceLog, setAttendanceLog] = useState([]);
+  const [late, setLate] = useState([]);
+  const [attendance, setAttendance] = useState([]);
   const [modal, setModal] = useState({
     title: "User assign",
     mode: "get",
-    item: null
-  })
+    item: null,
+  });
 
   const fetchUser = async () => {
     try {
-      const data = await Api.get(`/hris/employee?no_paginate=true`)
-      const fil = data.filter((x) => (x.title) === ("Manager"))
-      console.log(fil,'ulalaa')
+      const data = await Api.get(`/hris/employee?no_paginate=true`);
+      const fil = data.filter((x) => x.title === "Manager");
+      console.log(fil, "ulalaa");
       if (data) {
         const userData = data.map((x) => {
           return {
             value: x.id,
-            label: x.email
-          }
-        })
-        setUsers([...userData])
+            label: x.email,
+          };
+        });
+        setUsers([...userData]);
       }
     } catch (error) {
-      throw error
+      throw error;
     }
-  }
+  };
 
   useEffect(() => {
-    fetchUser()
-  }, [])
+    fetchUser();
+  }, []);
 
   const onPick = () => {
     setModal({
       title: "User assign",
       mode: "get",
-      item: users
-    })
-    setToggleModal(true)
-  }
+      item: users,
+    });
+    setToggleModal(true);
+  };
 
   const onDetail = (x) => {
     setModal({
       title: "User Detail",
       mode: "detail",
-      item: x
-    })
-    setToggleModal(true)
-  }
+      item: x,
+    });
+    setToggleModal(true);
+  };
 
   const generateCalendarData = (month = "") => {
-    const params = []
-    const totalDay = dayjs(month).daysInMonth()
-    const now = dayjs(month).format("YYYY-MM")
+    console.log(month, "monthhh");
+    const params = [];
+    const totalDay = dayjs(month).daysInMonth();
+    const now = dayjs(month).format("YYYY-MM");
     for (let index = 0; index < totalDay; index++) {
-      const d = dayjs(`${now}-${index + 1}`).format("YYYY-MM-DD")
-      const dayname = dayjs(d).format("ddd")
+      const d = dayjs(`${now}-${index + 1}`).format("YYYY-MM-DD");
+      const dayname = dayjs(d).format("ddd");
       params.push({
         date: dayjs(d).format("DD"),
         periode: d,
-        dayname
-      })
+        dayname,
+      });
     }
 
-    return params
-  }
+    return params;
+  };
 
   const generateCalendarView = (initDate) => {
-    const previousMonth = dayjs(initDate).subtract(1, "month")
-    const currentParams = generateCalendarData(initDate)
-    const previousParams = generateCalendarData(previousMonth).reverse()
+    const previousMonth = dayjs(initDate).subtract(1, "month");
+    const currentParams = generateCalendarData(initDate);
+    const previousParams = generateCalendarData(previousMonth).reverse();
 
-    const firstDayFromCurentMOnth = currentParams[0]
+    const firstDayFromCurentMOnth = currentParams[0];
     const findIndexDay = dic.findIndex(
       (x) => x === firstDayFromCurentMOnth.dayname
-    )
-    let getDateFromPrevious = previousParams.slice(0, findIndexDay).reverse()
+    );
+    let getDateFromPrevious = previousParams.slice(0, findIndexDay).reverse();
     getDateFromPrevious = getDateFromPrevious.map((x) => {
-      x.is_previous = "is_previous"
-      return x
-    })
-    const calendar = [...getDateFromPrevious, ...currentParams]
-    setCalendar([...calendar])
-  }
+      x.is_previous = "is_previous";
+      return x;
+    });
+    const calendar = [...getDateFromPrevious, ...currentParams];
+    console.log(calendar, "calenderrrr");
+    setCalendar([...calendar]);
+  };
 
   useEffect(() => {
-    generateCalendarView(initalDate)
-  }, [])
+    generateCalendarView(initalDate);
+  }, []);
 
   const onChangeDate = (mode) => {
-    let periode = dayjs(initalDate)
-    if (mode === "-") {
-      periode = periode.subtract(1, "month")
-    } else {
-      periode = periode.add(1, "month")
-    }
-    periode = dayjs(periode).format("YYYY-MM")
+    console.log(mode, "modeee");
+    let periode = dayjs(initalDate);
 
-    setInitialDate(dayjs(periode).format("YYYY-MM"))
-    generateCalendarView(periode)
-    setUserSelect(null)
-  }
+    if (mode === "-") {
+      periode = periode.subtract(1, "month");
+    } else {
+      periode = periode.add(1, "month");
+    }
+    periode = dayjs(periode).format("YYYY-MM");
+
+    setInitialDate(dayjs(periode).format("YYYY-MM"));
+    generateCalendarView(periode);
+    setUserSelect(null);
+  };
 
   const generateCalendarEvent = (arg) => {
-    console.log(arg, "generateCalendarEvent arg")
-    const attendances = arg
-    const late = arg.filter((x) => parseFloat(x.late_count) > 0)
+    console.log(arg, "generateCalendarEvent arg");
+    const attendances = arg;
+    const late = arg.filter((x) => parseFloat(x.late_count) > 0);
     // console.log(late, "generateCalendarEvent late")
-    setLate([...late])
-    setAttendanceLog([...attendances])
+    setLate([...late]);
+    setAttendanceLog([...attendances]);
 
-    let calendarArr = JSON.stringify(calendar)
-    calendarArr = JSON.parse(calendarArr)
+    let calendarArr = JSON.stringify(calendar);
+    calendarArr = JSON.parse(calendarArr);
     // console.log(calendarArr, "generateCalendarEvent calendarArr")
-    const result = []
+    const result = [];
     calendarArr.forEach((x) => {
       const find = attendances.find(
         (y) => dayjs(y.periode).format("YYYY-MM-DD") === x.periode
-      )
+      );
       // console.log(find, "generateCalendarEvent find")
       if (find) {
-        x.is_filled = true
-        x.clock_in = dayjs(find.clock_in).format("HH:mm")
-        x.clock_out = dayjs(find.clock_out).format("HH:mm")
+        x.is_filled = true;
+        x.clock_in = dayjs(find.clock_in).format("HH:mm");
+        x.clock_out = dayjs(find.clock_out).format("HH:mm");
       }
-      result.push(x)
-    })
-    setCalendar([])
-    setCalendar([...result])
-  }
+      result.push(x);
+    });
+    setCalendar([]);
+    setCalendar([...result]);
+  };
 
   const fetchAttendance = async (arg, date) => {
-    const month = date.slice(6, 7)
-    const year = date.slice(0, 4)
+    const month = date.slice(5, 7);
+    const year = date.slice(0, 4);
     try {
-      const {status,data} = await Api.get(
+      const { status, data } = await Api.get(
         `/hris/attendance/employee?month=${month}&year=${year}&day=&uid=${arg.value}`
-      )
-      if(status) {
-        setAttendance([...data])
-        setToggleModal(false)
-        generateCalendarEvent(data)
+      );
+
+      console.log(arg, "Argg");
+      console.log(month, "Month");
+      console.log(year, "Year");
+      if (status) {
+        setAttendance([...data]);
+        setToggleModal(false);
+        generateCalendarEvent(data);
         toast.success("Attendance has loaded", {
-          position: "top-center"
-        })
+          position: "top-center",
+        });
       }
     } catch (error) {
       toast.error(`Error : ${error.message}`, {
-        position: "top-center"
-      })
-      throw error
+        position: "top-center",
+      });
+      throw error;
     }
-  }
+  };
 
   return (
     <>
@@ -286,8 +294,8 @@ export default function AttendanceIndex() {
               multiple={false}
               disable={true}
               onSelect={(arg) => {
-                setUserSelect(arg)
-                fetchAttendance(arg, initalDate)
+                setUserSelect(arg);
+                fetchAttendance(arg, initalDate);
               }}
             />
           ) : (
@@ -314,5 +322,5 @@ export default function AttendanceIndex() {
         </ModalBody>
       </Modal>
     </>
-  )
+  );
 }
