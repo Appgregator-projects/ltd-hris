@@ -47,7 +47,6 @@ const Login = () => {
   const fetchCompany = async () => {
     try {
       const {status,data} = await Api.get(`/hris/company`);
-      console.log(data,"selectedCompany")
       if(status, data){
         const selectedCompany = data[0];
         return selectedCompany;

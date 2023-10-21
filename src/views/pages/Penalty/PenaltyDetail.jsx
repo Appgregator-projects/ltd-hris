@@ -33,7 +33,7 @@ const PenaltyDetail = ({item}) => {
         <p className="h3 text-center">Penalty type {item?.title}</p>
         <div className='text-center d-flex-column mb-1'>
           <Avatar color="light-info" icon={<User size={24} />} className='me-1' />
-          <h4 className='fw-bolder mb-0 me-1'>{item?.users.name}</h4>
+          <h4 className='fw-bolder mb-0 me-1'>{item?.users.name ? item.users?.name : "-"}</h4>
           <CardText className='font-small-3 mb-0 text-secondary'>{item?.users.email}</CardText>
           <h4 className='text-center my-2'>{item?.message}</h4>
           <a href={imageUrl} alt={"Attchment"} target="_blank" className='d-flex-column'>

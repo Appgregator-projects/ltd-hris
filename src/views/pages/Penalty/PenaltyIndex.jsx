@@ -11,6 +11,9 @@ import FormUserAssign from '../Components/FormUserAssign'
 import { useDispatch } from 'react-redux'
 import { handlePreloader } from '../../../redux/layout'
 import toast from 'react-hot-toast'
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+const MySwal = withReactContent(Swal)
 
 
 const PenaltyIndex = () => {
@@ -85,10 +88,8 @@ const PenaltyIndex = () => {
 
   const postForm = async (params) => {
     try {
-      // if (itemActive) return postEdit(params);
       dispatch(handlePreloader(true));
       const {status,data} = await Api.post(`/hris/warning-letter`, params);
-      console.log(status, data)
       dispatch(handlePreloader(false));
       if (!status)
         return toast.error(`Error : ${data}`, {
@@ -105,6 +106,51 @@ const PenaltyIndex = () => {
       })
     }
   };
+
+  const postDelete = (id) => {
+		return new Promise((resolve, rejcet) => {
+		Api.delete(`/hris/warning-letter/${id}`)
+			.then(res => resolve(res))
+			.catch(err => rejcet(err))
+		})
+	}
+
+  const onDelete = (item, index) => {
+		return MySwal.fire({
+			title: 'Are you sure?',
+			text: "You won't be able to revert this!",
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonText: 'Yes, delete it!',
+			customClass: {
+				confirmButton: 'btn btn-primary',
+				cancelButton: 'btn btn-outline-danger ms-1'
+			},
+			buttonsStyling: false
+		}).then(async (result) => {
+			if (result.value) {
+        console.log(result.value)
+				const status= await postDelete(item.id)
+        console.log(status, "llll")
+				if (status) {
+				const oldCom = penalty
+				oldCom.splice(index, 1)
+				setPenalty([...oldCom])
+				return  MySwal.fire({
+					icon: 'success',
+					title: 'Deleted!',
+					text: 'Penalty has deleted.',
+					customClass: {
+					confirmButton: 'btn btn-success'
+					}
+				})
+				}
+				return toast.error(`Error : ${data}`, {
+				position: 'top-center'
+				})
+			}
+		})
+	}
 
 
   return (
@@ -127,7 +173,7 @@ const PenaltyIndex = () => {
                 <CardBody>
                   <div className="pointer" onClick={() => onDetail(x)}>
                     <CardTitle tag='h4' className='my-0'>
-                      {readMore(x.users.name,16)}
+                      {readMore(x.users? x.users.name : "-",16)}
                     </CardTitle>
                     <p className='text-body-tertiary pb-1 my-0'><small>{x.email}</small></p>
                   </div>
@@ -145,7 +191,7 @@ const PenaltyIndex = () => {
 									{/* <Edit className='me-50' size={15} onClick={onEdit}/> <span className='align-middle'></span> */}
 								</div>
 								<div className="pointer">
-									{/* <Trash className='me-50' size={15} onClick={console.log("haaha")}/> <span className='align-middle'></span> */}
+									<Trash className='me-50' size={15} onClick={()=> onDelete(x, index)}/> <span className='align-middle'></span>
 								</div>
               </div>
             </Col>

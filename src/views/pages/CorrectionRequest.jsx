@@ -121,7 +121,6 @@ export default function CorrectionIndex(){
   }
 
   const onProceed = () => {
-    console.log("it works")
     return MySwal.fire({
       icon: 'info',
       title: 'Do you want to proceed correction at the same time?',

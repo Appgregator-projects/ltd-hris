@@ -68,7 +68,6 @@ export default function EmployeeDetail() {
             img: x.avatar,
             imgHeight: 26,
             imgWidth: 26
-  
           }
         })
         setUserDivision(dataTeam)

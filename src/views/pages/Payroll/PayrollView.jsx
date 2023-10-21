@@ -128,7 +128,7 @@ export default function PayrollView() {
                   </div>
                   <div className="d-flex">
                     <div className="w-50 pb-1 text-xs ">Payroll Type</div>
-                    <div className="w-50 pb-1 text-xs ">: {user ? info.type === 'gross'? "GROSS SALARY" : 'NETT SALARY' : "-"}</div>
+                    <div className="w-50 pb-1 text-xs ">: {info ? info.type === 'gross'? "GROSS SALARY" : 'NETT SALARY' : "-"}</div>
                   </div>
                 </Col>
                 <Col lg="6 mt-2">

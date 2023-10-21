@@ -47,7 +47,7 @@ export default function PayrollForm() {
   const [listDeductions, setListDeductions] = useState([]);
   const [bpjs_employee,setEmployee] = useState([])
   const [bpjs_company,setCompany] = useState([])
-  const [salary,setSalary] = useState([])
+  const [salary,setSalary] = useState("")
   const [totalAddjustment, setTotalAddjustment] = useState(0)
   const [totalDeduction, setTotalDeduction] = useState(0)
 
@@ -148,6 +148,10 @@ export default function PayrollForm() {
   }
 
   const deductionsMath = (item) => {
+    setLoans()
+    setSalary()
+    
+    // setDeductions()
     const income = item?.income_list
     const loans = item?.loans
     let sumLoans = 0 
@@ -156,9 +160,25 @@ export default function PayrollForm() {
     const salaryNett= income?.find(x => x.flag == "Gaji pokok nett" || x.name == "Basic Salary")
 
     let salaryAmount = salaryGross !== undefined ? salaryGross : salaryNett
-    setSalary(salaryAmount)
+    const netOrGross = salaryAmount !== undefined ? salaryAmount.flag : null
+    console.log(salaryAmount, netOrGross, "salaryamount")
+    setSalary(netOrGross)
       try {
-        if(salaryAmount?.amount || loans?.length){
+        if(salaryAmount === undefined){
+          setAddjustment([{name:'Basic salary', amount:0}])
+          setDeductions(
+            [
+              {name:'Pajak Penghasilan', amount:0},
+              {name:'BPJS (JHT)', amount:0},
+              {name:'BPJS (JP)', amount:0},
+              {name:'BPJS Kesehatan', amount:0},
+              {name:'Potongan Absensi', amount:0},
+              {name:'Potongan Keterlambatan', amount:0},
+              {name:'Potongan Pinjaman', amount:0}
+            ]
+          )
+        }
+        else if(salaryAmount?.amount || loans?.length){
           const BPJSEmployee = listDeductions.map(x => {
           let value = x.percent_employee === 0? undefined : x.percent_employee
             if(value !== undefined){
@@ -177,7 +197,6 @@ export default function PayrollForm() {
                 amount : Math.round(x.percent_company / 100 * salaryAmount.amount)}
             })
           setCompany(BPJSCompany);
-          console.log(listDeductions, BPJSEmployee, "BPJS")
 
           const loans_per_month = loans.map(x => (x.loan_amount / x.tenor))
           for (let i=0; i<loans_per_month.length; i++){
@@ -193,17 +212,15 @@ export default function PayrollForm() {
             })
           const index = dataDeductions.findIndex(y => y.name === "Potongan Pinjaman")
           dataDeductions[index].amount = sumLoans
-          // let dataFinal =  dataDeductions
           setDeductions([...dataDeductions])
+          setAllPayroll()
         }
-        setAllPayroll()
       } catch (error) {
         throw error
       }
   }
 
   const setAllPayroll = () => {
-    console.log(bpjs_employee, "info")
     const dataAddj = addjustment.map(x => {
       return {
         name : x?.flag,
@@ -223,15 +240,12 @@ export default function PayrollForm() {
     const allAddjNett = [...dataAddj,...bpjs_employee, ...combinedAddj]
     const allDedu = [...deductions, ...combinedAddj]
     const typeSalary = salary.flag === "Gaji pokok nett" ? "nett" : "gross"
+    setFinalDedu(allDedu)
     if(typeSalary == "gross"){
       setFinalAddj(allAddjGross)
-      setFinalDedu(allDedu)
     } else{
       setFinalAddj(allAddjNett)
-      setFinalDedu(allDedu)
     }
-
-    console.log(allAddjGross, allAddjNett, allDedu, "psofoirjf")
   }
 
   const fetchAttendance = async(user = '') => {
@@ -245,9 +259,7 @@ export default function PayrollForm() {
         const p = `${dayjs(data.cut_off_start).format('DD-MMM')  } - ${dayjs(data.cut_off_end).format('DD-MMM')  } ${  dayjs(data.cut_off_end).format('YYYY')}`
         setPeriode(p)
         setAddjustment([...data.income_list])
-        // addjustmentMath(data)
         calcualteSalary(data.income_list, deductions)
-        console.log(deductions, "deduction after")
       } catch (error) {
         throw error
       }
@@ -258,6 +270,10 @@ export default function PayrollForm() {
       deductionsMath(info)
     }
   },[info,salary])
+
+  // useEffect(()=> {
+  //   fetchAttendance()
+  // },[])
 
   useEffect(()=> {
     if(info){
@@ -283,7 +299,7 @@ export default function PayrollForm() {
     setModal(params)
     setToggleModal(true)
   }
-
+  
   const onSubmitIncome = (arg) => {
     if (modal.title === 'Add Addjustment') {
       const oldIncome = addjustment
@@ -301,8 +317,38 @@ export default function PayrollForm() {
     setToggleModal(false)
   }
 
-  const onSubmitForm = async(approved = false) => {
-    const payrollType = salary.flag === "Gaji pokok gross"? "gross" : "nett"
+  const onType = (item) => {
+    if(salary){
+      return onSubmitForm(item)
+    } else if (salary == null) {
+      return MySwal.fire({
+        icon: 'info',
+        title: 'Set salary for gross or nett?',
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: 'Gross',
+        denyButtonText: `Nett`,
+        customClass: {
+          confirmButton: 'btn btn-primary me-1',
+          denyButton: 'btn btn-danger me-1',
+          title: "fs-13"
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          console.log("masuk")
+          setSalary("Gaji pokok gross")
+          onSubmitForm(item, "Gaji pokok gross")
+        } else if (result.isDenied) {
+          console.log("masuk lagi")
+          setSalary("Gaji pokok nett")
+          onSubmitForm(item, "Gaji pokok nett")
+        }
+      })
+    }
+  }
+
+  const onSubmitForm = async(approved = false, arg) => {
+    const payrollType = salary ? salary : arg
     const params = {
       user:userSelect ? userSelect.value : null,
       periode:periodeRef.current.value,
@@ -311,12 +357,11 @@ export default function PayrollForm() {
       deductions: finalDedu,
       approved
       }
-    // return console.log(payrollType, params)
-    if (!params.user || !params.periode || !params.deductions.length || !params.addjustment.length) return toast.error(`Error : Invalid form`, {
+    if (!params.user || !params.periode || !params.deductions || !params.addjustment) 
+      return toast.error(`Error : Invalid form`, {
       position: "top-center"
     })
     const url = id ? `/hris/payroll/${id}` : '/hris/payroll'
-
     try {
       
       let data = null
@@ -346,7 +391,6 @@ export default function PayrollForm() {
 
   const handleInputAddjustment = (e, index) => {
     const value = e.target.value
-    console.log(value, "value")
     const old = addjustment
     old[index].amount = value
     setAddjustment([...old])
@@ -534,8 +578,8 @@ export default function PayrollForm() {
        
         <Col lg="8">
           <div className="d-flex justify-content-end gap-2">
-            <Button color="dark" onClick={() => onSubmitForm(true)}>Submit & Approved</Button>
-            <Button color="success" onClick={() => onSubmitForm(false)}>Submit</Button>
+            <Button color="dark" onClick={() => onType(true)}>Submit & Approved</Button>
+            <Button color="success" onClick={() => onType(false)}>Submit</Button>
           </div>
         </Col>
       </Row>
@@ -560,6 +604,9 @@ export default function PayrollForm() {
           }
           {
             modal.mode === 'income' ? <FormIncome onSubmit={onSubmitIncome}/> : <></>
+          }
+          {
+            modal.mode === 'type' ? <FormIncome onSubmit={onSubmitIncome}/> : <></>
           }
           
         </ModalBody>
