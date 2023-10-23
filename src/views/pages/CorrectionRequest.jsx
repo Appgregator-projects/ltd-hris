@@ -72,6 +72,7 @@ export default function CorrectionIndex(){
       throw error
     }
   }
+  console.log(corrections, "corrections")
   useEffect(() => {
     fetchCorrection()
   },[filterStatus])

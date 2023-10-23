@@ -216,12 +216,12 @@ export default function EmployeeDetail() {
 	const postIncome = async(params) => {
 		try {
 			const status = await Api.post(`/hris/employee-income/${id.uid}`, params)
-			console.log(status, "status")
 			if (!status)
 			return toast.error(`Error : ${data}`, {
 			  position: "top-center",
 			});
 			fetchIncome();
+      fetchUser()
 			toast.success("Income has updated", {
 				position: "top-center",
 			});
@@ -255,6 +255,7 @@ export default function EmployeeDetail() {
 					position: "top-center",
 				  });
 				setIsRefresh(true);
+        fetchIncome()
 				toast.success("Successfully updated employee!", {
 				  position: "top-center",
 				});
@@ -272,7 +273,6 @@ export default function EmployeeDetail() {
 	return (
 		<>
 			<Row>
-				
 				<Col xl='4' lg='4' xs={{ order: 1 }} md={{ order: 0, size: 5 }}>
 					<Card>
 						<CardBody>
@@ -399,7 +399,7 @@ export default function EmployeeDetail() {
 								<tbody>
 									{income.map((x) => (
 										<tr key={x.id}>
-											<td>{x.flag}</td>
+											<td>{x.name}</td>
 											<td>Rp {numberFormat(x.amount)},-</td>
 											<td>
 												<Trash className="me-50 pointer" size={15} onClick={() => onDelete(x)}></Trash>

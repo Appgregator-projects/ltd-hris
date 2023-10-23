@@ -116,15 +116,15 @@ export default function PayrollView() {
                 <Col lg="6">
                   <div className="d-flex">
                     <div className="w-50 pb-1 text-xs">Bank Name</div>
-                    <div className="w-50 pb-1 text-xs text-uppercase">: {user ? user.employee_attribute.bank_Account : '-'}</div>
+                    <div className="w-50 pb-1 text-xs text-uppercase">: {user ? user?.employee_attribute?.bank_Account : '-'}</div>
                   </div>
                   <div className="d-flex">
                     <div className="w-50 pb-1 text-xs">Bank Account Name</div>
-                    <div className="w-50 pb-1 text-xs text-uppercase">: {user ? user.employee_attribute.bank_Account_Name : '-'}</div>
+                    <div className="w-50 pb-1 text-xs text-uppercase">: {user ? user.employee_attribute?.bank_Account_Name : '-'}</div>
                   </div>
                   <div className="d-flex">
                     <div className="w-50 pb-1 text-xs ">Bank Account Number</div>
-                    <div className="w-50 pb-1 text-xs ">: {user ? user.employee_attribute.bank_Account_Number : '-'}</div>
+                    <div className="w-50 pb-1 text-xs ">: {user ? user.employee_attribute?.bank_Account_Number : '-'}</div>
                   </div>
                   <div className="d-flex">
                     <div className="w-50 pb-1 text-xs ">Payroll Type</div>
