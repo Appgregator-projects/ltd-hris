@@ -222,7 +222,7 @@ export default function PayrollForm() {
           buttonsStyling: false,
           }).then(async (result) => {
           if (result.value) {
-            navigate(`/employee/${userSelect}`)
+            navigate(`/employee/${userSelect.value}`)
           }
           });
       }
