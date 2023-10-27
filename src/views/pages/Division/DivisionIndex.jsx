@@ -134,13 +134,8 @@ export default function DivisionIndex() {
   };
 
   const postUpdate = async (params) => {
-    const itemUpdate = {
-      name : params.name,
-      parent_id : params.parent.value,
-      manager_id : params.manager_id.value
-    }
     try {
-      const {status,data} = await Api.put(`/hris/division/${modal.item.id}`, itemUpdate);
+      const {status,data} = await Api.put(`/hris/division/${modal.item.id}`, params);
       if (!status)
         return toast.error(`Error : ${data}`, {
           position: "top-center",
@@ -159,14 +154,14 @@ export default function DivisionIndex() {
   };
 
   const onSubmit = async (params) => {
+    // return console.log(params, "params")
     const itemPost = {
       name : params.name,
       parent_id : params.parent.value,
       manager_id : params.manager_id.value
     }
-    // return console.log(params, "jsfgjhf")
     try {
-      if (modal.item) return postUpdate(params);
+      if (modal.item) return postUpdate(itemPost);
       const {status,data} = await Api.post(`/hris/division`, itemPost);
       console.log(status,"post divisio")
       if (!status)

@@ -20,7 +20,9 @@ import {
   MessageSquare,
   AlertCircle,
   AlertTriangle,
-  Clock
+  Clock,
+  ShoppingBag,
+  Coffee
 } from "react-feather"
 
 export default [
@@ -50,6 +52,18 @@ export default [
     title: "Attendance",
     icon: <Calendar size={20} />,
     navLink: "/attendance"
+  },
+  {
+    id: "reimburse",
+    title: "Leave Reimbures",
+    icon: <ShoppingBag size={20} />,
+    navLink: "/reimburse"
+  },
+  {
+    id: "meal-allowance",
+    title: "Meal Allowance",
+    icon: <Coffee size={20} />,
+    navLink: "/meal-allowance"
   },
   {
     id: "correction-request",

@@ -50,10 +50,6 @@ export default function FormEmployee({
     role_id: yup.string().required("Role is required"),
     marital_status: yup.string().required("Marital status is required"),
     dependents: yup.string().required("Dependents is required"),
-    // password: yup.string().when([],{
-    //   is:item ? true : false,
-    //   then:yup.string().required("Password is required")
-    // }),
   });
 
 

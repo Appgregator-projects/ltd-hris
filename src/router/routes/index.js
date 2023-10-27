@@ -58,6 +58,8 @@ const Announcement = lazy(() => import("../../views/pages/Announcement/Announcem
 const Penalty = lazy(() => import("../../views/pages/Penalty/PenaltyIndex"))
 const PenaltyCategory = lazy(() => import("../../views/pages/PenaltyCategory/PenaltyCategoryIndex"))
 const OvertimeRequest = lazy(() => import("../../views/pages/Overtime Request/OvertimeRequest"))
+const Reimburse = lazy(() => import("../../views/pages/Reimburse/ReimburseIndex"))
+const MealAllowance = lazy(() => import("../../views/pages/MealAllowance/MealIndex"))
 
 // ** Merge Routes
 const Routes = [
@@ -97,6 +99,22 @@ const Routes = [
     meta: {
       action: "read",
       resource: "MENU ATTENDANCE"
+    }
+  },
+  {
+    path: "/reimburse",
+    element: <Reimburse />,
+    meta: {
+      action: "read",
+      resource: "MENU REIMBURSE"
+    }
+  },
+  {
+    path: "/meal-allowance",
+    element: <MealAllowance />,
+    meta: {
+      action: "read",
+      resource: "MENU MEAL"
     }
   },
   {
