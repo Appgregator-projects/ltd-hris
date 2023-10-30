@@ -129,6 +129,7 @@ const GroupCourses = ({ group_id, courses, fetchDataGroup }) => {
 		setSelectedOption(selectedOption);
 	};
 
+
 	const handleConfirmText = (item) => {
 		return MySwal.fire({
 			title: "Are you sure?",

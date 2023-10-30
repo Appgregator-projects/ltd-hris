@@ -12,6 +12,7 @@ import CardLoader from '../Components/CardLoader'
 import AsyncSelect from "react-select/async";
 
 const AssetForm = ({user,asset, onSubmit, close, fetch, load}) => {
+  console.log(load, "load")
 
   const ItemSchema = yup.object().shape({
 		name: yup.object().shape({

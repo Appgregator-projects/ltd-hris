@@ -114,6 +114,7 @@ export default function AssetIndex() {
           const check = data?.find(y => y.id === x.division_id)
           if(check){
             x.division = check? check.name : "-"
+            console.log(x.division, "pppp")
           }
           return x
         })

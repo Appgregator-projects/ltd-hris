@@ -111,8 +111,6 @@ const PenaltyForm = ({item, close, user, onSubmit}) => {
     },
   });
 
-  console.log(file, "file attriibute")
-  console.log(attachment, "attachment")
 
 	const onSubmitForm = (params) => {
     params.file = attachment

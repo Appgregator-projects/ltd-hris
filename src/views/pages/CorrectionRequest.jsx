@@ -72,6 +72,7 @@ export default function CorrectionIndex(){
       throw error
     }
   }
+  console.log(corrections, "corrections")
   useEffect(() => {
     fetchCorrection()
   },[filterStatus])
@@ -121,7 +122,6 @@ export default function CorrectionIndex(){
   }
 
   const onProceed = () => {
-    console.log("it works")
     return MySwal.fire({
       icon: 'info',
       title: 'Do you want to proceed correction at the same time?',

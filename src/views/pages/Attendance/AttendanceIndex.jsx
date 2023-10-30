@@ -40,7 +40,6 @@ export default function AttendanceIndex() {
     try {
       const data = await Api.get(`/hris/employee?no_paginate=true`)
       const fil = data.filter((x) => (x.title) === ("Manager"))
-      console.log(fil,'ulalaa')
       if (data) {
         const userData = data.map((x) => {
           return {

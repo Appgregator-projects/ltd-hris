@@ -2,7 +2,7 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Row, Col, Label, FormFeedback, Input, Button, Form } from "reactstrap";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Select from "react-select";
 import FormUserAssign from "../Components/FormUserAssign";
 import Api from "../../../sevices/Api";
@@ -16,6 +16,10 @@ export default function DivisionForm({
   selectDivison,
   type
 }) {
+
+  const [selectManager, setSelectManager] = useState(null)
+  const [selectParent, setSelectParent] = useState(null)
+
   const ItemSchema = yup.object().shape({
     name: yup.string().required(),
     // parent: yup.string().required(),
@@ -43,7 +47,6 @@ export default function DivisionForm({
   console.log(errors)
 
   const onSubmitForm = (arg) => {
-    // return console.log(arg, "kkk")
     onSubmit(arg);
   };
 
@@ -87,33 +90,32 @@ export default function DivisionForm({
               name="parent"
               defaultValue=''
               control={control}
-              render={({ field }) => (
+              render={({ field }) => 
                 <Select
                   className="react-select"
                   classNamePrefix="select"
-                  name="parent"
+                  id="label"
+                  // name="parent"
                   {...field}
                   placeholder={"Select Parent Division"}
+                  closeMenuOnSelect={true}
                   options={DivitionOption}
                   invalid={errors.parent && true}
-                  onChange={arg => {console.log(arg)}}
-
+                  // onChange={(arg) => {setSelectParent(arg.value); console.log(arg, "parent")}}
                 />
-              )}
+              }
             />
-            {errors.parent && (
-              <FormFeedback>{errors.parent.message}</FormFeedback>
-            )}
+            {errors.parent && (<FormFeedback>{errors.parent.message}</FormFeedback>)}
           </Col>
           <Col md="12" sm="12" className="mb-1">
-            <Label className="form-label" for="manager">
+            <Label className="form-label" for="manager_id">
               Select Division Leader
             </Label>
             <Controller
               name="manager_id"
               defaultValue=''
               control={control}
-              render={({ field }) => (
+              render={({ field }) => 
                 <Select
                   className="react-select"
                   classNamePrefix="select"
@@ -122,9 +124,9 @@ export default function DivisionForm({
                   placeholder={"Select Manager"}
                   options={Option}
                   invalid={errors.manager_id && true}
-                  onChange={arg => {console.log(arg)}}
+                  // onChange={arg => {setSelectManager(arg.value); console.log(arg.value)}}
                 />
-              )}
+              }
             />
             {errors.manager_id && (
               <FormFeedback>{errors.manager_id.message}</FormFeedback>
@@ -144,6 +146,6 @@ export default function DivisionForm({
   );
 }
 
-DivisionForm.defaultProps = {
-  item: null,
-};
+// DivisionForm.defaultProps = {
+//   item: null,
+// };
