@@ -14,6 +14,7 @@ import withReactContent from 'sweetalert2-react-content'
 import Swal from 'sweetalert2'
 import toast from 'react-hot-toast'
 import { dateTimeFormat } from '../../../Helper'
+import { setDocumentFirebase } from '../../../sevices/FirebaseApi'
 const MySwal = withReactContent(Swal);
 
 
@@ -274,8 +275,15 @@ const ReimburseIndex = () => {
     });
   };
 
-  const onSubmitFireStore = () => {
-
+  const onSubmitFireStore = async() => {
+    let response = ""
+    try {
+      response = await setDocumentFirebase(
+        "leaveReimburse", 
+      )
+    } catch (error) {
+      throw error
+    }
   }
 
   const renderStatus = (arg) => {
