@@ -181,8 +181,6 @@ const GroupsPage = () => {
 		fetchDataGroup();
 	}, []);
 
-	console.log(groupData, "data item")
-
 	return (
 		<Fragment>
 			<Breadcrumbs

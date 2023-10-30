@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { ChevronDown, Eye } from 'react-feather'
+import { Check, CheckCircle, ChevronDown, Eye } from 'react-feather'
 import { Controller, useForm } from 'react-hook-form'
 import Api from "../../../sevices/Api"
-import { Button, Card, CardBody, CardHeader, CardTitle, Col, Form, FormFeedback, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table, UncontrolledTooltip } from 'reactstrap'
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Col, Form, FormFeedback, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table, UncontrolledTooltip } from 'reactstrap'
 import FormUserAssign from '../Components/FormUserAssign'
 import SingleAvatarGroup from '../../../@core/components/single-avatar-group'
 import FormProjectSelect from './component/FormProjectSelect'
@@ -13,11 +13,13 @@ import FormPeriodeSelect from './component/FormPeriodeSelect'
 import withReactContent from 'sweetalert2-react-content'
 import Swal from 'sweetalert2'
 import toast from 'react-hot-toast'
+import { dateTimeFormat } from '../../../Helper'
 const MySwal = withReactContent(Swal);
 
 
 const ReimburseIndex = () => {
   const [reimburse, setReimburse] = useState([])
+  const [attendance, setAttendance] = useState([])
   const [periode, setPeriode] = useState([])
   const [leave, setLeave] = useState([])
   const [list, setList] = useState([])
@@ -115,7 +117,7 @@ const ReimburseIndex = () => {
   }, [])
 
   const setFilter = (item) => {
-    const filterAttendance =  reimburse.map(x => {
+    const filterAttendance =  attendance.map(x => {
       const findFilter = item?.find(y => y.date == x.periode)
       x.periode = null
       if(findFilter) {
@@ -132,15 +134,15 @@ const ReimburseIndex = () => {
       const {status,data} = await Api.get(`/hris/day-off?month=${arg.month}&year=${arg.year}`);
       if(status){
         const dataDaysOff = data.map(x => {
-          console.log(x.type, "type")
           const type = x.type === "non_management" ? x.type : null
+          console.log(type, "type")
           if(type){
             x.date = dayjs(x.date).format('YYYY-MM-DD')
             return x
           }
           })
-      
-        setDaysOff(dataDaysOff)
+        console.log(dataDaysOff, "dataday")
+        setDaysOff([...dataDaysOff])
         setToggleModal(false)
         setSelectPeriode(arg)
         setFilter(dataDaysOff)
@@ -151,11 +153,27 @@ const ReimburseIndex = () => {
   }
 
 
-  const fetchReimburse = async () => {
+  const fetchAttendanceNon = async () => {
     try {
       const {status, data} = await Api.get(`/api/v1/crm/attendance-non-management`)
       if(status){
-        setReimburse(data.data)
+        setAttendance(data.data)
+      }
+    } catch (error) {
+      throw error
+    }
+  }
+
+  useEffect(() => {
+    fetchAttendanceNon()
+  },[selectProject])
+
+  const fetchReimburse = async () => {
+    try {
+      const {status, data} = await Api.get(`/hris/leave-reimburse`)
+      console.log(status, data, "reimburse")
+      if(status) {
+        setReimburse(data)
       }
     } catch (error) {
       throw error
@@ -164,7 +182,7 @@ const ReimburseIndex = () => {
 
   useEffect(() => {
     fetchReimburse()
-  },[selectProject])
+  },[])
 
   const onSelectProject = () => {
     setModal({
@@ -211,7 +229,6 @@ const ReimburseIndex = () => {
   }
 
   const onSubmit = async (x, y,z) => {
-    return console.log(x, y,z, "arg leave request")
     return MySwal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -226,20 +243,23 @@ const ReimburseIndex = () => {
     }).then(async (result) => {
       if (result.value) {
         try {
-          const itemPut = {
-            leave_request_id: y.id,
+          const itemPost = {
+            user_id: y.manager_uid,
             status: z,
-            note: x.rejected_note? x.rejected_note : " "
+            note: x.rejected_note? x.rejected_note : " ",
+            detail_length : y.details.length,
+            periode : y.periode,
+            project_number : y.project_number ,
+            project_id : y.deal_id
           };
-
-          const status = await Api.put(`/hris/leave-approval-aprove`,itemPut);
-          console.log(itemPut, status,  "put leave request")
+          const {status,data} = await Api.post(`/hris/leave-reimburse`,itemPost);
+          console.log(itemPost, status,  "put leave request")
           if (!status)
             return toast.error(`Error : ${status}`, {
               position: "top-center",
             });
-          fetchDaysOff();
-          toast.success(data, {
+          // fetchDaysOff();
+          toast.success(status, {
             position: "top-center",
           });
           setToggleModal(false);
@@ -254,7 +274,24 @@ const ReimburseIndex = () => {
     });
   };
 
-  console.log(selectItem, "hahaha")
+  const onSubmitFireStore = () => {
+
+  }
+
+  const renderStatus = (arg) => {
+    // return console.log(arg, "arg status")
+    if (!arg)
+      return <Badge color="light-warning">Requested</Badge>;
+    if (arg === "requested")
+      return <Badge color="light-primary">Requested</Badge>;
+    if (arg === "approve")
+      return <Badge color="light-success">Approved</Badge>;
+    if (arg === "reject")
+      return <Badge color="light-danger">Rejected</Badge>;
+    return <Badge color="light-info">Processed</Badge>;
+  };
+
+  console.log(leave, "leave")
 
   return (
     <>
@@ -294,9 +331,31 @@ const ReimburseIndex = () => {
             </CardHeader>
             <CardBody>
               <Col>
-              {}
-              {leave?.map((x, i) => (
-                  <Card outline style={{border :"gray 1px solid"}}>
+              { selectProject === null && selectPeriode === null? 
+              reimburse?.map((x,i) => (
+                <Card outline style={{border :"gray 1px solid"}}>
+                  <CardBody>
+                    <Col className='d-flex'>
+                      <Row className='justify-content w-25 me-3'>
+                        <h3 className='w-30'>{dateTimeFormat(x.periode)}</h3>
+                        <span> Manager  : {x.users.name}</span>
+                      </Row>
+                      <Col className='d-flex justify-content-between w-75 align-items-center '> 
+                        <h4>{x.project_number}</h4>
+                        <h4>{x.detail_length} people</h4>
+                        <h5 className='pointer'>
+                          {renderStatus(x.status)}
+                        </h5>
+                      </Col>
+    
+                    </Col>
+                  </CardBody>
+                </Card>
+              ))
+              :
+              leave.length !== 0? 
+              leave?.map((x, i) => (
+                <Card outline style={{border :"gray 1px solid"}}>
                   <CardBody>
                     <Col className='d-flex'>
                       <Row className='justify-content w-25 me-3'>
@@ -324,7 +383,7 @@ const ReimburseIndex = () => {
                     </Col>
                   </CardBody>
                 </Card>
-                ))}
+                )) : "There is no data in this periode"}
               </Col>
             </CardBody>
           </Card>
@@ -368,15 +427,12 @@ const ReimburseIndex = () => {
                 size="md"
                 color="danger"
                 onClick={() => setNestedToggle(!nestedToggle)}
-                // onClosed = {close}
               >
                   <Modal
                     isOpen={nestedToggle}
                     toggle={() => onReject(selectItem)}
                     className={`modal-dialog-centered modal-lg`}
                     backdrop={"static"}
-
-                    // onClosed={close}
                   >
                     <Form onSubmit={handleSubmit(onReject)}>
                     <ModalHeader>Note</ModalHeader>

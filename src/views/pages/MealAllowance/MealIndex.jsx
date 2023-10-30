@@ -1,10 +1,12 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Eye } from 'react-feather'
 import { Controller, useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Col, Form, FormFeedback, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table, UncontrolledTooltip } from 'reactstrap'
 import { dateFormat, dateTimeFormat } from '../../../Helper'
 import MealDetail from './MealDetail'
+import Api from "../../../sevices/Api";
+
 
 const MealIndex = () => {
   const [meal, setMeal] = useState([])
@@ -46,9 +48,24 @@ const MealIndex = () => {
     },
   ]
 
+  const fetchMeal = async() => {
+    try {
+      const {status, data} = await Api.get(`/hris/meal-allowence-status`)
+      if(status){
+        setMeal(data)
+      }
+    } catch (error) {
+      throw error
+    }
+  }
+
+  useEffect(() => {
+    fetchMeal()
+  }, [])
+
   const onDetail = (item, index) => {
     setModal({
-      title : "Detail Reimburse",
+      title : "Detail Meal Allowance",
       mode: "detail",
       item: item
     })
@@ -150,9 +167,9 @@ const MealIndex = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {dataDummy.map((x, index) => (
+                  {meal.map((x, index) => (
                     <tr key={index}>
-                      <td>{x.user_id}</td>
+                      <td>{x.user_id ? x.users?.name : "default"}</td>
                       <td>{x.level}</td>
                       <td>{x.day}</td>
                       <td>{x.attachment? x.attachment : "Empty"}</td>
@@ -189,7 +206,7 @@ const MealIndex = () => {
         className={`modal-dialog-centered modal-lg`}
       >
         <ModalHeader toggle={() => setToggleModal(!toggleModal)}>
-          Request Detail
+          {modal.title}
         </ModalHeader>
         <ModalBody>
           {modal.mode === "detail" ? <MealDetail/> :<></> }

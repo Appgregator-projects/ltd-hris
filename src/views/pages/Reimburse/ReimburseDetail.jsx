@@ -2,13 +2,14 @@ import React from 'react'
 import { Card, CardBody, Col, Row } from 'reactstrap'
 import Avatar from '../../../@core/components/avatar'
 import { capitalize } from 'lodash'
+import { dateTimeFormat } from '../../../Helper'
 
 const ReimburseDetail = ({item, close}) => {
   return (
     <>
     <Col className='d-flex justify-content-between'>
       <Row className='date'>
-        <h1>{item.periode}</h1>
+        <h1>{dateTimeFormat(item.periode)}</h1>
         <div className='w-25 mt-2 d-flex-column align-items-center'>
           <div className='mb-2 d-flex-column align-items-center'>
             <h4>Project :</h4>
