@@ -3,9 +3,11 @@ import { Eye } from 'react-feather'
 import { Controller, useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { Badge, Button, Card, CardBody, CardHeader, CardTitle, Col, Form, FormFeedback, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table, UncontrolledTooltip } from 'reactstrap'
-import { dateFormat, dateTimeFormat } from '../../../Helper'
+import { dateFormat, dateTimeFormat, numberFormat } from '../../../Helper'
 import MealDetail from './MealDetail'
 import Api from "../../../sevices/Api";
+import toast from 'react-hot-toast'
+import { addDocumentFirebase, getCollectionFirebase, setDocumentFirebase } from '../../../sevices/FirebaseApi'
 
 
 const MealIndex = () => {
@@ -24,35 +26,15 @@ const MealIndex = () => {
   } = useForm({ mode: "onChange"});
   console.log(errors, "error");
 
-  const dataDummy = 
-  [
-    {
-      "user_id" : "Sutannata Putra",
-      "division" : "Management",
-      "level" : "Manager",
-      "day" : 2,
-      "total_allowance" : null,
-      "attachment" : "sdfbksbfkj",
-      "status" : "approved",
-      "created_at" : "20234094374509"
-    },
-    {
-      "user_id" : "Audi Rifqi",
-      "division" : "Management",
-      "level" : "Staff",
-      "day" : 3,
-      "total_allowance" : null,
-      "attachment" : "sdfbksbfkj",
-      "status" : "rejected", 
-      "created_at" : "9374094365509"
-    },
-  ]
-
   const fetchMeal = async() => {
     try {
-      const {status, data} = await Api.get(`/hris/meal-allowence-status`)
-      if(status){
-        setMeal(data)
+      const getData = await getCollectionFirebase(
+        "meal_allowance"
+      )
+      const {status, data} = await Api.get(`/hris/meal-allowance`)
+      console.log(getData, "data meal")
+      if(getData){
+        setMeal([...getData])
       }
     } catch (error) {
       throw error
@@ -76,11 +58,11 @@ const MealIndex = () => {
   const onReject = (param) => {
     // return console.log(param, "reject")
     setNestedToggle(true)
-    return onSubmit(param, selectItem, "reject")
+    return onSubmitFirebase(param, selectItem, "reject")
   };
 
   const onApproval = () => {
-    return onSubmit("",selectItem,"approve")
+    return onSubmitFirebase("",selectItem,"approve")
   };
 
   const onCloseAll = () => {  
@@ -132,6 +114,44 @@ const MealIndex = () => {
     });
   };
 
+  const onSubmitFirebase = async(note, item, status) => {
+    // return console.log(item, "item submit firebase")
+    let response = ""
+    const itemUpdate =  {
+      item : {
+        status : status
+      },
+      note,
+      // status
+    }
+    console.log(itemUpdate, "itemPost")
+    try {
+      // response = await addDocumentFirebase(
+      //   "meal_allowance", itemPost
+      // )
+      response = await setDocumentFirebase(
+        "meal_allowance",
+        item.id,
+        itemUpdate
+      )
+      if (!response)
+          return toast.error(`Error : ${status}`, {
+            position: "top-center",
+          });
+          // fetchDaysOff();
+          toast.success(status, {
+            position: "top-center",
+          });
+          setToggleModal(false);
+    } catch (error) {
+      setToggleModal(false);
+      toast.error(`Error : ${error.message}`, {
+        position: "top-center",
+      });
+      throw error
+    }
+  }
+
   const renderStatus = (arg) => {
     // return console.log(arg, "arg status")
     if (!arg)
@@ -144,6 +164,8 @@ const MealIndex = () => {
       return <Badge color="light-danger">Rejected</Badge>;
     return <Badge color="light-info">Processed</Badge>;
   };
+
+  console.log(selectItem, "select")
 
   return (
     <>
@@ -160,37 +182,28 @@ const MealIndex = () => {
                     <th className="fs-6">Employee</th>
                     <th className="fs-6">Level</th>
                     <th className="fs-6">Day</th>
-                    <th className="fs-6">Attachment</th>
+                    <th className="fs-6">Total Allowance</th>
                     <th className="fs-6">Status</th>
                     <th className="fs-6">Created At</th>
-                    <th className="fs-6">#</th>
+                    <th className="fs-6">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {meal.map((x, index) => (
                     <tr key={index}>
-                      <td>{x.user_id ? x.users?.name : "default"}</td>
-                      <td>{x.level}</td>
-                      <td>{x.day}</td>
-                      <td>{x.attachment? x.attachment : "Empty"}</td>
-                      <td>{renderStatus(x.status)}</td>
-                      <td>{dateTimeFormat(x.created_at)}</td>
+                      <td>{x.item.users?.name}</td>
+                      <td>{x.item.users? x.item.users.title : "Manager"}</td>
+                      <td>{x.item.quantity} days</td>
+                      <td>Rp {numberFormat(x.item.total? x.item.total : "0")}</td>
+                      <td>{renderStatus(x.item.status)}</td>
+                      <td>{dateTimeFormat(x.createdAt.nanoseconds)}</td>
                       <td>
-                        <div className="column-action d-flex align-items-center">
-                          <div
-                            className="text-body pointer"
-                            onClick={() => onDetail(x)}
-                            id={`pw-tooltip-${x.leave_category_id}`}
-                          >
-                            <Eye size={17} className="mx-1" />
-                          </div>
-                          <UncontrolledTooltip
-                            placement="top"
-                            target={`pw-tooltip-${x.leave_category_id}`}
-                          >
-                            Preview Request
-                          </UncontrolledTooltip>
+                        <div className='pointer'>
+                        <Eye
+                         size={20}
+                         onClick={() => {onDetail(x)}}></Eye>
                         </div>
+                
                       </td>
                     </tr>
                   ))}
@@ -209,9 +222,12 @@ const MealIndex = () => {
           {modal.title}
         </ModalHeader>
         <ModalBody>
-          {modal.mode === "detail" ? <MealDetail/> :<></> }
+          {modal.mode === "detail" ? 
+          <MealDetail 
+          item={modal.item}
+          close = {() => setToggleModal(false)}/> :<></> }
         </ModalBody>
-        {selectItem ?
+        {selectItem?.item.status === "requested" ?
         <ModalFooter>
           {selectItem ? (
             <div className="">
@@ -230,7 +246,7 @@ const MealIndex = () => {
 
                     // onClosed={close}
                   >
-                    <Form onSubmit={handleSubmit(onReject)}>
+                    <Form onSubmitFirebase={handleSubmit(onReject)}>
                     <ModalHeader>Note</ModalHeader>
                     <ModalBody>
                       <Label for="rejected_note"

@@ -354,8 +354,12 @@ export default function EmployeeDetail() {
 											</span>
 										</li>
 										<li className='mb-75  d-flex justify-content-between'>
-											<span className='fw-bolder me-25'>Title</span>
-											<span>{user ? user.title: '-'}</span>
+											<span className='fw-bolder me-25'>Position</span>
+											<span>{user ? user.position: user.title}</span>
+										</li>
+										<li className='mb-75  d-flex justify-content-between'>
+											<span className='fw-bolder me-25'>Level</span>
+											<span>{user ? user.level: "-"}</span>
 										</li>
 										<li className='mb-75  d-flex justify-content-between'>
 											<span className='fw-bolder me-25'>NIP</span>

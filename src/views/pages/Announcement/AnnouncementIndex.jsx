@@ -167,7 +167,7 @@ const AnnouncementIndex = () => {
           <Col xl='6' lg='12' xs={{ order: 1 }} md={{ order: 0, size: 5 }}>
             <Card>
               <CardHeader className='border-bottom'>
-                <CardTitle>Notificaion Employee Alert</CardTitle>
+                <CardTitle>Notification Employee Alert</CardTitle>
               </CardHeader>
               <CardBody>
 

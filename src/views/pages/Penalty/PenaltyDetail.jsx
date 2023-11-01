@@ -36,9 +36,12 @@ const PenaltyDetail = ({item}) => {
           <h4 className='fw-bolder mb-0 me-1'>{item?.users.name ? item.users?.name : "-"}</h4>
           <CardText className='font-small-3 mb-0 text-secondary'>{item?.users.email}</CardText>
           <h4 className='text-center my-2'>{item?.message}</h4>
-          <a href={imageUrl} alt={"Attchment"} target="_blank" className='d-flex-column'>
-            <img src={imageUrl} alt="Attachment" width="200" height="150"/>
-          </a>
+          <Link
+            to={imageUrl ? imageUrl : "-"}
+            target="_blank"
+            >
+            Attachment
+          </Link>
         </div>
     </div>
     </>

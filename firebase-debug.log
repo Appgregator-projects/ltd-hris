@@ -1,13 +1,116 @@
-[debug] [2023-10-30T09:09:23.672Z] ----------------------------------------------------------------------
-[debug] [2023-10-30T09:09:23.674Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\ckngp\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js use --add
-[debug] [2023-10-30T09:09:23.675Z] CLI Version:   12.7.0
-[debug] [2023-10-30T09:09:23.675Z] Platform:      win32
-[debug] [2023-10-30T09:09:23.675Z] Node Version:  v18.16.1
-[debug] [2023-10-30T09:09:23.676Z] Time:          Mon Oct 30 2023 16:09:23 GMT+0700 (Indochina Time)
-[debug] [2023-10-30T09:09:23.676Z] ----------------------------------------------------------------------
+[debug] [2023-10-30T10:16:47.298Z] ----------------------------------------------------------------------
+[debug] [2023-10-30T10:16:47.301Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\ckngp\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only hosting:lifetime-design-erp-hris
+[debug] [2023-10-30T10:16:47.301Z] CLI Version:   12.7.0
+[debug] [2023-10-30T10:16:47.302Z] Platform:      win32
+[debug] [2023-10-30T10:16:47.303Z] Node Version:  v18.16.1
+[debug] [2023-10-30T10:16:47.305Z] Time:          Mon Oct 30 2023 17:16:47 GMT+0700 (Indochina Time)
+[debug] [2023-10-30T10:16:47.305Z] ----------------------------------------------------------------------
 [debug] 
-[debug] [2023-10-30T09:09:23.749Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
-[debug] [2023-10-30T09:09:23.754Z] > authorizing via signed-in user (schanabiilah05@gmail.com)
-[debug] [2023-10-30T09:09:23.757Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects pageSize=1000
-[debug] [2023-10-30T09:09:24.493Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects 200
-[debug] [2023-10-30T09:09:24.493Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects [omitted]
+[debug] [2023-10-30T10:16:47.441Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2023-10-30T10:16:47.442Z] > authorizing via signed-in user (schanabiilah05@gmail.com)
+[debug] [2023-10-30T10:16:47.442Z] [iam] checking project lifetime-design-erp-hris for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2023-10-30T10:16:47.445Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/lifetime-design-erp-hris:testIamPermissions [none]
+[debug] [2023-10-30T10:16:47.446Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/lifetime-design-erp-hris:testIamPermissions x-goog-quota-user=projects/lifetime-design-erp-hris
+[debug] [2023-10-30T10:16:47.446Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/lifetime-design-erp-hris:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2023-10-30T10:16:48.853Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/lifetime-design-erp-hris:testIamPermissions 200
+[debug] [2023-10-30T10:16:48.854Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/lifetime-design-erp-hris:testIamPermissions {}
+[debug] [2023-10-30T10:16:48.854Z] [iam] error while checking permissions, command may fail: FirebaseError: Authorization failed. This account is missing the following required permissions on project lifetime-design-erp-hris:
+
+  firebase.projects.get
+  firebasehosting.sites.update
+[debug] [2023-10-30T10:16:48.856Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/lifetime-design-erp-hris [none]
+[debug] [2023-10-30T10:16:49.624Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/lifetime-design-erp-hris 403
+[debug] [2023-10-30T10:16:49.625Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/lifetime-design-erp-hris {"error":{"code":403,"message":"The caller does not have permission","status":"PERMISSION_DENIED"}}
+[debug] [2023-10-30T10:16:49.626Z] HTTP Error: 403, The caller does not have permission
+[debug] [2023-10-30T10:16:49.715Z] FirebaseError: HTTP Error: 403, The caller does not have permission
+    at responseToError (C:\Users\ckngp\AppData\Roaming\npm\node_modules\firebase-tools\lib\responseToError.js:49:12)
+    at RetryOperation._fn (C:\Users\ckngp\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:285:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[error] 
+[error] Error: Failed to get Firebase project lifetime-design-erp-hris. Please make sure the project exists and your account has permission to access it.
+[debug] [2023-10-30T10:17:14.131Z] ----------------------------------------------------------------------
+[debug] [2023-10-30T10:17:14.134Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\ckngp\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init
+[debug] [2023-10-30T10:17:14.135Z] CLI Version:   12.7.0
+[debug] [2023-10-30T10:17:14.135Z] Platform:      win32
+[debug] [2023-10-30T10:17:14.136Z] Node Version:  v18.16.1
+[debug] [2023-10-30T10:17:14.137Z] Time:          Mon Oct 30 2023 17:17:14 GMT+0700 (Indochina Time)
+[debug] [2023-10-30T10:17:14.137Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2023-10-30T10:17:14.290Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2023-10-30T10:17:14.291Z] > authorizing via signed-in user (schanabiilah05@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\ckngp\Documents\scnbiilah\ltd-hris\ltd-hris
+
+Before we get started, keep in mind:
+
+  * You are initializing within an existing Firebase project directory
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[debug] [2023-10-30T10:17:42.388Z] Using project from CLI flag: lifetime-design-erp-hris
+[debug] [2023-10-30T10:17:42.392Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/lifetime-design-erp-hris [none]
+[debug] [2023-10-30T10:17:42.823Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/lifetime-design-erp-hris 403
+[debug] [2023-10-30T10:17:42.823Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/lifetime-design-erp-hris {"error":{"code":403,"message":"The caller does not have permission","status":"PERMISSION_DENIED"}}
+[debug] [2023-10-30T10:17:42.825Z] HTTP Error: 403, The caller does not have permission
+[debug] [2023-10-30T10:17:42.922Z] FirebaseError: HTTP Error: 403, The caller does not have permission
+    at responseToError (C:\Users\ckngp\AppData\Roaming\npm\node_modules\firebase-tools\lib\responseToError.js:49:12)
+    at RetryOperation._fn (C:\Users\ckngp\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:285:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[error] 
+[error] Error: Failed to get Firebase project lifetime-design-erp-hris. Please make sure the project exists and your account has permission to access it.
+[debug] [2023-10-30T10:18:06.665Z] ----------------------------------------------------------------------
+[debug] [2023-10-30T10:18:06.668Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\ckngp\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init
+[debug] [2023-10-30T10:18:06.669Z] CLI Version:   12.7.0
+[debug] [2023-10-30T10:18:06.669Z] Platform:      win32
+[debug] [2023-10-30T10:18:06.670Z] Node Version:  v18.16.1
+[debug] [2023-10-30T10:18:06.671Z] Time:          Mon Oct 30 2023 17:18:06 GMT+0700 (Indochina Time)
+[debug] [2023-10-30T10:18:06.672Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2023-10-30T10:18:06.797Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2023-10-30T10:18:06.798Z] > authorizing via signed-in user (schanabiilah05@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\ckngp\Documents\scnbiilah\ltd-hris\ltd-hris
+
+Before we get started, keep in mind:
+
+  * You are initializing within an existing Firebase project directory
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[debug] [2023-10-30T10:18:11.989Z] Using project from CLI flag: lifetime-design-erp-hris
+[debug] [2023-10-30T10:18:11.993Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/lifetime-design-erp-hris [none]
+[debug] [2023-10-30T10:18:12.690Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/lifetime-design-erp-hris 403
+[debug] [2023-10-30T10:18:12.691Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/lifetime-design-erp-hris {"error":{"code":403,"message":"The caller does not have permission","status":"PERMISSION_DENIED"}}
+[debug] [2023-10-30T10:18:12.692Z] HTTP Error: 403, The caller does not have permission
+[debug] [2023-10-30T10:18:12.790Z] FirebaseError: HTTP Error: 403, The caller does not have permission
+    at responseToError (C:\Users\ckngp\AppData\Roaming\npm\node_modules\firebase-tools\lib\responseToError.js:49:12)
+    at RetryOperation._fn (C:\Users\ckngp\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:285:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+[error] 
+[error] Error: Failed to get Firebase project lifetime-design-erp-hris. Please make sure the project exists and your account has permission to access it.

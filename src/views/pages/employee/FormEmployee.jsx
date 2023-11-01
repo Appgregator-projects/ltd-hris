@@ -38,7 +38,7 @@ export default function FormEmployee({
   const ItemSchema = yup.object().shape({
     name: yup.string().required("Name is required"),
     email: yup.string().email().required("Email is required"),
-    title: yup.string().required("Title is required"),
+    position: yup.string().required("Title is required"),
     dob: yup.string().required("Date of birthday is required"),
     join_date: yup.string().required("Join date is required"),
     id_number: yup.string().required("ID number is required"),
@@ -50,6 +50,7 @@ export default function FormEmployee({
     role_id: yup.string().required("Role is required"),
     marital_status: yup.string().required("Marital status is required"),
     dependents: yup.string().required("Dependents is required"),
+    level: yup.string().required("Level employee is required"),
   });
 
 
@@ -68,11 +69,12 @@ export default function FormEmployee({
       setValue("nip", item.nip);
       setValue("role_id", item.role_id);
       setValue("division", item.division);
-      setValue("title", item.title);
+      setValue("position", item.title);
       setValue("attachment", item.attachment)
       setValue("phone", item.phone);
       setValue("company_id", item.company_id)
-      setValue("division_id", item.division_id)  
+      setValue("division_id", item.division_id)
+      setValue("level", item.level)  
       if (item.employee_attribute) {
         setValue("dob", dayjs(item.employee_attribute.dob).format("YYYY-MM-DD"));
         setValue("join_date", dayjs(item.employee_attribute.join_date).format("YYYY-MM-DD"));
@@ -525,24 +527,24 @@ export default function FormEmployee({
           )}
         </Col>
         <Col md="6" sm="12" className="mb-1">
-          <Label className="form-label" for="title">
-            Title
+          <Label className="form-label" for="Position">
+            Position
           </Label>
           <Controller
-            name="title"
+            name="position"
             defaultValue=""
             control={control}
             render={({ field }) => (
               <Input
                 type="text"
                 {...field}
-                name="title"
-                placeholder="Ex:Finance Staff"
-                invalid={errors.title && true}
+                name="position"
+                placeholder="Ex: Admin Operation"
+                invalid={errors.position && true}
               />
             )}
           />
-          {errors.title && <FormFeedback>{errors.title.message}</FormFeedback>}
+          {errors.position && <FormFeedback>{errors.position.message}</FormFeedback>}
         </Col>
         <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="nip">
@@ -562,6 +564,31 @@ export default function FormEmployee({
             )}
           />
           {errors.nip && <FormFeedback>{errors.nip.message}</FormFeedback>}
+        </Col>
+        <Col md="6" sm="12" className="mb-1">
+          <Label className="form-label" for="level">
+            Level
+          </Label>
+          <Controller
+            name="level"
+            defaultValue=""
+            control={control}
+            render={({ field }) => (
+              <Input
+                type="select"
+                {...field}
+                name="level"
+                invalid={errors.level && true}
+                // placeholder="Select level"
+              >
+                <option value="">Select level</option>
+                <option value="Manager">Manager</option>
+                <option value="Supervisor">Supervisor</option>
+                <option value="Staff">Staff</option>
+              </Input>
+            )}
+          />
+          {errors.level && <FormFeedback>{errors.level.message}</FormFeedback>}
         </Col>
         <Col md="12" sm="12" className="my-2 fs-5 fw-bold">
           Bank 
