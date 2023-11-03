@@ -277,7 +277,7 @@ const OvertimeRequest = () => {
     return(
       <>
         <Row>
-          {dataUser?.title === "HR" ? 
+          {dataUser?.title === "Admin HR" ? 
           <>
           <Col>
             <Card>

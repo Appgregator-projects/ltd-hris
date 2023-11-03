@@ -85,6 +85,9 @@ export default function DivisionIndex() {
     }
   };
 
+
+  console.log(divisions, "division")
+
   useEffect(() => {
     if (isRefresh) {
       fetchDivision({search:''});
