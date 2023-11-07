@@ -122,13 +122,9 @@ const MealIndex = () => {
         status : status
       },
       note,
-      // status
     }
     console.log(itemUpdate, "itemPost")
     try {
-      // response = await addDocumentFirebase(
-      //   "meal_allowance", itemPost
-      // )
       response = await setDocumentFirebase(
         "meal_allowance",
         item.id,

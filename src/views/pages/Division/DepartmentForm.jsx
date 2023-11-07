@@ -7,10 +7,11 @@ import Select from "react-select";
 import FormUserAssign from "../Components/FormUserAssign";
 import Api from "../../../sevices/Api";
 
-export default function DivisionForm({
+export default function DepartmentForm({
   close,
   onSubmit,
   item,
+  department,
 }) {
 
   const ItemSchema = yup.object().shape({
@@ -41,7 +42,7 @@ export default function DivisionForm({
         <Row>
           <Col md="12" sm="12" className="mb-1">
             <Label className="form-label" for="name">
-              Division Name
+              Name
             </Label>
             <Controller
               name="name"
