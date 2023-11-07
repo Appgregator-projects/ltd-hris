@@ -13,10 +13,8 @@ const _axios = axios.create(config);
 _axios.interceptors.request.use(
   function (config) {
     // Do something before request is sent
-
     const accessToken = Cookies.get("accessToken");
     const company_id = Cookies.get("company_id");
-    // console.log(company_id, "company_id")
 
     onAuthStateChanged(auth, (user) => {
       if (user) {

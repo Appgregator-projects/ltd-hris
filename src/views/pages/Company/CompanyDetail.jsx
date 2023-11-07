@@ -4,24 +4,17 @@ import {
 } from 'reactstrap'
 import { User,Trash } from 'react-feather'
 import { readMore } from '../../../Helper/index'
+import { capitalize } from 'lodash'
 
 export default function CompanyDetail({item}){
 
-
-    console.log(item, "item Company detail")
     return (
         <>
         <div className="">
-            <p className="h3 text-center">{item?.name}</p>
-            <p className='text-center'>{item? item.company_npwp: " "}</p>
-            <p className='text-center'>{item? item.address: "-"}</p>
-            <div className='d-flex align-items-center justify-content-center'>
-            <Avatar color="light-info" icon={<User size={24} />} className='me-1' />
-            <h4 className='fw-bolder mb-0 me-1'></h4>
-            <div className='my-auto'>
-                <CardText className='font-small-3 mb-0 text-secondary'>Employees</CardText>
-            </div>
-            </div>
+            <h3 className="h3 text-center">{capitalize(item?.name)}</h3>
+            <h5 className='text-center'>NPWP : {item? item.company_npwp: " "}</h5>
+            <h5 className='text-center'>Telpon : {item? item.phone_number: "-"}</h5>
+            <h6 className='text-center mt-3'>{item? item.address: "-"}</h6>
         </div>
         </>
     )

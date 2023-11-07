@@ -2,7 +2,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import React, { useEffect } from 'react'
 import * as yup from 'yup'
 import { Controller, useForm } from 'react-hook-form'
-import { Button, Card, CardBody, Col, Form, FormFeedback, Input, Label, Row } from 'reactstrap'
+import { Button, Card, CardBody, Col, Form, FormFeedback, Input, Label, Row, Spinner } from 'reactstrap'
 import Select from 'react-select'
 import { useState } from 'react'
 import { Upload } from '../../../Helper/firebaseStorage'
@@ -13,6 +13,8 @@ import toast from 'react-hot-toast'
 import { DownloadCloud } from 'react-feather'
 import CardLoader from '../Components/CardLoader'
 import { createTheme } from 'react-data-table-component'
+import { useDispatch } from 'react-redux'
+import { handlePreloader } from '../../../redux/layout'
 
 
 const PenaltyForm = ({item, close, user, onSubmit}) => {
@@ -22,6 +24,7 @@ const PenaltyForm = ({item, close, user, onSubmit}) => {
   const [penalty, setPenalty] = useState([])
   const [isLoading, setIsLoading] = useState(false);
   const [history, setHistory]= useState([])
+  const dispatch = useDispatch()
 
   const ItemSchema = yup.object().shape({
 		// name: yup.string().required(),
@@ -92,16 +95,18 @@ const PenaltyForm = ({item, close, user, onSubmit}) => {
     multiple: false,
     onDrop: async (acceptedFiles) => {
       try {
+        // dispatch(handlePreloader(true))
+        setIsLoading(true);
         const { size, name } = acceptedFiles[0];
         if (size > 10000000)
           return toast.error(`Error : File size should not exceed 3mb`, {
             position: "top-center",
           });
         setFile(acceptedFiles[0]);
-        setIsLoading(true);
         const post = await upload(acceptedFiles[0], name, "penalty/user");
-        setIsLoading(false);
         setAttachment(post);
+        // dispatch(handlePreloader(false))
+        setIsLoading(false);
       } catch (error) {
         setIsLoading(false);
         return toast.error(`Error : ${error.message}`, {
@@ -185,10 +190,14 @@ const PenaltyForm = ({item, close, user, onSubmit}) => {
                 <input {...getInputProps()} />
                 <div className="d-flex align-items-center justify-content-center flex-column">
                   {!attachment ? (
-                    <DownloadCloud size={60} />
+                    <DownloadCloud size={60} className='mb-1' />
                   ) : (
                     <>
+                    {isLoading ? (
+                      <Spinner className='mb-2'/>
+                    ) :
                       <p className="text-primary">{file ? file.name : "-"}</p>
+                    }
                     </>
                   )}
 

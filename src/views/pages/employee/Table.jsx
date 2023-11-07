@@ -64,9 +64,9 @@ export const serverSideColumns = (onDelete, onEdit) => {
     },
     {
       sortable: true,
-      name: "Title",
+      name: "Position",
       minWidth: "225px",
-      selector: row => (row ? row.title : "-")
+      selector: row => (row ? row.position : row.title)
     },
     {
       sortable: true,

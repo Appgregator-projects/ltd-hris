@@ -25,6 +25,8 @@ import _ from "lodash";
 import withReactContent from "sweetalert2-react-content";
 import Swal from "sweetalert2";
 import { useDispatch } from "react-redux";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 const MySwal = withReactContent(Swal);
 
 
@@ -39,16 +41,23 @@ export default function DaysOffIndex() {
   const [nestedToggle, setNestedToggle] = useState(false);
   const [selectDate, setSelectDate] = useState([]);
   const [daysOff, setDaysOff] = useState([]);
+
+  const ItemSchema = yup.object().shape({
+    type: yup.string().required("Type days off is required"),
+    descriptions: yup.string().required("Description is required")
+  })
+
   const {
     setValue,
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm({ mode: "onChange" });
+  } = useForm({ mode: "onChange", resolver: yupResolver(ItemSchema) });
   console.log(errors, "error");
 
   useEffect(() => {
     setValue("descriptions", selectDate && selectDate.descriptions)
+    setValue("type", selectDate && selectDate.type)
   })
 
   const generateCalendarData = (month = "") => {
@@ -95,6 +104,7 @@ export default function DaysOffIndex() {
           x.isOff = true
           x.descriptions = check.descriptions
           x.id = check.id
+          x.type = check.type
         }
         return x
     })
@@ -147,6 +157,7 @@ export default function DaysOffIndex() {
       const itemPost = {
         date: selectDate.periode,
         descriptions: arg.descriptions,
+        type: arg.type
       };
       const {status,data} = await Api.post(`hris/day-off`, itemPost);
       if (!status)
@@ -186,6 +197,8 @@ export default function DaysOffIndex() {
       });
     }
   };
+
+  console.log(selectDate, "selectedDate")
 
   const onDelete = async(x) => {
     return MySwal.fire({
@@ -253,7 +266,7 @@ export default function DaysOffIndex() {
                     {calendar.map((x, index) => (
                       <li
                         key={index}
-                        className={x.isOff ? "bg-danger text-light" : "" || x.is_previous ? x.is_previous : ''}
+                        className={x.isOff && x.type === "non_management" ? "bg-warning text-light" : x.isOff && x.type === "management" ? "bg-danger text-light" : "" || x.is_previous ? x.is_previous : ''}
                         color=""
                         onClick={() => {
                           setToggleModal(true);
@@ -295,12 +308,22 @@ export default function DaysOffIndex() {
                   {selectDate ? selectDate.periode : "-"}
                 </span>
               </li>
+              {selectDate.isOff? 
+              <li className="d-flex justify-content-between pb-1">
+                <span className="fw-bold">Type</span>
+                <span className="capitalize">
+                  {selectDate.type === "non_management" ? "Non Management" : "Management"}
+                </span>
+              </li> : <></>
+              }
+              {selectDate.isOff?
               <li className="d-flex justify-content-between pb-1">
                 <span className="fw-bold">Descriptions</span>
                 <span className="capitalize">
                   {selectDate ? selectDate.descriptions : "-"}
                 </span>
-              </li>
+              </li> :<></>
+              }
             </ul>
           ) : (
             <></>
@@ -337,24 +360,53 @@ export default function DaysOffIndex() {
               <Form onSubmit={handleSubmit(setNote)}>
                 <ModalHeader>Note</ModalHeader>
                 <ModalBody>
-                  <Label for="descriptions">Descriptions</Label>
-                  <Controller
-                    name="descriptions"
-                    defaultValue=""
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        id="descriptions"
-                        {...field}
-                        name="descriptionse"
-                        type="textarea"
-                        invalid={errors.descriptions && true}
+                  <Row>
+                    <Col md="12" sm="12" className="mb-1">
+                      <Label className="form-label" for="type">
+                        Type
+                      </Label>
+                      <Controller
+                        name="type"
+                        defaultValue=""
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            type="select"
+                            {...field}
+                            name="type"
+                            invalid={errors.type && true}
+                          >
+                            <option value="">Select type</option>
+                            <option value="management">Management</option>
+                            <option value="non_management">Non Management</option>
+                          </Input>
+                        )}
                       />
-                    )}
-                  />
-                  {errors.descriptions && (
-                    <FormFeedback>{errors.descriptions.message}</FormFeedback>
-                  )}
+                      {errors.type && (
+                        <FormFeedback>{errors.type.message}</FormFeedback>
+                      )}
+                    </Col>
+                    <Col md='12' sm='12' className="mb-1">
+                      <Label for="descriptions">Descriptions</Label>
+                      <Controller
+                        name="descriptions"
+                        defaultValue=""
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            id="descriptions"
+                            {...field}
+                            name="descriptionse"
+                            type="textarea"
+                            invalid={errors.descriptions && true}
+                          />
+                        )}
+                      />
+                      {errors.descriptions && (
+                        <FormFeedback>{errors.descriptions.message}</FormFeedback>
+                      )}
+                    </Col>
+                  </Row>
                 </ModalBody>
                 <ModalFooter>
                   <Button

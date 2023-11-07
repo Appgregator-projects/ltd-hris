@@ -14,7 +14,7 @@ import withReactContent from 'sweetalert2-react-content'
 import Swal from 'sweetalert2'
 import toast from 'react-hot-toast'
 import { dateTimeFormat } from '../../../Helper'
-import { setDocumentFirebase } from '../../../sevices/FirebaseApi'
+import { addDocumentFirebase, getCollectionFirebase, setDocumentFirebase } from '../../../sevices/FirebaseApi'
 const MySwal = withReactContent(Swal);
 
 
@@ -118,6 +118,7 @@ const ReimburseIndex = () => {
   }, [])
 
   const setFilter = (item) => {
+    let arr = []
     const filterAttendance =  attendance.map(x => {
       const findFilter = item?.find(y => y.date == x.periode)
       x.periode = null
@@ -127,8 +128,12 @@ const ReimburseIndex = () => {
       return x
     })
     .filter(x => x.deal_id === selectProject.value && x.periode !== null)
-    return setLeave(filterAttendance)
+    // arr.push({...filterAttendance, status : ""})
+    // console.log(arr, "array")
+    setLeave([...filterAttendance])
   }
+
+
 
   const fetchDaysOff = async (arg) => {
     try {
@@ -171,10 +176,12 @@ const ReimburseIndex = () => {
 
   const fetchReimburse = async () => {
     try {
-      const {status, data} = await Api.get(`/hris/leave-reimburse`)
-      console.log(status, data, "reimburse")
-      if(status) {
-        setReimburse(data)
+      const getData = await getCollectionFirebase(
+        "leave_reimburse"
+      );
+      // const {status, data} = await Api.get(`/hris/leave-reimburse`)
+      if(getData) {
+        setReimburse(getData)
       }
     } catch (error) {
       throw error
@@ -217,11 +224,11 @@ const ReimburseIndex = () => {
   const onReject = (param) => {
     // return console.log(param, "reject")
     setNestedToggle(true)
-    return onSubmit(param, selectItem, "reject")
+    return onSubmitFirebase(param, selectItem, "reject")
   };
 
   const onApproval = () => {
-    return onSubmit("",selectItem,"approve")
+    return onSubmitFirebase("",selectItem,"approve")
   };
 
   const onCloseAll = () => {  
@@ -275,13 +282,32 @@ const ReimburseIndex = () => {
     });
   };
 
-  const onSubmitFireStore = async() => {
+  const onSubmitFirebase = async(note, item, status) => {
     let response = ""
+    const itemPost =  {
+      item,
+      note,
+      status
+    }
+    console.log(itemPost, "itemPost")
     try {
-      response = await setDocumentFirebase(
-        "leaveReimburse", 
+      response = await addDocumentFirebase(
+        "leave_reimburse", itemPost
       )
+      if (!response)
+          return toast.error(`Error : ${status}`, {
+            position: "top-center",
+          });
+          // fetchDaysOff();
+          toast.success(status, {
+            position: "top-center",
+          });
+          setToggleModal(false);
     } catch (error) {
+      setToggleModal(false);
+      toast.error(`Error : ${error.message}`, {
+        position: "top-center",
+      });
       throw error
     }
   }
@@ -345,15 +371,19 @@ const ReimburseIndex = () => {
                   <CardBody>
                     <Col className='d-flex'>
                       <Row className='justify-content w-25 me-3'>
-                        <h3 className='w-30'>{dateTimeFormat(x.periode)}</h3>
-                        <span> Manager  : {x.users.name}</span>
+                        <h3 className='w-30'>{dateTimeFormat(x.item.periode)}</h3>
+                        <span> Manager  : {x.item?.manager.name? x.item.manager.name : "-"}</span>
                       </Row>
                       <Col className='d-flex justify-content-between w-75 align-items-center '> 
-                        <h4>{x.project_number}</h4>
-                        <h4>{x.detail_length} people</h4>
+                        <h4>{x.item.project_number}</h4>
+                        <h4>{x.details?.length} people</h4>
+                        <Row className='d-flex-column align-items-center'>
                         <h5 className='pointer'>
                           {renderStatus(x.status)}
                         </h5>
+                        <h6>{dateTimeFormat(x.createdAt.seconds)}</h6>
+
+                        </Row>
                       </Col>
     
                     </Col>
@@ -368,7 +398,7 @@ const ReimburseIndex = () => {
                     <Col className='d-flex'>
                       <Row className='justify-content w-25 me-3'>
                         <h3 className='w-30'>{x.periode}</h3>
-                        <span> Manager  : {x.manager.name}</span>
+                        <span> Manager  : {x.manager?.name ? x.manager.name : "-"}</span>
                       </Row>
                       <Col className='d-flex justify-content-between w-75'>
                         <div className=''>

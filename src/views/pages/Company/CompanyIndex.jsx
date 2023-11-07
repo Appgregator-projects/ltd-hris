@@ -99,6 +99,7 @@ export default function CompanyIndex(){
 	
 	const postForm = async(params) => {
 		try {
+      // return console.log(params, "params")
 			if(modal.item) return postUpdate(params)
 			dispatch(handlePreloader(true))
 			const {status,data} = await Api.post('/hris/company', params)
@@ -199,12 +200,12 @@ export default function CompanyIndex(){
                 </CardBody>
               </Card>
               <div className="d-flex px-2 project-card-action">
-								<div className="pointer">
-									<Edit className='me-50' size={15} onClick={() => onEdit(x,index)}/> <span className='align-middle'></span>
-								</div>
-								<div className="pointer">
-									<Trash className='me-50' size={15} onClick={() => onDelete(x, index)}/> <span className='align-middle'></span>
-								</div>
+					<div className="pointer">
+						<Edit className='me-50' size={15} onClick={() => onEdit(x,index)}/> <span className='align-middle'></span>
+					</div>
+					<div className="pointer">
+						<Trash className='me-50' size={15} onClick={() => onDelete(x, index)}/> <span className='align-middle'></span>
+					</div>
               </div>
             </Col>
           ))
