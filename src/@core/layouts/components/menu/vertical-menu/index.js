@@ -8,17 +8,19 @@ import PerfectScrollbar from "react-perfect-scrollbar"
 // ** Vertical Menu Components
 import VerticalMenuHeader from "./VerticalMenuHeader"
 import VerticalNavMenuItems from "./VerticalNavMenuItems"
-import {Input} from 'reactstrap'
+import { Input } from 'reactstrap'
 import Api from '../../../../../sevices/Api'
-import { useSelector,useDispatch } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import toast from 'react-hot-toast'
 import { handleLogin } from '@store/authentication'
 import { handleCompany } from "../../../../../redux/authentication"
+import { onAuthStateChanged } from "firebase/auth"
+import { auth } from "../../../../../configs/firebase"
 
 const Sidebar = (props) => {
   const dispatch = useDispatch();
-  const {company} = useSelector(state => state.authentication)
- 
+  const { company } = useSelector(state => state.authentication)
+
   // ** Props
   const { menuCollapsed, menu, skin, menuData } = props
 
@@ -43,34 +45,66 @@ const Sidebar = (props) => {
     setMenuHover(true)
   }
 
-  const fetchCompany = async() => {
+  const fetchCompany = async () => {
     try {
-      const {status,data} = await Api.get(`/hris/company`)
-      data.splice(0,0,{id : "all", name: "ALL COMPANY"})
-      setCompanies([...data])
+      const { status, data } = await Api.get(`/hris/company`)
+      data.splice(0, 0, { id: "all", name: "ALL COMPANY" })
+      if (status) {
+        setCompanies([...data])
+      }
     } catch (error) {
       throw error
     }
   }
+  const user = JSON.parse(localStorage.getItem("userData"))
 
+    useEffect(() => {
+      onAuthStateChanged(auth, async (userChange) => {
+        if (userChange) {
+          user.access_token = userChange.accessToken;
+
+          localStorage.setItem("userData", JSON.stringify(user));
+
+          const { status, data } = await Api.get(`/hris/company`);
+          if (status) {
+            const selectedCompany = data[0];
+            console.log('thrid')
+            setCompanies(data)
+
+            Api.defaults.headers.common[
+              "Authorization"
+            ] = `Bearer ${user.access_token}`;
+            if (company.length == 0) {
+              await dispatch(handleCompany(selectedCompany));
+            }
+
+          }
+ 
+        }
+      })
+
+    }, [])
+  // }, [])
   useEffect(() => {
-    fetchCompany()
-  },[])
+  }, [companies.length])
 
-  const onSelectCompany = async(e) => {
+  const onSelectCompany = async (e) => {
     try {
       const value = e.target.value
       setSelect(value)
       const selectedCompany = companies.find((x) => x.id == value)
-      dispatch(handleCompany(selectedCompany))
+      if (companies.length > 0) {
+
+        dispatch(handleCompany(selectedCompany))
+      }
 
       setTimeout(() => {
         window.location.reload()
       }, 500)
     } catch (error) {
       return toast.error(`Error : ${error.message}`, {
-				position: 'top-center'
-			}) 
+        position: 'top-center'
+      })
     }
 
   }
