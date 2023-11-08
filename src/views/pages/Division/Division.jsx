@@ -39,20 +39,21 @@ export default function Division({details}) {
     item: null,
   });
 
-
   const fetchDivision = async() => {
     try {
-      const {status,data} = await Api.get(`/hris/depertement`)
+      const {status,data} = await Api.get(`/hris/depertement/${details.id}`)
       const getData = await getCollectionFirebase(
         "department"
       )
-      if(getData) {
-        setDivisions(item.details)
-      } else if (status){
+      if (status){
+        console.log(data, "data")
         setDivisions(data.division)
       }
     } catch (error) {
-      
+      console.log(error.message)
+      toast.error(`Error : ${error.message}`, {
+        position: "top-center",
+      });
     }
   }
 
@@ -180,7 +181,7 @@ export default function Division({details}) {
           return MySwal.fire({
             icon: "success",
             title: "Deleted!",
-            text: "Division has deleted.",
+            text: "Division has been deleted.",
             customClass: {
               confirmButton: "btn btn-success",
             },
@@ -207,12 +208,12 @@ export default function Division({details}) {
       </Row>
       <Row>
         <ul>
-          {details.division.map((x,i) => (
+          {divisions.map((x,i) => (
             <li className="d-flex justify-content-between">
               <div className="h6">{x.name}</div>
               <div>
               <Edit className="pointer" size={15} onClick={() => {onEdit(x,i)}}/>
-              <Trash className="ms-1 pointer" size={15} onClick={onDelete}/>
+              <Trash className="ms-1 pointer" size={15} onClick={() => {onDelete(x, i)}}/>
               </div>
             </li>
           ))

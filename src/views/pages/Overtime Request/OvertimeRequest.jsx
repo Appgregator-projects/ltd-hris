@@ -38,11 +38,15 @@ const OvertimeRequest = () => {
     const {
       setValue, control, handleSubmit, formState: {errors}
     } = useForm({ mode: "onChange"});
+
     console.log(user?.uid,'oop')
     const getDataUser = async () => {
       try {
-        const data = await Api.get(`/hris/employee/${user?.uid}`)
-        setDataUser(data)
+        const {status,data} = await Api.get(`/hris/employee/${user?.uid}`)
+        console.log(status, data)
+        if(status){
+          setDataUser(data)
+        }
       } catch (error) {
         throw(error)
       }
@@ -95,7 +99,9 @@ const OvertimeRequest = () => {
       sortBy,
       limitValue,
       )
-      setOvertime(res)
+      if(res.employee_id){
+        setOvertime(res)
+      }
       console.log(res, 'ini res')        
       } catch (error) {
         console.log(error,'ini error firebaseovertime')
@@ -222,7 +228,6 @@ const OvertimeRequest = () => {
 
         }
         const set = await addDoc(collection(db,"overtimes"), newData)
-        console.log(set.id,'ini manager')
       } else {
         const newDatas = {
           approvals:[{id:'xxx', name:'hr'}, {id:dataUser?.division?.manager_id, name:'manager'}],
@@ -263,9 +268,6 @@ const OvertimeRequest = () => {
       }
       return total;
     }, 0)
-  
-    console.log({users})
-    console.log({dataUser})
 
     const renderStatus = (arg) => {
       if(arg.status === 'waiting') return <Badge color="light-warning">Waiting</Badge>
@@ -273,11 +275,11 @@ const OvertimeRequest = () => {
       if(arg.status === 'rejected') return <Badge color="light-danger">Rejected</Badge>
       return <Badge color="light-info">Processed</Badge>
     }
-  
+
     return(
       <>
         <Row>
-          {dataUser?.title === "Admin HR" ? 
+          {dataUser?.role_id === 24 ? 
           <>
           <Col>
             <Card>
@@ -386,7 +388,7 @@ const OvertimeRequest = () => {
             </Card>
           </Col>
           </> : 
-          dataUser?.title === "Manager" ? 
+          dataUser?.role_id === 36 ? 
           <>
           <Col>
             <Card>

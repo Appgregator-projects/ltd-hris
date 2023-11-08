@@ -1,6 +1,7 @@
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import Select from 'react-select'
 import {
   Row,
   Col,
@@ -19,21 +20,26 @@ import CardLoader from "../Components/CardLoader";
 import { upload } from "../../../Helper/index";
 import toast from "react-hot-toast";
 import dayjs from "dayjs";
+import Api from "../../../sevices/Api";
+
 import { error } from "jquery";
 export default function FormEmployee({
   close,
   onSubmit,
   item,
   company,
-  division,
+  department,
   role,
   office,
   companyId
 }) {
   const [attachment, setAttachment] = useState(null);
+  const [selectDepartment, setSelectDepartment] = useState(null)
+  const [division, setDivisions] = useState([])
   const [isLoading, setIsLoading] = useState(false);
   const [file, setFile] = useState(null);
   // console.log(company, "company")
+  console.log(selectDepartment, "selectDepartment")
 
   const ItemSchema = yup.object().shape({
     name: yup.string().required("Name is required"),
@@ -46,7 +52,8 @@ export default function FormEmployee({
     gender: yup.string().required("Gender is required"),
     status: yup.string().required("Status is required"),
     religion: yup.string().required("Religion is required"),
-    division_id: yup.string().required("Division is required"),
+    // departement_id: yup.string().required("Department is required"),
+    // division_id: yup.string().required("Division is required"),
     role_id: yup.string().required("Role is required"),
     marital_status: yup.string().required("Marital status is required"),
     dependents: yup.string().required("Dependents is required"),
@@ -74,6 +81,7 @@ export default function FormEmployee({
       setValue("phone", item.phone);
       setValue("company_id", item.company_id)
       setValue("division_id", item.division_id)
+      setValue("departement_id", item.departement_id)
       setValue("level", item.level)  
       if (item.employee_attribute) {
         setValue("dob", dayjs(item.employee_attribute.dob).format("YYYY-MM-DD"));
@@ -92,6 +100,22 @@ export default function FormEmployee({
     }
     setValue("company_id", companyId)
   }, [item]);
+
+  const handleSelectOptions = async(e) => {
+    console.log(e, "apani")
+    setSelectDepartment(e)
+    try {
+      const {status,data} = await Api.get(`/hris/depertement/${e}`)
+    if(status){
+      setDivisions(data.division)
+      } 
+    }catch (error) {
+      console.log(error.message)
+      toast.error(`Error : ${error.message}`, {
+        position: "top-center",
+      });
+    }
+  }
 
   const { getRootProps, getInputProps } = useDropzone({
     multiple: false,
@@ -119,11 +143,15 @@ export default function FormEmployee({
   });
 
   const onSubmitForm = (arg) => {
-    // return console.log(arg, "arg onSubmitform")
+    console.log(selectDepartment.toString(), "yyeyey")
+    console.log(arg.departement_id, "jajaja")
     arg.profile_picture = attachment;
+    arg.departement_id = selectDepartment
     if (!item) {
       arg.password = arg.password ? arg.password : "121212";
     }
+    console.log(arg,'nnn')
+    // return console.log(selectDepartment, arg,arg.departement_id, "arg onSubmitform")
     return onSubmit(arg);
   };
 
@@ -144,6 +172,8 @@ export default function FormEmployee({
                 {...field}
                 name="name"
                 invalid={errors.name && true}
+                // value={selectDepartment}
+                // onChange={handleSelectOptions}
               />
             )}
           />
@@ -187,9 +217,7 @@ export default function FormEmployee({
               />
             )}
           />
-          {errors.password && (
-            <FormFeedback>{errors.password.message}</FormFeedback>
-          )}
+          {errors.password && <FormFeedback>{errors.password.message}</FormFeedback>}
         </Col>
         <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="email">
@@ -208,9 +236,7 @@ export default function FormEmployee({
               />
             )}
           />
-          {errors.join_date && (
-            <FormFeedback>{errors.join_date.message}</FormFeedback>
-          )}
+          {errors.join_date && <FormFeedback>{errors.join_date.message}</FormFeedback>}
         </Col>
         <Col md="12" sm="12" className="my-2 fs-5 fw-bold">
           Employee Attribute
@@ -286,9 +312,7 @@ export default function FormEmployee({
               </Input>
             )}
           />
-          {errors.religion && (
-            <FormFeedback>{errors.religion.message}</FormFeedback>
-          )}
+          {errors.religion && <FormFeedback>{errors.religion.message}</FormFeedback>}
         </Col>
         <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="phone">
@@ -326,9 +350,7 @@ export default function FormEmployee({
               />
             )}
           />
-          {errors.id_number && (
-            <FormFeedback>{errors.id_number.message}</FormFeedback>
-          )}
+          {errors.id_number && <FormFeedback>{errors.id_number.message}</FormFeedback>}
         </Col>
         <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="id_tax_number">
@@ -347,9 +369,7 @@ export default function FormEmployee({
               />
             )}
           />
-          {errors.id_tax_number && (
-            <FormFeedback>{errors.id_tax_number.message}</FormFeedback>
-          )}
+          {errors.id_tax_number && <FormFeedback>{errors.id_tax_number.message}</FormFeedback>}
         </Col>
         <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="marital_status">
@@ -374,9 +394,7 @@ export default function FormEmployee({
               </Input>
             )}
           />
-          {errors.marital_status && (
-            <FormFeedback>{errors.marital_status.message}</FormFeedback>
-          )}
+          {errors.marital_status && <FormFeedback>{errors.marital_status.message}</FormFeedback>}
         </Col>
         <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="dependents">
@@ -404,9 +422,7 @@ export default function FormEmployee({
               </Input>
             )}
           />
-          {errors.dependents && (
-            <FormFeedback>{errors.dependents.message}</FormFeedback>
-          )}
+          {errors.dependents && <FormFeedback>{errors.dependents.message}</FormFeedback>}
         </Col>
         <Col md="12" sm="12" className="my-2 fs-5 fw-bold">
           Position
@@ -436,9 +452,36 @@ export default function FormEmployee({
               </Input>
             )}
           />
-          {errors.company_id && (
-            <FormFeedback>{errors.company_id.message}</FormFeedback>
-          )}
+          {errors.company_id && <FormFeedback>{errors.company_id.message}</FormFeedback>}
+        </Col>
+        <Col md="6" sm="12" className="mb-1">
+          <Label className="form-label" for="departement_id">
+            Department
+          </Label>
+          <Controller
+            name="departement_id"
+            defaultValue=""
+            control={control}
+            value={selectDepartment}
+            render={({ field }) => (
+              <Input
+                type="select"
+                {...field}
+                name="departement_id"
+                invalid={errors.departement_id && true}
+                value={selectDepartment}
+                onChange={(e) => handleSelectOptions(e.target.value)}
+              >
+                <option value="">Select department</option>
+                {department.map((x) => (
+                  <option key={x.id} value={x.id}>
+                    {x.name}
+                  </option>
+                ))}
+              </Input>
+            )}
+          />
+          {errors.departement_id && <FormFeedback>{errors.departement_id.message}</FormFeedback>}
         </Col>
         <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="division_id">
@@ -454,6 +497,7 @@ export default function FormEmployee({
                 type="select"
                 {...field}
                 name="division_id"
+                disabled ={!selectDepartment}
                 invalid={errors.division_id && true}
               >
                 <option value="">Select division</option>
@@ -465,9 +509,7 @@ export default function FormEmployee({
               </Input>
             )}
           />
-          {errors.division_id && (
-            <FormFeedback>{errors.division_id.message}</FormFeedback>
-          )}
+          {errors.division_id && <FormFeedback>{errors.division_id.message}</FormFeedback>}
         </Col>
         <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="status">
@@ -494,9 +536,7 @@ export default function FormEmployee({
               </Input>
             )}
           />
-          {errors.status && (
-            <FormFeedback>{errors.status.message}</FormFeedback>
-          )}
+          {errors.status && <FormFeedback>{errors.status.message}</FormFeedback>}
         </Col>
         <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="role_id">
@@ -522,9 +562,7 @@ export default function FormEmployee({
               </Input>
             )}
           />
-          {errors.role_id && (
-            <FormFeedback>{errors.role_id.message}</FormFeedback>
-          )}
+          {errors.role_id && <FormFeedback>{errors.role_id.message}</FormFeedback>}
         </Col>
         <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="Position">
