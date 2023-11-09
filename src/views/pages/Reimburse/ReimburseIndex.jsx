@@ -30,64 +30,12 @@ const ReimburseIndex = () => {
   const [daysOff, setDaysOff] = useState([])
   const [selectPeriode, setSelectPeriode] = useState(null)
   const [closeAll, setCloseAll] = useState(false)
-  const [selectItem, setSelectItem] = useState([])
+  const [selectItem, setSelectItem] = useState(null)
   const [modal, setModal] = useState({
     title: "",
     mode : "",
     item : null
   })
-
-  const dataDummy = 
-  [
-    {
-    "project_id" : 12,
-    "manager_id" : "Sutannata Putra",
-    "periode" : "2023-12-14",
-    "details" : 
-      [
-        {
-          "label" : "Axel",
-          "image" : "jskfhkfsjhbfk",
-          "clock_in" : "12.00",
-          "clock_out" : "18.00"
-        },
-        {
-          "label" : "Axel",
-          "image" : "jskfhkfsjhbfk",
-          "clock_in" : "12.00",
-          "clock_out" : "18.00"
-        },
-        {
-          "label" : "Axel",
-          "image" : "jskfhkfsjhbfk",
-          "clock_in" : "12.00",
-          "clock_out" : "18.00"
-        },
-        {
-          "label" : "Axel",
-          "image" : "jskfhkfsjhbfk",
-          "clock_in" : "12.00",
-          "clock_out" : "18.00"
-        },
-      ]
-    
-    },
-    {
-    "project_id" : 12,
-    "manager_id" : "Sutannata Putra",
-    "periode" : "2023-12-14",
-    "details" : 
-      [
-        {
-          "label" : "Axel",
-          "image" : "jskfhkfsjhbfk",
-          "clock_in" : "12.00",
-          "clock_out" : "18.00"
-        }
-      ]
-    
-    }
-  ]
 
   const {
     setValue, control, handleSubmit, formState: {errors}
@@ -109,7 +57,9 @@ const ReimburseIndex = () => {
       }
     } catch (error) {
       console.log(error.message)
-      throw error
+      toast.error(`Error : ${error.message}`, {
+        position: "top-center",
+      });
     }
   }
 
@@ -129,7 +79,7 @@ const ReimburseIndex = () => {
     })
     .filter(x => x.deal_id === selectProject.value && x.periode !== null)
     // arr.push({...filterAttendance, status : ""})
-    // console.log(arr, "array")
+    console.log(arr, "array")
     setLeave([...filterAttendance])
   }
 
@@ -146,22 +96,30 @@ const ReimburseIndex = () => {
             x.date = dayjs(x.date).format('YYYY-MM-DD')
             return x
           }
-          })
-        console.log(dataDaysOff, "dataday")
+          }).filter((y) => y !== undefined)
+
         setDaysOff([...dataDaysOff])
         setToggleModal(false)
         setSelectPeriode(arg)
         setFilter(dataDaysOff)
       }
     } catch (error) {
-      return []
+      // console.log(error.message)
+      // toast.error(`Error : ${error.message}`, {
+      //   position: "top-center",
+      // });
     }
   }
+
+  useEffect(() =>{
+    fetchDaysOff()
+  }, [selectProject])
 
 
   const fetchAttendanceNon = async () => {
     try {
       const {status, data} = await Api.get(`/api/v1/crm/attendance-non-management`)
+      console.log(status,data.data, "jajaj")
       if(status){
         setAttendance(data.data)
       }
@@ -175,16 +133,19 @@ const ReimburseIndex = () => {
   },[selectProject])
 
   const fetchReimburse = async () => {
+
     try {
-      const getData = await getCollectionFirebase(
-        "leave_reimburse"
-      );
-      // const {status, data} = await Api.get(`/hris/leave-reimburse`)
-      if(getData) {
-        setReimburse(getData)
+      const {status, data} = await Api.get(`/hris/leave-reimburse`)
+      console.log(status,data, "kakakak")
+      if(status){
+        setReimburse(data)
       }
+      
     } catch (error) {
-      throw error
+      console.log(error.message)
+      toast.error(`Error : ${error.message}`, {
+        position: "top-center",
+      });
     }
   }
 
@@ -198,7 +159,6 @@ const ReimburseIndex = () => {
       mode : "project",
       item : null
     })
-    setSelectItem()
     setToggleModal(true)
   }
 
@@ -224,11 +184,11 @@ const ReimburseIndex = () => {
   const onReject = (param) => {
     // return console.log(param, "reject")
     setNestedToggle(true)
-    return onSubmitFirebase(param, selectItem, "reject")
+    return onSubmit(param, selectItem, "reject")
   };
 
   const onApproval = () => {
-    return onSubmitFirebase("",selectItem,"approve")
+    return onSubmit("",selectItem,"approve")
   };
 
   const onCloseAll = () => {  
@@ -236,13 +196,13 @@ const ReimburseIndex = () => {
     setCloseAll(true)
   }
 
-  const onSubmit = async (x, y,z) => {
+  const onSubmit = async (comment, arg,status) => {
     return MySwal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: `Yes, ${z} it!`,
+      confirmButtonText: `Yes, ${status} it!`,
       customClass: {
         confirmButton: "btn btn-primary",
         cancelButton: "btn btn-outline-danger ms-1",
@@ -252,16 +212,16 @@ const ReimburseIndex = () => {
       if (result.value) {
         try {
           const itemPost = {
-            user_id: y.manager_uid,
-            status: z,
-            note: x.rejected_note? x.rejected_note : " ",
-            detail_length : y.details.length,
-            periode : y.periode,
-            project_number : y.project_number ,
-            project_id : y.deal_id
+            user_id: arg.manager_uid,
+            status: status,
+            note: comment.rejected_note? comment.rejected_note : " ",
+            detail_length : arg.details.length,
+            periode : arg.periode,
+            project_number : arg.project_number ,
+            project_id : arg.deal_id
           };
           const {status,data} = await Api.post(`/hris/leave-reimburse`,itemPost);
-          console.log(itemPost, status,  "put leave request")
+          console.log(itemPost, status, data,  "put leave reimburse")
           if (!status)
             return toast.error(`Error : ${status}`, {
               position: "top-center",
@@ -312,6 +272,7 @@ const ReimburseIndex = () => {
     }
   }
 
+  console.log(selectItem, "selectItem")
   const renderStatus = (arg) => {
     // return console.log(arg, "arg status")
     if (!arg)
@@ -371,17 +332,17 @@ const ReimburseIndex = () => {
                   <CardBody>
                     <Col className='d-flex'>
                       <Row className='justify-content w-25 me-3'>
-                        <h3 className='w-30'>{dateTimeFormat(x.item.periode)}</h3>
-                        <span> Manager  : {x.item?.manager.name? x.item.manager.name : "-"}</span>
+                        <h3 className='w-30'>{dateTimeFormat(x.periode)}</h3>
+                        <span> Manager  : {x.user_id? x.users.name : "-"}</span>
                       </Row>
                       <Col className='d-flex justify-content-between w-75 align-items-center '> 
-                        <h4>{x.item.project_number}</h4>
-                        <h4>{x.details?.length} people</h4>
+                        <h4>{x.project_number}</h4>
+                        <h4>{x.detail_length} people</h4>
                         <Row className='d-flex-column align-items-center'>
                         <h5 className='pointer'>
                           {renderStatus(x.status)}
                         </h5>
-                        <h6>{dateTimeFormat(x.createdAt.seconds)}</h6>
+                        <h6>{dateTimeFormat(x.createdAt)}</h6>
 
                         </Row>
                       </Col>
@@ -391,7 +352,7 @@ const ReimburseIndex = () => {
                 </Card>
               ))
               :
-              leave.length !== 0? 
+              leave.length !== 0 && leave[0]?.deal_id === selectProject?.value? 
               leave?.map((x, i) => (
                 <Card outline style={{border :"gray 1px solid"}}>
                   <CardBody>

@@ -2,7 +2,7 @@ import { Fragment,useEffect,useState } from "react";
 import { Plus,Trash,Edit } from "react-feather";
 import { 
   Button, Col, Row,Card,CardBody,CardHeader,CardTitle, Table,
-  Modal,ModalBody,ModalHeader
+  Modal,ModalBody,ModalHeader, UncontrolledTooltip
 } from "reactstrap";
 import Api from '../../../sevices/Api'
 import LeaveCategoryForm from "./LeaveCategoryForm"
@@ -172,8 +172,20 @@ export default function LeaveCategoryIndex(){
                         <td>{x.initial_balance}</td>
                         <td>
                           <div className="pointer">
-                            <Trash className='me-50' size={15} onClick={() => onDelete(x, index)}/> <span className='align-middle'></span>
-                            <Edit className='me-50' size={15} onClick={() => onEdit(x, index)}/> <span className='align-middle'></span>
+                            <Trash className='me-50' size={15} onClick={() => onDelete(x, index)} id={`delete-tooltip-${x.id}`}/> 
+                            <span className='align-middle'></span>
+                            <UncontrolledTooltip
+                            placement="top"
+                            target={`delete-tooltip-${x.id}`}>
+                              Delete
+                            </UncontrolledTooltip>
+                            <Edit className='me-50' size={15} onClick={() => onEdit(x, index)} id={`edit-tooltip-${x.id}`}/>
+                            <span className='align-middle'></span>
+                            <UncontrolledTooltip
+                            placement="top"
+                            target={`edit-tooltip-${x.id}`}>
+                              Edit
+                            </UncontrolledTooltip>
                           </div>
                         </td>
                       </tr>

@@ -1,6 +1,6 @@
 import { useState, useEffect, Fragment } from 'react'
 import { Edit, Edit2, Plus, Trash } from 'react-feather'
-import { Button, Card, CardBody, CardFooter, CardHeader, CardTitle, Col, Modal, ModalBody, ModalHeader, Row, Table } from 'reactstrap'
+import { Button, Card, CardBody, CardFooter, CardHeader, CardTitle, Col, Modal, ModalBody, ModalHeader, Row, Table, UncontrolledTooltip } from 'reactstrap'
 import HealthForm from '../employee/component/IncomeForm'
 import BPJSConfig from './Component/BPJSConfig'
 import Api from "../../../sevices/Api"
@@ -169,7 +169,7 @@ export default function PayrollDeduction() {
 											<th className='fs-6'>Company</th>
 											<th className='fs-6'>Employee</th>
 											<th className='fs-6'>Topper</th>
-											<th className='fs-6'></th>
+											<th className='fs-6'>Action</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -187,13 +187,29 @@ export default function PayrollDeduction() {
                                   className="me-50"
                                   size={15}
                                   onClick={() => onDelete(x, i)}
-                                />{" "}
+                                  id={`delete-tooltip-${x.id}`}
+                                />
+                                <span className='align-middle'></span>
+                                <UncontrolledTooltip
+                                  placement="top"
+                                  target={`delete-tooltip-${x.id}`}
+                                >
+                                  Delete
+                                </UncontrolledTooltip>
                                 <span className="align-middle"></span>
                                 <Edit
                                   className="me-50"
                                   size={15}
                                   onClick={() => onEdit(x, i)}
+                                  id={`edit-tooltip-${x.id}`}
                                 />{" "}
+                                <span className='align-middle'></span>
+                                <UncontrolledTooltip
+                                  placement="top"
+                                  target={`edit-tooltip-${x.id}`}
+                                >
+                                  Edit
+                                </UncontrolledTooltip>
                                 <span className="align-middle"></span>
                               </div>
                             </div>

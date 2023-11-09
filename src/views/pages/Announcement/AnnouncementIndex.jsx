@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState } from 'react'
 import { Edit, Plus, Trash } from 'react-feather'
-import { Button, Card, CardBody, CardHeader, CardTitle, Col, Input, Label, Modal, ModalBody, ModalHeader, Row } from 'reactstrap'
+import { Button, Card, CardBody, CardHeader, CardTitle, Col, Input, Label, Modal, ModalBody, ModalHeader, Row, UncontrolledTooltip } from 'reactstrap'
 import AnnouncementForm from './AnnouncementForm'
 import { handlePreloader } from '../../../redux/layout'
 import { useDispatch } from 'react-redux'
@@ -151,7 +151,15 @@ const AnnouncementIndex = () => {
                           <div className='d-flex justify-content-between'>
                             <span style={{ cursor : 'pointer' }} className='fw-bolder pointer text-primary' onClick={() => onDetail(x)} >{x.title}</span>
                             <div className='pointer'>
-                              <Trash className="me-50" size={15} onClick={() => onDelete(x.id)} />
+                              <Trash className="me-50" size={15} onClick={() => onDelete(x.id)} 
+                                id={`pw-tooltip-${x.id}`}
+                              />
+                              <UncontrolledTooltip
+                                placement="top"
+                                target={`pw-tooltip-${x.id}`}
+                              >
+                                Delete
+                              </UncontrolledTooltip>
                             </div>
                           </div>
                           <span className='color-grey'>{dateTimeFormat(x.createdAt)}</span>

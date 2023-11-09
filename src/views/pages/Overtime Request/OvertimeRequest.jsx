@@ -35,20 +35,22 @@ const OvertimeRequest = () => {
     const [endDate, setEndDate] = useState("")
     const [startIndex, setStartIndex] = useState(0);
     const itemsPerPage = 10 
+
     const {
       setValue, control, handleSubmit, formState: {errors}
     } = useForm({ mode: "onChange"});
 
-    console.log(user?.uid,'oop')
     const getDataUser = async () => {
       try {
         const {status,data} = await Api.get(`/hris/employee/${user?.uid}`)
-        console.log(status, data)
         if(status){
           setDataUser(data)
         }
       } catch (error) {
-        throw(error)
+        console.log(error.message)
+        toast.error(`Error : ${error.message}`, {
+          position: "top-center",
+      });
       }
     }
 
@@ -99,12 +101,16 @@ const OvertimeRequest = () => {
       sortBy,
       limitValue,
       )
-      if(res.employee_id){
-        setOvertime(res)
+      if(res){
+        const filterData =  res.filter((x) => x.employee_id && x.employee)
+        setOvertime(filterData)
+        console.log(filterData, "res")
       }
-      console.log(res, 'ini res')        
       } catch (error) {
-        console.log(error,'ini error firebaseovertime')
+        console.log(error.message)
+        toast.error(`Error : ${error.message}`, {
+        position: "top-center",
+      });
       }
     }
 
@@ -372,6 +378,13 @@ const OvertimeRequest = () => {
                               <div className='column-action d-flex align-items-center d-flex justify-content-center'>
                               <div className='text-body pointer' onClick={() => onDetail(x)} id={`pw-tooltip-${x.id}`}>
                                 <Eye size={17} className='mx-1' />
+                                <span className='align-middle'></span>
+                                <UncontrolledTooltip
+                                  placement="top"
+                                  target={`pw-tooltip-${x.id}`}
+                                >
+                                  Detail Overtime
+                                </UncontrolledTooltip>
                               </div>
                             </div>
                             

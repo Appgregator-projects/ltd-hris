@@ -197,7 +197,16 @@ const MealIndex = () => {
                         <div className='pointer'>
                         <Eye
                          size={20}
-                         onClick={() => {onDetail(x)}}></Eye>
+                         onClick={() => {onDetail(x)}} 
+                         id={`pw-tooltip-${x.id}`}
+                         />
+                        <span className='align-middle'></span>
+                        <UncontrolledTooltip
+                          placement="top"
+                          target={`pw-tooltip-${x.id}`}
+                        >
+                          Detail Allowance
+                        </UncontrolledTooltip>
                         </div>
                 
                       </td>

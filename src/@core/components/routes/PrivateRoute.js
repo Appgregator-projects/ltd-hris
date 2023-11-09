@@ -25,23 +25,20 @@ const PrivateRoute = ({ children, route }) => {
 
   const getData = async () => {
     try {
-      console.log('first')
       // localStorage.removeItem("userData");
 
       onAuthStateChanged(auth, async (userChange) => {
         if (userChange) {
-          console.log('second')
+          // console.log('second')
 
-          console.log(userChange, 'ini userChange')
+          // console.log(userChange, 'ini userChange')
           user.access_token = userChange.accessToken;
 
           localStorage.setItem("userData", JSON.stringify(user));
-          console.log(user, 'ini user')
           const { status, data } = await _axios.get(`/hris/company`);
           if (status) {
 
             const selectedCompany = data[0];
-            console.log('thrid')
             setCompany(data)
             console.log(data, "data company")
 
@@ -50,10 +47,10 @@ const PrivateRoute = ({ children, route }) => {
             _axios.defaults.headers.common[
               "Authorization"
             ] = `Bearer ${user.access_token}`;
-            if (company.length == 0) {
+            if (company.length === 0) {
               await dispatch(handleCompany(selectedCompany));
             }
-            console.log('forth')
+            // console.log('forth')
           }
           // return selectedCompany;
         } else {
@@ -68,7 +65,7 @@ const PrivateRoute = ({ children, route }) => {
     }
   }
 
-  console.log(company)
+  // console.log(company)
 
   useEffect(() => {
     // getData()
@@ -83,7 +80,7 @@ const PrivateRoute = ({ children, route }) => {
         if (status) {
 
           const selectedCompany = data[0];
-          console.log('thrid')
+          // console.log('thrid')
           setCompany(data)
          
 

@@ -17,6 +17,7 @@ import {
   AccordionHeader,
   Label,
   Input,
+  UncontrolledTooltip,
 } from "reactstrap";
 import { Edit, Trash, User, Plus, Lock, UserPlus, Circle, Eye } from "react-feather";
 import Avatar from "@components/avatar";
@@ -251,21 +252,39 @@ export default function DepartmentIndex() {
                               className="me-50"
                               size={15}
                               onClick={() => onDetail(x, index)}
+                              id={`detail-tooltip-${x.id}`}
                             />{" "}
-                            <span className="align-middle"></span>
+                            <span className='align-middle'></span>
+                            <UncontrolledTooltip
+                              placement="top"
+                              target={`detail-tooltip-${x.id}`}>
+                                Detail
+                            </UncontrolledTooltip>
                             {x.id !== 4 && x.id !== 1? 
                             <Trash
                               className="me-50"
                               size={15}
                               onClick={() => onDelete(x, index)}
+                              id={`delete-tooltip-${x.id}`}
                             /> :<></>}
-                            <span className="align-middle"></span>
+                            <span className='align-middle'></span>
+                            {/* <UncontrolledTooltip
+                              placement="top"
+                              target={`delete-tooltip-${x.id}`}>
+                                Delete
+                            </UncontrolledTooltip> */}
                             <Edit
                               className="me-50"
                               size={15}
                               onClick={() => onEdit(x, index)}
+                              id={`edit-tooltip-${x.id}`}
                             />{" "}
                             <span className="align-middle"></span>
+                            <UncontrolledTooltip
+                              placement="top"
+                              target={`edit-tooltip-${x.id}`}>
+                                Edit
+                            </UncontrolledTooltip>
                           </div>
                         </div>
                       </td>

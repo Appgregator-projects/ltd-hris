@@ -68,7 +68,6 @@ const Sidebar = (props) => {
           const { status, data } = await Api.get(`/hris/company`);
           if (status) {
             const selectedCompany = data[0];
-            console.log('thrid')
             setCompanies(data)
 
             Api.defaults.headers.common[

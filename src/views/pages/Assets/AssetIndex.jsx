@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardHeader, CardTitle, Col, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table } from "reactstrap"
+import { Button, Card, CardBody, CardHeader, CardTitle, Col, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table, UncontrolledTooltip } from "reactstrap"
 import Api from "../../../sevices/Api"
 import { useEffect, useState } from "react"
 import { Fragment } from "react"
@@ -114,7 +114,6 @@ export default function AssetIndex() {
           const check = data?.find(y => y.id === x.division_id)
           if(check){
             x.division = check? check.name : "-"
-            console.log(x.division, "pppp")
           }
           return x
         })
@@ -138,15 +137,6 @@ export default function AssetIndex() {
       title : "Add Asset",
       mode : "add",
       item : null
-    })
-    setToggleModal(true)
-  }
-
-  const onDetail = (item) => {
-    setModal({
-      title : "Detail Asset",
-      mode : "detail",
-      item : item
     })
     setToggleModal(true)
   }
@@ -288,8 +278,14 @@ export default function AssetIndex() {
                               className="me-20"
                               size={15}
                               onClick={() => handleDelete(x.id, i)}
+                              id={`delete-tooltip-${x.id}`}
                             />{" "}
                             <span className="align-middle"></span>
+                            <UncontrolledTooltip
+                            placement="top"
+                            target={`delete-tooltip-${x.id}`}>
+                              Delete
+                            </UncontrolledTooltip>
                           </div>
                         </div>
                       </td>

@@ -244,7 +244,7 @@ export default function LeaveRequestIndex() {
                             placement="top"
                             target={`pw-tooltip-${x.leave_category_id}`}
                           >
-                            Preview Request
+                            Detail Request
                           </UncontrolledTooltip>
                         </div>
                       </td>
