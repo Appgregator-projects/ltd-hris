@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Fragment } from 'react'
 import { Edit, Plus, Trash } from 'react-feather'
 import Api from '../../../sevices/Api'
-import { Button, Card, CardBody, CardHeader, CardTitle, Col, Modal, ModalBody, ModalHeader, Row, Table } from 'reactstrap'
+import { Button, Card, CardBody, CardHeader, CardTitle, Col, Modal, ModalBody, ModalHeader, Row, Table, UncontrolledTooltip } from 'reactstrap'
 import PenaltyCategoryForm from './PenaltyCategoryForm'
 import toast from 'react-hot-toast'
 import { useEffect } from 'react'
@@ -135,15 +135,15 @@ const PenaltyCategoryIndex = () => {
   return (
     <>
     <Row className='d-flex justify-content-between'>
-              <Col lg='2' sm='12' className='mb-1'>
-                  <Fragment>
-                      <Button.Ripple size="sm" color='warning' onClick={onAdd}>
-                          <Plus size={14} />
-                          <span className='align-middle ms-25'>Add Type</span>
-                      </Button.Ripple>
-                  </Fragment>
-              </Col>
-          </Row>
+      <Col lg='2' sm='12' className='mb-1'>
+        <Fragment>
+          <Button.Ripple size="sm" color='warning' onClick={onAdd}>
+            <Plus size={14} />
+            <span className='align-middle ms-25'>Add Type</span>
+          </Button.Ripple>
+        </Fragment>
+      </Col>
+    </Row>
     <Row>
       <Card>
           <CardHeader>
@@ -166,8 +166,20 @@ const PenaltyCategoryIndex = () => {
                       <td>{x.duration === 1? "1 month" : x.duration === 2? "2 month" : "3 month"} </td>
                       <td>
                         <div className="pointer">
-                          <Trash className='me-50' size={15} onClick={() => onDelete(x, index)}/> <span className='align-middle'></span>
-                          <Edit className='me-50' size={15} onClick={() => onEdit(x, index)}/> <span className='align-middle'></span>
+                          <Trash className='me-50' size={15} onClick={() => onDelete(x, index)} id={`delete-tooltip-${x.id}`}/>
+                          <span className='align-middle'></span>
+                            <UncontrolledTooltip
+                            placement="top"
+                            target={`delete-tooltip-${x.id}`}>
+                              Delete
+                            </UncontrolledTooltip>
+                          <Edit className='me-50' size={15} onClick={() => onEdit(x, index)} id={`edit-tooltip-${x.id}`}/>
+                          <span className='align-middle'></span>
+                            <UncontrolledTooltip
+                            placement="top"
+                            target={`edit-tooltip-${x.id}`}>
+                              Edit
+                            </UncontrolledTooltip>
                         </div>
                       </td>
                     </tr>

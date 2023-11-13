@@ -17,8 +17,9 @@ import {
   AccordionHeader,
   Label,
   Input,
+  UncontrolledTooltip,
 } from "reactstrap";
-import { Edit, Trash, User, Plus, Lock, UserPlus, Circle } from "react-feather";
+import { Edit, Trash, User, Plus, Lock, UserPlus, Circle, Eye } from "react-feather";
 import Avatar from "@components/avatar";
 import { Link } from "react-router-dom";
 import DivisionForm from "./DivisionForm";
@@ -29,96 +30,57 @@ import withReactContent from "sweetalert2-react-content";
 import FormUserAssign from "../Components/FormUserAssign";
 import { error } from "jquery";
 import getNestedChildren from "../../../Helper/hierarchy";
+import DepartmentForm from "./DepartmentForm";
+import { addDocumentFirebase, getCollectionFirebase, setDocumentFirebase } from "../../../sevices/FirebaseApi";
+import Division from "./Division";
 const MySwal = withReactContent(Swal);
 
-const renderClient = (row) => {
-  if (row.avatar) {
-    return <Avatar className="me-1" img={row.avatar} width="32" height="32" />;
-  } else {
-    return (
-      <div className="d-flex justify-content-left align-items-center">
-        <Avatar
-          initials
-          className="me-1 text-uppercase"
-          color={row.avatarColor || "light-primary"}
-          content={row.manager_name || "John Doe"}
-        />
-        <div className="d-flex flex-column">
-          <Link
-            to={`/apps/user/view/${row.id}`}
-            className="user_name text-truncate text-body">
-            <span className="fw-light text-capitalize">{row.manager_name}</span>
-          </Link>
-          <small className="text-truncate text-muted mb-0">
-            {row.manager_email}
-          </small>
-        </div>
-      </div>
-    );
-  }
-};
-
-export default function DivisionIndex() {
-  const [divisions, setDivisions] = useState([]);
+export default function DepartmentIndex() {
+  const [department, setDepartment] = useState([]);
   const [toggleModal, setToggleModal] = useState(false);
-  const [isRefresh, setIsRefresh] = useState(false)
-  const [users, setUsers] = useState([]);
-  const [userSelect, setUserSelect] = useState(null);
-  const [selectDivison, setSelectDevision] = useState([]);
-  const [searchValue, setSearchValue] = useState("")
   const [modal, setModal] = useState({
-    title: "Division form",
+    title: "Department form",
     mode: "add",
     item: null,
   });
 
-  const fetchDivision = async (params) => {
+  const fetchDepartment = async () => {
     try {
-      const {status,data} = await Api.get(`/hris/division?search=${params.search}`);
+      const {status,data} = await Api.get(`/hris/depertement`);
+      console.log(status, data)
       if(status){
-        const result = getNestedChildren(data, null);
-        setDivisions(result.filter((x) => x.deletedAt === null));
-        setSelectDevision(data.filter((x) => x.deletedAt === null));
+        setDepartment(data)
       }
     } catch (error) {
-      throw error;
+      console.log(error.message)
+      toast.error(`Error : ${error.message}`, {
+        position: "top-center",
+      });
     }
   };
 
-  useEffect(() => {
-    if (isRefresh) {
-      fetchDivision({search:''});
+  const fetchDepartmentFirebase = async() => {
+    try {
+      const getData = await getCollectionFirebase(
+        "department"
+      )
+      if(getData) {
+        console.log(getData, "data")
+        setDepartment(getData)
+      }
+    } catch (error) {
+      
     }
-  }, [isRefresh]);
-
-  useEffect(() => {
-    fetchDivision({search: ""})
-  }, [])
-
-  const handleFilter = (e) => {
-    setSearchValue(e.target.value);
-    fetchDivision({
-      search: e.target.value
-    })
   }
 
-  const fetchUser = async () => {
-    try {
-      const data = await Api.get(`/hris/employee?no_paginate=true`);
-      setUsers([...data]);
-    } catch (error) {
-      throw error;
-    }
-  };
-
   useEffect(() => {
-    fetchUser();
-  }, []);
+    fetchDepartment()
+  }, [])
 
   const onAdd = () => {
     setModal({
-      title: "Division form",
-      mode: "add",
+      title: "Department Form",
+      mode: "add department",
       item: null,
     });
     setToggleModal(true);
@@ -126,22 +88,32 @@ export default function DivisionIndex() {
 
   const onEdit = (item) => {
     setModal({
-      title: "Division form",
-      mode: "edit",
+      title: "Department Form",
+      mode: "edit department",
       item: item,
     });
     setToggleModal(true);
   };
 
+  const onDetail = (item) => {
+    setModal({
+      title : "Detail " + item.name + " Department",
+      mode : "detail department",
+      item : item
+    })
+    setToggleModal(true)
+  }
+
   const postUpdate = async (params) => {
     try {
-      const {status,data} = await Api.put(`/hris/division/${modal.item.id}`, params);
+      console.log(modal.item.id,"edit")
+      const {status,data} = await Api.put(`/hris/depertement/${modal.item.id}`, params);
       if (!status)
         return toast.error(`Error : ${data}`, {
           position: "top-center",
         });
-      fetchDivision();
-      toast.success("Division has updated", {
+      fetchDepartment();
+      toast.success("Department has updated", {
         position: "top-center",
       });
       setToggleModal(false);
@@ -154,22 +126,15 @@ export default function DivisionIndex() {
   };
 
   const onSubmit = async (params) => {
-    // return console.log(params, "params")
-    const itemPost = {
-      name : params.name,
-      parent_id : params.parent.value,
-      manager_id : params.manager_id.value
-    }
     try {
-      if (modal.item) return postUpdate(itemPost);
-      const {status,data} = await Api.post(`/hris/division`, itemPost);
-      console.log(status,"post divisio")
+      if (modal.item) return postUpdate(params);
+      const {status,data} = await Api.post(`/hris/depertement`, params);
       if (!status)
         return toast.error(`Error : ${data}`, {
           position: "top-center",
         });
-      fetchDivision();
-      toast.success("Division has updated", {
+      fetchDepartment();
+      toast.success("New department: " + params.name+ "has added", {
         position: "top-center",
       });
       setToggleModal(false);
@@ -181,9 +146,33 @@ export default function DivisionIndex() {
     }
   };
 
+  const onSubmitFirebase = async(item) => {
+    let response = ""
+    console.log(item, item)
+    try {
+      response =  await addDocumentFirebase(
+        "department", item
+      )
+      if (!response)
+          return toast.error(`Error : ${item.name}`, {
+            position: "top-center",
+          });
+          fetchDepartmentFirebase();
+          toast.success("New department: " + item.name+ "has added", {
+            position: "top-center",
+          });
+          setToggleModal(false);
+    } catch (error) {
+      setToggleModal(false);
+      toast.error(`Error : ${error.message}`, {
+        position: "top-center",
+      });
+    }
+  }
+
   const postDelete = (id) => {
     return new Promise((resolve, reject) => {
-      Api.delete(`/hris/division/${id}`)
+      Api.delete(`/hris/depertement/${id}`)
         .then((res) => resolve(res))
         .catch((err) => reject(err.message));
     });
@@ -205,15 +194,15 @@ export default function DivisionIndex() {
       if (result.value) {
         const data = await postDelete(item.id);
         if (data) {
-          const oldCom = divisions;
+          const oldCom = department;
           oldCom.splice(index, 1);
-          setDivisions([...oldCom]);
+          setDepartment([...oldCom]);
           return MySwal.fire({
             icon: "success",
             title: "Deleted!",
-            text: "Division has deleted.",
+            text: "Department has deleted.",
             customClass: {
-              confirmButton: "btn btn-success",
+            confirmButton: "btn btn-success",
             },
           });
         }
@@ -231,7 +220,7 @@ export default function DivisionIndex() {
           <Fragment>
             <Button.Ripple size="sm" color="warning" onClick={onAdd}>
               <Plus size={14} />
-              <span className="align-middle ms-25">Add Division</span>
+              <span className="align-middle ms-25">Add Department</span>
             </Button.Ripple>
           </Fragment>
         </Col>
@@ -239,56 +228,63 @@ export default function DivisionIndex() {
       <Row>
         <Card>
           <CardHeader>
-            <CardTitle>Divisions</CardTitle>
-            <Col
-            className="d-flex align-items-center justify-content-sm-end mt-sm-0 mt-1"
-            sm="3"
-          >
-            <Label className="me-1" for="search-input">
-              Search
-            </Label>
-            <Input
-              className="dataTable-filter"
-              type="text"
-              bsSize="sm"
-              id="search-input"
-              value={searchValue}
-              onChange={handleFilter}
-            />
-          </Col>
+            <CardTitle>Department</CardTitle>
           </CardHeader>
           <CardBody>
             <Table responsive>
               <thead>
                 <tr className="text-xs">
                   <th className="fs-6">Name</th>
-                  <th className="fs-6">Leader</th>
-                  <th className="fs-6">Total Employee</th>
+                  <th className="fs-6">Total Divisions</th>
                   <th className="fs-6">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {selectDivison.map((x, index) => (
+                {department.map((x, index) => (
                   <>
                     <tr key={x.id}>
                       <td>{x.name}</td>
-                      <td>{x.manager_name ? renderClient(x) : "-"}</td>
-                      <td>{x.total_employee}</td>
+                      <td>{x.division.length}</td>
                       <td>
                         <div className="d-flex">
                           <div className="pointer">
+                            <Eye
+                              className="me-50"
+                              size={15}
+                              onClick={() => onDetail(x, index)}
+                              id={`detail-tooltip-${x.id}`}
+                            />{" "}
+                            <span className='align-middle'></span>
+                            <UncontrolledTooltip
+                              placement="top"
+                              target={`detail-tooltip-${x.id}`}>
+                                Detail
+                            </UncontrolledTooltip>
+                            {x.id !== 4 && x.id !== 1? 
                             <Trash
                               className="me-50"
                               size={15}
                               onClick={() => onDelete(x, index)}
-                            />{" "}
-                            <span className="align-middle"></span>
+                              id={`delete-tooltip-${x.id}`}
+                            /> :<></>}
+                            <span className='align-middle'></span>
+                            {/* <UncontrolledTooltip
+                              placement="top"
+                              target={`delete-tooltip-${x.id}`}>
+                                Delete
+                            </UncontrolledTooltip> */}
                             <Edit
                               className="me-50"
                               size={15}
                               onClick={() => onEdit(x, index)}
+                              id={`edit-tooltip-${x.id}`}
                             />{" "}
                             <span className="align-middle"></span>
+                            <UncontrolledTooltip
+                              placement="top"
+                              target={`edit-tooltip-${x.id}`}>
+                                Edit
+                            </UncontrolledTooltip>
                           </div>
                         </div>
                       </td>
@@ -308,28 +304,31 @@ export default function DivisionIndex() {
           {modal.title}
         </ModalHeader>
         <ModalBody>
-          {modal.mode === "add" ? (
-            <DivisionForm
+          {modal.mode === "add department" ? (
+            <DepartmentForm
               onSubmit={onSubmit}
-              users={users}
               close={() => setToggleModal(false)}
-              divisions={divisions}
-              selectDivison={selectDivison}
               item={modal.item}
-              type={"add"}
             />
           ) : (
             <></>
           )}
-          {modal.mode === "edit" ? (
-            <DivisionForm
+          {modal.mode === "edit department" ? (
+            <DepartmentForm
               item={modal.item}
               onSubmit={onSubmit}
-              users={users}
               close={() => setToggleModal(false)}
-              divisions={divisions}
-              selectDivison={selectDivison}
-              type="edit"
+              department={department}
+              // selectDivison={selectDivison}
+            />
+          ) : (
+            <></>
+          )}
+          {modal.mode === "detail department" ? (
+            <Division
+              details={modal.item}
+              close={() => setToggleModal(false)}
+              department={department}
             />
           ) : (
             <></>
@@ -340,10 +339,3 @@ export default function DivisionIndex() {
   );
 }
 
-  {/* <Input 
-                              type="checkbox"
-                              name="selectAll" 
-                              id="select-all"
-                              checked={selectAll}
-                              onChange={handleSelectAll}>
-                              </Input> */}

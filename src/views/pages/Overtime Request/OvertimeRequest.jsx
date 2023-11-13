@@ -35,16 +35,22 @@ const OvertimeRequest = () => {
     const [endDate, setEndDate] = useState("")
     const [startIndex, setStartIndex] = useState(0);
     const itemsPerPage = 10 
+
     const {
       setValue, control, handleSubmit, formState: {errors}
     } = useForm({ mode: "onChange"});
-    console.log(user?.uid,'oop')
+
     const getDataUser = async () => {
       try {
-        const data = await Api.get(`/hris/employee/${user?.uid}`)
-        setDataUser(data)
+        const {status,data} = await Api.get(`/hris/employee/${user?.uid}`)
+        if(status){
+          setDataUser(data)
+        }
       } catch (error) {
-        throw(error)
+        console.log(error.message)
+        toast.error(`Error : ${error.message}`, {
+          position: "top-center",
+      });
       }
     }
 
@@ -95,10 +101,16 @@ const OvertimeRequest = () => {
       sortBy,
       limitValue,
       )
-      setOvertime(res)
-      console.log(res, 'ini res')        
+      if(res){
+        const filterData =  res.filter((x) => x.employee_id && x.employee)
+        setOvertime(filterData)
+        console.log(filterData, "res")
+      }
       } catch (error) {
-        console.log(error,'ini error firebaseovertime')
+        console.log(error.message)
+        toast.error(`Error : ${error.message}`, {
+        position: "top-center",
+      });
       }
     }
 
@@ -222,7 +234,6 @@ const OvertimeRequest = () => {
 
         }
         const set = await addDoc(collection(db,"overtimes"), newData)
-        console.log(set.id,'ini manager')
       } else {
         const newDatas = {
           approvals:[{id:'xxx', name:'hr'}, {id:dataUser?.division?.manager_id, name:'manager'}],
@@ -263,9 +274,6 @@ const OvertimeRequest = () => {
       }
       return total;
     }, 0)
-  
-    console.log({users})
-    console.log({dataUser})
 
     const renderStatus = (arg) => {
       if(arg.status === 'waiting') return <Badge color="light-warning">Waiting</Badge>
@@ -273,11 +281,11 @@ const OvertimeRequest = () => {
       if(arg.status === 'rejected') return <Badge color="light-danger">Rejected</Badge>
       return <Badge color="light-info">Processed</Badge>
     }
-  
+
     return(
       <>
         <Row>
-          {dataUser?.title === "HR" ? 
+          {dataUser?.role_id === 24 ? 
           <>
           <Col>
             <Card>
@@ -370,6 +378,13 @@ const OvertimeRequest = () => {
                               <div className='column-action d-flex align-items-center d-flex justify-content-center'>
                               <div className='text-body pointer' onClick={() => onDetail(x)} id={`pw-tooltip-${x.id}`}>
                                 <Eye size={17} className='mx-1' />
+                                <span className='align-middle'></span>
+                                <UncontrolledTooltip
+                                  placement="top"
+                                  target={`pw-tooltip-${x.id}`}
+                                >
+                                  Detail Overtime
+                                </UncontrolledTooltip>
                               </div>
                             </div>
                             
@@ -386,7 +401,7 @@ const OvertimeRequest = () => {
             </Card>
           </Col>
           </> : 
-          dataUser?.title === "Manager" ? 
+          dataUser?.role_id === 36 ? 
           <>
           <Col>
             <Card>

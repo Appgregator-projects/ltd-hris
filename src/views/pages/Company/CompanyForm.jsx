@@ -23,7 +23,7 @@ export default function CompanyForm({close, onSubmit, item}){
 		if(item){
 			setValue('name', item.name)
 			setValue('address', item.address)
-			setValue('phone_number', item.phone_number)
+			setValue('phone', item.phone_number)
 			setValue('company_npwp', item.company_npwp)
 		}
 	}, [item])
@@ -48,15 +48,15 @@ export default function CompanyForm({close, onSubmit, item}){
 							{errors.name && <FormFeedback>{errors.name.message}</FormFeedback>}
 					</Col>
 					<Col md='6' sm='12' className='mb-1'>
-						<Label className='form-label' for='name'>Phone Number</Label>
+						<Label className='form-label' for='phone'>Phone Number</Label>
 						<Controller
-								name='phone_number'
+								name='phone'
 								defaultValue=''
 								control={control}
-								render={({ field }) => <Input type='text' {...field} name='phone_number' invalid={errors.phone_number && true}/>
+								render={({ field }) => <Input type='text' {...field} name='phone' invalid={errors.phone_number && true}/>
 							}
 						/>
-							{errors.phone_number && <FormFeedback>{errors.phone_number.message}</FormFeedback>}
+							{errors.phone && <FormFeedback>{errors.phone.message}</FormFeedback>}
 					</Col>
 					<Col md='6' sm='12' className='mb-1'>
 						<Label className='form-label' for='company_npwp'>NPWP Company</Label>

@@ -39,6 +39,7 @@ const UsersList = () => {
   const [itemActive, setItemActive] = useState(null);
   const [isRefresh, setIsRefresh] = useState(false);
   const [companies, setCompanies] = useState([]);
+  const [department, setDepartment] = useState([]);
   const [divisions, setDivisions] = useState([]);
   const [roles, setRoles] = useState([]);
   const [office, setOffice] = useState([]);
@@ -87,7 +88,6 @@ const UsersList = () => {
       const data = await Api.get(
         "/auth/role-and-permissions/roles-list-selectbox"
       );
-      console.log(data, "yakk")
       setRoles([...data]);
     } catch (error) {
       throw error;
@@ -112,9 +112,23 @@ const UsersList = () => {
   useEffect(() => {
     fetchOffice();
   }, []);
+
+  const fetchDepartment = async () => {
+    try {
+      const {status,data} = await Api.get("/hris/depertement");
+      if(status){
+        setDepartment([...data]);
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  useEffect(() => {
+    fetchDepartment();
+  }, []);
   
   const submitForm = async (params) => {
-    // return console.log(params, itemActive, "params");
     try {
       if (itemActive) return postEdit(params);
       dispatch(handlePreloader(true));
@@ -156,12 +170,10 @@ const UsersList = () => {
   };
 
   const postEdit = async (params) => {
-    // return console.log(params, "itemActive")
     try {
       params.id = itemActive.id;
       dispatch(handlePreloader(true));
       const status = await Api.put(`/hris/employee/${params.id}`,params);
-      // return console.log(status, params, "ini params edit")
       dispatch(handlePreloader(false));
       if (!status)
         return toast.error(`Error : ${data}`, {
@@ -293,6 +305,7 @@ const UsersList = () => {
           close={() => setToggleModal(!toggleModal)}
           onSubmit={submitForm}
           company={companies}
+          department={department}
           division={divisions}
           role={roles}
           office={office}
@@ -305,6 +318,7 @@ const UsersList = () => {
             onSubmit={submitForm}
             item={modal.item}
             company={companies}
+            department={department}
             division={divisions}
             role={roles}
             office={office}

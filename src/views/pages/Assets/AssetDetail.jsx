@@ -4,22 +4,22 @@ import { CardText } from 'reactstrap'
 import Avatar from '@components/avatar'
 
 
-const AssetDetail = ({asset, user, close, onSubmit}) => {
-    console.log(asset, "isi asset")
+const AssetDetail = ({ asset, user, close, onSubmit }) => {
+  console.log(asset, "isi asset")
   return (
     <>
-    <div className="">
-            <p className="h3 text-center">{asset?.users.name}</p>
-            <p className='text-center'>{asset?.users.email}</p>
-            <div className='d-flex align-items-center justify-content-center'>
-            <Avatar color="light-info" icon={<User size={24} />} className='me-1' />
-            <h4 className='fw-bolder mb-0 me-1'>{asset.users.division_id}</h4>
-            <div className='my-auto'>
-                <CardText className='font-small-3 mb-0 text-secondary'>Employees</CardText>
-            </div>
-            </div>
+      <div className="">
+        <p className="h3 text-center">{asset?.users.name}</p>
+        <p className='text-center'>{asset?.users.email}</p>
+        <div className='d-flex align-items-center justify-content-center'>
+          <Avatar color="light-info" icon={<User size={24} />} className='me-1' />
+          <h4 className='fw-bolder mb-0 me-1'>{asset.users.division_id}</h4>
+          <div className='my-auto'>
+            <CardText className='font-small-3 mb-0 text-secondary'>Employees</CardText>
+          </div>
         </div>
-        {/* <h5 className='fw-bolder mb-0 me-1'>Employee lists</h5>
+      </div>
+      {/* <h5 className='fw-bolder mb-0 me-1'>Employee lists</h5>
         <ul className='d-flex m-0 p-0 mt-1 flex-wrap'>
             {
             item.employees.map((x, index) => (
@@ -41,7 +41,7 @@ const AssetDetail = ({asset, user, close, onSubmit}) => {
             ))
         }
         </ul> */}
-        { !asset ?  (<p className='text-center text-warning'>No Employee on this office</p>) : <></> }
+      {!asset ? (<p className='text-center text-warning'>No Employee on this office</p>) : <></>}
     </>
   )
 }

@@ -3,7 +3,8 @@ import {
   Card, CardBody, CardTitle, Row, Button, Col,
   Modal, ModalHeader, ModalBody, Input, CardText,
   Label,
-	FormGroup
+	FormGroup,
+  UncontrolledTooltip
 } from 'reactstrap'
 import { Edit, Trash, User, Plus, UserPlus } from 'react-feather'
 import Api from '../../../sevices/Api'
@@ -99,6 +100,7 @@ export default function CompanyIndex(){
 	
 	const postForm = async(params) => {
 		try {
+      // return console.log(params, "params")
 			if(modal.item) return postUpdate(params)
 			dispatch(handlePreloader(true))
 			const {status,data} = await Api.post('/hris/company', params)
@@ -199,12 +201,24 @@ export default function CompanyIndex(){
                 </CardBody>
               </Card>
               <div className="d-flex px-2 project-card-action">
-								<div className="pointer">
-									<Edit className='me-50' size={15} onClick={() => onEdit(x,index)}/> <span className='align-middle'></span>
-								</div>
-								<div className="pointer">
-									<Trash className='me-50' size={15} onClick={() => onDelete(x, index)}/> <span className='align-middle'></span>
-								</div>
+					<div className="pointer">
+						<Edit className='me-50' size={15} onClick={() => onEdit(x,index)} id={`edit-tooltip-${x.id}`}/>
+						<span className='align-middle'></span>
+             <UncontrolledTooltip
+              placement="top"
+              target={`edit-tooltip-${x.id}`}>
+                Edit
+              </UncontrolledTooltip>
+					</div>
+					<div className="pointer">
+						<Trash className='me-50' size={15} onClick={() => onDelete(x, index)} id={`delete-tooltip-${x.id}`}/>
+            <span className='align-middle'></span>
+             <UncontrolledTooltip
+              placement="top"
+              target={`delete-tooltip-${x.id}`}>
+                Delete
+              </UncontrolledTooltip>
+					</div>
               </div>
             </Col>
           ))

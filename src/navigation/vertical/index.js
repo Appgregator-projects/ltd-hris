@@ -77,7 +77,16 @@ export default [
     icon: <Twitch size={20} />,
     navLink: "/leave-request"
   },
-  { header: "e-Learning Employee" },
+  {
+    id: "overtime-request",
+    title: "Overtime Request",
+    icon: <Clock size={20} />,
+    navLink: "/overtime-request"
+  },
+
+  { header: "e-Learning Employee" 
+  },
+  
   {
     id: "courses-employee",
     title: "Courses",
@@ -89,13 +98,6 @@ export default [
     title: "Group",
     icon: <Users size={20} />,
     navLink: "/groups-employee"
-  },
-
-  {
-    id: "overtime-request",
-    title: "Overtime Request",
-    icon: <Clock size={20} />,
-    navLink: "/overtime-request"
   },
 
   {
@@ -163,10 +165,10 @@ export default [
     navLink: "/office"
   },
   {
-    id: "division",
-    title: "Division",
-    icon: <Chrome size={20} />,
-    navLink: "/division"
+    id: "department",
+    title: "Department",
+    icon: <Users size={20} />,
+    navLink: "/department"
   },
   {
     id: "leave-category",

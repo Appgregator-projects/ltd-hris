@@ -42,7 +42,7 @@ const EmployeeDetail = lazy(() => import("../../views/pages/employee/EmployeeDet
 const Office = lazy(() => import("../../views/pages/Office/OfficeIndex"))
 const OfficeDetail = lazy(() => import("../../views/pages/Office/OfficeDetail"))
 // const Shift = lazy(() => import("../../views/pages/Shift/ShiftIndex"));
-const Division = lazy(() => import("../../views/pages/Division/DivisionIndex"))
+const Department = lazy(() => import("../../views/pages/Division/DepartmentIndex"))
 const LeaveCategory = lazy(() => import("../../views/pages/LeaveCategory/LeaveCategoryIndex"))
 const Attendance = lazy(() => import("../../views/pages/Attendance/AttendanceIndex"))
 const CorrectionRequest = lazy(() => import("../../views/pages/CorrectionRequest"))
@@ -166,8 +166,8 @@ const Routes = [
     }
   },
   {
-    path: "/division",
-    element: <Division />,
+    path: "/department",
+    element: <Department />,
     meta: {
       action: "read",
       resource: "DIVISIONS"
