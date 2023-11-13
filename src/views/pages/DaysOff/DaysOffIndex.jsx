@@ -41,9 +41,11 @@ export default function DaysOffIndex() {
   const [nestedToggle, setNestedToggle] = useState(false);
   const [selectDate, setSelectDate] = useState([]);
   const [daysOff, setDaysOff] = useState([]);
+  const [deals, setDeals] = useState([]);
+  const [type, setType] = useState(null);
 
   const ItemSchema = yup.object().shape({
-    type: yup.string().required("Type days off is required"),
+    // type: yup.string().required("Type days off is required"),
     descriptions: yup.string().required("Description is required")
   })
 
@@ -76,7 +78,7 @@ export default function DaysOffIndex() {
     return params;
   };
 
-  const generateCalendarView = async(initDate) => {
+  const generateCalendarView = async (initDate) => {
     const previousMonth = dayjs(initDate).subtract(1, "month");
     const currentParams = generateCalendarData(initDate);
     const previousParams = generateCalendarData(previousMonth).reverse();
@@ -98,15 +100,15 @@ export default function DaysOffIndex() {
     setDaysOff([...dayOff])
 
     const resultCalendar = calendar.map(x => {
-        x.isOff = false
-        const check = dayOff.find(y => y.date == x.periode)
-        if(check){
-          x.isOff = true
-          x.descriptions = check.descriptions
-          x.id = check.id
-          x.type = check.type
-        }
-        return x
+      x.isOff = false
+      const check = dayOff.find(y => y.date == x.periode)
+      if (check) {
+        x.isOff = true
+        x.descriptions = check.descriptions
+        x.id = check.id
+        x.type = check.type
+      }
+      return x
     })
     setCalendar([...resultCalendar]);
   };
@@ -130,8 +132,8 @@ export default function DaysOffIndex() {
 
   const fetchDaysOff = async (year, month) => {
     try {
-      const {status,data} = await Api.get(`/hris/day-off?month=${month}&year=${year}`);
-      if(status){
+      const { status, data } = await Api.get(`/hris/day-off?month=${month}&year=${year}`);
+      if (status) {
         return data.map(x => {
           x.date = dayjs(x.date).format('YYYY-MM-DD')
           return x
@@ -141,6 +143,34 @@ export default function DaysOffIndex() {
       return []
     }
   };
+
+  const fetchDeals = async () => {
+    try {
+      const data = await Api.get(`/api/v1/crm/project-number/all`)
+      if (data) {
+        const listDeals = data.map((x) => {
+          return {
+            value: x.id,
+            label: x.number
+          }
+        })
+        setDeals(listDeals)
+        return listDeals
+      }
+    } catch (error) {
+      throw error
+      ;
+    }
+  }
+
+  useEffect(() => {
+    fetchDeals();
+  }, [type]);
+
+  const handleSelectType = (e) => {
+    console.log(e, "type")
+    setType(e)
+  }
 
   const setDetail = (arg) => {
     setSelectDate(arg);
@@ -153,13 +183,14 @@ export default function DaysOffIndex() {
 
   const submitPost = async (arg, selectDate) => {
     try {
-      if(selectDate.isOff === true) return submitEdit(arg, selectDate)
+      if (selectDate.isOff === true) return submitEdit(arg, selectDate)
       const itemPost = {
         date: selectDate.periode,
         descriptions: arg.descriptions,
         type: arg.type
       };
-      const {status,data} = await Api.post(`hris/day-off`, itemPost);
+      return console.log(arg, selectDate, itemPost, "hothothot")
+      const { status, data } = await Api.post(`hris/day-off`, itemPost);
       if (!status)
         return toast.error(`Error : ${data}`, {
           position: "top-center",
@@ -180,7 +211,7 @@ export default function DaysOffIndex() {
   const submitEdit = async (arg, params) => {
     try {
       dispatch(handlePreloader(true));
-      const {status,data} = await Api.put(`/hris/day-off/${params.id}`, arg);
+      const { status, data } = await Api.put(`/hris/day-off/${params.id}`, arg);
       dispatch(handlePreloader(false));
       if (!status)
         return toast.error(`Error : ${data}`, {
@@ -198,41 +229,39 @@ export default function DaysOffIndex() {
     }
   };
 
-  console.log(selectDate, "selectedDate")
-
-  const onDelete = async(x) => {
+  const onDelete = async (x) => {
     return MySwal.fire({
-			title: "Are you sure?",
-			text: "You won't be able to revert this!",
-			icon: "warning",      
-			showCancelButton: true,
-			confirmButtonText: "Yes, delete it!",
-			customClass: {
-			  confirmButton: "btn btn-primary",
-			  cancelButton: "btn btn-outline-danger ms-1",
-			},
-			buttonsStyling: false,
-		  }).then(async (result) => {
-			if (result.value) {
-			  try {
-				const status = await Api.delete(`/hris/day-off/${x.id}`);
-				if (!status)
-				  return toast.error(`Error : ${data}`, {
-					position: "top-center",
-				  });
-        setToggleModal(!toggleModal)
-        generateCalendarView(initalDate)
-				toast.success("Successfully updated calender!", {
-				  position: "top-center",
-				});
-			  } catch (error) {
-				toast.error(`Error : ${error.message}`, {
-				  position: "top-center",
-				});
-			  }
-			}
-		  });
-    }
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      customClass: {
+        confirmButton: "btn btn-primary",
+        cancelButton: "btn btn-outline-danger ms-1",
+      },
+      buttonsStyling: false,
+    }).then(async (result) => {
+      if (result.value) {
+        try {
+          const status = await Api.delete(`/hris/day-off/${x.id}`);
+          if (!status)
+            return toast.error(`Error : ${data}`, {
+              position: "top-center",
+            });
+          setToggleModal(!toggleModal)
+          generateCalendarView(initalDate)
+          toast.success("Successfully updated calender!", {
+            position: "top-center",
+          });
+        } catch (error) {
+          toast.error(`Error : ${error.message}`, {
+            position: "top-center",
+          });
+        }
+      }
+    });
+  }
 
   return (
     <>
@@ -308,21 +337,21 @@ export default function DaysOffIndex() {
                   {selectDate ? selectDate.periode : "-"}
                 </span>
               </li>
-              {selectDate.isOff? 
-              <li className="d-flex justify-content-between pb-1">
-                <span className="fw-bold">Type</span>
-                <span className="capitalize">
-                  {selectDate.type === "non_management" ? "Non Management" : "Management"}
-                </span>
-              </li> : <></>
+              {selectDate.isOff ?
+                <li className="d-flex justify-content-between pb-1">
+                  <span className="fw-bold">Type</span>
+                  <span className="capitalize">
+                    {selectDate.type === "non_management" ? "Non Management" : "Management"}
+                  </span>
+                </li> : <></>
               }
-              {selectDate.isOff?
-              <li className="d-flex justify-content-between pb-1">
-                <span className="fw-bold">Descriptions</span>
-                <span className="capitalize">
-                  {selectDate ? selectDate.descriptions : "-"}
-                </span>
-              </li> :<></>
+              {selectDate.isOff ?
+                <li className="d-flex justify-content-between pb-1">
+                  <span className="fw-bold">Descriptions</span>
+                  <span className="capitalize">
+                    {selectDate ? selectDate.descriptions : "-"}
+                  </span>
+                </li> : <></>
               }
             </ul>
           ) : (
@@ -330,13 +359,13 @@ export default function DaysOffIndex() {
           )}
         </ModalBody>
         <ModalFooter>
-          { selectDate?.isOff === true ?
-          <Button.Ripple
-            size="md"
-            color='warning'
-            onClick={() => onDelete(selectDate)}>
-            <Trash size={15}/>
-          </Button.Ripple> :<></>
+          {selectDate?.isOff === true ?
+            <Button.Ripple
+              size="md"
+              color='warning'
+              onClick={() => onDelete(selectDate)}>
+              <Trash size={15} />
+            </Button.Ripple> : <></>
           }
           <Button
             type="button"
@@ -361,7 +390,7 @@ export default function DaysOffIndex() {
                 <ModalHeader>Note</ModalHeader>
                 <ModalBody>
                   <Row>
-                    <Col md="12" sm="12" className="mb-1">
+                    <Col md="6" sm="12" className="mb-1">
                       <Label className="form-label" for="type">
                         Type
                       </Label>
@@ -375,6 +404,8 @@ export default function DaysOffIndex() {
                             {...field}
                             name="type"
                             invalid={errors.type && true}
+                            value={type}
+                            onChange={(e) => handleSelectType(e.target.value)}
                           >
                             <option value="">Select type</option>
                             <option value="management">Management</option>
@@ -384,6 +415,35 @@ export default function DaysOffIndex() {
                       />
                       {errors.type && (
                         <FormFeedback>{errors.type.message}</FormFeedback>
+                      )}
+                    </Col>
+                    <Col md="6" sm="12" className="mb-1">
+                      <Label className="form-label" for="deals">
+                        Deals
+                      </Label>
+                      <Controller
+                        name="deals"
+                        defaultValue=""
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            type="select"
+                            {...field}
+                            name="deals"
+                            invalid={errors.type && true}
+                            disabled={type? type === "management": ""}
+                          >
+                            <option value="">Select deals</option>
+                            {deals.map((x) => (
+                              <option key={x.value} value={x.value}>
+                                {x.label}
+                              </option>
+                            ))}
+                          </Input>
+                        )}
+                      />
+                      {errors.deals && (
+                        <FormFeedback>{errors.deals.message}</FormFeedback>
                       )}
                     </Col>
                     <Col md='12' sm='12' className="mb-1">

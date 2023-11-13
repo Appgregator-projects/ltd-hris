@@ -415,6 +415,13 @@ export default function CorrectionIndex(){
                       <span className="fw-bold">Clock out</span>
                       <span>{dayjs(selectItem.clock_out).format('HH:mm')}</span>
                     </li>
+                    <li className="d-flex justify-content-between pb-1">
+                      <span className="fw-bold">Attachment required</span>
+                      <Link
+                      to={selectItem.file? selectItem.file: "file is unvailable"}
+                      target="_blank">{selectItem.file? selectItem.file: "file is unvailable"}</Link>
+                      {/* <span>{selectItem.file? selectItem.file : "file is unvailable"}</span> */}
+                    </li>
                 </ul>
                 </>
               : <></>
