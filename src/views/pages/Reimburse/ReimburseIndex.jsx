@@ -85,7 +85,7 @@ const ReimburseIndex = () => {
   }
 
   const fetchDaysOff = async (arg) => {
-    return console.log(arg, "data and status")
+    console.log(arg, "data and status")
     try {
       const { status, data } = await Api.get(`/hris/day-off?month=${arg.month}&year=${arg.year}`);
       if (status) {
@@ -115,7 +115,7 @@ const ReimburseIndex = () => {
 
   const fetchAttendanceNon = async () => {
     try {
-      const { status, data } = await Api.get(`/api/v1/crm/attendance-non-management?status=empty`)
+      const { status, data } = await Api.get(`/api/v1/crm/attendance-non-management?status=approval&&level=hr`)
       console.log(status, data.data, "jajaj")
       if (status) {
         setAttendance(data.data)
@@ -132,7 +132,7 @@ const ReimburseIndex = () => {
   const fetchReimburse = async () => {
 
     try {
-      const { status, data } = await Api.get(`/api/v1/crm/attendance-non-management?status=approval&&level=manager`)
+      const { status, data } = await Api.get(`/api/v1/crm/attendance-non-management?status=approve&&level=manager`)
       console.log(status, data.data, "dta reimburse approval")
       if (status) {
         setReimburse(data.data)

@@ -57,7 +57,7 @@ export default function FormEmployee({
     role_id: yup.string().required("Role is required"),
     marital_status: yup.string().required("Marital status is required"),
     dependents: yup.string().required("Dependents is required"),
-    level: yup.string().required("Level employee is required"),
+    // level: yup.string().required("Level employee is required"),
   });
 
 
@@ -143,8 +143,8 @@ export default function FormEmployee({
   });
 
   const onSubmitForm = (arg) => {
-    console.log(selectDepartment.toString(), "yyeyey")
-    console.log(arg.departement_id, "jajaja")
+    // console.log(selectDepartment.toString(), "yyeyey")
+    // console.log(arg.departement_id, "jajaja")
     arg.profile_picture = attachment;
     arg.departement_id = selectDepartment
     if (!item) {
