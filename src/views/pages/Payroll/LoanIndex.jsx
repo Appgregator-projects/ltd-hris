@@ -94,8 +94,8 @@ export default function LoanIndex() {
               type="text"
               bsSize="sm"
               id="search-input"
-            //   value={searchValue}
-            //   onChange={handleFilter}
+              // value={searchValue}
+              // onChange={handleFilter}
             />
           </Col>
           </CardHeader>

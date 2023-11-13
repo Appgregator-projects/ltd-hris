@@ -132,7 +132,7 @@ const ReimburseIndex = () => {
   const fetchReimburse = async () => {
 
     try {
-      const { status, data } = await Api.get(`/api/v1/crm/attendance-non-management?status=approve&&level=manager`)
+      const { status, data } = await Api.get(`/api/v1/crm/attendance-non-management?status=reject&&level=manager`)
       console.log(status, data.data, "dta reimburse approval")
       if (status) {
         setReimburse(data.data)

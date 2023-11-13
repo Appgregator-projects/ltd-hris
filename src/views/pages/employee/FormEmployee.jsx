@@ -150,7 +150,7 @@ export default function FormEmployee({
     if (!item) {
       arg.password = arg.password ? arg.password : "121212";
     }
-    console.log(arg,'nnn')
+    // return console.log(arg,'nnn')
     // return console.log(selectDepartment, arg,arg.departement_id, "arg onSubmitform")
     return onSubmit(arg);
   };
