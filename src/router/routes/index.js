@@ -60,6 +60,7 @@ const PenaltyCategory = lazy(() => import("../../views/pages/PenaltyCategory/Pen
 const OvertimeRequest = lazy(() => import("../../views/pages/Overtime Request/OvertimeRequest"))
 const Reimburse = lazy(() => import("../../views/pages/Reimburse/ReimburseIndex"))
 const MealAllowance = lazy(() => import("../../views/pages/MealAllowance/MealIndex"))
+const LevelApproval = lazy(() => import("../../views/pages/LevelApproval/approvalIndex"))
 
 // ** Merge Routes
 const Routes = [
@@ -195,6 +196,14 @@ const Routes = [
     meta: {
       action: "read",
       resource: "PENALTY CATEGORY"
+    }
+  },
+  {
+    path: "/level-approval",
+    element: <LevelApproval />,
+    meta: {
+      action: "read",
+      resource: "LEVEL APPROVAL"
     }
   },
   {

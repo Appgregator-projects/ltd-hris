@@ -27,7 +27,7 @@ import withReactContent from "sweetalert2-react-content";
 import FormUserAssign from "../Components/FormUserAssign";
 import { error } from "jquery";
 import getNestedChildren from "../../../Helper/hierarchy";
-import { addDocumentFirebase, arrayUnionFirebase, getCollectionFirebase, setDocumentFirebase } from "../../../sevices/FirebaseApi";
+import { addDocumentFirebase, arrayUnionFirebase, getCollectionFirebase, getSingleDocumentFirebase, setDocumentFirebase } from "../../../sevices/FirebaseApi";
 const MySwal = withReactContent(Swal);
 
 export default function Division({details}) {
@@ -39,15 +39,17 @@ export default function Division({details}) {
     item: null,
   });
 
+  console.log(details,"details")
+
   const fetchDivision = async() => {
     try {
       const {status,data} = await Api.get(`/hris/depertement/${details.id}`)
-      const getData = await getCollectionFirebase(
-        "department"
+      const getData = await getSingleDocumentFirebase(
+        "department", details.id
       )
-      if (status){
+      if (getData){
         console.log(data, "data")
-        setDivisions(data.division)
+        setDivisions(getData.details)
       }
     } catch (error) {
       console.log(error.message)
@@ -101,16 +103,25 @@ export default function Division({details}) {
   };
 
   const onSubmit = async (params) => {
+    let response = ""
+    let resChildren = ""
+
     const itemPost = {
       name : params.name,
       departement_id : details.id
     }
     try {
       if (modal.item) return postUpdate(itemPost);
-      const {status,data} = await Api.post(`/hris/division`, itemPost);
-      console.log(status,data, "post division")
-      if (!status)
-        return toast.error(`Error : ${data}`, {
+      // const {status,data} = await Api.post(`/hris/division`, itemPost);
+      // response =  await addDocumentFirebase("department", itemPost)
+      response =  await arrayUnionFirebase(
+        `department`,`${details.id}`, "details", itemPost
+      )
+      resChildren = await addDocumentFirebase(
+        `department/${details.id}/divisionChildren`, itemPost
+      )
+      if (!response)
+        return toast.error(`Error : ${params.name}`, {
           position: "top-center",
         });
       fetchDivision();
@@ -208,7 +219,7 @@ export default function Division({details}) {
       </Row>
       <Row>
         <ul>
-          {divisions.map((x,i) => (
+          {divisions?.map((x,i) => (
             <li className="d-flex justify-content-between">
               <div className="h6">{x.name}</div>
               <div>

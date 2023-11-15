@@ -22,7 +22,8 @@ import {
   AlertTriangle,
   Clock,
   ShoppingBag,
-  Coffee
+  Coffee,
+  ThumbsUp
 } from "react-feather"
 
 export default [
@@ -175,6 +176,12 @@ export default [
     title: "Leave Category",
     icon: <Hash size={20} />,
     navLink: "/leave-category"
+  },
+  {
+    id: "level-approval",
+    title: "Level Approval",
+    icon: <ThumbsUp size={20} />,
+    navLink: "/level-approval"
   },
   {
     id: "penalty-category",

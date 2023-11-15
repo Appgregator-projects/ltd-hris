@@ -31,7 +31,7 @@ import FormUserAssign from "../Components/FormUserAssign";
 import { error } from "jquery";
 import getNestedChildren from "../../../Helper/hierarchy";
 import DepartmentForm from "./DepartmentForm";
-import { addDocumentFirebase, getCollectionFirebase, setDocumentFirebase } from "../../../sevices/FirebaseApi";
+import { addDocumentFirebase, arrayUnionFirebase, getCollectionFirebase, setDocumentFirebase } from "../../../sevices/FirebaseApi";
 import Division from "./Division";
 const MySwal = withReactContent(Swal);
 
@@ -62,7 +62,7 @@ export default function DepartmentIndex() {
   const fetchDepartmentFirebase = async() => {
     try {
       const getData = await getCollectionFirebase(
-        "department"
+        "departments"
       )
       if(getData) {
         console.log(getData, "data")
@@ -74,7 +74,7 @@ export default function DepartmentIndex() {
   }
 
   useEffect(() => {
-    fetchDepartment()
+    fetchDepartmentFirebase()
   }, [])
 
   const onAdd = () => {
@@ -126,14 +126,28 @@ export default function DepartmentIndex() {
   };
 
   const onSubmit = async (params) => {
+    // return console.log(params,"arams")
+    let response = ""
+    let resChildren = ""
     try {
       if (modal.item) return postUpdate(params);
-      const {status,data} = await Api.post(`/hris/depertement`, params);
-      if (!status)
-        return toast.error(`Error : ${data}`, {
+      // const {status,data} = await Api.post(`/hris/depertement`, params);
+      response =  await addDocumentFirebase("departments", params)
+      if (params.parent !== null){
+        resChildren =  await arrayUnionFirebase(
+          `departments`,`${params.parent}`, "details", params
+          )
+        }
+          toast.success("New division has been added as " + params.parent + " children", {
+            position: "top-center",
+          });
+        fetchDepartmentFirebase();
+      setToggleModal(false);
+      if (!response)
+        return toast.error(`Error : ${params.name}`, {
           position: "top-center",
         });
-      fetchDepartment();
+      fetchDepartmentFirebase();
       toast.success("New department: " + params.name+ "has added", {
         position: "top-center",
       });
@@ -150,9 +164,7 @@ export default function DepartmentIndex() {
     let response = ""
     console.log(item, item)
     try {
-      response =  await addDocumentFirebase(
-        "department", item
-      )
+      response =  await addDocumentFirebase("department", item)
       if (!response)
           return toast.error(`Error : ${item.name}`, {
             position: "top-center",
@@ -235,7 +247,7 @@ export default function DepartmentIndex() {
               <thead>
                 <tr className="text-xs">
                   <th className="fs-6">Name</th>
-                  <th className="fs-6">Total Divisions</th>
+                  <th className="fs-6">Parent</th>
                   <th className="fs-6">Actions</th>
                 </tr>
               </thead>
@@ -244,7 +256,8 @@ export default function DepartmentIndex() {
                   <>
                     <tr key={x.id}>
                       <td>{x.name}</td>
-                      <td>{x.division.length}</td>
+                      <td>{x.parent}</td>
+                      {/* <td>{x.division}</td> */}
                       <td>
                         <div className="d-flex">
                           <div className="pointer">
@@ -309,6 +322,7 @@ export default function DepartmentIndex() {
               onSubmit={onSubmit}
               close={() => setToggleModal(false)}
               item={modal.item}
+              department={department}
             />
           ) : (
             <></>
