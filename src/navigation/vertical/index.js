@@ -172,16 +172,16 @@ export default [
     navLink: "/department"
   },
   {
-    id: "leave-category",
-    title: "Leave Category",
-    icon: <Hash size={20} />,
-    navLink: "/leave-category"
-  },
-  {
     id: "level-approval",
     title: "Level Approval",
     icon: <ThumbsUp size={20} />,
     navLink: "/level-approval"
+  },
+  {
+    id: "leave-category",
+    title: "Leave Category",
+    icon: <Hash size={20} />,
+    navLink: "/leave-category"
   },
   {
     id: "penalty-category",

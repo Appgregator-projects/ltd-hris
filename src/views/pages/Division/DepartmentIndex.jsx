@@ -46,9 +46,9 @@ export default function DepartmentIndex() {
 
   const fetchDepartment = async () => {
     try {
-      const {status,data} = await Api.get(`/hris/depertement`);
+      const { status, data } = await Api.get(`/hris/depertement`);
       console.log(status, data)
-      if(status){
+      if (status) {
         setDepartment(data)
       }
     } catch (error) {
@@ -59,17 +59,17 @@ export default function DepartmentIndex() {
     }
   };
 
-  const fetchDepartmentFirebase = async() => {
+  const fetchDepartmentFirebase = async () => {
     try {
       const getData = await getCollectionFirebase(
         "departments"
       )
-      if(getData) {
+      if (getData) {
         console.log(getData, "data")
         setDepartment(getData)
       }
     } catch (error) {
-      
+
     }
   }
 
@@ -97,17 +97,17 @@ export default function DepartmentIndex() {
 
   const onDetail = (item) => {
     setModal({
-      title : "Detail " + item.name + " Department",
-      mode : "detail department",
-      item : item
+      title: "Detail " + item.name + " Department",
+      mode: "detail department",
+      item: item
     })
     setToggleModal(true)
   }
 
   const postUpdate = async (params) => {
     try {
-      console.log(modal.item.id,"edit")
-      const {status,data} = await Api.put(`/hris/depertement/${modal.item.id}`, params);
+      console.log(modal.item.id, "edit")
+      const { status, data } = await Api.put(`/hris/depertement/${modal.item.id}`, params);
       if (!status)
         return toast.error(`Error : ${data}`, {
           position: "top-center",
@@ -132,23 +132,23 @@ export default function DepartmentIndex() {
     try {
       if (modal.item) return postUpdate(params);
       // const {status,data} = await Api.post(`/hris/depertement`, params);
-      response =  await addDocumentFirebase("departments", params)
-      if (params.parent !== null){
-        resChildren =  await arrayUnionFirebase(
-          `departments`,`${params.parent}`, "details", params
-          )
-        }
-          toast.success("New division has been added as " + params.parent + " children", {
-            position: "top-center",
-          });
-        fetchDepartmentFirebase();
+      response = await addDocumentFirebase("departments", params)
+      if (params.parent !== null) {
+        resChildren = await arrayUnionFirebase(
+          `departments`, `${params.parent}`, "details", params
+        )
+      }
+      toast.success("New division has been added as " + params.parent + " children", {
+        position: "top-center",
+      });
+      fetchDepartmentFirebase();
       setToggleModal(false);
       if (!response)
         return toast.error(`Error : ${params.name}`, {
           position: "top-center",
         });
       fetchDepartmentFirebase();
-      toast.success("New department: " + params.name+ "has added", {
+      toast.success("New department: " + params.name + "has added", {
         position: "top-center",
       });
       setToggleModal(false);
@@ -160,20 +160,20 @@ export default function DepartmentIndex() {
     }
   };
 
-  const onSubmitFirebase = async(item) => {
+  const onSubmitFirebase = async (item) => {
     let response = ""
     console.log(item, item)
     try {
-      response =  await addDocumentFirebase("department", item)
+      response = await addDocumentFirebase("department", item)
       if (!response)
-          return toast.error(`Error : ${item.name}`, {
-            position: "top-center",
-          });
-          fetchDepartmentFirebase();
-          toast.success("New department: " + item.name+ "has added", {
-            position: "top-center",
-          });
-          setToggleModal(false);
+        return toast.error(`Error : ${item.name}`, {
+          position: "top-center",
+        });
+      fetchDepartmentFirebase();
+      toast.success("New department: " + item.name + "has added", {
+        position: "top-center",
+      });
+      setToggleModal(false);
     } catch (error) {
       setToggleModal(false);
       toast.error(`Error : ${error.message}`, {
@@ -214,7 +214,7 @@ export default function DepartmentIndex() {
             title: "Deleted!",
             text: "Department has deleted.",
             customClass: {
-            confirmButton: "btn btn-success",
+              confirmButton: "btn btn-success",
             },
           });
         }
@@ -271,15 +271,15 @@ export default function DepartmentIndex() {
                             <UncontrolledTooltip
                               placement="top"
                               target={`detail-tooltip-${x.id}`}>
-                                Detail
+                              Detail
                             </UncontrolledTooltip>
-                            {x.id !== 4 && x.id !== 1? 
-                            <Trash
-                              className="me-50"
-                              size={15}
-                              onClick={() => onDelete(x, index)}
-                              id={`delete-tooltip-${x.id}`}
-                            /> :<></>}
+                            {x.id !== 4 && x.id !== 1 ?
+                              <Trash
+                                className="me-50"
+                                size={15}
+                                onClick={() => onDelete(x, index)}
+                                id={`delete-tooltip-${x.id}`}
+                              /> : <></>}
                             <span className='align-middle'></span>
                             {/* <UncontrolledTooltip
                               placement="top"
@@ -296,7 +296,7 @@ export default function DepartmentIndex() {
                             <UncontrolledTooltip
                               placement="top"
                               target={`edit-tooltip-${x.id}`}>
-                                Edit
+                              Edit
                             </UncontrolledTooltip>
                           </div>
                         </div>
@@ -333,7 +333,7 @@ export default function DepartmentIndex() {
               onSubmit={onSubmit}
               close={() => setToggleModal(false)}
               department={department}
-              // selectDivison={selectDivison}
+            // selectDivison={selectDivison}
             />
           ) : (
             <></>
