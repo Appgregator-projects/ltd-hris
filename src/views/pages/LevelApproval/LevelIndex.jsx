@@ -135,10 +135,8 @@ const LevelIndex = () => {
                 {
                   approval?.map((x, index) =>{
                     const trueEntries = Object.entries(x.approved_by).filter(([key, value]) => value === true);
-
                     const trueArray = trueEntries.map(([key]) => key);
-                    
-                    console.log(trueArray.join(", ").replace(/_/g," "),'tty');
+                    // console.log(trueArray.join(", ").replace(/_/g," "),'tty');
                   return (
                     <tr key={x.id}>
                       <td>{x.name}</td>

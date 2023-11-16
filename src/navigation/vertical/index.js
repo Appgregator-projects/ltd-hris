@@ -196,6 +196,12 @@ export default [
     navLink: "/days-off"
   },
   {
+    id: "Working Management",
+    title: "Working Hours",
+    icon: <Clock size={20} />,
+    navLink: "/working-management"
+  },
+  {
     id: "assest",
     title: "Assets",
     icon: <Monitor size={20} />,

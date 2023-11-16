@@ -61,6 +61,7 @@ const OvertimeRequest = lazy(() => import("../../views/pages/Overtime Request/Ov
 const Reimburse = lazy(() => import("../../views/pages/Reimburse/ReimburseIndex"))
 const MealAllowance = lazy(() => import("../../views/pages/MealAllowance/MealIndex"))
 const LevelApproval = lazy(() => import("../../views/pages/LevelApproval/LevelIndex"))
+const WorkingManagement = lazy(() => import("../../views/pages/Working Management/WorkingIndex"))
 
 // ** Merge Routes
 const Routes = [
@@ -268,6 +269,14 @@ const Routes = [
     meta: {
       action: "read",
       resource: "DAYSOFF"
+    }
+  },
+  {
+    path: "/working-management",
+    element: <WorkingManagement />,
+    meta: {
+      action: "read",
+      resource: "WORKING MANAGEMENT"
     }
   },
   // {
