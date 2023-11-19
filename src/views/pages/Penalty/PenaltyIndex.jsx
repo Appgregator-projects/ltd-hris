@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from 'react'
 import { Edit, Plus, Trash, User } from 'react-feather'
-import { Button, Card, CardBody, CardHeader, CardText, CardTitle, Col, Modal, ModalBody, ModalHeader, Row } from 'reactstrap'
+import { Button, Card, CardBody, CardHeader, CardText, CardTitle, Col, Modal, ModalBody, ModalHeader, Row, UncontrolledTooltip } from 'reactstrap'
 import { readMore } from '../../../Helper'
 import Avatar from '../../../@core/components/avatar'
 import PenaltyForm from './PenaltyForm'
@@ -191,7 +191,16 @@ const PenaltyIndex = () => {
 									{/* <Edit className='me-50' size={15} onClick={onEdit}/> <span className='align-middle'></span> */}
 								</div>
 								<div className="pointer">
-									<Trash className='me-50' size={15} onClick={()=> onDelete(x, index)}/> <span className='align-middle'></span>
+									<Trash className='me-50' size={15} onClick={()=> onDelete(x, index)}
+                    id={`pw-tooltip-${x.id}`}
+                  /> 
+                  <span className='align-middle'></span>
+                  <UncontrolledTooltip
+                    placement="top"
+                    target={`pw-tooltip-${x.id}`}
+                  >
+                    Delete
+                  </UncontrolledTooltip>
 								</div>
               </div>
             </Col>

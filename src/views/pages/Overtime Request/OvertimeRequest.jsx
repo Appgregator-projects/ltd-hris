@@ -35,16 +35,22 @@ const OvertimeRequest = () => {
     const [endDate, setEndDate] = useState("")
     const [startIndex, setStartIndex] = useState(0);
     const itemsPerPage = 10 
+
     const {
       setValue, control, handleSubmit, formState: {errors}
     } = useForm({ mode: "onChange"});
-    console.log(user?.uid,'oop')
+
     const getDataUser = async () => {
       try {
-        const data = await Api.get(`/hris/employee/${user?.uid}`)
-        setDataUser(data)
+        const {status,data} = await Api.get(`/hris/employee/${user?.uid}`)
+        if(status){
+          setDataUser(data)
+        }
       } catch (error) {
-        throw(error)
+        console.log(error.message)
+        toast.error(`Error : ${error.message}`, {
+          position: "top-center",
+      });
       }
     }
 
@@ -92,13 +98,19 @@ const OvertimeRequest = () => {
       try {
       const res = await getCollectionFirebaseV2('overtimes', 
       conditions,
-      sortBy,
+      sortBy, 
       limitValue,
       )
-      setOvertime(res)
-      console.log(res, 'ini res')        
+      if(res){
+        const filterData =  res.filter((x) => x.employee_id && x.employee)
+        setOvertime(filterData)
+        console.log(filterData, "res")
+      }
       } catch (error) {
-        console.log(error,'ini error firebaseovertime')
+        console.log(error.message)
+        toast.error(`Error : ${error.message}`, {
+        position: "top-center",
+      });
       }
     }
 
@@ -222,7 +234,6 @@ const OvertimeRequest = () => {
 
         }
         const set = await addDoc(collection(db,"overtimes"), newData)
-        console.log(set.id,'ini manager')
       } else {
         const newDatas = {
           approvals:[{id:'xxx', name:'hr'}, {id:dataUser?.division?.manager_id, name:'manager'}],
@@ -263,9 +274,6 @@ const OvertimeRequest = () => {
       }
       return total;
     }, 0)
-  
-    console.log({users})
-    console.log({dataUser})
 
     const renderStatus = (arg) => {
       if(arg.status === 'waiting') return <Badge color="light-warning">Waiting</Badge>
@@ -273,11 +281,139 @@ const OvertimeRequest = () => {
       if(arg.status === 'rejected') return <Badge color="light-danger">Rejected</Badge>
       return <Badge color="light-info">Processed</Badge>
     }
-  
+
     return(
       <>
         <Row>
-          {dataUser?.title === "HR" ? 
+          {dataUser?.role_id === 24 ? 
+          <>
+          <Col>
+          <Card>
+              <CardHeader>
+              <CardTitle>Form Pengajuan Lembur</CardTitle>
+              </CardHeader>
+              <CardBody>
+              <Form onSubmit={handleSubmit(onSubmitForm)}>
+              <Row>
+                <Col md="12" sm="12" className="mb-1">
+                  <Label className="form-label" for="date">
+                    Date
+                  </Label>
+                  <Controller
+                    name="date"
+                    defaultValue={null}
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        type="date"
+                        {...field}
+                        name="date"
+                      />
+                    )}
+                  />
+                </Col>
+                <Col md="12" sm="12" className="mb-1">
+                  <Label className="form-label" for="duration">
+                    Duration (hours)
+                  </Label>
+                  <Controller
+                    name="duration"
+                    defaultValue={null}
+                    control={control}
+                    render={({ field }) => (
+                      <Input
+                        type="number"
+                        {...field}
+                        name="duration"
+                      />
+                    )}
+                  />
+                </Col>
+                <Col>
+                  <Button type="submit" size="md" color="primary" className="m-1">
+                    Submit
+                  </Button>
+                </Col>
+              </Row>
+            </Form>
+              </CardBody>
+            
+            </Card>
+          </Col>
+          </> : 
+          dataUser?.role_id === 36 ? 
+          <>
+          <Col>
+            <Card>
+                <CardHeader>
+                  <CardTitle>Overtime Request to Manager</CardTitle>
+                  <Col className="d-flex align-items-center justify-content-sm-end mt-sm-0 mt-1" sm="3">
+                    <Label className="me-1 w-50" for="filtering">Filter status</Label>
+                    <Input
+                    type="select"
+                    id="filter-by-sttus"
+                    value={filterStatus}
+                    onChange={handleFilter}
+                    >
+                      <option value="">All</option>
+                      <option value="approved">Approved</option>
+                      <option value="rejected">Rejected</option>
+                      <option value="process">Processed</option>
+                      <option value="waiting">Waiting</option>
+                    </Input>
+                  </Col>
+                </CardHeader>
+                <CardBody>
+                  <Table responsive>
+                    <thead>
+                      <tr className='text-xs'>
+                        <th className='fs-6'>Employee</th>
+                        <th className='fs-6'>Date</th>
+                        <th className='fs-6'>Overtime Duration</th>
+                        <th className='fs-6'>Status</th>
+                        <th className='fs-6'>Created At</th>
+                        <th className='fs-6'>
+                          <Col className="d-flex justify-content-between">
+                          Action
+                          </Col>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    {!overtime?.approved_manager ? 
+                    <>
+                      {
+                      overtime?.map((x,index) => (
+                        <tr key={x.id}>
+                          <td>{x?.employee}</td>
+                          <td>{dateFormat(x.date)}</td>
+                          <td>{x.duration} Hours</td>
+                          <td>
+                            {renderStatus(x)}
+                          </td>
+                          <td>{dateTimeFormat(x.createdAt.seconds * 1000)}</td>
+                          <td>
+                            
+                              <div className='column-action d-flex align-items-center d-flex justify-content-center'>
+                              <div className='text-body pointer' onClick={() => onDetail2(x)} id={`pw-tooltip-${x.id}`}>
+                                <Eye size={17} className='mx-1' />
+                              </div>
+                            </div>
+                            
+                            
+                          </td>
+                        </tr>
+                      ))
+                    }
+                    </> : <></>}
+                      
+                    </tbody>
+                  </Table>
+                </CardBody>
+            </Card>
+            
+          </Col>
+          </> : 
           <>
           <Col>
             <Card>
@@ -370,6 +506,13 @@ const OvertimeRequest = () => {
                               <div className='column-action d-flex align-items-center d-flex justify-content-center'>
                               <div className='text-body pointer' onClick={() => onDetail(x)} id={`pw-tooltip-${x.id}`}>
                                 <Eye size={17} className='mx-1' />
+                                <span className='align-middle'></span>
+                                <UncontrolledTooltip
+                                  placement="top"
+                                  target={`pw-tooltip-${x.id}`}
+                                >
+                                  Detail Overtime
+                                </UncontrolledTooltip>
                               </div>
                             </div>
                             
@@ -385,135 +528,8 @@ const OvertimeRequest = () => {
               </CardBody>
             </Card>
           </Col>
-          </> : 
-          dataUser?.title === "Manager" ? 
-          <>
-          <Col>
-            <Card>
-                <CardHeader>
-                  <CardTitle>Overtime Request to Manager</CardTitle>
-                  <Col className="d-flex align-items-center justify-content-sm-end mt-sm-0 mt-1" sm="3">
-                    <Label className="me-1 w-50" for="filtering">Filter status</Label>
-                    <Input
-                    type="select"
-                    id="filter-by-sttus"
-                    value={filterStatus}
-                    onChange={handleFilter}
-                    >
-                      <option value="">All</option>
-                      <option value="approved">Approved</option>
-                      <option value="rejected">Rejected</option>
-                      <option value="process">Processed</option>
-                      <option value="waiting">Waiting</option>
-                    </Input>
-                  </Col>
-                </CardHeader>
-                <CardBody>
-                  <Table responsive>
-                    <thead>
-                      <tr className='text-xs'>
-                        <th className='fs-6'>Employee</th>
-                        <th className='fs-6'>Date</th>
-                        <th className='fs-6'>Overtime Duration</th>
-                        <th className='fs-6'>Status</th>
-                        <th className='fs-6'>Created At</th>
-                        <th className='fs-6'>
-                          <Col className="d-flex justify-content-between">
-                          Action
-                          </Col>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                    {!overtime?.approved_manager ? 
-                    <>
-                      {
-                      overtime?.map((x,index) => (
-                        <tr key={x.id}>
-                          <td>{x?.employee}</td>
-                          <td>{dateFormat(x.date)}</td>
-                          <td>{x.duration} Hours</td>
-                          <td>
-                            {renderStatus(x)}
-                          </td>
-                          <td>{dateTimeFormat(x.createdAt.seconds * 1000)}</td>
-                          <td>
-                            
-                              <div className='column-action d-flex align-items-center d-flex justify-content-center'>
-                              <div className='text-body pointer' onClick={() => onDetail2(x)} id={`pw-tooltip-${x.id}`}>
-                                <Eye size={17} className='mx-1' />
-                              </div>
-                            </div>
-                            
-                            
-                          </td>
-                        </tr>
-                      ))
-                    }
-                    </> : <></>}
-                      
-                    </tbody>
-                  </Table>
-                </CardBody>
-            </Card>
-            
-          </Col>
-          </> : 
-          <>
-          <Col>
-          <Card>
-              <CardHeader>
-              <CardTitle>Form Pengajuan Lembur</CardTitle>
-              </CardHeader>
-              <CardBody>
-              <Form onSubmit={handleSubmit(onSubmitForm)}>
-              <Row>
-                <Col md="12" sm="12" className="mb-1">
-                  <Label className="form-label" for="date">
-                    Date
-                  </Label>
-                  <Controller
-                    name="date"
-                    defaultValue={null}
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        type="date"
-                        {...field}
-                        name="date"
-                      />
-                    )}
-                  />
-                </Col>
-                <Col md="12" sm="12" className="mb-1">
-                  <Label className="form-label" for="duration">
-                    Duration (hours)
-                  </Label>
-                  <Controller
-                    name="duration"
-                    defaultValue={null}
-                    control={control}
-                    render={({ field }) => (
-                      <Input
-                        type="number"
-                        {...field}
-                        name="duration"
-                      />
-                    )}
-                  />
-                </Col>
-                <Col>
-                  <Button type="submit" size="md" color="primary" className="m-1">
-                    Submit
-                  </Button>
-                </Col>
-              </Row>
-            </Form>
-              </CardBody>
-            
-            </Card>
-          </Col>
-          </>}
+          </>
+          }
           
 
           

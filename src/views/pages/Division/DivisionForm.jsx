@@ -11,33 +11,12 @@ export default function DivisionForm({
   close,
   onSubmit,
   item,
-  users,
-  divisions,
-  selectDivison,
-  type
 }) {
-
-  const [selectManager, setSelectManager] = useState(null)
-  const [selectParent, setSelectParent] = useState(null)
 
   const ItemSchema = yup.object().shape({
     name: yup.string().required(),
-    // parent: yup.string().required(),
   });
-  
-  const Option = users?.map((e) => ({ value: e.id, label: e.email }));
-  const DivitionOption = selectDivison?.map((e) => ({
-    value: e.id,
-    label: e.name,
-  }));
 
-  const handleModal = () => {
-    const filterParent = DivitionOption.filter((e) => e.value === item.parent_id)[0]
-    const filterManager =  Option.filter((e) => e.value === item.manager_id)[0]
-    setValue("name", item.name);
-    setValue("parent", filterParent);
-    setValue("manager_id", filterManager);
-  }
   const {
     setValue,
     control,
@@ -51,11 +30,8 @@ export default function DivisionForm({
   };
 
   useEffect(() => {
-    // console.log(item, "item setvalue ")
     if (item) {
       setValue("name", item.name)
-      setValue("parent", item == undefined? item.parent_id : DivitionOption.filter((e) => e.value === item.parent_id)[0]) 
-      setValue("manager_id", item == undefined? item.manager_id : Option.filter((e) => e.value === item.manager_id)[0])
     }
   }, [item]);
 
@@ -81,56 +57,6 @@ export default function DivisionForm({
               )}
             />
             {errors.name && <FormFeedback>{errors.name.message}</FormFeedback>}
-          </Col>
-          <Col md="12" sm="12" className="mb-1">
-            <Label className="form-label" for="parent">
-              Division Parent
-            </Label>
-            <Controller
-              name="parent"
-              defaultValue=''
-              control={control}
-              render={({ field }) => 
-                <Select
-                  className="react-select"
-                  classNamePrefix="select"
-                  id="label"
-                  // name="parent"
-                  {...field}
-                  placeholder={"Select Parent Division"}
-                  closeMenuOnSelect={true}
-                  options={DivitionOption}
-                  invalid={errors.parent && true}
-                  // onChange={(arg) => {setSelectParent(arg.value); console.log(arg, "parent")}}
-                />
-              }
-            />
-            {errors.parent && (<FormFeedback>{errors.parent.message}</FormFeedback>)}
-          </Col>
-          <Col md="12" sm="12" className="mb-1">
-            <Label className="form-label" for="manager_id">
-              Select Division Leader
-            </Label>
-            <Controller
-              name="manager_id"
-              defaultValue=''
-              control={control}
-              render={({ field }) => 
-                <Select
-                  className="react-select"
-                  classNamePrefix="select"
-                  id="label"
-                  {...field}
-                  placeholder={"Select Manager"}
-                  options={Option}
-                  invalid={errors.manager_id && true}
-                  // onChange={arg => {setSelectManager(arg.value); console.log(arg.value)}}
-                />
-              }
-            />
-            {errors.manager_id && (
-              <FormFeedback>{errors.manager_id.message}</FormFeedback>
-            )}
           </Col>
           <Col>
             <Button type="button" size="md" color="danger" onClick={close}>

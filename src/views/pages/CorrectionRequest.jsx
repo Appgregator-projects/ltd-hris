@@ -43,36 +43,37 @@ export default function CorrectionIndex(){
     try {
       const {status,data} = await Api.get('/hris/correction')
       if(status){
-        const filterData = data.filter((x) => filterStatus !== "Requested"?  
+        const filtering = data.filter((x) => x.user_id && x.users !== null)
+        const filterData = filtering.filter((x) => filterStatus !== "Requested"?  
         x.current_status === filterStatus : x.current_status === null)
+
         if(filterStatus === ""){
-          setCorrection([...data])
+          console.log(data, "data")
+          setCorrection([...filtering])
         } else{
-          if(data){
-            const updateDatFilter =  filterData.map((x) => {
-              return {
-                id : x.id,
-                clock_in : x.clock_in,
-                clock_out : x.clock_out,
-                current_status : x.current_status,
-                periode: x.periode,
-                rejected_note: x.rejected_note,
-                user_id : x.user_id,
-                users : x.users,
-                is_check : false,
-                createdAt : x.createdAt,
-                updateAt :  x.updateAt
-              }
-            })
-            setCorrection(updateDatFilter)
-          }
+          const updateDataFilter =  filterData.map((x) => {
+            return {
+              id : x.id,
+              clock_in : x.clock_in,
+              clock_out : x.clock_out,
+              current_status : x.current_status,
+              periode: x.periode,
+              rejected_note: x.rejected_note,
+              user_id : x.user_id,
+              users : x.users,
+              is_check : false,
+              createdAt : x.createdAt,
+              updateAt :  x.updateAt
+            }
+          })
+          setCorrection(updateDataFilter)
         }
       }
     } catch (error) {
       throw error
     }
   }
-  console.log(corrections, "corrections")
+
   useEffect(() => {
     fetchCorrection()
   },[filterStatus])
@@ -343,6 +344,13 @@ export default function CorrectionIndex(){
                           <div className='column-action d-flex align-items-center d-flex justify-content-center'>
                             <div className='text-body pointer' onClick={() => onDetail(x)} id={`pw-tooltip-${x.id}`}>
                               <Eye size={17} className='mx-1' />
+                              <span className='align-middle'></span>
+                              <UncontrolledTooltip
+                                placement="top"
+                                target={`pw-tooltip-${x.id}`}
+                              >
+                                Detail Correction
+                              </UncontrolledTooltip>
                             </div>
                             {filterStatus === "Requested" ?
                             <div className="form-check">
@@ -407,16 +415,13 @@ export default function CorrectionIndex(){
                       <span className="fw-bold">Clock out</span>
                       <span>{dayjs(selectItem.clock_out).format('HH:mm')}</span>
                     </li>
-                    {/* <li className="d-flex justify-content-between pb-1">
-                      <span className="fw-bold">Attachment</span>
-                      <span>
-                        <Link to={selectItem.image} target="_blank">attachment</Link>
-                      </span>
-                    </li> */}
-                    {/* <li className="d-flex justify-content-between pb-1">
-                      <span className="fw-bold">Reason</span>
-                      <span>{selectItem.reason}</span>
-                    </li> */}
+                    <li className="d-flex justify-content-between pb-1">
+                      <span className="fw-bold">Attachment required</span>
+                      <Link
+                      to={selectItem.file? selectItem.file: "file is unvailable"}
+                      target="_blank">{selectItem.file? selectItem.file: "file is unvailable"}</Link>
+                      {/* <span>{selectItem.file? selectItem.file : "file is unvailable"}</span> */}
+                    </li>
                 </ul>
                 </>
               : <></>

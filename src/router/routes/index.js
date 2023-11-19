@@ -42,7 +42,7 @@ const EmployeeDetail = lazy(() => import("../../views/pages/employee/EmployeeDet
 const Office = lazy(() => import("../../views/pages/Office/OfficeIndex"))
 const OfficeDetail = lazy(() => import("../../views/pages/Office/OfficeDetail"))
 // const Shift = lazy(() => import("../../views/pages/Shift/ShiftIndex"));
-const Division = lazy(() => import("../../views/pages/Division/DivisionIndex"))
+const Department = lazy(() => import("../../views/pages/Division/DepartmentIndex"))
 const LeaveCategory = lazy(() => import("../../views/pages/LeaveCategory/LeaveCategoryIndex"))
 const Attendance = lazy(() => import("../../views/pages/Attendance/AttendanceIndex"))
 const CorrectionRequest = lazy(() => import("../../views/pages/CorrectionRequest"))
@@ -60,6 +60,8 @@ const PenaltyCategory = lazy(() => import("../../views/pages/PenaltyCategory/Pen
 const OvertimeRequest = lazy(() => import("../../views/pages/Overtime Request/OvertimeRequest"))
 const Reimburse = lazy(() => import("../../views/pages/Reimburse/ReimburseIndex"))
 const MealAllowance = lazy(() => import("../../views/pages/MealAllowance/MealIndex"))
+const LevelApproval = lazy(() => import("../../views/pages/LevelApproval/LevelIndex"))
+const WorkingManagement = lazy(() => import("../../views/pages/Working Management/WorkingIndex"))
 
 // ** Merge Routes
 const Routes = [
@@ -166,8 +168,8 @@ const Routes = [
     }
   },
   {
-    path: "/division",
-    element: <Division />,
+    path: "/department",
+    element: <Department />,
     meta: {
       action: "read",
       resource: "DIVISIONS"
@@ -179,6 +181,14 @@ const Routes = [
     meta: {
       action: "read",
       resource: "COMPANIES"
+    }
+  },
+  {
+    path: "/level-approval",
+    element: <LevelApproval />,
+    meta: {
+      action: "read",
+      resource: "LEVEL APPROVAL"
     }
   },
   {
@@ -259,6 +269,14 @@ const Routes = [
     meta: {
       action: "read",
       resource: "DAYSOFF"
+    }
+  },
+  {
+    path: "/working-management",
+    element: <WorkingManagement />,
+    meta: {
+      action: "read",
+      resource: "WORKING MANAGEMENT"
     }
   },
   // {

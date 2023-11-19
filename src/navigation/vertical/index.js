@@ -22,7 +22,8 @@ import {
   AlertTriangle,
   Clock,
   ShoppingBag,
-  Coffee
+  Coffee,
+  ThumbsUp
 } from "react-feather"
 
 export default [
@@ -77,7 +78,16 @@ export default [
     icon: <Twitch size={20} />,
     navLink: "/leave-request"
   },
-  { header: "e-Learning Employee" },
+  {
+    id: "overtime-request",
+    title: "Overtime Request",
+    icon: <Clock size={20} />,
+    navLink: "/overtime-request"
+  },
+
+  { header: "e-Learning Employee" 
+  },
+  
   {
     id: "courses-employee",
     title: "Courses",
@@ -89,13 +99,6 @@ export default [
     title: "Group",
     icon: <Users size={20} />,
     navLink: "/groups-employee"
-  },
-
-  {
-    id: "overtime-request",
-    title: "Overtime Request",
-    icon: <Clock size={20} />,
-    navLink: "/overtime-request"
   },
 
   {
@@ -163,10 +166,16 @@ export default [
     navLink: "/office"
   },
   {
-    id: "division",
-    title: "Division",
-    icon: <Chrome size={20} />,
-    navLink: "/division"
+    id: "department",
+    title: "Department",
+    icon: <Users size={20} />,
+    navLink: "/department"
+  },
+  {
+    id: "level-approval",
+    title: "Level Approval",
+    icon: <ThumbsUp size={20} />,
+    navLink: "/level-approval"
   },
   {
     id: "leave-category",
@@ -185,6 +194,12 @@ export default [
     title: "Days Off",
     icon: <Slash size={20} />,
     navLink: "/days-off"
+  },
+  {
+    id: "Working Management",
+    title: "Working Hours",
+    icon: <Clock size={20} />,
+    navLink: "/working-management"
   },
   {
     id: "assest",
