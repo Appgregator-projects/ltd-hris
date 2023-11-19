@@ -3386,6 +3386,11 @@ neo-async@^2.6.2:
   resolved "https://registry.npmjs.org/neo-async/-/neo-async-2.6.2.tgz"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
 
+nested-select@^1.0.9:
+  version "1.0.9"
+  resolved "https://registry.npmjs.org/nested-select/-/nested-select-1.0.9.tgz"
+  integrity sha512-9+JxJlndHh+YSUAm4K0lRK+c6pbD3H9PmHdvPkzNJGSNk1ZJoTWwwCzPiiugHSD1OvVmqT/03tHwEwjChnmVZw==
+
 node-fetch@^2.6.11, node-fetch@^2.6.12:
   version "2.6.12"
   resolved "https://registry.npmjs.org/node-fetch/-/node-fetch-2.6.12.tgz"

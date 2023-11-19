@@ -14,7 +14,7 @@ const App = () => {
   const user = JSON.parse(localStorage.getItem("userData"));
   const dispatch = useDispatch()
   const [company, setCompany] = useState([])
-  console.log(user,"user")
+  // console.log(user,"user")
 
   useEffect(() => {
     // getData()

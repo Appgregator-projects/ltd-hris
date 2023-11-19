@@ -31,12 +31,13 @@ import FormUserAssign from "../Components/FormUserAssign";
 import { error } from "jquery";
 import getNestedChildren from "../../../Helper/hierarchy";
 import DepartmentForm from "./DepartmentForm";
-import { addDocumentFirebase, arrayUnionFirebase, getCollectionFirebase, setDocumentFirebase } from "../../../sevices/FirebaseApi";
+import { addDocumentFirebase, arrayUnionFirebase, getCollectionFirebase, getCollectionWithSnapshotFirebase, setDocumentFirebase } from "../../../sevices/FirebaseApi";
 import Division from "./Division";
 const MySwal = withReactContent(Swal);
 
 export default function DepartmentIndex() {
   const [department, setDepartment] = useState([]);
+  const [nestedDepartement, setNestedDept] = useState([{}]);
   const [toggleModal, setToggleModal] = useState(false);
   const [modal, setModal] = useState({
     title: "Department form",
@@ -60,18 +61,30 @@ export default function DepartmentIndex() {
   };
 
   const fetchDepartmentFirebase = async () => {
+    let nestedArray = []
     try {
       const getData = await getCollectionFirebase(
-        "departments"
+        "department"
       )
       if (getData) {
-        console.log(getData, "data")
+        const nestedPromises = getData.map(async(x) => {
+          const dataNested = await getCollectionFirebase(`department/${x.id}/children`)
+          // console.log(dataNested, "dataNested")
+          return dataNested;
+        })
+        const nestedData = await Promise.all(nestedPromises);
+        const allNestedData = [].concat(...nestedData).filter(x => !x.layer)
+        console.log(nestedData, "nestedData");
+        console.log(nestedArray, "nestedArray");
         setDepartment(getData)
+        setNestedDept(allNestedData)
       }
     } catch (error) {
-
+      throw error
     }
   }
+
+  console.log(nestedDepartement, "nestedDpartment")
 
   useEffect(() => {
     fetchDepartmentFirebase()
@@ -126,21 +139,14 @@ export default function DepartmentIndex() {
   };
 
   const onSubmit = async (params) => {
-    // return console.log(params,"arams")
     let response = ""
-    let resChildren = ""
     try {
       if (modal.item) return postUpdate(params);
-      // const {status,data} = await Api.post(`/hris/depertement`, params);
-      response = await addDocumentFirebase("departments", params)
-      if (params.parent !== null) {
-        resChildren = await arrayUnionFirebase(
-          `departments`, `${params.parent}`, "details", params
-        )
+      if(params.parent === null){
+        response = await addDocumentFirebase(`department`, params)
+      } else {
+        response = await addDocumentFirebase(`department/${params.nested}`, params)
       }
-      toast.success("New division has been added as " + params.parent + " children", {
-        position: "top-center",
-      });
       fetchDepartmentFirebase();
       setToggleModal(false);
       if (!response)
@@ -148,7 +154,7 @@ export default function DepartmentIndex() {
           position: "top-center",
         });
       fetchDepartmentFirebase();
-      toast.success("New department: " + params.name + "has added", {
+      toast.success("New division: " + params.name + " has been added", {
         position: "top-center",
       });
       setToggleModal(false);
@@ -323,6 +329,7 @@ export default function DepartmentIndex() {
               close={() => setToggleModal(false)}
               item={modal.item}
               department={department}
+              nested={nestedDepartement}
             />
           ) : (
             <></>
@@ -333,6 +340,7 @@ export default function DepartmentIndex() {
               onSubmit={onSubmit}
               close={() => setToggleModal(false)}
               department={department}
+              nested={nestedDepartement}
             // selectDivison={selectDivison}
             />
           ) : (

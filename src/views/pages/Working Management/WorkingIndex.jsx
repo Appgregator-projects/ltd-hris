@@ -42,7 +42,7 @@ const WorkingIndex = () => {
   const fetchUserAssign = async (item) => {
     console.log(item.id, "ini dia")
     try {
-      const getData = await getCollectionFirebase(`work_hours/${item.id}/employee_assign`)
+      const getData = await getCollectionFirebase(`work_hours/${item.id}/employees`)
       if (getData) {
         setUserAssign(getData)
       }
@@ -149,9 +149,11 @@ const WorkingIndex = () => {
 
   const updateUser = async (item, itemPatch) => {
     let response = ""
+    let resArray = ""
     const assign = userAssign[0].id
     const obj1 = itemPatch.employee
     const obj2 = userAssign[0].employee
+    // return console.log(item, itemPatch, userAssign,"patch")
 
     const gabungObjekTanpaDuplikat = (obj1, obj2) => {
       const hasil = [...obj1];
@@ -169,9 +171,13 @@ const WorkingIndex = () => {
       employee: hasilGabungan
     }
     try {
-      response = await setDocumentFirebase(
-        `work_hours/${item.id}/employee_assign`, assign, itemPut
-      )
+      const promises = params.map(async (arg) => {
+        const setRef = await setDocumentFirebase(`work_hours/${item.id}/employees`, arg);
+        const UpdateRef = await updateDocumentFirebase(`work_hours`, `${item.id}`, 'employees', arg);
+        return { setRef, UpdateRef };
+      });
+      response = await setDocumentFirebase(`work_hours/${item.id}/employees`, assign, hasilGabungan)
+      resArray = await updateDocumentFirebase(`work_hours`, `${item.id}`, "employees", itemPut)
       if (!response)
         return toast.error(`Error : ${response}`, {
           position: 'top-center'
@@ -201,15 +207,17 @@ const WorkingIndex = () => {
       employee: params.length ? params : ['all'],
       is_all: alluser
     }
-    let response = " "
+
     try {
       // const { status, data } = await Api.patch(`/hris/office/${modal.item.id}/assign-user`, itemPatch)
-      if (userAssign.length) {
-        return updateUser(item, itemPatch)
-      }
-      // return console.log(item, "userassign item")
-      response = await addDocumentFirebase(`work_hours/${item.id}/employee_assign`, itemPatch)
-      console.log(response, itemPatch, "params userselect")
+      if (userAssign.length) return updateUser(item, itemPatch)
+      const promises = params.map(async (arg) => {
+        const addRef = await addDocumentFirebase(`work_hours/${item.id}/employees`, arg);
+        const unionRef = await arrayUnionFirebase(`work_hours`, `${item.id}`, 'employees', arg);
+        return { addRef, unionRef };
+      });
+      const response = Promise.all(promises)
+      
       if (!response)
         return toast.error(`Error : ${response}`, {
           position: 'top-center'
@@ -272,12 +280,12 @@ const WorkingIndex = () => {
                         <td>
                           <Row>
                             <Badge color='success'>
-                            {x.details.productive_detail !== "" ? x.details.productive_detail : "-"} productive
+                              {x.details.productive_detail !== "" ? x.details.productive_detail : "-"} productive
                             </Badge>
                           </Row>
                           <Row>
                             <Badge color='light-danger'>
-                            {x.details.off_detail !== "" ? x.details.off_detail : "-"} off
+                              {x.details.off_detail !== "" ? x.details.off_detail : "-"} off
                             </Badge>
                           </Row>
                         </td>
