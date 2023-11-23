@@ -23,7 +23,7 @@ const WorkingDetail = ({ item, close, assignee }) => {
         </Col>
         <div className='d-flex align-items-center justify-content-center mt-1'>
           <Avatar color="light-info" icon={<User size={24} />} className='me-1' />
-          <h4 className='fw-bolder mb-0 me-1'>{assignee?.employee.length}</h4>
+          <h4 className='fw-bolder mb-0 me-1'>{item?.employees.length}</h4>
           <div className='my-auto'>
             <CardText className='font-small-3 mb-0 text-secondary'>Employees</CardText>
           </div>
@@ -31,8 +31,8 @@ const WorkingDetail = ({ item, close, assignee }) => {
       </div>
       <h5 className='fw-bolder mb-0 me-1'>Employee lists</h5>
       <ul className='d-flex m-0 p-0 mt-1 flex-wrap'>
-        {
-          assignee?.employee.map((x, index) => (
+        {item.employees? 
+          item?.employees.map((x, index) => (
             <li key={index} className="col-md-4 col-sm-12 p-0 m-0 list-none mb-1">
               <div className='d-flex justify-content-left align-items-center'>
                 <Avatar
@@ -49,9 +49,10 @@ const WorkingDetail = ({ item, close, assignee }) => {
               </div>
             </li>
           ))
-        }
+          : <p className='text-center text-warning'>No Employee on this office</p>
+        } 
       </ul>
-      {!assignee?.employee ? (<p className='text-center text-warning'>No Employee on this office</p>) : <></>}
+      {/* {!item?.employee ? (<p className='text-center text-warning'>No Employee on this office</p>) : <></>} */}
     </>
   )
 }

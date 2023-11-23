@@ -18,8 +18,13 @@ import {
   Label,
   Input,
   UncontrolledTooltip,
+  Dropdown,
+  UncontrolledDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
 } from "reactstrap";
-import { Edit, Trash, User, Plus, Lock, UserPlus, Circle, Eye } from "react-feather";
+import { Edit, Trash, User, Plus, Lock, UserPlus, Circle, Eye, X } from "react-feather";
 import Avatar from "@components/avatar";
 import { Link } from "react-router-dom";
 import DivisionForm from "./DivisionForm";
@@ -37,7 +42,7 @@ const MySwal = withReactContent(Swal);
 
 export default function DepartmentIndex() {
   const [department, setDepartment] = useState([]);
-  const [nestedDepartement, setNestedDept] = useState([{}]);
+  const [nestedDepartement, setNestedDept] = useState([]);
   const [toggleModal, setToggleModal] = useState(false);
   const [modal, setModal] = useState({
     title: "Department form",
@@ -61,30 +66,72 @@ export default function DepartmentIndex() {
   };
 
   const fetchDepartmentFirebase = async () => {
-    let nestedArray = []
+    let dataArr = []
     try {
       const getData = await getCollectionFirebase(
         "department"
       )
-      if (getData) {
-        const nestedPromises = getData.map(async(x) => {
-          const dataNested = await getCollectionFirebase(`department/${x.id}/children`)
-          // console.log(dataNested, "dataNested")
-          return dataNested;
-        })
-        const nestedData = await Promise.all(nestedPromises);
-        const allNestedData = [].concat(...nestedData).filter(x => !x.layer)
-        console.log(nestedData, "nestedData");
-        console.log(nestedArray, "nestedArray");
+
+      // if (getData) {
+      //   const nestedPromises = getData.map(async (x) => {
+      //     const dataNested = await getCollectionFirebase(`department/${x.id}/children`)
+      //     // console.log(dataNested, "dataNested")
+      //     return dataNested;
+      //   })
+      //   const nestedData = await Promise.all(nestedPromises);
+      //   const allNestedData = [].concat(...nestedData).filter(x => !x.layer)
+      //   // console.log(nestedData, "nestedData");
+      //   // console.log(nestedArray, "nestedArray");
+      //   setNestedDept(allNestedData)
+      // }
+      console.log(getData ,"gettttt")
         setDepartment(getData)
-        setNestedDept(allNestedData)
-      }
     } catch (error) {
       throw error
     }
   }
 
-  console.log(nestedDepartement, "nestedDpartment")
+  useEffect(() => {
+    // Fungsi buildHierarchy disini (misalnya, jika Anda menempatkannya dalam komponen ini)
+    function buildHierarchy(department) {
+      const indexedData = {};
+      const result = [];
+  
+      department.forEach(item => {
+        indexedData[item.id] = item;
+      });
+  
+      const buildRecursive = (item) => {
+        if (item.parent) {
+          const parentItem = indexedData[item.parent];
+          if (parentItem) {
+            if (!parentItem.children) {
+              parentItem.children = [];
+            }
+            parentItem.children.push({...item, value : item.id});
+          } else {
+            // Handle the case where the parent is not found (optional)
+          }
+        } else {
+          result.push(item);
+
+        }
+      };
+  
+      department.forEach(item => {
+        buildRecursive(item);
+      });
+  
+      return result;
+    }
+  
+    // Panggilan fungsi buildHierarchy dengan menggunakan department objek yang diberikan (yourArray).
+    const hierarchyData = buildHierarchy(department);
+
+    console.log(hierarchyData, "hierarcy")
+    // Simpan hasil hierarki ke dalam state nestedDepartement.
+    setNestedDept(hierarchyData);
+  }, [department]);
 
   useEffect(() => {
     fetchDepartmentFirebase()
@@ -140,13 +187,39 @@ export default function DepartmentIndex() {
 
   const onSubmit = async (params) => {
     let response = ""
+    let resUnion = ""
+    let arr = []
+    const findUnion = params.layer[params.layer.length -1]
+
+    console.log(params, "params")
+    // return 
     try {
       if (modal.item) return postUpdate(params);
-      if(params.parent === null){
-        response = await addDocumentFirebase(`department`, params)
-      } else {
-        response = await addDocumentFirebase(`department/${params.nested}`, params)
-      }
+      response = await addDocumentFirebase (`department`, params)
+      // if (params.parent === "") {
+      //   response = await addDocumentFirebase
+      //     (`department`, params)
+      // } else {
+      //   response = await addDocumentFirebase
+      //     (`newDepartment/${params.parent}/children`, params)
+
+      //     arr.push(
+      //       {
+      //         label: params.name, 
+      //         value : response,
+      //         layer : params.layer,
+      //         parent : params.parent 
+      //       })
+          
+      //     // constfindPrentArray = department.details.map
+
+      //     console.log(`newDepartment`, findUnion, `details/${[0]}}`, arr[0])
+      //     // return 
+      //     if(response){
+      //       resUnion = await arrayUnionFirebase
+      //       (`newDepartment`, findUnion, "details", arr[0])
+      //     }
+      // }
       fetchDepartmentFirebase();
       setToggleModal(false);
       if (!response)
@@ -165,28 +238,6 @@ export default function DepartmentIndex() {
       });
     }
   };
-
-  const onSubmitFirebase = async (item) => {
-    let response = ""
-    console.log(item, item)
-    try {
-      response = await addDocumentFirebase("department", item)
-      if (!response)
-        return toast.error(`Error : ${item.name}`, {
-          position: "top-center",
-        });
-      fetchDepartmentFirebase();
-      toast.success("New department: " + item.name + "has added", {
-        position: "top-center",
-      });
-      setToggleModal(false);
-    } catch (error) {
-      setToggleModal(false);
-      toast.error(`Error : ${error.message}`, {
-        position: "top-center",
-      });
-    }
-  }
 
   const postDelete = (id) => {
     return new Promise((resolve, reject) => {
@@ -258,10 +309,25 @@ export default function DepartmentIndex() {
                 </tr>
               </thead>
               <tbody>
-                {department.map((x, index) => (
+                {nestedDepartement.map((x, index) => (
                   <>
                     <tr key={x.id}>
-                      <td>{x.name}</td>
+                      <td>
+                        <UncontrolledDropdown direction="down">
+                          <DropdownToggle color="transparant">
+                            {x.label}
+                            <DropdownMenu>
+                              {x.children?.map((y) => {
+                                return (
+                                  <DropdownItem>
+                                    {y.label}
+                                  </DropdownItem>
+                                )
+                              })}
+                            </DropdownMenu>
+                          </DropdownToggle>
+                        </UncontrolledDropdown>
+                      </td>
                       <td>{x.parent}</td>
                       {/* <td>{x.division}</td> */}
                       <td>
