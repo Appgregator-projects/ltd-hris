@@ -82,7 +82,7 @@ export default function FormEmployee({
       setValue("company_id", item.company_id)
       setValue("division_id", item.division_id)
       setValue("departement_id", item.departement_id)
-      setValue("level", item.level)  
+      setValue("level", item.level)
       if (item.employee_attribute) {
         setValue("dob", dayjs(item.employee_attribute.dob).format("YYYY-MM-DD"));
         setValue("join_date", dayjs(item.employee_attribute.join_date).format("YYYY-MM-DD"));
@@ -93,23 +93,23 @@ export default function FormEmployee({
         setValue("status", item.employee_attribute.status);
         setValue("marital_status", item.employee_attribute.marital_status)
         setValue("dependents", item.employee_attribute.dependents)
-        setValue("bank_Account", item.employee_attribute.bank_Account)  
-        setValue("bank_Account_Name", item.employee_attribute.bank_Account_Name)  
-        setValue("bank_Account_Number", item.employee_attribute.bank_Account_Number)  
+        setValue("bank_Account", item.employee_attribute.bank_Account)
+        setValue("bank_Account_Name", item.employee_attribute.bank_Account_Name)
+        setValue("bank_Account_Number", item.employee_attribute.bank_Account_Number)
       }
     }
     setValue("company_id", companyId)
   }, [item]);
 
-  const handleSelectOptions = async(e) => {
+  const handleSelectOptions = async (e) => {
     console.log(e, "apani")
     setSelectDepartment(e)
     try {
-      const {status,data} = await Api.get(`/hris/depertement/${e}`)
-    if(status){
-      setDivisions(data.division)
-      } 
-    }catch (error) {
+      const { status, data } = await Api.get(`/hris/depertement/${e}`)
+      if (status) {
+        setDivisions(data.division)
+      }
+    } catch (error) {
       console.log(error.message)
       toast.error(`Error : ${error.message}`, {
         position: "top-center",
@@ -172,8 +172,8 @@ export default function FormEmployee({
                 {...field}
                 name="name"
                 invalid={errors.name && true}
-                // value={selectDepartment}
-                // onChange={handleSelectOptions}
+              // value={selectDepartment}
+              // onChange={handleSelectOptions}
               />
             )}
           />
@@ -440,7 +440,7 @@ export default function FormEmployee({
                 type="select"
                 {...field}
                 name="company_id"
-                disabled={companyId !== undefined }
+                disabled={companyId !== undefined}
                 invalid={errors.company_id && true}
               >
                 <option value="">Select company</option>
@@ -497,7 +497,7 @@ export default function FormEmployee({
                 type="select"
                 {...field}
                 name="division_id"
-                disabled ={!selectDepartment}
+                disabled={!selectDepartment}
                 invalid={errors.division_id && true}
               >
                 <option value="">Select division</option>
@@ -618,7 +618,7 @@ export default function FormEmployee({
                 {...field}
                 name="level"
                 invalid={errors.level && true}
-                // placeholder="Select level"
+              // placeholder="Select level"
               >
                 <option value="">Select level</option>
                 <option value="Manager">Manager</option>
@@ -630,7 +630,7 @@ export default function FormEmployee({
           {errors.level && <FormFeedback>{errors.level.message}</FormFeedback>}
         </Col>
         <Col md="12" sm="12" className="my-2 fs-5 fw-bold">
-          Bank 
+          Bank
         </Col>
         <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="bank_Account">
@@ -661,11 +661,11 @@ export default function FormEmployee({
             control={control}
             render={({ field }) => (
               <Input
-              type="text"
-              {...field}
-              name="bank_Account_Name"
-              invalid={errors.bank_Account_Name && true}
-              placeholder="Ex: Jhon Doe"
+                type="text"
+                {...field}
+                name="bank_Account_Name"
+                invalid={errors.bank_Account_Name && true}
+                placeholder="Ex: Jhon Doe"
               />
             )}
           />

@@ -192,7 +192,7 @@ export default function DepartmentIndex() {
     const findUnion = params.layer[params.layer.length -1]
 
     console.log(params, "params")
-    // return 
+    return 
     try {
       if (modal.item) return postUpdate(params);
       response = await addDocumentFirebase (`department`, params)
