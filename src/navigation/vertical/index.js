@@ -85,9 +85,10 @@ export default [
     navLink: "/overtime-request"
   },
 
-  { header: "e-Learning Employee" 
+  {
+    header: "e-Learning Employee"
   },
-  
+
   {
     id: "courses-employee",
     title: "Courses",
@@ -145,7 +146,7 @@ export default [
     navLink: "/loans"
   },
   {
-    header : "master data"
+    header: "master data"
   },
   {
     id: "employee",
