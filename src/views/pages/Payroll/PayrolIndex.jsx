@@ -20,7 +20,7 @@ import Api from "../../../sevices/Api";
 import { numberFormat } from "../../../Helper";
 import dayjs from "dayjs";
 import { Link } from "react-router-dom";
-import { Trash, Edit, Eye, CheckCircle, Plus } from "react-feather";
+import { Trash, Edit, Eye, CheckCircle, Plus, RefreshCcw } from "react-feather";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -111,7 +111,7 @@ export default function PayrolIndex() {
   return (
     <>
       <Row>
-        <Col lg="6" className="mb-2">
+        <Col lg="12" className="mb-2 d-flex justify-content-between">
           <Button.Ripple
             size="sm"
             color="primary"
@@ -120,6 +120,16 @@ export default function PayrolIndex() {
           >
             <Plus size={14} />
             <span className="align-middle text-sm ms-25">Create Payroll</span>
+          </Button.Ripple>
+
+          <Button.Ripple
+            size="sm"
+            color="success"
+            // tag={Link}
+            // to="/payroll-form"
+          >
+            <RefreshCcw size={14} />
+            <span className="align-middle text-sm ms-25">Generate All Payroll</span>
           </Button.Ripple>
         </Col>
         <Col lg="12">

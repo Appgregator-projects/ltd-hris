@@ -22,9 +22,7 @@ const PenaltyIndex = () => {
   const [penalty, setPenalty] = useState([])
   const [history, setHistory] = useState([])
   const [employee, setEmployee] = useState([])
-  const [selectUser, setSelectUser] = useState(null)
   const [toggleModal, setToggleModal] = useState(false)
-  const [nestedModal, setNestedModal] = useState(false)
   const [modal, setModal] = useState({
     title : "",
     mode : "",

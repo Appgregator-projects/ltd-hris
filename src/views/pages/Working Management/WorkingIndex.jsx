@@ -39,23 +39,6 @@ const WorkingIndex = () => {
     fetchWorkhours()
   }, [])
 
-  const fetchUserAssign = async (item) => {
-    console.log(item.id, "ini dia")
-    try {
-      const getData = await getCollectionFirebase(`work_hours/${item.id}/employees`)
-      if (getData) {
-        setUserAssign(getData)
-      }
-      console.log(getData, "getData")
-    } catch (error) {
-      throw error
-    }
-  }
-
-  useEffect(() => {
-    fetchUserAssign()
-  }, [modal.item])
-
   const fetchUser = async () => {
     try {
       const data = await Api.get(`hris/employee?no_paginate=true`)
@@ -75,6 +58,40 @@ const WorkingIndex = () => {
   useEffect(() => {
     fetchUser()
   }, [])
+
+  const fetchUserAssign = async (item) => {
+    try {
+      const getData = await getCollectionFirebase(`work_hours/${item.id}/employees`)
+      if (getData) {
+        const getAllHours = await getCollectionFirebase(`work_hours`)
+        const getAllArr = await Promise.all(
+          getAllHours.map(async (x) =>
+            await getCollectionFirebase(`work_hours/${x.id}/employees`)
+          ))
+        const attachedId = {};
+        const getAllAssignedUser = getAllArr.filter(
+          (item) => item.length > 0).reduce(
+            (result, currentArray) => {
+              currentArray.forEach((x) => {
+                  const { id } = x;
+                  if (!attachedId[id]) {
+                      result.push(x);
+                      attachedId[id] = true;
+                  }
+              });
+          
+              return result;
+          }, [])
+
+        const filterUser = users.filter(x => 
+          !getAllAssignedUser.some(y => x.value === y.id)
+        )
+        setUserAssign(filterUser)
+      }
+    } catch (error) {
+      throw error
+    }
+  }
 
   const onAdd = () => {
     setModal({
@@ -153,7 +170,7 @@ const WorkingIndex = () => {
     const assign = userAssign[0].id
     const obj1 = itemPatch.employee
     const obj2 = userAssign[0].employee
-    // return console.log(item, itemPatch, userAssign,"patch")
+    return console.log(item, itemPatch, userAssign, "patch")
 
     const gabungObjekTanpaDuplikat = (obj1, obj2) => {
       const hasil = [...obj1];
@@ -207,17 +224,17 @@ const WorkingIndex = () => {
       employee: params.length ? params : ['all'],
       is_all: alluser
     }
-
+    // return console.log(item, "paajdoie")
     try {
       // const { status, data } = await Api.patch(`/hris/office/${modal.item.id}/assign-user`, itemPatch)
-      if (userAssign.length) return updateUser(item, itemPatch)
+      if (item.employess) return updateUser(item, itemPatch)
       const promises = params.map(async (arg) => {
         const addRef = await addDocumentFirebase(`work_hours/${item.id}/employees`, arg);
         const unionRef = await arrayUnionFirebase(`work_hours`, `${item.id}`, 'employees', arg);
         return { addRef, unionRef };
       });
       const response = Promise.all(promises)
-      
+
       if (!response)
         return toast.error(`Error : ${response}`, {
           position: 'top-center'
@@ -349,11 +366,11 @@ const WorkingIndex = () => {
               </FormGroup>
               <FormUserAssign
                 disabled={alluser}
-                options={users}
+                options={userAssign}
                 multiple={true}
                 disable={true}
                 onSelect={(arg) => {
-                  setUserSelect([...arg])
+                  setUserSelect([...arg]); console.log("arg", [...arg])
                 }} />
               <Col>
                 <Button type="button" size="md" color='danger' onClick={() => setToggleModal(false)}>Cancel</Button>

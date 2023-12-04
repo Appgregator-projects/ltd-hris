@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 
 const WorkingForm = ({ item, close, onSubmit }) => {
 
-  console.log(item, "itemssss")
+  console.log(item, "itemsssbbomboboms")
   const ItemSchema = yup.object().shape({
     name: yup.string().required(),
     type: yup.string().required(),

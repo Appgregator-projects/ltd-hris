@@ -1,15 +1,18 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { Edit, Plus, Trash } from 'react-feather'
-import { Button, Card, CardBody, CardHeader, CardTitle, Col, Modal, ModalBody, ModalHeader, Row, Table, UncontrolledTooltip } from 'reactstrap'
+import { Button, Card, CardBody, CardHeader, CardTitle, Col, Modal, ModalBody, ModalFooter, ModalHeader, Row, Table, UncontrolledTooltip } from 'reactstrap'
 import LeaveCategoryForm from '../LeaveCategory/LeaveCategoryForm'
 import LevelForm from './LevelForm'
 import { addDocumentFirebase, arrayUnionFirebase, getCollectionFirebase } from '../../../sevices/FirebaseApi'
 import toast from 'react-hot-toast'
+import Api from '../../../sevices/Api'
 
 const LevelIndex = () => {
   const [approval, setApproval] = useState([])
+  const [levelList, setLevelList] = useState([])
   const [department, setDepartment] = useState([])
   const [toggleModal, setToggleModal] = useState(false)
+  const [nestedModal, setNestedModal] = useState(false)
   const [modal, setModal] = useState({
     title: 'Leave Form',
     mode: 'add',
@@ -21,6 +24,17 @@ const LevelIndex = () => {
       const getData = await getCollectionFirebase("approved_by")
       if (getData) {
         setApproval(getData)
+      }
+    } catch (error) {
+      throw error
+    }
+  }
+
+  const fetchLevel = async () => {
+    try {
+      const { status, data } = await Api.get(`/hris/level-approval-list`)
+      if (status) {
+        setLevelList(data)
       }
     } catch (error) {
       throw error
@@ -39,8 +53,12 @@ const LevelIndex = () => {
   }
 
   useEffect(() => {
-    fetchApproval(), fetchDepartment()
+    fetchApproval(), fetchDepartment(), fetchLevel()
   }, [])
+
+  useEffect(() => {
+    fetchLevel()
+  }, [levelList])
 
   const onAdd = () => {
     setModal({
@@ -63,10 +81,19 @@ const LevelIndex = () => {
   const onDetail = (item) => {
     setModal({
       title: "Detail " + item.name + " Department",
-      mode: "detail department",
+      mode: "detail",
       item: item
     })
     setToggleModal(true)
+  }
+
+  const onAddLevel = (item) => {
+    setModal({
+      title: "Add new level",
+      mode: "level",
+      item: item
+    })
+    setNestedModal(true)
   }
 
   const onSubmit = async (params) => {
@@ -133,35 +160,36 @@ const LevelIndex = () => {
               </thead>
               <tbody>
                 {
-                  approval?.map((x, index) =>{
+                  approval?.map((x, index) => {
                     const trueEntries = Object.entries(x.approved_by).filter(([key, value]) => value === true);
                     const trueArray = trueEntries.map(([key]) => key);
                     // console.log(trueArray.join(", ").replace(/_/g," "),'tty');
-                  return (
-                    <tr key={x.id}>
-                      <td>{x.name}</td>
-                      <td>{x.division_id}</td>
-                      <td>{trueArray.join(", ").replace(/_/g," ")}</td>
-                      <td>
-                        <div className="pointer">
-                          <Trash className='me-50' size={15} onClick={() => onDelete(x, index)} id={`delete-tooltip-${x.id}`} />
-                          <span className='align-middle'></span>
-                          <UncontrolledTooltip
-                            placement="top"
-                            target={`delete-tooltip-${x.id}`}>
-                            Delete
-                          </UncontrolledTooltip>
-                          <Edit className='me-50' size={15} onClick={() => onEdit(x, index)} id={`edit-tooltip-${x.id}`} />
-                          <span className='align-middle'></span>
-                          <UncontrolledTooltip
-                            placement="top"
-                            target={`edit-tooltip-${x.id}`}>
-                            Edit
-                          </UncontrolledTooltip>
-                        </div>
-                      </td>
-                    </tr>
-                  )})
+                    return (
+                      <tr key={x.id}>
+                        <td>{x.name}</td>
+                        <td>{x.division_id}</td>
+                        <td>{trueArray.join(", ").replace(/_/g, " ")}</td>
+                        <td>
+                          <div className="pointer">
+                            <Trash className='me-50' size={15} onClick={() => onDelete(x, index)} id={`delete-tooltip-${x.id}`} />
+                            <span className='align-middle'></span>
+                            <UncontrolledTooltip
+                              placement="top"
+                              target={`delete-tooltip-${x.id}`}>
+                              Delete
+                            </UncontrolledTooltip>
+                            <Edit className='me-50' size={15} onClick={() => onEdit(x, index)} id={`edit-tooltip-${x.id}`} />
+                            <span className='align-middle'></span>
+                            <UncontrolledTooltip
+                              placement="top"
+                              target={`edit-tooltip-${x.id}`}>
+                              Edit
+                            </UncontrolledTooltip>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })
                 }
               </tbody>
             </Table>
@@ -177,8 +205,8 @@ const LevelIndex = () => {
           {modal.title}
         </ModalHeader>
         <ModalBody>
-          {modal.mode == 'add' ? <LevelForm close={() => setToggleModal(false)} onSubmit={onSubmit} department={department} /> : <></>}
-          {modal.mode == 'edit' ? <LevelForm item={modal.item} close={() => setToggleModal(false)} onSubmit={onSubmit} department={department} /> : <></>}
+          {modal.mode == 'add' ? <LevelForm close={() => setToggleModal(false)} onSubmit={onSubmit} department={department} level={levelList} /> : <></>}
+          {modal.mode == 'edit' ? <LevelForm item={modal.item} close={() => setToggleModal(false)} onSubmit={onSubmit} department={department} level={levelList} /> : <></>}
         </ModalBody>
       </Modal>
     </>
