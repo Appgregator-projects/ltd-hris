@@ -154,7 +154,7 @@ export default function DepartmentIndex() {
   const postUpdate = async (params) => {
     try {
       console.log(modal.item.id, "edit")
-      const { status, data } = await Api.put(`/hris/depertement/${modal.item.id}`, params);
+      const { status, data } = await Api.put(`/hris/departement/${modal.item.id}`, params);
       if (!status)
         return toast.error(`Error : ${data}`, {
           position: "top-center",
@@ -228,7 +228,7 @@ export default function DepartmentIndex() {
 
   const postDelete = (id) => {
     return new Promise((resolve, reject) => {
-      Api.delete(`/hris/depertement/${id}`)
+      Api.delete(`/hris/departement/${id}`)
         .then((res) => resolve(res))
         .catch((err) => reject(err.message));
     });

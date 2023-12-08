@@ -43,7 +43,7 @@ export default function Division({details}) {
 
   const fetchDivision = async() => {
     try {
-      const {status,data} = await Api.get(`/hris/depertement/${details.id}`)
+      const {status,data} = await Api.get(`/hris/departement/${details.id}`)
       const getData = await getSingleDocumentFirebase(
         "department", details.id
       )
