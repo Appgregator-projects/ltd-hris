@@ -54,12 +54,12 @@ export default [
     icon: <Calendar size={20} />,
     navLink: "/attendance"
   },
-  {
-    id: "reimburse",
-    title: "Leave Reimbures",
-    icon: <ShoppingBag size={20} />,
-    navLink: "/reimburse"
-  },
+  // {
+  //   id: "reimburse",
+  //   title: "Leave Reimbures",
+  //   icon: <ShoppingBag size={20} />,
+  //   navLink: "/reimburse"
+  // },
   {
     id: "meal-allowance",
     title: "Meal Allowance",
@@ -184,12 +184,12 @@ export default [
     icon: <Hash size={20} />,
     navLink: "/leave-category"
   },
-  {
-    id: "penalty-category",
-    title: "Penalty Category",
-    icon: <AlertTriangle size={20} />,
-    navLink: "/penalty-category"
-  },
+  // {
+  //   id: "penalty-category",
+  //   title: "Penalty Category",
+  //   icon: <AlertTriangle size={20} />,
+  //   navLink: "/penalty-category"
+  // },
   {
     id: "Days Off",
     title: "Days Off",

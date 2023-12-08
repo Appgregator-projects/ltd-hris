@@ -1,8 +1,13 @@
 import {
 	Badge,
+	Button,
+	Col,
 	DropdownItem,
 	DropdownMenu,
 	DropdownToggle,
+	Modal,
+	ModalBody,
+	ModalHeader,
 	UncontrolledDropdown,
 } from "reactstrap";
 import { Archive, Edit, FileText, MoreVertical, Trash } from "react-feather";
@@ -20,6 +25,8 @@ import avatar9 from "@src/assets/images/portrait/small/avatar-s-9.jpg";
 import avatar10 from "@src/assets/images/portrait/small/avatar-s-10.jpg";
 import { dateFormat, dateTimeFormat } from "../../../../Helper";
 import dayjs from "dayjs";
+import { useState } from "react";
+import DataTable from "react-data-table-component";
 
 // ** Vars
 export const states = [
@@ -1778,3 +1785,161 @@ export const columnsLogCourse = [
 	// 	},
 	// },
 ];
+
+const columnsDetailAttendance = [
+	{
+		name: "Name",
+		minWidth: "250px",
+		sortable: false,
+		selector: (row) => row?.name ? row?.name : '',
+		cell: (row) => (
+			<div className="d-flex align-items-center">
+				{console.log(row, "roq")}
+				{!row?.userReq?.avatar ? (
+					<Avatar
+						content={row?.name ? row?.name : row?.email ? row?.email : ''}
+						initials
+					/>
+				) : (
+					<Avatar img={row?.avatar} />
+				)}
+				<div className="user-info text-truncate ms-1">
+					<span className="d-block fw-bold text-truncate">
+						{row?.name}
+					</span>
+					<small>{row?.email}</small>
+				</div>
+			</div>
+		),
+	},
+	{
+		name: "Employee No",
+		sortable: false,
+		minWidth: "150px",
+		selector: (row) => row?.nip ? row?.nip : '',
+	},
+	{
+		name: "Department",
+		sortable: false,
+		minWidth: "150px",
+		selector: (row) => row?.departement ? row?.departement : '',
+	},
+	{
+		name: "Clock In",
+		sortable: true,
+		minWidth: "150px",
+		selector: (row) => row?.clock_in ? row?.clock_in : '',
+	},
+	{
+		name: "Clock Out",
+		sortable: true,
+		minWidth: "150px",
+		selector: (row) => row?.clock_out ? row?.clock_out : '',
+	},
+	{
+		name: "Late",
+		sortable: true,
+		minWidth: "150px",
+		selector: (row) => row?.late_count ? row?.late_count : '',
+	},
+]
+
+export const columnsAttendance = [{
+	name: "Name",
+	minWidth: "250px",
+	sortable: true,
+	selector: (row) => row?.userReq?.name ? row?.userReq?.name : '',
+	cell: (row) => (
+		<div className="d-flex align-items-center">
+			{console.log(row, 'nirow')}
+			{!row?.userReq?.avatar ? (
+				<Avatar
+					content={row?.userReq?.name ? row?.userReq?.name : row?.userReq?.email ? row?.userReq?.email : ''}
+					initials
+				/>
+			) : (
+				<Avatar img={row?.userReq?.avatar} />
+			)}
+			<div className="user-info text-truncate ms-1">
+				<span className="d-block fw-bold text-truncate">
+					{row?.userReq?.name}
+				</span>
+				<small>{row?.userReq?.email}</small>
+			</div>
+		</div>
+	),
+},
+{
+	name: "Employee No",
+	sortable: true,
+	minWidth: "150px",
+	selector: (row) => row?.userReq?.nip ? row?.userReq?.nip : '',
+},
+{
+	name: "Department",
+	sortable: true,
+	minWidth: "150px",
+	selector: (row) => row?.userReq?.departement?.name ? row?.userReq?.departement?.name : '',
+},
+{
+	name: "Total Attendance",
+	sortable: true,
+	minWidth: "150px",
+	selector: (row) => row?.total_attendance ? row?.total_attendance : '',
+},
+{
+	name: "Attendance Log",
+	sortable: false,
+	minWidth: "150px",
+	cell: (row) => {
+		const [toggleModal, setToggleModal] = useState(false)
+		const [attendanceLog, setAttendanceLog] = useState({})
+		let arr = []
+
+		row.attendances.map((x) =>
+			arr.push({ ...x, nip: row?.userReq?.nip, name: row?.userReq?.name, email: row?.userReq?.email, avatar: row?.userReq?.avatar, departement: row?.userReq?.departement?.name })
+		)
+
+		const onModal = () => {
+			setToggleModal(true)
+			setAttendanceLog(arr)
+		}
+
+		return (
+			<div className="d-flex align-items-center">
+				<a className="text-primary" onClick={onModal}>See Details</a>
+
+				<Modal
+					isOpen={toggleModal}
+					toggle={() => setToggleModal(!toggleModal)}
+					className={`modal-dialog-centered modal-xl`}
+				>
+					<ModalHeader toggle={() => setToggleModal(!toggleModal)}>
+						Attendance Log
+					</ModalHeader>
+					<ModalBody>
+						<DataTable
+							data={attendanceLog}
+							columns={columnsDetailAttendance}
+						/>
+
+						<Col>
+							<Button
+								type="button"
+								size="md"
+								color="danger"
+								className="mt-1"
+								onClick={() => setToggleModal(!toggleModal)}
+							>
+								Close
+							</Button>
+
+						</Col>
+					</ModalBody>
+				</Modal >
+			</div>
+		)
+	},
+},
+]
+

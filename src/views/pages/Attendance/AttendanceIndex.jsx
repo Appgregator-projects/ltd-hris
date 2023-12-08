@@ -13,11 +13,14 @@ import {
   ModalBody,
   NavLink
 } from "reactstrap"
-import { ChevronLeft, ChevronRight, ChevronDown, Link } from "react-feather"
+import { ChevronLeft, ChevronRight, ChevronDown, Link, RefreshCcw } from "react-feather"
 import FormUserAssign from "../Components/FormUserAssign"
 import Api from "../../../sevices/Api"
 import toast from "react-hot-toast"
 import AttandanceDetail from "./AttendanceDetail"
+import AttendanceReport from "./AttendanceReport"
+import DateRange from "../../../@core/components/flatpickr"
+
 
 export default function AttendanceIndex() {
   const [initalDate, setInitialDate] = useState(dayjs().format("YYYY-MM"))
@@ -30,11 +33,17 @@ export default function AttendanceIndex() {
   const [attendanceLog, setAttendanceLog] = useState([])
   const [late, setLate] = useState([])
   const [attendance, setAttendance] = useState([])
+  const [attendanceReport, setAttendanceReport] = useState(false)
+  const [allAttendance, setAllAttendance] = useState([])
+  const [search, setSearch] = useState('')
+
   const [modal, setModal] = useState({
     title: "User assign",
     mode: "get",
     item: null
   })
+
+  const [picker, setPicker] = useState(new Date())
 
   const fetchUser = async () => {
     try {
@@ -64,7 +73,21 @@ export default function AttendanceIndex() {
       mode: "get",
       item: users
     })
+    setAttendanceReport(false)
     setToggleModal(true)
+  }
+
+  const onPeriode = () => {
+    setModal({
+      title: "Periode Attendance",
+      mode: "periode",
+    })
+    setToggleModal(true)
+
+    // setAttendanceReport(true)
+    // if (allAttendance.length === 0) {
+    //   fetchAllAttendance()
+    // }
   }
 
   const onDetail = (x) => {
@@ -172,12 +195,12 @@ export default function AttendanceIndex() {
   const fetchAttendance = async (arg, date) => {
     const year = dayjs(date).format("YYYY")
     const month = dayjs(date).format("MM")
-    
+
     try {
-      const {status,data} = await Api.get(
+      const { status, data } = await Api.get(
         `/hris/attendance/employee?month=${month}&year=${year}&day=&uid=${arg.value}`
       )
-      if(status) {
+      if (status) {
         setAttendance([...data])
         setToggleModal(false)
         generateCalendarEvent(data)
@@ -192,6 +215,42 @@ export default function AttendanceIndex() {
       throw error
     }
   }
+  console.log(picker, 'this date')
+  const fetchAllAttendance = async (date, input) => {
+    try {
+      let start_date = date[0]
+      let end_date = date.length === 2 ? date[1] : ''
+      let search = input ? input : ''
+
+      const { status, data } = await Api.get(`/hris/attendance/view/all?start_date=${start_date}&end_date=${end_date}&search=${search}`)
+      if (status) {
+        setAllAttendance(data)
+        setAttendanceReport(true)
+      }
+    } catch (error) {
+      throw error
+    }
+  }
+
+  const handlePeriode = () => {
+    setToggleModal(!toggleModal)
+    fetchAllAttendance(picker)
+  }
+  const onKeyPress = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      fetchAllAttendance(picker, search)
+    }
+  };
+  const onSearch = () => {
+    fetchAllAttendance(picker, search)
+  }
+  // useEffect(() => {
+  // fetchAllAttendance()
+  //   return () => {
+  //     setAllAttendance([])
+  //   }
+  // }, [])
 
   return (
     <>
@@ -202,6 +261,17 @@ export default function AttendanceIndex() {
               <Row>
                 <Col lg="3" sm="12">
                   <div className="mt-3">
+                    <Button.Ripple
+                      color="success"
+                      outline
+                      className="w-full"
+                      onClick={onPeriode}
+                    >
+                      <span className="align-middle me-50">Generate All User</span>
+                      <RefreshCcw size={15} />
+                    </Button.Ripple>
+                  </div>
+                  <div className="mt-2">
                     <Button
                       color="warning"
                       outline
@@ -282,6 +352,16 @@ export default function AttendanceIndex() {
           </Card>
         </Col>
       </Row>
+      {attendanceReport ?
+        <AttendanceReport
+          allAttendance={allAttendance}
+          periode={picker}
+          onSearch={onSearch}
+          search={search}
+          setSearch={setSearch}
+          onKeyPress={onKeyPress}
+        /> : <></>
+      }
 
       <Modal
         isOpen={toggleModal}
@@ -314,6 +394,12 @@ export default function AttendanceIndex() {
           ) : (
             <></>
           )}
+          {modal.mode === 'periode' ? (
+            <DateRange
+              picker={picker}
+              setPicker={setPicker}
+            />
+          ) : <></>}
           <Col>
             <Button
               type="button"
@@ -323,9 +409,20 @@ export default function AttendanceIndex() {
             >
               Cancel
             </Button>
+            {modal.mode === 'periode' ? (
+              <Button
+                type="button"
+                size="md"
+                color="primary"
+                className="ms-2"
+                onClick={handlePeriode}
+              >
+                Save
+              </Button>
+            ) : <></>}
           </Col>
         </ModalBody>
-      </Modal>
+      </Modal >
     </>
   )
 }
