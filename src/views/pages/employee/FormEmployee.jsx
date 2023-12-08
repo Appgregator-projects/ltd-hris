@@ -105,7 +105,7 @@ export default function FormEmployee({
     console.log(e, "apani")
     setSelectDepartment(e)
     try {
-      const { status, data } = await Api.get(`/hris/depertement/${e}`)
+      const { status, data } = await Api.get(`/hris/departement/${e}`)
       if (status) {
         setDivisions(data.division)
       }

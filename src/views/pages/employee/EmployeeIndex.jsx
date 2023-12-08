@@ -115,7 +115,7 @@ const UsersList = () => {
 
   const fetchDepartment = async () => {
     try {
-      const {status,data} = await Api.get("/hris/depertement");
+      const {status,data} = await Api.get("/hris/departement");
       if(status){
         setDepartment([...data]);
       }
