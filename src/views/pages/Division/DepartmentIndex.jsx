@@ -52,7 +52,7 @@ export default function DepartmentIndex() {
 
   const fetchDepartment = async () => {
     try {
-      const { status, data } = await Api.get(`/hris/depertement`);
+      const { status, data } = await Api.get(`/hris/departement`);
       console.log(status, data)
       if (status) {
         setDepartment(data)
@@ -71,19 +71,6 @@ export default function DepartmentIndex() {
       const getData = await getCollectionFirebase(
         "department"
       )
-
-      // if (getData) {
-      //   const nestedPromises = getData.map(async (x) => {
-      //     const dataNested = await getCollectionFirebase(`department/${x.id}/children`)
-      //     // console.log(dataNested, "dataNested")
-      //     return dataNested;
-      //   })
-      //   const nestedData = await Promise.all(nestedPromises);
-      //   const allNestedData = [].concat(...nestedData).filter(x => !x.layer)
-      //   // console.log(nestedData, "nestedData");
-      //   // console.log(nestedArray, "nestedArray");
-      //   setNestedDept(allNestedData)
-      // }
       console.log(getData ,"gettttt")
         setDepartment(getData)
     } catch (error) {
@@ -134,7 +121,7 @@ export default function DepartmentIndex() {
   }, [department]);
 
   useEffect(() => {
-    fetchDepartmentFirebase()
+    fetchDepartment()
   }, [])
 
   const onAdd = () => {
@@ -315,7 +302,7 @@ export default function DepartmentIndex() {
                       <td>
                         <UncontrolledDropdown direction="down">
                           <DropdownToggle color="transparant">
-                            {x.label}
+                            {x.name}
                             <DropdownMenu>
                               {x.children?.map((y) => {
                                 return (
