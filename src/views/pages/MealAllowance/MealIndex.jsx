@@ -22,18 +22,18 @@ const MealIndex = () => {
   })
 
   const {
-    setValue, control, handleSubmit, formState: {errors}
-  } = useForm({ mode: "onChange"});
+    setValue, control, handleSubmit, formState: { errors }
+  } = useForm({ mode: "onChange" });
   console.log(errors, "error");
 
-  const fetchMeal = async() => {
+  const fetchMeal = async () => {
     try {
       const getData = await getCollectionFirebase(
         "meal_allowance"
       )
-      const {status, data} = await Api.get(`/hris/meal-allowance`)
-      console.log(getData, "data meal")
-      if(getData){
+      const { status, data } = await Api.get(`/hris/meal-allowance`)
+      console.log(data, "data meal")
+      if (getData) {
         setMeal([...getData])
       }
     } catch (error) {
@@ -47,7 +47,7 @@ const MealIndex = () => {
 
   const onDetail = (item, index) => {
     setModal({
-      title : "Detail Meal Allowance",
+      title: "Detail Meal Allowance",
       mode: "detail",
       item: item
     })
@@ -62,16 +62,16 @@ const MealIndex = () => {
   };
 
   const onApproval = () => {
-    return onSubmitFirebase("",selectItem,"approve")
+    return onSubmitFirebase("", selectItem, "approve")
   };
 
-  const onCloseAll = () => {  
+  const onCloseAll = () => {
     setNestedToggle(!nestedToggle)
     setCloseAll(true)
   }
 
-  const onSubmit = async (x, y,z) => {
-    return console.log(x, y,z, "arg leave request")
+  const onSubmit = async (x, y, z) => {
+    return console.log(x, y, z, "arg leave request")
     return MySwal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -89,11 +89,11 @@ const MealIndex = () => {
           const itemPut = {
             leave_request_id: y.id,
             status: z,
-            note: x.rejected_note? x.rejected_note : " "
+            note: x.rejected_note ? x.rejected_note : " "
           };
 
-          const status = await Api.put(`/hris/leave-approval-aprove`,itemPut);
-          console.log(itemPut, status,  "put leave request")
+          const status = await Api.put(`/hris/leave-approval-aprove`, itemPut);
+          console.log(itemPut, status, "put leave request")
           if (!status)
             return toast.error(`Error : ${status}`, {
               position: "top-center",
@@ -114,12 +114,12 @@ const MealIndex = () => {
     });
   };
 
-  const onSubmitFirebase = async(note, item, status) => {
+  const onSubmitFirebase = async (note, item, status) => {
     // return console.log(item, "item submit firebase")
     let response = ""
-    const itemUpdate =  {
-      item : {
-        status : status
+    const itemUpdate = {
+      item: {
+        status: status
       },
       note,
     }
@@ -131,14 +131,14 @@ const MealIndex = () => {
         itemUpdate
       )
       if (!response)
-          return toast.error(`Error : ${status}`, {
-            position: "top-center",
-          });
-          // fetchDaysOff();
-          toast.success(status, {
-            position: "top-center",
-          });
-          setToggleModal(false);
+        return toast.error(`Error : ${status}`, {
+          position: "top-center",
+        });
+      // fetchDaysOff();
+      toast.success(status, {
+        position: "top-center",
+      });
+      setToggleModal(false);
     } catch (error) {
       setToggleModal(false);
       toast.error(`Error : ${error.message}`, {
@@ -165,7 +165,7 @@ const MealIndex = () => {
 
   return (
     <>
-    <Row>
+      <Row>
         <Col>
           <Card>
             <CardHeader>
@@ -188,27 +188,27 @@ const MealIndex = () => {
                   {meal.map((x, index) => (
                     <tr key={index}>
                       <td>{x.item.users?.name}</td>
-                      <td>{x.item.users? x.item.users.title : "Manager"}</td>
+                      <td>{x.item.users ? x.item.users.title : "Manager"}</td>
                       <td>{x.item.quantity} days</td>
-                      <td>Rp {numberFormat(x.item.total? x.item.total : "0")}</td>
+                      <td>Rp {numberFormat(x.item.total ? x.item.total : "0")}</td>
                       <td>{renderStatus(x.item.status)}</td>
                       <td>{dateTimeFormat(x.createdAt.nanoseconds)}</td>
                       <td>
                         <div className='pointer'>
-                        <Eye
-                         size={20}
-                         onClick={() => {onDetail(x)}} 
-                         id={`pw-tooltip-${x.id}`}
-                         />
-                        <span className='align-middle'></span>
-                        <UncontrolledTooltip
-                          placement="top"
-                          target={`pw-tooltip-${x.id}`}
-                        >
-                          Detail Allowance
-                        </UncontrolledTooltip>
+                          <Eye
+                            size={20}
+                            onClick={() => { onDetail(x) }}
+                            id={`pw-tooltip-${x.id}`}
+                          />
+                          <span className='align-middle'></span>
+                          <UncontrolledTooltip
+                            placement="top"
+                            target={`pw-tooltip-${x.id}`}
+                          >
+                            Detail Allowance
+                          </UncontrolledTooltip>
                         </div>
-                
+
                       </td>
                     </tr>
                   ))}
@@ -227,76 +227,76 @@ const MealIndex = () => {
           {modal.title}
         </ModalHeader>
         <ModalBody>
-          {modal.mode === "detail" ? 
-          <MealDetail 
-          item={modal.item}
-          close = {() => setToggleModal(false)}/> :<></> }
+          {modal.mode === "detail" ?
+            <MealDetail
+              item={modal.item}
+              close={() => setToggleModal(false)} /> : <></>}
         </ModalBody>
         {selectItem?.item.status === "requested" ?
-        <ModalFooter>
-          {selectItem ? (
-            <div className="">
-              <Button
-                type="button"
-                size="md"
-                color="danger"
-                onClick={() => setNestedToggle(!nestedToggle)}
+          <ModalFooter>
+            {selectItem ? (
+              <div className="">
+                <Button
+                  type="button"
+                  size="md"
+                  color="danger"
+                  onClick={() => setNestedToggle(!nestedToggle)}
                 // onClosed = {close}
-              >
+                >
                   <Modal
                     isOpen={nestedToggle}
                     toggle={() => onReject(selectItem)}
                     className={`modal-dialog-centered modal-lg`}
                     backdrop={"static"}
 
-                    // onClosed={close}
+                  // onClosed={close}
                   >
                     <Form onSubmitFirebase={handleSubmit(onReject)}>
-                    <ModalHeader>Note</ModalHeader>
-                    <ModalBody>
-                      <Label for="rejected_note"
-                      >Rejected Note</Label>
-                      <Controller
-                      name="rejected_note"
-                      defaultValue=""
-                      control={control}
-                      render={({field}) => (
-                        <Input
-                        id="rejected_note"
-                        {...field}
-                        name="rejected_note"
-                        type="textarea"
-                        invalid={errors.rejected_note && true}/>
-                      )}/>
-                      {errors.rejected_note && <FormFeedback>{errors.rejected_note.message}</FormFeedback>}
-                    </ModalBody>
-                    <ModalFooter>
-                      <Button color="danger" onClick={() =>  onCloseAll()}>
-                        Cancel
-                      </Button>
-                      <Button color="primary" type="submit" size="md">
-                        Send
-                      </Button>
-                    </ModalFooter>
+                      <ModalHeader>Note</ModalHeader>
+                      <ModalBody>
+                        <Label for="rejected_note"
+                        >Rejected Note</Label>
+                        <Controller
+                          name="rejected_note"
+                          defaultValue=""
+                          control={control}
+                          render={({ field }) => (
+                            <Input
+                              id="rejected_note"
+                              {...field}
+                              name="rejected_note"
+                              type="textarea"
+                              invalid={errors.rejected_note && true} />
+                          )} />
+                        {errors.rejected_note && <FormFeedback>{errors.rejected_note.message}</FormFeedback>}
+                      </ModalBody>
+                      <ModalFooter>
+                        <Button color="danger" onClick={() => onCloseAll()}>
+                          Cancel
+                        </Button>
+                        <Button color="primary" type="submit" size="md">
+                          Send
+                        </Button>
+                      </ModalFooter>
                     </Form>
-                  </Modal>  
-                Reject
-              </Button>
-              <Button
-                type="submit"
-                size="md"
-                color="primary"
-                className="m-1"
-                onClick={() => onApproval()}
-              >
-                Approve
-              </Button>
-            </div>
-          ) : (
-            <></>
-          )}
+                  </Modal>
+                  Reject
+                </Button>
+                <Button
+                  type="submit"
+                  size="md"
+                  color="primary"
+                  className="m-1"
+                  onClick={() => onApproval()}
+                >
+                  Approve
+                </Button>
+              </div>
+            ) : (
+              <></>
+            )}
 
-        </ModalFooter> : <></>} 
+          </ModalFooter> : <></>}
       </Modal>
     </>
   )

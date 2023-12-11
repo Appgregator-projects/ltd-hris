@@ -390,7 +390,7 @@ export default function DaysOffIndex() {
                 <ModalHeader>Note</ModalHeader>
                 <ModalBody>
                   <Row>
-                    <Col md="6" sm="12" className="mb-1">
+                    <Col className="mb-1">
                       <Label className="form-label" for="type">
                         Type
                       </Label>
@@ -417,7 +417,7 @@ export default function DaysOffIndex() {
                         <FormFeedback>{errors.type.message}</FormFeedback>
                       )}
                     </Col>
-                    <Col md="6" sm="12" className="mb-1">
+                    {/* <Col md="6" sm="12" className="mb-1">
                       <Label className="form-label" for="deals">
                         Deals
                       </Label>
@@ -445,7 +445,7 @@ export default function DaysOffIndex() {
                       {errors.deals && (
                         <FormFeedback>{errors.deals.message}</FormFeedback>
                       )}
-                    </Col>
+                    </Col> */}
                     <Col md='12' sm='12' className="mb-1">
                       <Label for="descriptions">Descriptions</Label>
                       <Controller

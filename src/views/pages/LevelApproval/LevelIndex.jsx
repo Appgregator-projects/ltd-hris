@@ -43,9 +43,10 @@ const LevelIndex = () => {
 
   const fetchDepartment = async () => {
     try {
-      const getData = await getCollectionFirebase("departments")
-      if (getData) {
-        setDepartment(getData)
+      const getData = await Api.get("/hris/departement")
+
+      if (getData.status) {
+        setDepartment(getData.data)
       }
     } catch (error) {
       throw error
