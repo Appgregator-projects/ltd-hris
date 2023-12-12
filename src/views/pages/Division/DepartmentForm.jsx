@@ -18,6 +18,7 @@ export default function DepartmentForm({
   department,
   nested
 }) {
+  console.log(nested, item, 'nenested')
 
   const options = [
     {
@@ -73,21 +74,24 @@ export default function DepartmentForm({
   } = useForm({ mode: "onChange", resolver: yupResolver(ItemSchema) });
   console.log(errors)
 
-  const departementOptions =  nested.map((x) => {
+  const departementOptions = nested.map((x) => {
     return {
       value: x.id,
       label: x.label,
-      children : x.children
+      children: x.children
     }
   })
 
+  console.log(departementOptions, 'departementOptions')
+
   const onChange = (value) => {
-    console.log(value, yelahhh);
+    console.log(value, ',yelahhh');
   };
 
   const onSubmitForm = (arg) => {
-    arg.layer = arg.layer? arg.layer : []
-    arg.parent = arg.layer? arg.layer[arg.layer.length -1] : null
+    console.log(arg, 'niarg')
+    arg.layer = arg.layer ? arg.layer : []
+    arg.parent = arg.layer ? arg.layer[arg.layer.length - 1] : null
     // arg.nested = arg.parent ? `${arg.parent}/children` : " "
     onSubmit(arg);
   };
@@ -122,20 +126,23 @@ export default function DepartmentForm({
             />
             {errors.label && <FormFeedback>{errors.label.message}</FormFeedback>}
           </Col>
-          <Row md="12" sm="12" className="mb-1">
+          <Col md="12" sm="12" className="mb-1">
             <Label className="form-label" for="Layer">
               Layer
             </Label>
-            <Controller
-              name="layer"
-              control={control}
-              render={({ field }) => (
-                <Cascader 
-                options={departementOptions} onChange={onChange} changeOnSelect {...field} dropdownHeight={100} />
-              )}
-            />
-            {errors.layer && <FormFeedback>{errors.layer.message}</FormFeedback>}
-          </Row>
+            <Row>
+
+              <Controller
+                name="layer"
+                control={control}
+                render={({ field }) => (
+                  <Cascader
+                    options={departementOptions} onChange={onChange} changeOnSelect {...field} />
+                )}
+              />
+              {errors.layer && <FormFeedback>{errors.layer.message}</FormFeedback>}
+            </Row>
+          </Col>
           <Col>
             <Button type="button" size="md" color="danger" onClick={close}>
               Cancel

@@ -38,6 +38,7 @@ import getNestedChildren from "../../../Helper/hierarchy";
 import DepartmentForm from "./DepartmentForm";
 import { addDocumentFirebase, arrayUnionFirebase, getCollectionFirebase, getCollectionWithSnapshotFirebase, setDocumentFirebase } from "../../../sevices/FirebaseApi";
 import Division from "./Division";
+import { Cascader } from "antd";
 const MySwal = withReactContent(Swal);
 
 export default function DepartmentIndex() {
@@ -50,12 +51,33 @@ export default function DepartmentIndex() {
     item: null,
   });
 
+
+  function buildTree(data, parentId = null) {
+    const tree = [];
+
+    for (const item of data) {
+      if (item.parent == parentId) {
+        const children = buildTree(data, item.id);
+
+        if (children.length) {
+          item.children = children;
+        }
+
+        tree.push(item);
+      }
+    }
+
+    return tree;
+  }
+
+
   const fetchDepartment = async () => {
     try {
       const { status, data } = await Api.get(`/hris/departement`);
-      console.log(status, data)
+      // console.log(status, data)
       if (status) {
         setDepartment(data)
+
       }
     } catch (error) {
       console.log(error.message)
@@ -65,37 +87,57 @@ export default function DepartmentIndex() {
     }
   };
 
+  // console.log(department, 'depdep')
+
   const fetchDepartmentFirebase = async () => {
     let dataArr = []
     try {
       const getData = await getCollectionFirebase(
         "department"
       )
-      console.log(getData ,"gettttt")
-        setDepartment(getData)
+
+      // if (getData) {
+      //   const nestedPromises = getData.map(async (x) => {
+      //     const dataNested = await getCollectionFirebase(`department/${x.id}/children`)
+      //     // console.log(dataNested, "dataNested")
+      //     return dataNested;
+      //   })
+      //   const nestedData = await Promise.all(nestedPromises);
+      //   const allNestedData = [].concat(...nestedData).filter(x => !x.layer)
+      //   // console.log(nestedData, "nestedData");
+      //   // console.log(nestedArray, "nestedArray");
+      //   setNestedDept(allNestedData)
+      // }
+      // console.log(getData, "gettttt")
+      setDepartment(getData)
     } catch (error) {
       throw error
     }
   }
 
+
   useEffect(() => {
     // Fungsi buildHierarchy disini (misalnya, jika Anda menempatkannya dalam komponen ini)
     function buildHierarchy(department) {
+
       const indexedData = {};
       const result = [];
-  
+      console.log(department, 'raw dep')
+
       department.forEach(item => {
+        console.log(item, 'item dept')
         indexedData[item.id] = item;
       });
-  
+
       const buildRecursive = (item) => {
+        console.log(item, ' item')
         if (item.parent) {
           const parentItem = indexedData[item.parent];
           if (parentItem) {
             if (!parentItem.children) {
               parentItem.children = [];
             }
-            parentItem.children.push({...item, value : item.id});
+            parentItem.children.push({ ...item, value: item.id });
           } else {
             // Handle the case where the parent is not found (optional)
           }
@@ -104,23 +146,50 @@ export default function DepartmentIndex() {
 
         }
       };
-  
+
       department.forEach(item => {
         buildRecursive(item);
       });
-  
+
       return result;
     }
-  
-    // Panggilan fungsi buildHierarchy dengan menggunakan department objek yang diberikan (yourArray).
-    const hierarchyData = buildHierarchy(department);
 
-    console.log(hierarchyData, "hierarcy")
+
+    function buildTree(data, parentId = null) {
+      const tree = [];
+
+      for (const item of data) {
+        if (item.parent == parentId) {
+          const children = buildTree(data, item.id);
+
+          if (children.length) {
+            item.children = children;
+          }
+
+          tree.push({ ...item, label: item.label, value: item.id })
+        }
+      }
+
+      return tree;
+    }
+    console.log(nestedDepartement, 'nestedDepartement')
+
+    // Panggilan fungsi buildHierarchy dengan menggunakan department objek yang diberikan (yourArray).
+    // const hierarchyData = buildTree(department);
+
+    // console.log(hierarchyData, "hierarcy")
     // Simpan hasil hierarki ke dalam state nestedDepartement.
-    setNestedDept(hierarchyData);
+    if (nestedDepartement.length === 0) {
+      const tree = buildTree(department)
+      console.log(tree, 'ni tree')
+      setNestedDept(tree)
+    }
+    // setNestedDept(hierarchyData);
   }, [department]);
 
   useEffect(() => {
+    // fetchDepartmentFirebase()
+
     fetchDepartment()
   }, [])
 
@@ -154,7 +223,7 @@ export default function DepartmentIndex() {
   const postUpdate = async (params) => {
     try {
       console.log(modal.item.id, "edit")
-      const { status, data } = await Api.put(`/hris/departement/${modal.item.id}`, params);
+      const { status, data } = await Api.put(`/hris/depertement/${modal.item.id}`, params);
       if (!status)
         return toast.error(`Error : ${data}`, {
           position: "top-center",
@@ -176,13 +245,13 @@ export default function DepartmentIndex() {
     let response = ""
     let resUnion = ""
     let arr = []
-    const findUnion = params.layer[params.layer.length -1]
+    const findUnion = params.layer[params.layer.length - 1]
 
     console.log(params, "params")
-    return 
+    return
     try {
       if (modal.item) return postUpdate(params);
-      response = await addDocumentFirebase (`department`, params)
+      response = await addDocumentFirebase(`department`, params)
       // if (params.parent === "") {
       //   response = await addDocumentFirebase
       //     (`department`, params)
@@ -197,7 +266,7 @@ export default function DepartmentIndex() {
       //         layer : params.layer,
       //         parent : params.parent 
       //       })
-          
+
       //     // constfindPrentArray = department.details.map
 
       //     console.log(`newDepartment`, findUnion, `details/${[0]}}`, arr[0])
@@ -228,7 +297,7 @@ export default function DepartmentIndex() {
 
   const postDelete = (id) => {
     return new Promise((resolve, reject) => {
-      Api.delete(`/hris/departement/${id}`)
+      Api.delete(`/hris/depertement/${id}`)
         .then((res) => resolve(res))
         .catch((err) => reject(err.message));
     });
@@ -291,36 +360,46 @@ export default function DepartmentIndex() {
               <thead>
                 <tr className="text-xs">
                   <th className="fs-6">Name</th>
-                  <th className="fs-6">Parent</th>
+                  {/* <th className="fs-6">Parent</th> */}
                   <th className="fs-6">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {nestedDepartement.map((x, index) => (
-                  <>
-                    <tr key={x.id}>
-                      <td>
-                        <UncontrolledDropdown direction="down">
-                          <DropdownToggle color="transparant">
-                            {x.name}
-                            <DropdownMenu>
-                              {x.children?.map((y) => {
+                {nestedDepartement.map((x, index) => {
+                  return (
+                    <>
+                      <tr key={x.id}>
+                        <td>
+                          <UncontrolledDropdown direction="down">
+                            {/* <DropdownToggle color="transparant">
+                              {x.label} */}
+                            <Cascader
+                              options={[nestedDepartement?.[index]]}
+                              defaultValue={x.label}
+                              style={{ width: '100%' }}
+                              bordered={false}
+                              allowClear={false}
+
+                            />
+                            {/* <DropdownMenu>
+                              
+                              {x.children?.map((y, id) => {
                                 return (
-                                  <DropdownItem>
+                                  <DropdownItem key={id}>
                                     {y.label}
                                   </DropdownItem>
                                 )
                               })}
-                            </DropdownMenu>
-                          </DropdownToggle>
-                        </UncontrolledDropdown>
-                      </td>
-                      <td>{x.parent}</td>
-                      {/* <td>{x.division}</td> */}
-                      <td>
-                        <div className="d-flex">
-                          <div className="pointer">
-                            <Eye
+                            </DropdownMenu> */}
+                            {/* </DropdownToggle> */}
+                          </UncontrolledDropdown>
+                        </td>
+                        {/* <td>{x.parent}</td> */}
+                        {/* <td>{x.division}</td> */}
+                        <td>
+                          <div className="d-flex">
+                            <div className="pointer">
+                              {/* <Eye
                               className="me-50"
                               size={15}
                               onClick={() => onDetail(x, index)}
@@ -331,21 +410,21 @@ export default function DepartmentIndex() {
                               placement="top"
                               target={`detail-tooltip-${x.id}`}>
                               Detail
-                            </UncontrolledTooltip>
-                            {x.id !== 4 && x.id !== 1 ?
-                              <Trash
-                                className="me-50"
-                                size={15}
-                                onClick={() => onDelete(x, index)}
-                                id={`delete-tooltip-${x.id}`}
-                              /> : <></>}
-                            <span className='align-middle'></span>
-                            {/* <UncontrolledTooltip
+                            </UncontrolledTooltip> */}
+                              {x.id !== 4 && x.id !== 1 ?
+                                <Trash
+                                  className="me-50"
+                                  size={15}
+                                  onClick={() => onDelete(x, index)}
+                                  id={`delete-tooltip-${x.id}`}
+                                /> : <></>}
+                              <span className='align-middle'></span>
+                              {/* <UncontrolledTooltip
                               placement="top"
                               target={`delete-tooltip-${x.id}`}>
                                 Delete
                             </UncontrolledTooltip> */}
-                            <Edit
+                              {/* <Edit
                               className="me-50"
                               size={15}
                               onClick={() => onEdit(x, index)}
@@ -356,13 +435,14 @@ export default function DepartmentIndex() {
                               placement="top"
                               target={`edit-tooltip-${x.id}`}>
                               Edit
-                            </UncontrolledTooltip>
+                            </UncontrolledTooltip> */}
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                    </tr>
-                  </>
-                ))}
+                        </td>
+                      </tr>
+                    </>
+                  )
+                })}
               </tbody>
             </Table>
           </CardBody>
