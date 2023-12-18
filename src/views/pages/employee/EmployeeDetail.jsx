@@ -19,18 +19,20 @@ import { getUser } from "./store/index";
 import HealthForm from "./component/IncomeForm";
 import IncomeForm from "./component/IncomeForm";
 import PenaltyForm from "./component/Penalty/PenaltyForm";
+import DepartmentList from "./DepartmentList";
 const MySwal = withReactContent(Swal);
 
 
 export default function EmployeeDetail() {
   const id = useParams()
+  // console.log(id, 'nid')
 
   const [toggleModal, setToggleModal] = useState(false)
   const [isRefresh, setIsRefresh] = useState(false)
   const [user, setUser] = useState([])
   const [balance, setBalance] = useState([])
   const [userBalance, setUserBalance] = useState([])
-  const [userDivision, setUserDivision] = useState([])
+  const [userDepartment, setUserDepartment] = useState([])
   const [logUser, setLogUser] = useState([])
   const [leaveCategories, setLeaveCategories] = useState([])
   const [isLoading, setIsLoading] = useState(false)
@@ -59,7 +61,8 @@ export default function EmployeeDetail() {
 
   const fetchUserTeam = async () => {
     try {
-      const { status, data } = await Api.get(`/hris/employee/division/${id.uid}`)
+      const { status, data } = await Api.get(`/hris/employee/department/${id.uid}`)
+      console.log(data, 'ni data')
       if (status) {
         const dataTeam = data.map((x) => {
           return {
@@ -69,7 +72,7 @@ export default function EmployeeDetail() {
             imgWidth: 26
           }
         })
-        setUserDivision(dataTeam)
+        setUserDepartment(data)
       }
     } catch (error) {
       throw error
@@ -478,37 +481,7 @@ export default function EmployeeDetail() {
             </Card>
           </Col>
           <Col>
-            <Card>
-              <CardHeader>
-                <CardTitle>Division</CardTitle>
-              </CardHeader>
-              <CardBody>
-                <div>
-                  <span></span>
-                  {/* <AvatarGroup data={userDivision}/> */}
-                </div>
-                <div className='d-flex justify-content-between align-items-end mt-1 pt-25'>
-                  <div className='role-heading'>
-                    <h4 className='fw-bolder'>{balance.category?.name}</h4>
-                    <Link
-                      to='/'
-                      className='role-edit-modal'
-                      onClick={e => {
-                        e.preventDefault()
-                        // setModalType('Edit')
-                        // setShow(true)
-                      }}
-                    >
-                    </Link>
-                  </div>
-                  <Link to='' className='text-body' onClick={e => e.preventDefault()}>
-                    <Copy className='font-medium-5' />
-                  </Link>
-                </div>
-              </CardBody>
-              <CardFooter>
-              </CardFooter>
-            </Card>
+            <DepartmentList data={userDepartment} />
           </Col>
           <Col>
             <Card>

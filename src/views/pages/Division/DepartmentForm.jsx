@@ -16,9 +16,10 @@ export default function DepartmentForm({
   onSubmit,
   item,
   department,
-  nested
+  nested,
+  mode
 }) {
-  console.log(nested, item, 'nenested')
+
 
   const options = [
     {
@@ -82,24 +83,30 @@ export default function DepartmentForm({
     }
   })
 
-  console.log(departementOptions, 'departementOptions')
+  // console.log(departementOptions, 'departementOptions')
 
   const onChange = (value) => {
-    console.log(value, ',yelahhh');
+    console.log(value, 'yelahhh');
   };
 
   const onSubmitForm = (arg) => {
-    console.log(arg, 'niarg')
     arg.layer = arg.layer ? arg.layer : []
     arg.parent = arg.layer ? arg.layer[arg.layer.length - 1] : null
+    // return console.log(arg, 'niarg')
     // arg.nested = arg.parent ? `${arg.parent}/children` : " "
-    onSubmit(arg);
+    if (mode === 'add department') {
+      onSubmit(arg);
+    } else {
+      arg.layer = item?.layer
+      arg.parent = item?.parent
+      onSubmit(arg);
+    }
   };
 
 
   useEffect(() => {
     if (item) {
-      setValue("name", item.name)
+      setValue("label", item.label)
     }
   }, [item]);
 
@@ -113,7 +120,6 @@ export default function DepartmentForm({
             </Label>
             <Controller
               name="label"
-              defaultValue={null}
               control={control}
               render={({ field }) => (
                 <Input
@@ -126,23 +132,25 @@ export default function DepartmentForm({
             />
             {errors.label && <FormFeedback>{errors.label.message}</FormFeedback>}
           </Col>
-          <Col md="12" sm="12" className="mb-1">
-            <Label className="form-label" for="Layer">
-              Layer
-            </Label>
-            <Row>
+          {mode === 'add department' ?
+            <Col md="12" sm="12" className="mb-1">
+              <Label className="form-label" for="Layer">
+                Layer
+              </Label>
+              <Row>
 
-              <Controller
-                name="layer"
-                control={control}
-                render={({ field }) => (
-                  <Cascader
-                    options={departementOptions} onChange={onChange} changeOnSelect {...field} />
-                )}
-              />
-              {errors.layer && <FormFeedback>{errors.layer.message}</FormFeedback>}
-            </Row>
-          </Col>
+                <Controller
+                  name="layer"
+                  control={control}
+                  render={({ field }) => (
+                    <Cascader
+                      options={departementOptions} onChange={onChange} changeOnSelect {...field} />
+                  )}
+                />
+                {errors.layer && <FormFeedback>{errors.layer.message}</FormFeedback>}
+              </Row>
+            </Col>
+            : null}
           <Col>
             <Button type="button" size="md" color="danger" onClick={close}>
               Cancel

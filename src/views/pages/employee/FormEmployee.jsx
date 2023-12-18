@@ -21,6 +21,7 @@ import { upload } from "../../../Helper/index";
 import toast from "react-hot-toast";
 import dayjs from "dayjs";
 import Api from "../../../sevices/Api";
+import { Cascader } from "antd";
 
 import { error } from "jquery";
 export default function FormEmployee({
@@ -52,12 +53,12 @@ export default function FormEmployee({
     gender: yup.string().required("Gender is required"),
     status: yup.string().required("Status is required"),
     religion: yup.string().required("Religion is required"),
-    // departement_id: yup.string().required("Department is required"),
+    // departement_id: yup.array().required("Department is required"),
     // division_id: yup.string().required("Division is required"),
     role_id: yup.string().required("Role is required"),
     marital_status: yup.string().required("Marital status is required"),
     dependents: yup.string().required("Dependents is required"),
-    // level: yup.string().required("Level employee is required"),
+    level: yup.string().required("Level employee is required"),
   });
 
 
@@ -104,19 +105,20 @@ export default function FormEmployee({
   const handleSelectOptions = async (e) => {
     console.log(e, "apani")
     setSelectDepartment(e)
-    try {
-      const { status, data } = await Api.get(`/hris/departement/${e}`)
-      if (status) {
-        setDivisions(data.division)
-      }
-    } catch (error) {
-      console.log(error.message)
-      toast.error(`Error : ${error.message}`, {
-        position: "top-center",
-      });
-    }
+    // try {
+    //   const { status, data } = await Api.get(`/hris/departement/${e}`)
+    //   if (status) {
+    //     setDivisions(data.division)
+    //   }
+    // } catch (error) {
+    //   console.log(error.message)
+    //   toast.error(`Error : ${error.message}`, {
+    //     position: "top-center",
+    //   });
+    // }
   }
 
+  console.log(selectDepartment, 'seles')
   const { getRootProps, getInputProps } = useDropzone({
     multiple: false,
     onDrop: async (acceptedFiles) => {
@@ -142,17 +144,21 @@ export default function FormEmployee({
     },
   });
 
-  const onSubmitForm = (arg) => {
-    // console.log(selectDepartment.toString(), "yyeyey")
-    // console.log(arg.departement_id, "jajaja")
-    arg.profile_picture = attachment;
-    arg.departement_id = selectDepartment
+  const onSubmitForm = async (arg) => {
+    let newArg = { ...arg }
+
+    const newDepartmentId = await arg.departement_id[arg.departement_id.length - 1];
+    newArg.departement_id = newDepartmentId;
+
+    newArg.profile_picture = attachment;
+
     if (!item) {
-      arg.password = arg.password ? arg.password : "121212";
+      newArg.password = newArg.password ? newArg.password : "121212";
     }
-    // return console.log(arg,'nnn')
-    // return console.log(selectDepartment, arg,arg.departement_id, "arg onSubmitform")
-    return onSubmit(arg);
+
+    console.log(newArg, 'arg')
+
+    return onSubmit(newArg);
   };
 
   return (
@@ -299,7 +305,7 @@ export default function FormEmployee({
                 type="select"
                 {...field}
                 name="religion"
-                value={item?.employee_attribute.religion}
+                value={item?.employee_attribute?.religion}
                 invalid={errors.religion && true}
               >
                 <option value="">Select religion</option>
@@ -455,35 +461,42 @@ export default function FormEmployee({
           {errors.company_id && <FormFeedback>{errors.company_id.message}</FormFeedback>}
         </Col>
         <Col md="6" sm="12" className="mb-1">
-          <Label className="form-label" for="departement_id">
-            Department
-          </Label>
+          <Row>
+
+            <Label className="form-label" for="departement_id">
+              Department
+            </Label>
+          </Row>
           <Controller
             name="departement_id"
             defaultValue=""
             control={control}
             value={selectDepartment}
             render={({ field }) => (
-              <Input
-                type="select"
-                {...field}
-                name="departement_id"
-                invalid={errors.departement_id && true}
-                value={selectDepartment}
-                onChange={(e) => handleSelectOptions(e.target.value)}
-              >
-                <option value="">Select department</option>
-                {department.map((x) => (
-                  <option key={x.id} value={x.id}>
-                    {x.name}
-                  </option>
-                ))}
-              </Input>
+              <Cascader
+                className="w-100"
+                options={department} changeOnSelect {...field}
+              />
+              // <Input
+              //   type="select"
+              //   {...field}
+              //   name="departement_id"
+              //   invalid={errors.departement_id && true}
+              //   value={selectDepartment}
+              //   onChange={(e) => handleSelectOptions(e.target.value)}
+              // >
+              //   <option value="">Select department</option>
+              //   {department.map((x) => (
+              //     <option key={x.id} value={x.id}>
+              //       {x.name}
+              //     </option>
+              //   ))}
+              // </Input>
             )}
           />
           {errors.departement_id && <FormFeedback>{errors.departement_id.message}</FormFeedback>}
         </Col>
-        <Col md="6" sm="12" className="mb-1">
+        {/* <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="division_id">
             Division
           </Label>
@@ -510,7 +523,7 @@ export default function FormEmployee({
             )}
           />
           {errors.division_id && <FormFeedback>{errors.division_id.message}</FormFeedback>}
-        </Col>
+        </Col> */}
         <Col md="6" sm="12" className="mb-1">
           <Label className="form-label" for="status">
             Status
@@ -519,7 +532,7 @@ export default function FormEmployee({
             name="status"
             defaultValue=""
             control={control}
-            value={item?.employee_attribute.status}
+            value={item?.employee_attribute?.status}
             render={({ field }) => (
               <Input
                 type="select"

@@ -54,8 +54,8 @@ const UsersList = () => {
 
   const fetchCompany = async () => {
     try {
-      const {status,data} = await Api.get("/hris/company");
-      if(status){
+      const { status, data } = await Api.get("/hris/company");
+      if (status) {
         setCompanies([...data]);
       }
     } catch (error) {
@@ -70,8 +70,8 @@ const UsersList = () => {
   const fetchDivision = async () => {
     // return console.log(params, "params")
     try {
-      const {status,data} = await Api.get(`/hris/division?search=`);
-      if(status){
+      const { status, data } = await Api.get(`/hris/division?search=`);
+      if (status) {
         setDivisions([...data]);
       }
     } catch (error) {
@@ -98,10 +98,12 @@ const UsersList = () => {
     fetchRole();
   }, []);
 
+
+
   const fetchOffice = async () => {
     try {
-      const {status,data} = await Api.get("/hris/office");
-      if(status){
+      const { status, data } = await Api.get("/hris/office");
+      if (status) {
         setOffice([...data]);
       }
     } catch (error) {
@@ -113,11 +115,33 @@ const UsersList = () => {
     fetchOffice();
   }, []);
 
+  function buildTree(data, parentId = null) {
+    const tree = [];
+
+    for (const item of data) {
+      if (item.parent == parentId) {
+        const children = buildTree(data, item.id);
+
+        if (children.length) {
+          item.children = children;
+        }
+
+        tree.push({ ...item, label: item.label, value: item.id })
+      }
+    }
+
+    return tree;
+  }
+
+
   const fetchDepartment = async () => {
     try {
-      const {status,data} = await Api.get("/hris/departement");
-      if(status){
-        setDepartment([...data]);
+      const { status, data } = await Api.get("/hris/departement");
+      if (status) {
+        // setDepartment([...data]);
+        const tree = buildTree(data)
+
+        setDepartment(tree)
       }
     } catch (error) {
       throw error;
@@ -127,19 +151,23 @@ const UsersList = () => {
   useEffect(() => {
     fetchDepartment();
   }, []);
-  
+
   const submitForm = async (params) => {
+    console.log(params, 'ooo`')
     try {
       if (itemActive) return postEdit(params);
       dispatch(handlePreloader(true));
       const { user } = await createUserWithEmailAndPassword(
-          auth,
-          params.email,
-          params.password
-        );
-        const { uid } = user;
-        params.uid = uid;
-        const status = await Api.post(`/hris/employee`, params, params.user_id = uid);
+        auth,
+        params.email,
+        params.password
+      );
+      const { uid } = user;
+      params.uid = uid;
+      params.user_id = uid
+
+      const status = await Api.post(`/hris/employee`, params);
+      console.log(status, 'aaa')
       dispatch(handlePreloader(false));
       if (!status)
         return toast.error(`Error : ${data}`, {
@@ -173,7 +201,7 @@ const UsersList = () => {
     try {
       params.id = itemActive.id;
       dispatch(handlePreloader(true));
-      const status = await Api.put(`/hris/employee/${params.id}`,params);
+      const status = await Api.put(`/hris/employee/${params.id}`, params);
       dispatch(handlePreloader(false));
       if (!status)
         return toast.error(`Error : ${data}`, {
@@ -205,7 +233,7 @@ const UsersList = () => {
     setModal({
       title: "Edit Employee",
       mode: "edit",
-      item: {...params}
+      item: { ...params }
     })
     setItemActive({ ...params });
     setToggleModal(true);
@@ -215,7 +243,7 @@ const UsersList = () => {
     return MySwal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
-      icon: "warning",      
+      icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, delete it!",
       customClass: {
@@ -300,30 +328,30 @@ const UsersList = () => {
           Employee Form
         </ModalHeader>
         <ModalBody>
-          {modal.mode === "add"? 
-          <FormEmployee
-          close={() => setToggleModal(!toggleModal)}
-          onSubmit={submitForm}
-          company={companies}
-          department={department}
-          division={divisions}
-          role={roles}
-          office={office}
-          companyId={company_id}
+          {modal.mode === "add" ?
+            <FormEmployee
+              close={() => setToggleModal(!toggleModal)}
+              onSubmit={submitForm}
+              company={companies}
+              department={department}
+              division={divisions}
+              role={roles}
+              office={office}
+              companyId={company_id}
 
-          /> : <></>}
-          {modal.mode === "edit" ? 
-          <FormEmployee
-            close={() => setToggleModal(!toggleModal)}
-            onSubmit={submitForm}
-            item={modal.item}
-            company={companies}
-            department={department}
-            division={divisions}
-            role={roles}
-            office={office}
-            companyId={company_id}
-          /> : <></>
+            /> : <></>}
+          {modal.mode === "edit" ?
+            <FormEmployee
+              close={() => setToggleModal(!toggleModal)}
+              onSubmit={submitForm}
+              item={modal.item}
+              company={companies}
+              department={department}
+              division={divisions}
+              role={roles}
+              office={office}
+              companyId={company_id}
+            /> : <></>
           }
         </ModalBody>
       </Modal>

@@ -25,7 +25,7 @@ export default function AssetIndex() {
   const [searchValue, setSearchValue] = useState("")
 
   const [modal, setModal] = useState({
-    title:"",
+    title: "",
     mode: "",
     item: null
   })
@@ -46,21 +46,21 @@ export default function AssetIndex() {
       throw error
     }
   }
-  
+
   useEffect(() => {
     fetchEmployee()
-  },[])
+  }, [])
 
   const fetchList = async (params) => {
     try {
       const data = await Api.get(`/api/v1/accurate/master-data/fixed-asset/11?sp.page=${0}&sp.pageSize=${100}&keywords=${params}`)
-      if (data.data.s === true){
+      if (data.data.s === true) {
         const listAsset = data.data.d.map((x) => {
           return {
             value: x.id,
             label: x.description,
-            asset_code : x.number,
-            asset_cost : x.assetCost
+            asset_code: x.number,
+            asset_cost: x.assetCost
           }
         })
         setList(listAsset)
@@ -71,9 +71,9 @@ export default function AssetIndex() {
     }
   }
 
-  useEffect(() =>{
+  useEffect(() => {
     fetchList()
-  },[])
+  }, [])
 
   const loadOption = (params, callback) => {
     setTimeout(() => {
@@ -83,10 +83,10 @@ export default function AssetIndex() {
     }, 1000);
   };
 
-  const fetchAsset = async (params) =>{
+  const fetchAsset = async (params) => {
     try {
-      const {status,data} = await Api.get(`/hris/assets-search?search=${params.search}`)
-      if(status){
+      const { status, data } = await Api.get(`/hris/assets-search?search=${params.search}`)
+      if (status) {
         setAssets([...data])
       }
     } catch (error) {
@@ -95,7 +95,7 @@ export default function AssetIndex() {
   }
 
   useEffect(() => {
-    fetchAsset({search: ""})
+    fetchAsset({ search: "" })
   }, [])
 
   const handleFilter = (e) => {
@@ -105,22 +105,24 @@ export default function AssetIndex() {
     })
   }
 
-  const fetchDivision = async (params) =>{
+  const fetchDivision = async (params) => {
     try {
-      const {status,data} = await Api.get(`/hris/division?search=${params.search}`)
-      if(status){
+      const { status, data } = await Api.get(`/hris/departement?search=${params.search}`)
+      console.log(data, 'ni data')
+      console.log(assets, 'ni assets')
+      if (status) {
         const dataAsset = assets?.map(x => {
-          x.division = null
-          const check = data?.find(y => y.id === x.division_id)
-          if(check){
-            x.division = check? check.name : "-"
-          }
+          x.departement = null
+          const check = data?.find(y => y.id === x.departement_id)
+
+          x.departement = check ? check.label : "-"
+
           return x
         })
         return setUserAssets(dataAsset)
       }
       setUserAssets([...assets.map(x => {
-        x.division = null
+        x.departement = null
         return x
       })])
     } catch (error) {
@@ -129,37 +131,37 @@ export default function AssetIndex() {
   }
 
   useEffect(() => {
-    fetchDivision({search: ""})
+    fetchDivision({ search: "" })
   }, [assets])
 
   const onAdd = () => {
     setModal({
-      title : "Add Asset",
-      mode : "add",
-      item : null
+      title: "Add Asset",
+      mode: "add",
+      item: null
     })
     setToggleModal(true)
   }
 
   const onSubmit = async (params) => {
     const itemPost = {
-      uid : params.name.value,
-      accurate_id : params.asset.value,
-      asset_name : params.asset.label,
-      asset_code : params.asset.asset_code,
-      asset_cost : params.asset.asset_cost
+      uid: params.name.value,
+      accurate_id: params.asset.value,
+      asset_name: params.asset.label,
+      asset_code: params.asset.asset_code,
+      asset_cost: params.asset.asset_cost
     }
     try {
-			dispatch(handlePreloader(true))
-      const {status,data} = await Api.post(`/hris/assets/assign`, itemPost);
-      console.log(status,data,"post asset")
-			dispatch(handlePreloader(true))
+      dispatch(handlePreloader(true))
+      const { status, data } = await Api.post(`/hris/assets/assign`, itemPost);
+      console.log(status, data, "post asset")
+      dispatch(handlePreloader(true))
       if (!status)
-      return toast.error(`Error : ${data}`, {
-        position: "top-center",
-      });
+        return toast.error(`Error : ${data}`, {
+          position: "top-center",
+        });
       fetchAsset();
-      fetchDivision({search: " "})
+      fetchDivision({ search: " " })
       toast.success("Asset has updated", {
         position: "top-center",
       });
@@ -213,7 +215,7 @@ export default function AssetIndex() {
       }
     });
   }
-
+  console.log(assets, 'asset')
   return (
     <>
       <Row className="d-flex justify-content-between">
@@ -226,70 +228,70 @@ export default function AssetIndex() {
           </Fragment>
         </Col>
       </Row>
-      <Row style={{backgroundColor:'white', margin:'auto'}}>
-        <Card Row style={{backgroundColor:'white'}}>
+      <Row style={{ backgroundColor: 'white', margin: 'auto' }}>
+        <Card Row style={{ backgroundColor: 'white' }}>
           <CardHeader >
             <CardTitle>Assets Management</CardTitle>
             <Col
-            className="d-flex align-items-center justify-content-sm-end mt-sm-0 mt-1"
-            sm="3"
-          >
-            <Label className="me-1" for="search-input">
-              Search
-            </Label>
-            <Input
-              className="dataTable-filter"
-              type="text"
-              bsSize="sm"
-              id="search-input"
-              value={searchValue}
-              onChange={handleFilter}
-            />
-          </Col>
+              className="d-flex align-items-center justify-content-sm-end mt-sm-0 mt-1"
+              sm="3"
+            >
+              <Label className="me-1" for="search-input">
+                Search
+              </Label>
+              <Input
+                className="dataTable-filter"
+                type="text"
+                bsSize="sm"
+                id="search-input"
+                value={searchValue}
+                onChange={handleFilter}
+              />
+            </Col>
           </CardHeader>
           <CardBody>
             <Table responsive striped>
               <thead>
                 <tr className="text-xs">
-                  <th style={{fontSize : 'sm'}}>Employee</th>
-                  <th style={{fontSize : 'sm'}}>Division</th>
-                  <th style={{fontSize : 'sm'}}>Accurate ID</th>
-                  <th style={{fontSize : 'sm'}}>Asset</th>
-                  <th style={{fontSize : 'sm'}}>Kode Asset</th>
-                  <th style={{fontSize : 'sm'}}>Asset Cost</th>
-                  <th style={{fontSize : 'sm'}}>created time</th>
-                  <th style={{fontSize : 'sm'}}>Actions</th>
+                  <th style={{ fontSize: 'sm' }}>Employee</th>
+                  <th style={{ fontSize: 'sm' }}>Department</th>
+                  <th style={{ fontSize: 'sm' }}>Accurate ID</th>
+                  <th style={{ fontSize: 'sm' }}>Asset</th>
+                  <th style={{ fontSize: 'sm' }}>Kode Asset</th>
+                  <th style={{ fontSize: 'sm' }}>Asset Cost</th>
+                  <th style={{ fontSize: 'sm' }}>created time</th>
+                  <th style={{ fontSize: 'sm' }}>Actions</th>
                 </tr>
               </thead>
-              <tbody style={{backgroundColor:'transparent'}}>
-                {assets?.map((x,i) => (
-                    <tr key={i}>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x?.name}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x?.division}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.accurate_id}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.asset_name}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.asset_code}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>Rp{numberFormat(x.asset_cost)}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{dateTimeFormat(x.createdAt)}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>
-                        <div className="d-flex">
-                          <div className="pointer">
-                            <Trash
-                              className="me-20"
-                              size={15}
-                              onClick={() => handleDelete(x.id, i)}
-                              id={`delete-tooltip-${x.id}`}
-                            />{" "}
-                            <span className="align-middle"></span>
-                            <UncontrolledTooltip
+              <tbody style={{ backgroundColor: 'transparent' }}>
+                {assets?.map((x, i) => (
+                  <tr key={i}>
+                    <td style={{ fontSize: '9pt', backgroundColor: 'white' }}>{x?.name}</td>
+                    <td style={{ fontSize: '9pt', backgroundColor: 'white' }}>{x?.departement}</td>
+                    <td style={{ fontSize: '9pt', backgroundColor: 'white' }}>{x.accurate_id}</td>
+                    <td style={{ fontSize: '9pt', backgroundColor: 'white' }}>{x.asset_name}</td>
+                    <td style={{ fontSize: '9pt', backgroundColor: 'white' }}>{x.asset_code}</td>
+                    <td style={{ fontSize: '9pt', backgroundColor: 'white' }}>Rp{numberFormat(x.asset_cost)}</td>
+                    <td style={{ fontSize: '9pt', backgroundColor: 'white' }}>{dateTimeFormat(x.createdAt)}</td>
+                    <td style={{ fontSize: '9pt', backgroundColor: 'white' }}>
+                      <div className="d-flex">
+                        <div className="pointer">
+                          <Trash
+                            className="me-20"
+                            size={15}
+                            onClick={() => handleDelete(x.id, i)}
+                            id={`delete-tooltip-${x.id}`}
+                          />{" "}
+                          <span className="align-middle"></span>
+                          <UncontrolledTooltip
                             placement="top"
                             target={`delete-tooltip-${x.id}`}>
-                              Delete
-                            </UncontrolledTooltip>
-                          </div>
+                            Delete
+                          </UncontrolledTooltip>
                         </div>
-                      </td>
-                    </tr>
+                      </div>
+                    </td>
+                  </tr>
 
                 ))}
               </tbody>
@@ -299,19 +301,19 @@ export default function AssetIndex() {
       </Row>
       <Modal
         isOpen={toggleModal}
-        toggle={() => {setToggleModal(!toggleModal); console.log("asukgas")}}
+        toggle={() => { setToggleModal(!toggleModal); console.log("asukgas") }}
         className={`modal-dialog-centered modal-lg`}>
         <ModalHeader toggle={() => setToggleModal(!toggleModal)}>
           {modal.title}
         </ModalHeader>
         <ModalBody>
-        {modal.mode === "add" ?
-        <AssetForm asset={listAsset} fetch={fetchList} load={loadOption} onSubmit={onSubmit} user= {employee} close={() => setToggleModal(false)}/> : <></>}
+          {modal.mode === "add" ?
+            <AssetForm asset={listAsset} fetch={fetchList} load={loadOption} onSubmit={onSubmit} user={employee} close={() => setToggleModal(false)} /> : <></>}
         </ModalBody>
       </Modal>
     </>
   )
 }
 
-  /* <td style={{fontSize : '9pt', backgroundColor:'white', cursor:'pointer'}} className="user_name text-truncate text-body"><span className="fw-light text-capitalize">{x.users.name}</span></td> */
+/* <td style={{fontSize : '9pt', backgroundColor:'white', cursor:'pointer'}} className="user_name text-truncate text-body"><span className="fw-light text-capitalize">{x.users.name}</span></td> */
 

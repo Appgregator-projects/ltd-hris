@@ -13,7 +13,9 @@ import {
   Input,
   Label,
   Row,
-  Col
+  Col,
+  InputGroup,
+  Button
 } from "reactstrap"
 import Api from "../../../sevices/Api"
 import Avatar from "@components/avatar"
@@ -22,7 +24,7 @@ import { Link } from "react-router-dom"
 import "@styles/react/libs/react-select/_react-select.scss"
 import "@styles/react/libs/tables/react-dataTable-component.scss"
 import { dateTimeFormat } from "../../../Helper/index"
-import { ChevronDown, Trash, Edit } from "react-feather"
+import { ChevronDown, Trash, Edit, Search } from "react-feather"
 
 const renderClient = (row) => {
   if (row.avatar) {
@@ -70,9 +72,9 @@ export const serverSideColumns = (onDelete, onEdit) => {
     },
     {
       sortable: true,
-      name: "Division",
+      name: "Department",
       minWidth: "250px",
-      selector: row => (row.division ? row.division.name : "-")
+      selector: row => (row.departement ? row.departement.label : "-")
     },
     {
       sortable: true,
@@ -105,7 +107,7 @@ export const serverSideColumns = (onDelete, onEdit) => {
 const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
   // ** Store Vars
   const [employees, setEmployees] = useState([])
-	const [usersDivision, setUserDivision] = useState([])
+  const [usersDivision, setUserDivision] = useState([])
   const [employeeTotal, setEmployeeTotal] = useState(0)
 
   // ** States
@@ -115,39 +117,44 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
 
   const fetchEmployee = async (params) => {
     try {
-      const {status,data} = await Api.get(`/hris/employee?page=${params.page}&limit=${params.perPage}&search=${params.search}`)
-      if(status){
-        setEmployees([...data.rows])
-        setEmployeeTotal(data.pagination.totalItems)
+      const { status, data } = await Api.get(`/hris/employee?page=${params.page}&limit=${params.perPage}&search=${params.search}`)
+      if (status) {
+        setEmployees([...data.pagination.data.rows])
+        setEmployeeTotal(data.pagination.totalPages)
       }
     } catch (error) {
       throw error.message
     }
   }
 
-  // console.log(employees, "employees")
+  console.log(employees, "employees")
 
   useEffect(() => {
     if (isRefresh) {
-    fetchEmployee({page:currentPage, perPage:rowsPerPage, search:''})
+      fetchEmployee({ page: currentPage, perPage: rowsPerPage, search: '' })
     }
   }, [isRefresh])
 
-    // ** Get data on mount
-    useEffect(() => {
-      fetchEmployee({page:currentPage, perPage:rowsPerPage, search:''})
-    }, [])
+  // ** Get data on mount
+  useEffect(() => {
+    fetchEmployee({ page: currentPage, perPage: rowsPerPage, search: '' })
+  }, [])
 
   // ** Function to handle filter
-  const handleFilter = (e) => {
-    console.log(e.target.value, "search users")
-    setSearchValue(e.target.value)
+  const handleFilter = () => {
     fetchEmployee({
       page: currentPage,
       perPage: rowsPerPage,
-      search: e.target.value
+      search: searchValue
     })
   }
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleFilter();
+    }
+  };
 
   // ** Function to handle Pagination and get data
   const handlePagination = page => {
@@ -169,15 +176,16 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
     setRowsPerPage(parseInt(e.target.value))
   }
 
+
   // ** Custom Pagination
   const CustomPagination = () => {
-    const count = Math.ceil(employeeTotal / rowsPerPage)
+    // const count = Math.ceil(employeeTotal)
     return (
       <ReactPaginate
         previousLabel={''}
         nextLabel={''}
         breakLabel='...'
-        pageCount={Math.ceil(count) || 1}
+        pageCount={employeeTotal || 1}
         marginPagesDisplayed={2}
         pageRangeDisplayed={2}
         activeClassName='active'
@@ -212,8 +220,8 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
       return employees
     } else if (employees.length === 0 && isFiltered) {
       return []
-        } else {
-          return employees.slice(0, rowsPerPage)
+    } else {
+      return employees.slice(0, rowsPerPage)
     }
   }
 
@@ -245,18 +253,29 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
           <Col
             className="d-flex align-items-center justify-content-sm-end mt-sm-0 mt-1"
             sm="6"
+            onKeyPress={handleKeyPress}
           >
-            <Label className="me-1" for="search-input">
-              Search
-            </Label>
-            <Input
-              className="dataTable-filter"
-              type="text"
-              bsSize="sm"
-              id="search-input"
-              value={searchValue}
-              onChange={handleFilter}
-            />
+
+            <Row>
+
+              <InputGroup className="mb-2">
+                <Input
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  className="dataTable-filter"
+                  type="text"
+                  bsSize="sm"
+                  id="search-input"
+                  value={searchValue}
+                />
+                <Button color="primary"
+                  onClick={handleFilter}
+                >
+                  <Search size={15}
+                  />
+                </Button>
+              </InputGroup>
+            </Row>
+
           </Col>
         </Row>
         <div className="react-dataTable">
