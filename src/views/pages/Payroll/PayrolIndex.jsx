@@ -24,15 +24,36 @@ import { Trash, Edit, Eye, CheckCircle, Plus, RefreshCcw } from "react-feather";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import DateRange from "../../../@core/components/flatpickr";
+// ** Styles
+import monthSelectPlugin from "flatpickr/dist/plugins/monthSelect";
+import '@styles/react/libs/flatpickr/flatpickr.scss'
+import "flatpickr/dist/plugins/monthSelect/style.css";
+import Flatpickr from 'react-flatpickr'
+import "flatpickr/dist/flatpickr.min.css";
+
 const MySwal = withReactContent(Swal);
 
 export default function PayrolIndex() {
   const [payrolls, setPayrolls] = useState([]);
+  const [picker, setPicker] = useState(new Date())
+  const [info, setInfo] = useState(null)
+  const [toggleModal, setToggleModal] = useState(false)
+
+  const [modal, setModal] = useState({
+    title: "User assign",
+    mode: "get",
+    item: null
+  })
 
   const fetchPayroll = async () => {
     try {
-      const data = await Api.get("/hris/payroll");
-      setPayrolls([...data]);
+      const { status, data } = await Api.get("/hris/payroll");
+
+      if (status) {
+
+        setPayrolls([...data.rows]);
+      }
     } catch (error) {
       throw error;
     }
@@ -74,6 +95,18 @@ export default function PayrolIndex() {
       }
     });
   };
+  const onPeriode = () => {
+    setModal({
+      title: "Periode Attendance",
+      mode: "periode",
+    })
+    setToggleModal(true)
+
+    // setAttendanceReport(true)
+    // if (allAttendance.length === 0) {
+    //   fetchAllAttendance()
+    // }
+  }
 
   const onApprove = (id) => {
     return MySwal.fire({
@@ -108,6 +141,16 @@ export default function PayrolIndex() {
     });
   };
 
+  const fetchPayrollAlluser = async () => {
+    // const data = await Api.get(`/hris/payroll/by-user?user_id=${uid}&periode=${picker}`)
+
+  }
+
+  const handlePeriode = () => {
+    setToggleModal(!toggleModal)
+    // fetchAllAttendance(picker)
+  }
+
   return (
     <>
       <Row>
@@ -125,8 +168,9 @@ export default function PayrolIndex() {
           <Button.Ripple
             size="sm"
             color="success"
-            // tag={Link}
-            // to="/payroll-form"
+            onClick={onPeriode}
+          // tag={Link}
+          // to="/payroll-form"
           >
             <RefreshCcw size={14} />
             <span className="align-middle text-sm ms-25">Generate All Payroll</span>
@@ -168,7 +212,7 @@ export default function PayrolIndex() {
                         <div className="d-flex">
                           <div className="pointer">
                             {!x.approved_at ? (
-                              <div>
+                              <>
                                 <Trash
                                   className="me-50"
                                   size={15}
@@ -182,14 +226,14 @@ export default function PayrolIndex() {
                                 >
                                   Delete
                                 </UncontrolledTooltip>
-                              </div>
+                              </>
                             ) : (
                               <></>
                             )}
                             <span className="align-middle"></span>
                             <Link
                               to={`/payroll/${x.id}`}
-                              // title="Detail"
+                            // title="Detail"
                             >
                               <Eye
                                 className="me-50"
@@ -222,7 +266,7 @@ export default function PayrolIndex() {
                               <></>
                             )}
                             {!x.approved_at ? (
-                              <div>
+                              <>
                                 <CheckCircle
                                   className="me-50"
                                   title="Approve"
@@ -236,7 +280,7 @@ export default function PayrolIndex() {
                                 >
                                   Approve
                                 </UncontrolledTooltip>
-                              </div>
+                              </>
                             ) : (
                               <></>
                             )}
@@ -251,6 +295,65 @@ export default function PayrolIndex() {
           </Card>
         </Col>
       </Row>
+      <Modal
+        isOpen={toggleModal}
+        toggle={() => setToggleModal(!toggleModal)}
+        className={`modal-dialog-centered modal-lg`}
+      >
+        <ModalHeader toggle={() => setToggleModal(!toggleModal)}>
+          {modal.title}
+        </ModalHeader>
+        <ModalBody>
+
+          {modal.mode === 'periode' ? (
+            <>
+              <Label>Date</Label>
+              <DateRange
+                picker={picker}
+                setPicker={setPicker}
+              />
+              <Label>Periode</Label>
+              <Flatpickr
+                id='range-picker'
+                className='form-control'
+                options={{
+                  plugins: [
+                    new monthSelectPlugin({
+                      shorthand: true,
+                      dateFormat: "F Y",
+                      altInput: true,
+                      altFormat: "m/y",
+                      theme: "light"
+                    })
+                  ]
+                }}
+              />
+            </>
+          ) : <></>}
+          <Col className="mt-1">
+            <Button
+              type="button"
+              size="md"
+              color="danger"
+              onClick={() => setToggleModal(!toggleModal)}
+
+            >
+              Cancel
+            </Button>
+            {modal.mode === 'periode' ? (
+              <Button
+                type="button"
+                size="md"
+                color="primary"
+                className="ms-2"
+                onClick={handlePeriode}
+              >
+                Save
+              </Button>
+            ) : <></>}
+          </Col>
+        </ModalBody>
+      </Modal >
     </>
   );
 }

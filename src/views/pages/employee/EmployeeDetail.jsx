@@ -20,6 +20,7 @@ import HealthForm from "./component/IncomeForm";
 import IncomeForm from "./component/IncomeForm";
 import PenaltyForm from "./component/Penalty/PenaltyForm";
 import DepartmentList from "./DepartmentList";
+import IncomeList from "./IncomeList";
 const MySwal = withReactContent(Swal);
 
 
@@ -216,19 +217,22 @@ export default function EmployeeDetail() {
   }
 
   const postIncome = async (params) => {
-    console.log(params)
-    return
+    console.log(params, 'OOOO')
+    // return
     try {
-      const status = await Api.post(`/hris/employee-income/${id.uid}`, params)
-      if (!status)
+      const { status, data } = await Api.post(`/hris/employee-income/${id.uid}`, params)
+      console.log(status, 'PPPP')
+      if (!status) {
         return toast.error(`Error : ${data}`, {
           position: "top-center",
         });
-      fetchIncome();
-      fetchUser()
-      toast.success("Income has updated", {
-        position: "top-center",
-      });
+      } else {
+        fetchIncome();
+        fetchUser()
+        toast.success("Income has updated", {
+          position: "top-center",
+        });
+      }
       setToggleModal(false);
     } catch (error) {
       toast.error(`Error : ${error.message}`, {
@@ -391,49 +395,7 @@ export default function EmployeeDetail() {
         </Col>
         <Col>
           <Col>
-            <Card>
-              <CardHeader>
-                <CardTitle>Employee Income</CardTitle>
-              </CardHeader>
-              <CardBody>
-                <Table responsive>
-                  <thead>
-                    <tr className="text-xs">
-                      <th className="fs-6">Type</th>
-                      <th className="fs-6">Amount</th>
-                      <th className="fs-6">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {income ? income.map((x) => (
-                      <tr key={x.id}>
-                        <td>{x.name}</td>
-                        <td>Rp {numberFormat(x.amount)},-</td>
-                        <td>
-                          <Trash className="me-50 pointer" size={15} onClick={() => onDelete(x)}></Trash>
-                        </td>
-                      </tr>
-                    )) :
-                      <tr>
-                        <td>This Employee has no income</td>
-                      </tr>
-                    }
-                  </tbody>
-                </Table>
-              </CardBody>
-              <CardFooter>
-                <Fragment>
-                  <Button.Ripple
-                    size="sm"
-                    color="warning"
-                    onClick={(e) => { e.preventDefault(); onEditIncome(income) }}
-                  >
-                    <Edit size={13} />
-                    <span className="align-middle ms-25">Add Income</span>
-                  </Button.Ripple>
-                </Fragment>
-              </CardFooter>
-            </Card>
+            <IncomeList onDelete={onDelete} onEditIncome={onEditIncome} income={income} />
           </Col>
           <Col>
             <Card>

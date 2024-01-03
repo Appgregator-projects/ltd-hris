@@ -13,23 +13,26 @@ export default function IncomeForm({ isLoading, close, income, onSubmit }) {
   const [allowance, setAllowance] = useState()
   const [payrollType, setPayrollType] = useState()
   const ItemSchema = yup.object().shape({
-    payroll_type: yup.string().required("payroll type is required"),
+    payroll_type: yup.string().oneOf(["nett", "gross", "gross_up"], "Please select a valid payroll type").required("payroll type is required"),
     type: yup.string().required("type is required"),
+    amount: yup.string().required("amount is required"),
+
     // flag: yup.string().required("Flag is required")
   })
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm({ mode: "onChange" });
+  } = useForm({ mode: "onChange", resolver: yupResolver(ItemSchema) });
 
+  console.log(errors)
   const selectOnType = (arg) => {
     setAllowance(arg)
   }
 
   const onSubmitIncome = (arg) => {
-    arg.type =allowance
-    arg.payroll_type = payrollType
+    arg.amount = parseFloat(arg.amount)
+    // return console.log(arg, 'argg')
     onSubmit(arg)
   }
 
@@ -47,15 +50,18 @@ export default function IncomeForm({ isLoading, close, income, onSubmit }) {
             render={({ field }) => (
               <>
                 <FormGroup check>
-                  <Input type='radio' name='payroll_type' value="nett" onChange={(e) => setPayrollType(e.target.value)}/>
+                  <Input  {...field}
+                    invalid={errors.payroll_type && true} type='radio' name='payroll_type' value="nett" />
                   <Label check className='me-2'>Nett</Label>
                 </FormGroup>
                 <FormGroup check>
-                  <Input type='radio' name='payroll_type' value="gross" onChange={(e) => setPayrollType(e.target.value)}/>
+                  <Input  {...field}
+                    invalid={errors.payroll_type && true} type='radio' name='payroll_type' value="gross" />
                   <Label check className='me-2'>Gross</Label>
                 </FormGroup>
                 <FormGroup check>
-                  <Input type='radio' name='payroll_type' value="gross_up" onChange={(e) => setPayrollType(e.target.value)}/>
+                  <Input  {...field}
+                    invalid={errors.payroll_type && true} type='radio' name='payroll_type' value="gross_up" />
                   <Label check className='me-2'>Gross Up</Label>
                 </FormGroup>
               </>
@@ -72,11 +78,14 @@ export default function IncomeForm({ isLoading, close, income, onSubmit }) {
               <Input
                 id='type'
                 type="select"
-                // {...field}
+                {...field}
+                invalid={errors.type && true}
                 name='type'
                 placeholder='Select income type'
-                // invalid={errors.type && true}
-                onChange={(e) => selectOnType(e.target.value)}
+                onChange={(e) => {
+                  field.onChange(e);
+                  selectOnType(e.target.value);
+                }}
               >
                 <option value=''>Select income type</option>
                 <option value='Basic'>Basic salary</option>
@@ -94,13 +103,15 @@ export default function IncomeForm({ isLoading, close, income, onSubmit }) {
             render={({ field }) => (
               <Input
                 type="text"
+
                 {...field}
+                // invalid={errors.label_allowance && true}
                 defaultValue={0}
                 placeholder='Ex: Annual Allowance'
                 disabled={allowance !== "Allowance"}
               />
             )} />
-          {errors.label_allowance && <FormFeedback>{errors.label_allowance.message}</FormFeedback>}
+          {/* {errors.label_allowance && <FormFeedback>{errors.label_allowance.message}</FormFeedback>} */}
         </Col>
         <Col md='12' sm='12' className='mb-1'>
           <Label className='form-label'>Amount (Rp)</Label>
@@ -113,6 +124,7 @@ export default function IncomeForm({ isLoading, close, income, onSubmit }) {
                 type="number"
                 {...field}
                 defaultValue={0}
+                invalid={errors.amount && true}
               />
             )} />
           {errors.amount && <FormFeedback>{errors.amount.message}</FormFeedback>}

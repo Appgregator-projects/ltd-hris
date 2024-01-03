@@ -1,7 +1,7 @@
-import { 
+import {
   Col, Row, Button, Input,
   Modal, ModalHeader, ModalBody, Card, CardBody, CardHeader, CardTitle
- } from "reactstrap"
+} from "reactstrap"
 import { ChevronDown, Trash } from "react-feather"
 import { monthName, mustNumber, numberFormat } from "../../../Helper"
 import FormUserAssign from "../Components/FormUserAssign"
@@ -18,6 +18,7 @@ const MySwal = withReactContent(Swal)
 
 export default function PayrollForm() {
   const { id } = useParams()
+  console.log(id, 'nid')
   const navigate = useNavigate()
 
   const [toggleModal, setToggleModal] = useState(false)
@@ -34,23 +35,25 @@ export default function PayrollForm() {
   const [loans, setLoans] = useState(null)
   const [type, setType] = useState("")
   const [periode, setPeriode] = useState('')
-  const [addjustment, setAddjustment] = useState([{name:'Basic salary', amount:0}])
+  const [addjustment, setAddjustment] = useState([{ name: 'Basic salary', amount: 0 }])
   const [finalAddj, setFinalAddj] = useState([])
   const [finalDedu, setFinalDedu] = useState([])
-  const [deductions, setDeductions] =  useState([
-    {name:'Pajak Penghasilan', amount:0},
-    {name:'BPJS (JHT) Employee', amount:0},
-    {name:'BPJS (JP) Employee', amount:0},
-    {name:'BPJS Kesehatan Employee', amount:0},
-    {name:'Potongan Absensi', amount:0},
-    {name:'Potongan Keterlambatan', amount:0},
-    {name:'Potongan Pinjaman', amount:0}
+  const [deductions, setDeductions] = useState([
+    { name: 'Pajak Penghasilan', amount: 0 },
+    { name: 'BPJS (JHT) Employee', amount: 0 },
+    { name: 'BPJS (JP) Employee', amount: 0 },
+    { name: 'BPJS Kesehatan Employee', amount: 0 },
+    { name: 'Potongan Absensi', amount: 0 },
+    { name: 'Potongan Keterlambatan', amount: 0 },
+    { name: 'Potongan Pinjaman', amount: 0 }
   ])
   const [listDeductions, setListDeductions] = useState([]);
-  const [bpjs_employee,setEmployee] = useState([])
-  const [bpjs_company,setCompany] = useState([])
+  const [bpjs_employee, setEmployee] = useState([])
+  const [bpjs_company, setCompany] = useState([])
   const [totalAddjustment, setTotalAddjustment] = useState(0)
   const [totalDeduction, setTotalDeduction] = useState(0)
+
+  console.log(periode, 'userSelect')
 
   const fetchUser = async () => {
     try {
@@ -73,7 +76,7 @@ export default function PayrollForm() {
     periodeRef.current.value = currentMonth
     fetchUser()
   }, [])
-  
+
   const fetchPayroll = async () => {
     try {
       if (!id) return
@@ -88,32 +91,33 @@ export default function PayrollForm() {
           })
         ])
       }
+      console.log(dedu, 'ini ded')
 
       if (dedu.length) {
         setDeductions([
-        ...dedu.map(x => {
-                x.name = x.label
-                return x
-              })
+          ...dedu.map(x => {
+            x.name = x.label
+            return x
+          })
         ])
       }
       setTotalDeduction(
         dedu.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
-        )
-        setTotalAddjustment(
-          addj.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
-          )
-          
-          periodeRef.current.value = dayjs(data.periode).format('M')
-          setUserSelect({
-            value:data.user.id,
-            label:data.user.email
-          })
-        } catch (error) {
-          throw error
-        }
-      }
-      
+      )
+      setTotalAddjustment(
+        addj.map(x => parseFloat(x.amount)).reduce((a, b) => a + b, 0)
+      )
+
+      periodeRef.current.value = dayjs(data.periode).format('M')
+      setUserSelect({
+        value: data.user.id,
+        label: data.user.email
+      })
+    } catch (error) {
+      throw error
+    }
+  }
+
   useEffect(() => {
     fetchPayroll()
   }, [])
@@ -127,7 +131,7 @@ export default function PayrollForm() {
     setToggleModal(true)
   }
 
-  const fetchBPJS = async() => {
+  const fetchBPJS = async () => {
     try {
       const data = await Api.get(`/hris/bpjs-rule`)
       setListDeductions([...data])
@@ -147,14 +151,16 @@ export default function PayrollForm() {
     setTotalDeduction(sumDeduction)
   }
 
+
+
   const calculateLoans = (item) => {
-    if(item){
+    if (item) {
       let sumLoans = 0
       const loans_per_month = item.map(x => (x.loan_amount / x.tenor))
-      for (let i=0; i<loans_per_month.length; i++){
+      for (let i = 0; i < loans_per_month.length; i++) {
         sumLoans += loans_per_month[i]
       }
-      setLoans({name: "Potongan Pinjaman", amount:sumLoans})
+      setLoans({ name: "Potongan Pinjaman", amount: sumLoans })
       const indexLoans = deductions.findIndex(y => y.name === "Potongan Pinjaman")
       deductions[indexLoans].amount = sumLoans
       setDeductions(deductions)
@@ -163,48 +169,53 @@ export default function PayrollForm() {
       setLoans()
     }
   }
-  
+
+
   const deductionsMath = (item) => {
     try {
       const income = item.income_list
+      console.log(income, 'income')
       calculateLoans(item.loans)
-      if (income.length){
-        const salaryType = income[0].flag
+      if (income.length) {
+        const salaryType = income[0].type
         setType(salaryType)
-        const basicSalary = income?.find(x => x.name === "Basic salary")
-        const BPJSEmployee = listDeductions?.map(x => {
-          const top = parseInt(x.topper)
-          const amount = Math.round(x.percent_employee / 100 * basicSalary.amount)
-          return {
-            name : x.name + " Employee",
-            amount : amount >= top ? top : amount,
-            flag : ""
-          }
-        }).filter(x => x.amount !== 0)
-        setEmployee(BPJSEmployee)
-  
-        const BPJSCompany = listDeductions?.map(x => {
-          return {
-            name : x.name + " Company",
-            amount : Math.round(x.percent_company / 100 * basicSalary.amount),
-            flag : ""
-          }
-        })
-        setCompany(BPJSCompany)
-        // set all deduction 
-        const dataDeductions = deductions.map(x => {
-          x.amount = 0
-          const bpjsDedu = BPJSEmployee?.find(y => y.name === x.name)
-          if(bpjsDedu){
-             x.amount = bpjsDedu ? bpjsDedu.amount : 0
+        console.log(salaryType, 'salaryType')
+        const basicSalary = income?.find(x => x.type === "Basic")
+        if (basicSalary) {
+          const BPJSEmployee = listDeductions?.map(x => {
+            const top = parseInt(x.topper)
+            const amount = Math.round(x.percent_employee / 100 * basicSalary.amount)
+            return {
+              name: x.name + " Employee",
+              amount: amount >= top ? top : amount,
+              flag: ""
             }
-              return x
-            })
+          }).filter(x => x.amount !== 0)
+          setEmployee(BPJSEmployee)
 
-        const indexLoans = deductions.findIndex(y => y.name === "Potongan Pinjaman")
-        deductions[indexLoans].amount = loans.amount
+          const BPJSCompany = listDeductions?.map(x => {
+            return {
+              name: x.name + " Company",
+              amount: Math.round(x.percent_company / 100 * basicSalary.amount),
+              flag: ""
+            }
+          })
+          setCompany(BPJSCompany)
+          // set all deduction 
+          const dataDeductions = deductions.map(x => {
+            x.amount = 0
+            const bpjsDedu = BPJSEmployee?.find(y => y.name === x.name)
+            if (bpjsDedu) {
+              x.amount = bpjsDedu ? bpjsDedu.amount : 0
+            }
+            return x
+          })
 
-         setDeductions([...dataDeductions])
+          const indexLoans = deductions.findIndex(y => y.name === "Potongan Pinjaman")
+          deductions[indexLoans].amount = loans.amount
+
+          setDeductions([...dataDeductions])
+        }
       } else {
         // toast.error("This user haven't income type to setting", {
         //   position: "top-center",
@@ -212,7 +223,7 @@ export default function PayrollForm() {
         return MySwal.fire({
           title: "This user income is unset",
           text: "Would you want to set this user income?",
-          icon: "info",      
+          icon: "info",
           showCancelButton: true,
           confirmButtonText: "Yes, set this income!",
           customClass: {
@@ -220,11 +231,11 @@ export default function PayrollForm() {
             cancelButton: "btn btn-outline-danger ms-1",
           },
           buttonsStyling: false,
-          }).then(async (result) => {
+        }).then(async (result) => {
           if (result.value) {
             navigate(`/employee/${userSelect.value}`)
           }
-          });
+        });
       }
       setAllPayroll()
     } catch (error) {
@@ -235,9 +246,10 @@ export default function PayrollForm() {
   const setAllPayroll = () => {
     // return console.log(addjustment)
     try {
+
       setFinalDedu([...deductions, ...bpjs_company])
-      if(type == "nett"){
-        const addjustmentNett = [...addjustment, ...bpjs_company, ...bpjs_employee]
+      if (type == "nett") {
+        const addjustmentNett = [...newData, ...bpjs_company, ...bpjs_employee]
         setFinalAddj(addjustmentNett)
         console.log(addjustmentNett, "nett")
       } else {
@@ -252,15 +264,16 @@ export default function PayrollForm() {
 
   }
 
-  const fetchAttendance = async(user = '') => {
+  const fetchAttendance = async (user = '') => {
     // return console.log(user, "user")
-    const uid = user ? user : userSelect.value 
+    const uid = user ? user : userSelect.value
     if (uid && periodeRef.current.value) {
       const periode = `${dayjs().format('YYYY')}-${periodeRef.current.value}`
       try {
         const data = await Api.get(`/hris/payroll/by-user?user_id=${uid}&periode=${periode}`)
+
         setInfo(data, user)
-        const p = `${dayjs(data.cut_off_start).format('DD-MMM')  } - ${dayjs(data.cut_off_end).format('DD-MMM')  } ${  dayjs(data.cut_off_end).format('YYYY')}`
+        const p = `${dayjs(data.cut_off_start).format('DD-MMM')} - ${dayjs(data.cut_off_end).format('DD-MMM')} ${dayjs(data.cut_off_end).format('YYYY')}`
         setPeriode(p)
         setAddjustment([...data.income_list])
         deductionsMath(data, user)
@@ -271,22 +284,28 @@ export default function PayrollForm() {
     }
   }
 
-  // console.log(info,"info")
+  useEffect(() => {
+    if (userSelect?.value) {
+      fetchAttendance(userSelect?.value)
+    }
 
-  useEffect(()=> {
-    if(info){
+  }, [userSelect?.value])
+  console.log(info, "info")
+
+  useEffect(() => {
+    if (info) {
       deductionsMath(info)
     }
-  },[info])
+  }, [info])
 
-  useEffect(()=> {
-    if(info){
+  useEffect(() => {
+    if (info) {
       calcualteSalary(info.income_list, deductions)
     }
-  },[deductions])
+  }, [deductions])
 
   const onSelectEmployee = (arg) => {
-    setUserSelect({...arg})
+    setUserSelect({ ...arg })
     setToggleModal(false)
     fetchAttendance(arg.value)
   }
@@ -304,23 +323,34 @@ export default function PayrollForm() {
     setToggleModal(true)
   }
 
-  const onSubmitForm = async(approved = false, arg) => {
+  const onSubmitForm = async (approved = false, arg) => {
+    const addjust = finalAddj
+    const newDataAddjustment = addjust.map(item => {
+      // Jika properti 'label_allowance' ada, ganti namanya menjadi 'flag'
+      if (item.hasOwnProperty('label_allowance')) {
+        item.name = item.label_allowance;
+        delete item.label_allowance;
+      }
+
+      return item;
+    });
+
     const params = {
-      user:userSelect ? userSelect.value : null,
-      periode:periodeRef.current.value,
+      user: userSelect ? userSelect.value : null,
+      periode: periodeRef.current.value,
       type: type,
-      addjustment: finalAddj,
+      addjustment: newDataAddjustment,
       deductions: finalDedu,
       approved
-      }
-      console.log(finalAddj, finalDedu, arg, params, "params")
-    if (!params.user || !params.periode || !params.deductions.length || !params.addjustment.length) 
+    }
+    console.log(finalAddj, finalDedu, arg, params, "params")
+    if (!params.user || !params.periode || !params.deductions.length || !params.addjustment.length)
       return toast.error(`Error : Invalid form`, {
-      position: "top-center"
-    })
+        position: "top-center"
+      })
     const url = id ? `/hris/payroll/${id}` : '/hris/payroll'
     try {
-      
+
       let data = null
       if (id) {
         data = await Api.put(url, params)
@@ -328,16 +358,19 @@ export default function PayrollForm() {
         data = await Api.post(url, params)
       }
       console.log(data, 'data');
-      if (typeof data.status !== 'undefined' && !data.status) return toast.error(`Error : ${data.data}`, {
-        position: "top-center"
-      })
-      toast.success(data.data, {
-        position: "top-center"
-      })
-
+      if (typeof data.status !== 'undefined' && !data.status) {
+        return toast.error(`Error : ${data.data}`, {
+          position: "top-center"
+        })
+      } else {
+        toast.success(data.data, {
+          position: "top-center"
+        })
+      }
       const lastId = data.data.id
-
-      window.location.href = `/payroll/${lastId}`
+      const idLast = lastId ? lastId : id
+      // return lastId
+      window.location.href = `/payroll/${idLast}`
 
     } catch (error) {
       toast.error(`Error : ${error.message}`, {
@@ -351,24 +384,25 @@ export default function PayrollForm() {
     const old = addjustment
     old[index].amount = value
     setAddjustment([...old])
-    if(value){
+    if (value) {
       const BPJSCompany = listDeductions.map(x => {
-        x.percentage/100 * value
-          return {
-            name : x.name,
-            amount : Math.round(x.percent_company / 100 * value)}
-        })
+        x.percentage / 100 * value
+        return {
+          name: x.name,
+          amount: Math.round(x.percent_company / 100 * value)
+        }
+      })
       setCompany(BPJSCompany);
       const BPJSEmployee = listDeductions.map(x => {
-        let employee_percent = x.percent_employee === 0? undefined : x.percent_employee
-          if(employee_percent !== undefined){
-            return {
-              name : x.name,
-              amount : Math.round(employee_percent / 100 * value)
-            }
+        let employee_percent = x.percent_employee === 0 ? undefined : x.percent_employee
+        if (employee_percent !== undefined) {
+          return {
+            name: x.name,
+            amount: Math.round(employee_percent / 100 * value)
           }
-        }).filter(item => item !== undefined);
-        setEmployee(BPJSEmployee);
+        }
+      }).filter(item => item !== undefined);
+      setEmployee(BPJSEmployee);
     }
     calcualteSalary(old, deductions)
   }
@@ -397,23 +431,24 @@ export default function PayrollForm() {
     }).then(async (result) => {
       if (!result) return
       if (d === 'd') {
-        const oldD  = deductions
+        const oldD = deductions
         oldD.splice(index, 1)
         setDeductions([...oldD])
       } else {
-        const oldA  = addjustment
+        const oldA = addjustment
         oldA.splice(index, 1)
         setAddjustment([...oldA])
       }
       calcualteSalary(addjustment, deductions)
     })
   }
+  console.log(addjustment, 'add')
 
   return (
     <>
       <Row>
         <Col lg="12" className="mb-2 d-flex">
-          <div className="mr-5" style={{marginRight:'1rem'}}>
+          <div className="mr-5" style={{ marginRight: '1rem' }}>
             <Button
               outline
               onClick={onPickEmployee}
@@ -423,14 +458,14 @@ export default function PayrollForm() {
             </Button>
           </div>
           <div className="col-3">
-          <Input
-            id="exampleSelect"
-            name="select"
-            type="select"
-            placeholder="Periode"
-            onChange={() => fetchAttendance()}
-            innerRef={periodeRef}
-          >
+            <Input
+              id="exampleSelect"
+              name="select"
+              type="select"
+              placeholder="Periode"
+              onChange={() => fetchAttendance()}
+              innerRef={periodeRef}
+            >
               <option value="">Select periode</option>
               {
                 monthName().map((x, index) => (
@@ -451,12 +486,12 @@ export default function PayrollForm() {
               {
                 addjustment.map((x, index) => (
                   <div key={index} className='invoice-total-item d-flex flex-row justify-content-between align-items-center mb-2'>
-                    <div className="" style={{width:'30%'}}>
-                      {x.name}
+                    <div className="" style={{ width: '30%' }}>
+                      {x.type === 'Basic' ? 'Salary' : x.label_allowance}
                     </div>
                     <div className="w-50">
-                      <Input value={parseInt(x?.amount)} 
-                      className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputAddjustment(e, index)}/>
+                      <Input value={parseInt(x?.amount)}
+                        className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputAddjustment(e, index)} />
                     </div>
                     <div className="">
                       {addjustment.length > 1 ? <Button outline color="danger" size="sm" onClick={() => onDeleteItem('a', index)}>X</Button> : <></>}
@@ -477,12 +512,12 @@ export default function PayrollForm() {
               {
                 deductions?.map((x, index) => (
                   <div key={index} className='invoice-total-item d-flex flex-row justify-content-between align-items-center mb-2'>
-                    <div className="" style={{width:'30%'}}>
+                    <div className="" style={{ width: '30%' }}>
                       {x.name}
                     </div>
                     <div className="w-50">
-                      <Input value={x.amount} 
-                      className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputDeduction(e, index)}/>
+                      <Input value={x.amount}
+                        className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputDeduction(e, index)} />
                     </div>
                     <div className="">
                       {deductions.length > 1 ? <Button outline color="danger" size="sm" onClick={() => onDeleteItem('d', index)}>X</Button> : <></>}
@@ -551,7 +586,7 @@ export default function PayrollForm() {
             </CardBody>
           </Card>
         </Col>
-       
+
         <Col lg="8">
           <div className="d-flex justify-content-end gap-2">
             <Button color="dark" onClick={() => onSubmitForm(true)}>Submit & Approved</Button>
@@ -578,7 +613,7 @@ export default function PayrollForm() {
               onSelect={onSelectEmployee}
             /> : <></>
           }
-          
+
         </ModalBody>
       </Modal>
     </>

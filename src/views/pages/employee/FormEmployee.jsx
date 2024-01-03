@@ -59,6 +59,7 @@ export default function FormEmployee({
     marital_status: yup.string().required("Marital status is required"),
     dependents: yup.string().required("Dependents is required"),
     level: yup.string().required("Level employee is required"),
+
   });
 
 

@@ -9,66 +9,67 @@ import { dateTimeFormat, numberFormat } from "../../../Helper"
 const MySwal = withReactContent(Swal);
 
 export default function LoanIndex() {
-    const [openModal, setOpenModal] = useState(false)
-    const [modalAtr, setModalAtr] = useState('')
-    const [loan, setLoan] = useState(null)
+  const [openModal, setOpenModal] = useState(false)
+  const [modalAtr, setModalAtr] = useState('')
+  const [loan, setLoan] = useState(null)
 
-    const fetchEmployeeLoans = async () => {
-      try {
-        const {status,data} = await Api.get('/hris/loan')
-        if(status){
-          setLoan(data)
-        }
-      } catch (error) {
-        console.log(error.message)
+  const fetchEmployeeLoans = async () => {
+    try {
+      const { status, data } = await Api.get('/hris/loan')
+      if (status) {
+        setLoan(data.rows)
       }
+    } catch (error) {
+      console.log(error.message)
     }
+  }
 
-    useEffect(() => {
-      fetchEmployeeLoans()
-    },[])
+  useEffect(() => {
+    fetchEmployeeLoans()
+  }, [])
 
-    const handleDetail = (x) => {
-      setModalAtr(x)
-      setOpenModal(true)
+  const handleDetail = (x) => {
+    setModalAtr(x)
+    setOpenModal(true)
+  }
+
+  const handleReject = async (x) => {
+    const oldData = x
+    const newData = {
+      status: 'rejected',
+      tenor: oldData.tenor
     }
-
-    const handleReject = async (x) => {
-        const oldData = x
-        const newData = {
-            status : 'rejected',
-            tenor : oldData.tenor
-        }
-        console.log(newData, 'baroe')
-        try {
-            const {data, status} = await Api.put(`/hris/loan-status-approve/${x.id}`, newData)
-            console.log(status)
-        } catch (error) {
-            console.log(error.message)
-        }
-        setOpenModal(false)
-        fetchEmployeeLoans()
+    console.log(newData, 'baroe')
+    try {
+      const { data, status } = await Api.put(`/hris/loan-status-approve/${x.id}`, newData)
+      console.log(status)
+    } catch (error) {
+      console.log(error.message)
     }
+    setOpenModal(false)
+    fetchEmployeeLoans()
+  }
 
-    const HandleApprove = async (x) => {
-        const oldData = x
-        const newData = {
-            status : 'approve',
-            tenor : oldData.tenor
-        }
-        try {
-            const {data, status} = await Api.put(`/hris/loan-status-approve/${x.id}`, newData)
-            console.log({status})
-        } catch (error) {
-            console.log(error.message)
-        }
-        setOpenModal(false)
-        fetchEmployeeLoans()
+  const HandleApprove = async (x) => {
+    const oldData = x
+    const newData = {
+      status: 'approve',
+      tenor: oldData.tenor
     }
+    try {
+      const { data, status } = await Api.put(`/hris/loan-status-approve/${x.id}`, newData)
+      console.log({ status })
+    } catch (error) {
+      console.log(error.message)
+    }
+    setOpenModal(false)
+    fetchEmployeeLoans()
+  }
+  console.log(loan, 'loannn')
 
-    return (
-        <>
-        {/* <Row className="d-flex justify-content-between">
+  return (
+    <>
+      {/* <Row className="d-flex justify-content-between">
         <Col lg="2" sm="12" className="mb-1">
           <Fragment>
             <Button.Ripple size="sm" color="warning" >
@@ -78,53 +79,53 @@ export default function LoanIndex() {
           </Fragment>
         </Col>
       </Row> */}
-      <Row style={{backgroundColor:'white', margin:'auto'}}>
-        <Card Row style={{backgroundColor:'white'}}>
+      <Row style={{ backgroundColor: 'white', margin: 'auto' }}>
+        <Card Row style={{ backgroundColor: 'white' }}>
           <CardHeader >
             <CardTitle>Employee Loans</CardTitle>
             <Col
-            className="d-flex align-items-center justify-content-sm-end mt-sm-0 mt-1"
-            sm="3"
-          >
-            <Label className="me-1" for="search-input">
-              Search
-            </Label>
-            <Input
-              className="dataTable-filter"
-              type="text"
-              bsSize="sm"
-              id="search-input"
+              className="d-flex align-items-center justify-content-sm-end mt-sm-0 mt-1"
+              sm="3"
+            >
+              <Label className="me-1" for="search-input">
+                Search
+              </Label>
+              <Input
+                className="dataTable-filter"
+                type="text"
+                bsSize="sm"
+                id="search-input"
               // value={searchValue}
               // onChange={handleFilter}
-            />
-          </Col>
+              />
+            </Col>
           </CardHeader>
           <CardBody>
             <Table responsive size="sm">
               <thead>
                 <tr className="text-xs">
-                  <th style={{fontSize : 'sm'}}>Number</th>
-                  <th style={{fontSize : 'sm'}}>User</th>
-                  <th style={{fontSize : 'sm'}} >Memo</th>
+                  <th style={{ fontSize: 'sm' }}>Number</th>
+                  <th style={{ fontSize: 'sm' }}>User</th>
+                  <th style={{ fontSize: 'sm' }} >Memo</th>
                   <th></th>
                   <th></th>
-                  <th style={{fontSize : 'sm'}}>Tenor</th>
-                  <th style={{fontSize : 'sm'}}>Status</th>
-                  <th style={{fontSize : 'sm'}}>amount</th>
+                  <th style={{ fontSize: 'sm' }}>Tenor</th>
+                  <th style={{ fontSize: 'sm' }}>Status</th>
+                  <th style={{ fontSize: 'sm' }}>amount</th>
                 </tr>
               </thead>
-              <tbody style={{backgroundColor:'transparent'}}>
-                {loan?.map((x, i) => (
+              <tbody style={{ backgroundColor: 'transparent' }}>
+                {loan && loan.map((x, i) => (
                   <>
                     <tr key={i}>
-                      <td style={{fontSize : '9pt', backgroundColor:'white', cursor:'pointer'}} onClick={() => handleDetail(x)} className="user_name text-truncate text-body"><span className="fw-light text-capitalize">{x.number}</span></td>
-                      <td style={{fontSize:'9pt', backgroundColor:'white'}}>{x.user_name}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}} colSpan={3}>{x.memo}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>{x.tenor}</td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}><Badge color={x.status === 'approved' ? "light-success" : x.status === 'rejected' ? "light-danger" : x.status === 'requested' ? "light-warning" : x.status === 'completed' ? "light-primary" : "light-primary"}>{x.status}</Badge></td>
-                      <td style={{fontSize : '9pt', backgroundColor:'white'}}>Rp {numberFormat(x.loan_amount)}</td>
+                      <td style={{ fontSize: '9pt', backgroundColor: 'white', cursor: 'pointer' }} onClick={() => handleDetail(x)} className="user_name text-truncate text-body"><span className="fw-light text-capitalize">{x.number}</span></td>
+                      <td style={{ fontSize: '9pt', backgroundColor: 'white' }}>{x.user_name}</td>
+                      <td style={{ fontSize: '9pt', backgroundColor: 'white' }} colSpan={3}>{x.memo}</td>
+                      <td style={{ fontSize: '9pt', backgroundColor: 'white' }}>{x.tenor}</td>
+                      <td style={{ fontSize: '9pt', backgroundColor: 'white' }}><Badge color={x.status === 'approved' ? "light-success" : x.status === 'rejected' ? "light-danger" : x.status === 'requested' ? "light-warning" : x.status === 'completed' ? "light-primary" : "light-primary"}>{x.status}</Badge></td>
+                      <td style={{ fontSize: '9pt', backgroundColor: 'white' }}>Rp {numberFormat(x.loan_amount)}</td>
                       {/* <td>{x.description}</td> */}
-                      
+
                     </tr>
                   </>
                 ))}
@@ -143,49 +144,49 @@ export default function LoanIndex() {
         <ModalBody>
           <Col>
             <div>
-              <div style={{display:'flex', justifyContent:'space-between'}}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <p>User</p>
                 <p>{modalAtr.user_name}</p>
               </div>
-              <div style={{display:'flex', justifyContent:'space-between'}}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <p>Loan Number</p>
                 <p>{modalAtr.number}</p>
               </div>
-              <div style={{display:'flex', justifyContent:'space-between'}}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <p>Memo</p>
                 <p>{modalAtr.memo}</p>
               </div>
-              <div style={{display:'flex', justifyContent:'space-between'}}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <p>Tenor</p>
                 <p>{modalAtr.tenor}</p>
               </div>
-              <div style={{display:'flex', justifyContent:'space-between'}}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <p>Status</p>
                 <p>{modalAtr.status}</p>
               </div>
-              <div style={{display:'flex', justifyContent:'space-between'}}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <p>{modalAtr.status} at</p>
                 <p>{dateTimeFormat(modalAtr.updatedAt)}</p>
               </div>
-              <div style={{display:'flex', justifyContent:'space-between'}}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <p>Amount</p>
                 <p>Rp {numberFormat(modalAtr.loan_amount)}</p>
               </div>
             </div>
           </Col>
         </ModalBody>
-        {modalAtr.status === 'approved' ? 
-        <>
-        </> 
-        : 
-        <>
-        <ModalFooter>
-            <Button color='warning' onClick={() => handleReject (modalAtr)}>Reject</Button>
-            <Button color='success' onClick={() => HandleApprove (modalAtr)}>Approve</Button>
-        </ModalFooter>
-        </>}
+        {modalAtr.status === 'approved' ?
+          <>
+          </>
+          :
+          <>
+            <ModalFooter>
+              <Button color='warning' onClick={() => handleReject(modalAtr)}>Reject</Button>
+              <Button color='success' onClick={() => HandleApprove(modalAtr)}>Approve</Button>
+            </ModalFooter>
+          </>}
       </Modal>
-        </>
-    )
+    </>
+  )
 
 }

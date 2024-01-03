@@ -26,13 +26,13 @@ export default function PayrollView() {
   const [totalAddjusment, setTotalAddjusment] = useState(0)
   const [totalDeduction, setTotalDeduction] = useState(0)
   const [periode, setPeriode] = useState('')
-  
+
   const fetchPayroll = async () => {
     try {
       const data = await Api.get(`/hris/payroll/${id}`)
       console.log(data, "data view")
-      setUser({...data.user})
-      setInfo({...data})
+      setUser({ ...data.user })
+      setInfo({ ...data })
       const addj = data.items.filter(x => x.flag === 'addjusment')
       const deductions = data.items.filter(x => x.flag !== 'addjusment')
       console.log(addj, "addjustment")
@@ -55,9 +55,9 @@ export default function PayrollView() {
   }, [])
 
   console.log(info, "kakak")
+  console.log(addjusments, 'addjustment')
 
-  
-  const fetchAllowance = async() => {
+  const fetchAllowance = async () => {
     try {
       const data = await Api.get(`/hris/bpjs-rule`)
       console.log(data, "check data")
@@ -75,7 +75,7 @@ export default function PayrollView() {
     <>
       <Row>
         <Col lg="12">
-          <Card  color="white" style={{ fontFamily: "Arial" }}>
+          <Card color="white" style={{ fontFamily: "Arial" }}>
             <CardHeader>
               <CardTitle
                 className="text-center text-xl w-full"
@@ -111,7 +111,7 @@ export default function PayrollView() {
                     <div className="w-50 pb-1 text-xs">Designation</div>
                     <div className="w-50 pb-1 text-xs text-uppercase">: {user ? user.title : '-'}</div>
                   </div>
-                 
+
                 </Col>
                 <Col lg="6">
                   <div className="d-flex">
@@ -128,7 +128,7 @@ export default function PayrollView() {
                   </div>
                   <div className="d-flex">
                     <div className="w-50 pb-1 text-xs ">Payroll Type</div>
-                    <div className="w-50 pb-1 text-xs ">: {info ? info.type === 'gross'? "GROSS SALARY" : 'NETT SALARY' : "-"}</div>
+                    <div className="w-50 pb-1 text-xs ">: {info ? info.type === 'gross' ? "GROSS SALARY" : 'NETT SALARY' : "-"}</div>
                   </div>
                 </Col>
                 <Col lg="6 mt-2">
@@ -146,7 +146,7 @@ export default function PayrollView() {
                       {
                         addjusments.map(x => (
                           <tr key={x.id} className="text-xs">
-                            <td>{x.label}</td>
+                            <td>{x.label ? x.label : 'Basic Salary'}</td>
                             <td className="text-right">Rp {numberFormat(x.amount)}</td>
                           </tr>
                         ))
@@ -170,7 +170,7 @@ export default function PayrollView() {
                       </tr>
                     </thead>
                     <tbody>
-                    {
+                      {
                         deductions.map(x => (
                           <tr key={x.id} className="text-xs">
                             <td>{x.label}</td>
