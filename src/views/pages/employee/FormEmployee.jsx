@@ -22,8 +22,9 @@ import toast from "react-hot-toast";
 import dayjs from "dayjs";
 import Api from "../../../sevices/Api";
 import { Cascader } from "antd";
-
+import moment from 'moment'
 import { error } from "jquery";
+import { BankNameData } from "./DataBank";
 export default function FormEmployee({
   close,
   onSubmit,
@@ -59,7 +60,9 @@ export default function FormEmployee({
     marital_status: yup.string().required("Marital status is required"),
     dependents: yup.string().required("Dependents is required"),
     level: yup.string().required("Level employee is required"),
-
+    bank_Account: yup.string().required("Bank Account is required"),
+    bank_Account_Name: yup.string().required("Bank Account Name is required"),
+    bank_Account_Number: yup.string().required("Bank Account Number is required"),
   });
 
 
@@ -147,19 +150,44 @@ export default function FormEmployee({
 
   const onSubmitForm = async (arg) => {
     let newArg = { ...arg }
-
     const newDepartmentId = await arg.departement_id[arg.departement_id.length - 1];
     newArg.departement_id = newDepartmentId;
 
-    newArg.profile_picture = attachment;
+    const stringBank = arg.bank_Account?.split(',')
+    const bankName = stringBank[0]
+    const bankId = stringBank[1]
 
-    if (!item) {
-      newArg.password = newArg.password ? newArg.password : "121212";
+    newArg.bank_Account = bankName
+
+    const pushEmployeeAccurate = {
+      "departmentId": newDepartmentId,
+      "joinDate": newArg.join_date,
+      "bankAccount": newArg.bank_Account_Number,
+      "npwpNo": newArg.id_tax_number,
+      "employeeWorkStatus": newArg.status,
+      "mobilePhone": newArg.phone,
+      "name": newArg.name,
+      "salutation": newArg.gender === "Female" ? "MRS" : "MR",
+      "position": newArg.position,
+      "bankName": newArg.bank_Account_Name,
+      "nikNo": newArg.id_number,
+      "email": newArg.email,
+      "bankAccountName": bankName,
+      "bankCode": bankId,
+      "transDate": moment().format('DD/MM/YYYY')
     }
+    return console.log(pushEmployeeAccurate, 'ACC')
 
-    console.log(newArg, 'arg')
 
-    return onSubmit(newArg);
+    // newArg.profile_picture = attachment;
+
+    // if (!item) {
+    //   newArg.password = newArg.password ? newArg.password : "121212";
+    // }
+
+    // console.log(newArg, 'arg')
+
+    // return onSubmit(newArg, pushEmployeeAccurate, arg.company_id);
   };
 
   return (
@@ -655,12 +683,19 @@ export default function FormEmployee({
             defaultValue=""
             control={control}
             render={({ field }) => (
-              <Input
-                type="text"
+              < Input
+                type="select"
                 {...field}
                 name="bank_Account"
-                invalid={errors.bank_Account && true}
-              />
+                invalid={errors.bank_Account && true}>
+                <option value="">Select Bank Account</option>
+                {BankNameData.map((x) => (
+                  <option key={x.beneBankId} value={`${x.beneBankName},${x.beneBankId}`}>
+
+                    {x.beneBankName} ({x.beneSortBankName})
+                  </option>
+                ))}
+              </Input>
             )}
           />
           {errors.bank_Account && <FormFeedback>{errors.bank_Account.message}</FormFeedback>}
@@ -674,6 +709,7 @@ export default function FormEmployee({
             defaultValue=""
             control={control}
             render={({ field }) => (
+
               <Input
                 type="text"
                 {...field}

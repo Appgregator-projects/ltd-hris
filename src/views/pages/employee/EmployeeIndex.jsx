@@ -152,8 +152,10 @@ const UsersList = () => {
     fetchDepartment();
   }, []);
 
-  const submitForm = async (params) => {
+  const submitForm = async (params, accurate, companyId) => {
     console.log(params, 'ooo`')
+    console.log(accurate, 'nia accurate')
+    console.log(companyId, 'ni companyId')
     try {
       if (itemActive) return postEdit(params);
       dispatch(handlePreloader(true));
@@ -176,6 +178,14 @@ const UsersList = () => {
       toast.success("Successfully added employee!", {
         position: "top-center",
       });
+
+      const statusAccurate = await Api.post(`/api/v1/accurate/master-data/employee/${companyId}`, accurate)
+      if (!statusAccurate)
+        return toast.error(`Error : ${statusAccurate.message}`, {
+          position: "top-center",
+        });
+
+
     } catch (error) {
       if (error.message.includes("email-already-in-use")) {
         params.uid = "exist";
@@ -254,7 +264,7 @@ const UsersList = () => {
     }).then(async (result) => {
       if (result.value) {
         try {
-          const status = await Api.delete(`/hris/employee/${params.id}`);
+          const status = await Api.delete(`/hris/employee/31`);
           // return console.log(status, "ini params")
           if (!status)
             return toast.error(`Error : ${data}`, {
