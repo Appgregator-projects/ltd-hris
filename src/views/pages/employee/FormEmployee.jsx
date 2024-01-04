@@ -176,18 +176,18 @@ export default function FormEmployee({
       "bankCode": bankId,
       "transDate": moment().format('DD/MM/YYYY')
     }
-    return console.log(pushEmployeeAccurate, 'ACC')
+    // return console.log(pushEmployeeAccurate, 'ACC')
 
 
-    // newArg.profile_picture = attachment;
+    newArg.profile_picture = attachment;
 
-    // if (!item) {
-    //   newArg.password = newArg.password ? newArg.password : "121212";
-    // }
+    if (!item) {
+      newArg.password = newArg.password ? newArg.password : "121212";
+    }
 
-    // console.log(newArg, 'arg')
+    console.log(newArg, 'arg')
 
-    // return onSubmit(newArg, pushEmployeeAccurate, arg.company_id);
+    return onSubmit(newArg, pushEmployeeAccurate, arg.company_id);
   };
 
   return (
