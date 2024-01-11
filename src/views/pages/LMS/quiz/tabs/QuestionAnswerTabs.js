@@ -66,10 +66,10 @@ const QuestionAnswerTabs = ({
 	const [answerCount, setAnswerCount] = useState([1, 2]);
 	const [isHovered, setIsHovered] = useState(
 		Array(answerCount.length).fill(false)
-	); 
+	);
 
 	const iconHoverStyle = {
-		cursor: "pointer", 
+		cursor: "pointer",
 		color: "red",
 	};
 
@@ -139,7 +139,7 @@ const QuestionAnswerTabs = ({
 					newData.question_index = 1;
 				}
 
-				if (store.image[0]) {
+				if (store?.image[0]) {
 					const res = await uploadFile(
 						newQuiz.question_title,
 						"questions",
@@ -429,8 +429,8 @@ const QuestionAnswerTabs = ({
 																	]
 																		? iconHoverStyle
 																		: {
-																				color: "initial",
-																		  }
+																			color: "initial",
+																		}
 																}
 																onMouseEnter={() =>
 																	setHoveredState(

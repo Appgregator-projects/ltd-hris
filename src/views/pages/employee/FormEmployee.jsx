@@ -158,13 +158,14 @@ export default function FormEmployee({
     const bankId = stringBank[1]
 
     newArg.bank_Account = bankName
+    newArg.company_id = parseInt(31)
+    newArg.join_date = moment(newArg.join_date).format('DD/MM/YYYY')
+    newArg.profile_picture = attachment;
 
     const pushEmployeeAccurate = {
       "departmentId": newDepartmentId,
-      "joinDate": newArg.join_date,
+      "joinDate": moment(newArg.join_date).format('DD/MM/YYYY'),
       "bankAccount": newArg.bank_Account_Number,
-      "npwpNo": newArg.id_tax_number,
-      "employeeWorkStatus": newArg.status,
       "mobilePhone": newArg.phone,
       "name": newArg.name,
       "salutation": newArg.gender === "Female" ? "MRS" : "MR",
@@ -179,7 +180,6 @@ export default function FormEmployee({
     // return console.log(pushEmployeeAccurate, 'ACC')
 
 
-    newArg.profile_picture = attachment;
 
     if (!item) {
       newArg.password = newArg.password ? newArg.password : "121212";

@@ -25,8 +25,10 @@ import avatar9 from "@src/assets/images/portrait/small/avatar-s-9.jpg";
 import avatar10 from "@src/assets/images/portrait/small/avatar-s-10.jpg";
 import { dateFormat, dateTimeFormat } from "../../../../Helper";
 import dayjs from "dayjs";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import DataTable from "react-data-table-component";
+import { auth } from "../../../../configs/firebase";
+
 
 // ** Vars
 export const states = [
@@ -43,6 +45,9 @@ const status = {
 	1: { title: "Passed", color: "light-success" },
 	2: { title: "Failed", color: "light-danger" },
 };
+
+const uid = JSON.parse(localStorage.getItem("userData"))?.id
+
 
 export const data = [
 	{
@@ -1943,3 +1948,114 @@ export const columnsAttendance = [{
 },
 ]
 
+export const columnsScore = [{
+	name: "Course",
+	sortable: true,
+	minWidth: "150px",
+	selector: (row) => row?.course?.course_title,
+	cell: (row) => (
+		<div className="d-flex align-items-center">
+			{!row.course?.course_thumbnail ? (
+				<Avatar
+					content={row?.course?.course_title}
+					initials
+				/>
+			) : (
+				<Avatar img={row?.course?.course_thumbnail} />
+			)}
+			<div className="user-info text-truncate ms-1">
+				<span className="d-block fw-bold text-truncate">
+					{row?.course?.course_title}
+				</span>
+
+			</div>
+		</div>
+	),
+},
+{
+	name: "Section",
+	sortable: true,
+	minWidth: "150px",
+	selector: (row) => row?.section_title,
+}, {
+	name: "Lesson",
+	sortable: true,
+	minWidth: "150px",
+	selector: (row) => row?.lesson_title,
+}, {
+	name: "Score",
+	// sortable: true,
+	minWidth: "150px",
+	// selector: (row) => 
+	cell: (row) => {
+		const score = row?.scores?.find(score => score.uid === uid)
+		// console.log(neweee, 'nenew', uid)
+		return (
+			<div className="d-flex align-items-center">
+
+				<Badge
+					color={
+						score?.score >= row?.quiz_minGrade
+							? "light-success"
+							: "light-danger"
+					}
+					pill
+				>
+					{score?.score}
+				</Badge>
+			</div>
+		)
+	},
+}]
+
+export const columnsFormBuilder = [{
+	name: "Form Title",
+	sortable: true,
+	minWidth: "150px",
+	selector: (row) => row?.title,
+	cell: (row) => {
+
+		// console.log(neweee, 'nenew', uid)
+		return (
+			<div className="d-flex align-items-center">
+				<a href={`/form-builder/${row.id}`}>{row?.title}</a>
+			</div>
+		)
+	},
+}, {
+	name: "Created At",
+	sortable: true,
+	minWidth: "150px",
+	selector: (row) => row?.createdAt,
+	cell: (row) => {
+		// const timestamp = dayjs
+		// 	.unix(row.createdAt)
+		// 	.format("YYYY-MM-DD HH:mm:ss");
+		return (row.createdAt)
+	}
+},
+{
+	name: "Actions",
+	sortable: true,
+	minWidth: "150px",
+	selector: (row) => row?.title,
+	cell: (row) => {
+
+		// console.log(neweee, 'nenew', uid)
+		const location = () => {
+			window.location.href = `/form-builder/${row?.id}`
+		}
+
+		return (
+			<Fragment>
+
+				<Button.Ripple className='btn-icon' color='warning' onClick={() => location()} >
+					<Edit size={16} />
+				</Button.Ripple>
+				<Button.Ripple className='btn-icon ms-1' color='danger' >
+					<Trash size={16} />
+				</Button.Ripple>
+			</Fragment>
+		)
+	},
+},]

@@ -41,12 +41,13 @@ const defaultValues = {
 	quiz_minGrade: "",
 };
 const AddQuiz = ({ lesson, course, image, section }) => {
+	console.log(course, 'sec')
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const param = useParams();
 	const [show, setShow] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
-	
+
 	const iconHoverStyle = {
 		// Set the desired background color on hover
 		cursor: "pointer", // Optional: Change the cursor to a pointer on hover
@@ -76,9 +77,11 @@ const AddQuiz = ({ lesson, course, image, section }) => {
 					course: {
 						course_title: course.course_title,
 						course_id: param.id,
+						course_thumbnail: course.course_thumbnail
 					},
 					course_id: param.id,
 					section_id: section.id,
+					section_title: section.section_title,
 					lesson_title: lesson.lesson_title
 				};
 				if (image) {

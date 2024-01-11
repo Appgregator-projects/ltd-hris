@@ -43,6 +43,7 @@ const CourseSyllabusTab = ({ logActivity }) => {
 		}
 	};
 
+
 	useEffect(() => {
 		fetchDataSection();
 		return () => {

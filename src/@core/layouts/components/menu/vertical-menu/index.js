@@ -16,13 +16,25 @@ import { handleLogin } from '@store/authentication'
 import { handleCompany } from "../../../../../redux/authentication"
 import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "../../../../../configs/firebase"
+import { dataSidebar } from "../../../../../views/pages/employee/DataBank"
 
 const Sidebar = (props) => {
   const dispatch = useDispatch();
+  const [menuData, setMenuData] = useState([])
   const { company } = useSelector(state => state.authentication)
+  const hrAccess = useSelector((state) => state.authentication.userData.hrAccess)
 
   // ** Props
-  const { menuCollapsed, menu, skin, menuData } = props
+  const { menuCollapsed, menu, skin } = props
+
+
+  useEffect(() => {
+    if (hrAccess.length === 0) {
+      setMenuData(props.menuData)
+    } else {
+      setMenuData(dataSidebar)
+    }
+  }, [hrAccess?.length !== 0 && menuData?.length === 26])
 
   // ** States
   const [groupOpen, setGroupOpen] = useState([])
@@ -58,31 +70,31 @@ const Sidebar = (props) => {
   }
   const user = JSON.parse(localStorage.getItem("userData"))
 
-    useEffect(() => {
-      onAuthStateChanged(auth, async (userChange) => {
-        if (userChange) {
-          user.access_token = userChange.accessToken;
+  useEffect(() => {
+    onAuthStateChanged(auth, async (userChange) => {
+      if (userChange) {
+        user.access_token = userChange.accessToken;
 
-          localStorage.setItem("userData", JSON.stringify(user));
+        localStorage.setItem("userData", JSON.stringify(user));
 
-          const { status, data } = await Api.get(`/hris/company`);
-          if (status) {
-            const selectedCompany = data[0];
-            setCompanies(data)
+        const { status, data } = await Api.get(`/hris/company`);
+        if (status) {
+          const selectedCompany = data[0];
+          setCompanies(data)
 
-            Api.defaults.headers.common[
-              "Authorization"
-            ] = `Bearer ${user.access_token}`;
-            if (company.length == 0) {
-              await dispatch(handleCompany(selectedCompany));
-            }
-
+          Api.defaults.headers.common[
+            "Authorization"
+          ] = `Bearer ${user.access_token}`;
+          if (company.length == 0) {
+            await dispatch(handleCompany(selectedCompany));
           }
- 
-        }
-      })
 
-    }, [])
+        }
+
+      }
+    })
+
+  }, [])
   // }, [])
   useEffect(() => {
   }, [companies.length])

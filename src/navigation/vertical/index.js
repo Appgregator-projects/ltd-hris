@@ -25,6 +25,8 @@ import {
   Coffee,
   ThumbsUp
 } from "react-feather"
+import { MdScore } from "react-icons/md"
+import { RiFilePaperLine } from "react-icons/ri"
 
 export default [
   {
@@ -86,7 +88,7 @@ export default [
   },
 
   {
-    header: "e-Learning Employee"
+    header: "e-Learning"
   },
 
   {
@@ -101,29 +103,12 @@ export default [
     icon: <Users size={20} />,
     navLink: "/groups-employee"
   },
-
   {
-    header: "e-Learning"
+    id: "scores",
+    title: "Scores",
+    icon: <MdScore size={20} />,
+    navLink: "/scores"
   },
-  {
-    id: "courses",
-    title: "Courses",
-    icon: <BookOpen size={20} />,
-    navLink: "/courses"
-  },
-  {
-    id: "group",
-    title: "Group",
-    icon: <Users size={20} />,
-    navLink: "/groups"
-  },
-  {
-    id: "quiz",
-    title: "Quiz",
-    icon: <Edit3 size={20} />,
-    navLink: "/quiz"
-  },
-
   {
     header: "Payroll"
   },
@@ -207,5 +192,11 @@ export default [
     title: "Assets",
     icon: <Monitor size={20} />,
     navLink: "/assets"
+  },
+  {
+    id: "form-builder",
+    title: "Form Builder",
+    icon: <RiFilePaperLine size={20} />,
+    navLink: "/form-builder"
   }
 ]

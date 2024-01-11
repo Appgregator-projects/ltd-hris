@@ -46,9 +46,9 @@ const Login = () => {
 
   const fetchCompany = async () => {
     try {
-      const {status,data} = await Api.get(`/hris/company`);
+      const { status, data } = await Api.get(`/hris/company`);
       console.log(data, "data company")
-      if(status, data){
+      if (status, data) {
         const selectedCompany = data[0];
         return selectedCompany;
       }
@@ -73,11 +73,10 @@ const Login = () => {
       setIsloading(false);
       const token = submitLogin.user;
       const checkCompany = await fetchCompany();
-      
+
       console.log(token, "userdetail")
       const accessToken = await token.getIdToken(true);
       token.access_token = accessToken;
-
       if ((token, checkCompany)) {
         console.log(checkCompany, "token")
         if (checkCompany) {
@@ -119,11 +118,30 @@ const Login = () => {
               ...userAbility["data"],
               access_token: accessToken,
             })
-            );
+          );
           dispatch(
-            handlePermission({...userAbility["data"]}
-          ));
+            handlePermission({ ...userAbility["data"] }
+            ));
           dispatch(handleCompany(checkCompany));
+          const userPermission = await localStorage.getItem('userPermissions') ? Object.values(JSON.parse(localStorage?.getItem('userPermissions'))) : []
+          const hrPermissions = await userPermission?.filter(permission => {
+            return permission?.permission_name?.name?.includes("HR") && permission.read !== 0 && !permission?.permission_name?.name?.includes("HRIS");
+          });
+          // return console.log(hrPermissions, 'userPermissions')
+          const detailUser = await Api.get(`/hris/employee/${token.uid}`)
+          if (detailUser.status) {
+            dispatch(
+              handleLogin({
+                token,
+                ability: arrList,
+                ...userAbility["data"],
+                name: detailUser?.data?.name,
+                access_token: accessToken,
+                hrAccess: hrPermissions
+              })
+            );
+          }
+          // return console.log(detailUser, 'ini xx')
           navigate("/home");
           toast.success("Login succes", {
             position: "top-center",

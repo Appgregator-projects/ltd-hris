@@ -168,6 +168,7 @@ const UsersList = () => {
       params.uid = uid;
       params.user_id = uid
 
+      console.log(params, 'params masuk')
       const status = await Api.post(`/hris/employee`, params);
       console.log(status, 'aaa')
       dispatch(handlePreloader(false));
@@ -175,22 +176,17 @@ const UsersList = () => {
         return toast.error(`Error : ${data}`, {
           position: "top-center",
         });
+
       toast.success("Successfully added employee!", {
         position: "top-center",
       });
-
-      const statusAccurate = await Api.post(`/api/v1/accurate/master-data/employee/${companyId}`, accurate)
-      if (!statusAccurate)
-        return toast.error(`Error : ${statusAccurate.message}`, {
-          position: "top-center",
-        });
-
 
     } catch (error) {
       if (error.message.includes("email-already-in-use")) {
         params.uid = "exist";
         const { status, data } = await Api.post(`/hris/employee`, params);
         dispatch(handlePreloader(false));
+        console.log(status, 'stat error')
         if (!status)
           return toast.error(`Error : ${data}`, {
             position: "top-center",

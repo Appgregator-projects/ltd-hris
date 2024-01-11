@@ -18,6 +18,7 @@ import { arrayUnionFirebase } from "../../../../../../sevices/FirebaseApi";
 import { auth } from "../../../../../../configs/firebase";
 
 const LessonAccordion = ({ lesson, section, logActivity }) => {
+	console.log(logActivity, 'logs')
 	const [open, setOpen] = useState("0");
 
 	const toggle = (id) => {
@@ -32,7 +33,7 @@ const LessonAccordion = ({ lesson, section, logActivity }) => {
 
 	const handleLogActivity = async () => {
 		if (logActivity) {
-			const findActivity = await logActivity.history.findIndex(
+			const findActivity = await logActivity?.history?.findIndex(
 				(x) => x.lesson_title === lesson.lesson_title
 			);
 
@@ -53,8 +54,7 @@ const LessonAccordion = ({ lesson, section, logActivity }) => {
 					);
 					if (res) {
 						navigate(
-							`/course/${param.id}/section/${
-								section.id
+							`/course/${param.id}/section/${section.id
 							}/lesson/${encodeURIComponent(
 								lesson.lesson_title
 							)}`
@@ -65,8 +65,7 @@ const LessonAccordion = ({ lesson, section, logActivity }) => {
 				}
 			} else {
 				navigate(
-					`/course/${param.id}/section/${
-						section.id
+					`/course/${param.id}/section/${section.id
 					}/lesson/${encodeURIComponent(lesson.lesson_title)}`
 				);
 			}
@@ -75,6 +74,7 @@ const LessonAccordion = ({ lesson, section, logActivity }) => {
 	useEffect(() => {
 		Prism.highlightAll();
 	}, []);
+
 	return (
 		<Accordion open={open} toggle={toggle}>
 			<AccordionItem>

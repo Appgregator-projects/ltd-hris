@@ -15,13 +15,13 @@ import { Table } from "reactstrap";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useNavigate } from "react-router-dom";
-import { getCollectionFirebase } from "../../../../sevices/FirebaseApi";
+import { deleteDocumentFirebase, getCollectionFirebase } from "../../../../sevices/FirebaseApi";
 import SingleAvatarGroup from "../../../../@core/components/single-avatar-group";
 
 const MySwal = withReactContent(Swal);
 
 const QuizPage = () => {
-	const [quizData, setQuizData] = useState([]);
+	const [quizData, setQuizData] = useState([])
 	const [groupList, setGroupList] = useState([]);
 
 	const navigate = useNavigate();
@@ -29,20 +29,27 @@ const QuizPage = () => {
 	const fetchDataQuiz = async () => {
 		try {
 			const res = await getCollectionFirebase("quizzes");
+			const questions = []
 			if (res) {
-				setQuizData(res);
-
 				const resGroup = await getCollectionFirebase("groups");
 				setGroupList(resGroup);
+
+				res.forEach(async (questionList) => {
+					console.log(questionList, 'quei')
+					const questionArray = await getCollectionFirebase(`quizzes/${questionList.id}/question`)
+					questions.push({
+						...questionList,
+						question: questionArray
+					})
+				})
+				setQuizData(res);
 			}
 		} catch (error) {
 			throw error;
 		}
 	};
 
-	console.log({ groupList });
-
-	const handleConfirmText = () => {
+	const handleConfirmText = (item) => {
 		return MySwal.fire({
 			title: "Are you sure?",
 			text: "You won't be able to revert this!",
@@ -56,14 +63,35 @@ const QuizPage = () => {
 			buttonsStyling: false,
 		}).then(function (result) {
 			if (result.value) {
-				MySwal.fire({
-					icon: "success",
-					title: "Deleted!",
-					text: "Your file has been deleted.",
-					customClass: {
-						confirmButton: "btn btn-success",
-					},
-				});
+				if (item?.questions?.length > 0) {
+					try {
+						item?.questions.forEach((e) =>
+							deleteDocumentFirebase(
+								`quizzes/${item.id}/questions`,
+								e
+							)
+						);
+					} catch (error) {
+						throw error;
+					}
+				}
+
+				deleteDocumentFirebase("quizzes", item.id).then(
+					(deleted) => {
+						if (deleted) {
+							MySwal.fire({
+								icon: "success",
+								title: "Deleted!",
+								text: "Your file has been deleted.",
+								customClass: {
+									confirmButton: "btn btn-success",
+								},
+							});
+							fetchDataQuiz()
+						}
+					}
+				)
+
 			}
 		});
 	};
@@ -91,7 +119,7 @@ const QuizPage = () => {
 						</tr>
 					</thead>
 					<tbody>
-						{quizData.map((item, index) => (
+						{quizData?.length > 0 ? quizData.map((item, index) => (
 							<tr key={index}>
 								<td>
 									<img
@@ -133,7 +161,7 @@ const QuizPage = () => {
 												)
 											) {
 												return (
-													<div key={id} onClick={()=>navigate('/groups')}>
+													<div key={id} onClick={() => navigate('/groups')}>
 														<SingleAvatarGroup
 															id={
 																id
@@ -162,34 +190,34 @@ const QuizPage = () => {
 												{
 													state: {
 														question:
-															{
-																id: 1,
-																question_title:
-																	"How far it could be?",
-																question_description:
-																	"Use 3rd Law of Newton",
-																isCorrectAnswer: 3,
-																answer: [
-																	{
-																		answerTitle:
-																			"1600N",
-																		isCorrectAnswer: false,
-																		id: 1,
-																	},
-																	{
-																		answerTitle:
-																			"1000N",
-																		isCorrectAnswer: false,
-																		id: 2,
-																	},
-																	{
-																		answerTitle:
-																			"2000N",
-																		isCorrectAnswer: true,
-																		id: 3,
-																	},
-																],
-															},
+														{
+															id: 1,
+															question_title:
+																"How far it could be?",
+															question_description:
+																"Use 3rd Law of Newton",
+															isCorrectAnswer: 3,
+															answer: [
+																{
+																	answerTitle:
+																		"1600N",
+																	isCorrectAnswer: false,
+																	id: 1,
+																},
+																{
+																	answerTitle:
+																		"1000N",
+																	isCorrectAnswer: false,
+																	id: 2,
+																},
+																{
+																	answerTitle:
+																		"2000N",
+																	isCorrectAnswer: true,
+																	id: 3,
+																},
+															],
+														},
 													},
 												}
 											)
@@ -208,7 +236,7 @@ const QuizPage = () => {
 										className={"btn-icon"}
 										color={"danger"}
 										onClick={() =>
-											handleConfirmText()
+											handleConfirmText(item)
 										}
 										id="delete-quiz"
 									>
@@ -222,7 +250,11 @@ const QuizPage = () => {
 									</UncontrolledTooltip>
 								</td>
 							</tr>
-						))}
+						)) : <tr>
+							<td></td>
+							<td></td>
+							<td>There is no quiz</td>
+						</tr>}
 					</tbody>
 				</Table>
 			</Card>

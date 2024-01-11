@@ -35,6 +35,7 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useSelector } from "react-redux";
 import UILoader from "../../../../../@core/components/ui-loader";
+import YouTube from 'react-youtube';
 
 const MySwal = withReactContent(Swal);
 
@@ -63,8 +64,9 @@ const SingleLesson = () => {
 		idLesson: null,
 	});
 	const [logActivity, setLogActivity] = useState(false);
-
+	const [score, setScore] = useState(0)
 	const [isLoading, setIsLoading] = useState(false);
+	const [video, setVideo] = useState(false)
 
 	//Fetch data
 	const fetchDataLesson = async () => {
@@ -176,7 +178,7 @@ const SingleLesson = () => {
 			throw error;
 		}
 	};
-
+	console.log(detailQuiz, 'detquiz')
 	const fetchLogActivity = async () => {
 		const activities = await getSingleDocumentFirebase(
 			"user_course_progress",
@@ -192,6 +194,27 @@ const SingleLesson = () => {
 				setLogActivity(true);
 			}
 		}
+	};
+
+	//YOUTUBE setting
+
+	const onPlayerStateChange = (event) => {
+		if (event.data === 0) {
+			setVideo(true)
+		}
+	};
+
+	const opts = {
+		width: "100%",
+		height: "500px",
+		playerVars: {
+			autoplay: 1,
+		},
+	};
+
+	// Create YouTube player
+	const onReady = (event) => {
+		event.target.playVideo();
 	};
 
 	//Functions
@@ -251,14 +274,12 @@ const SingleLesson = () => {
 		}
 		if (type === "next") {
 			navigate(
-				`/course/${param.course_id}/section/${
-					param.section_id
+				`/course/${param.course_id}/section/${param.section_id
 				}/lesson/${encodeURIComponent(nextPage?.lesson_title)}`
 			);
 		} else if (type === "back") {
 			navigate(
-				`/course/${param.course_id}/section/${
-					param.section_id
+				`/course/${param.course_id}/section/${param.section_id
 				}/lesson/${encodeURIComponent(prevPage?.lesson_title)}`
 			);
 		} else if (type === "finish") {
@@ -282,6 +303,7 @@ const SingleLesson = () => {
 	};
 	const handleSubmitQuiz = () => {
 		const finalScore = calculateScore(question, answer);
+		setScore(finalScore)
 		const data = {
 			course_id: param.course_id,
 			uid: auth.currentUser.uid,
@@ -341,22 +363,34 @@ const SingleLesson = () => {
 												param.section_id,
 										}
 									).then((final) => {
-										if (final) {
+										if (final && finalScore >= detailQuiz.quiz_minGrade) {
 											MySwal.fire(
 												"Submitted!",
 												"You already submit the quiz",
 												"success"
 											);
 											setAnswer([]);
+										} else {
+											MySwal.fire(
+												"Failed!",
+												`Sorry, your score is ${finalScore}/100 and it's below passing grade, you should learn this lesson again`,
+												"error"
+											);
 										}
 									});
-								} else if (response) {
+								} else if (response && finalScore >= detailQuiz.quiz_minGrade) {
 									MySwal.fire(
 										"Submitted!",
 										"You already submit the quiz",
 										"success"
 									);
 									setAnswer([]);
+								} else {
+									MySwal.fire(
+										"Failed!",
+										`Sorry, your score is ${finalScore}/100 and it's below passing grade, you should learn this lesson again`,
+										"error"
+									);
 								}
 							});
 						}
@@ -419,10 +453,11 @@ const SingleLesson = () => {
 			setIsLoading(false);
 			setAnswer([]);
 			setLogActivity(false);
+			setVideo(false)
 		};
 	}, []);
 
-	useEffect(() => {}, [nextPage, lesson.lesson_video, logActivity]);
+	useEffect(() => { }, [nextPage, lesson.lesson_video, logActivity]);
 
 	return (
 		<UILoader blocking={isLoading.page} overlayColor={"white"}>
@@ -498,7 +533,14 @@ const SingleLesson = () => {
 							xs={{ order: 0 }}
 							md={{ order: 1, size: 7 }}
 						>
-							<iframe
+							<YouTube
+								videoId={lesson.lesson_video}
+								opts={opts}
+								onReady={onReady}
+								onStateChange={onPlayerStateChange}
+							/>
+
+							{/* <iframe
 								width="100%"
 								height="500px"
 								src={`https://www.youtube-nocookie.com/embed/${lesson.lesson_video}`}
@@ -506,10 +548,10 @@ const SingleLesson = () => {
 								frameBorder="0"
 								allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
 								allowFullScreen
-							></iframe>
+							></iframe> */}
 						</Col>
 					</Row>
-					{detailQuiz && (
+					{detailQuiz && video && (
 						<Row className="mt-2">
 							<Col
 								xl="4"
@@ -626,10 +668,10 @@ const SingleLesson = () => {
 																					</div>
 																				)}
 																			</Col>
-																			<Col className="d-flex justify-content-end col-2">
+																			{/* <Col className="d-flex justify-content-end col-2">
 																				<div className="p-1">
 																					{open ===
-																					"1" ? (
+																						"1" ? (
 																						<RiArrowUpSLine
 																							size={
 																								24
@@ -653,7 +695,7 @@ const SingleLesson = () => {
 																						/>
 																					)}
 																				</div>
-																			</Col>
+																			</Col> */}
 																		</Row>
 
 																		<AccordionBody accordionId="1">
@@ -694,9 +736,9 @@ const SingleLesson = () => {
 																															ans
 																														) =>
 																															ans.id ===
-																																item.question_index &&
+																															item.question_index &&
 																															ans.answer ===
-																																items.id
+																															items.id
 																													)}
 																												/>
 																												<Label
@@ -745,8 +787,9 @@ const SingleLesson = () => {
 						</Row>
 					)}
 				</div>
+				{console.log(currentLesson, 'current', section, 'section')}
 				<Col className="mt-2">
-					{currentLesson.idLesson === 1 ? (
+					{currentLesson.idLesson === 1 && section?.lesson_list?.length > 1 ? (
 						<div
 							className="d-flex justify-content-end"
 							style={{
@@ -754,32 +797,51 @@ const SingleLesson = () => {
 								bottom: 0,
 							}}
 						>
-							<ButtonActionComponent type={"next"} />
+							{detailQuiz && score >= detailQuiz?.quiz_minGrade ?
+								<ButtonActionComponent type={"next"} /> : !detailQuiz && video ? <ButtonActionComponent type={"next"} /> : <></>
+							}
 						</div>
-					) : currentLesson.idLesson ===
-					  section?.lesson_list?.length ? (
+					) : currentLesson.idLesson === 1 && section?.lesson_list?.length === 1 ?
 						<div
-							className="d-flex justify-content-between"
+							className="d-flex justify-content-end"
 							style={{
 								position: "sticky",
 								bottom: 0,
 							}}
 						>
-							<ButtonActionComponent type={"back"} />
-							<ButtonActionComponent type={"finish"} />
+							{detailQuiz && score >= detailQuiz?.quiz_minGrade ?
+								<ButtonActionComponent type={"finish"} /> : !detailQuiz && video ? <ButtonActionComponent type={"finish"} /> : <></>
+							}
 						</div>
-					) : (
-						<div
-							className="d-flex justify-content-between"
-							style={{
-								position: "sticky",
-								bottom: 0,
-							}}
-						>
-							<ButtonActionComponent type={"back"} />
-							<ButtonActionComponent type={"next"} />
-						</div>
-					)}
+						:
+						currentLesson.idLesson ===
+							section?.lesson_list?.length ? (
+							<div
+								className="d-flex justify-content-between"
+								style={{
+									position: "sticky",
+									bottom: 0,
+								}}
+							>
+								<ButtonActionComponent type={"back"} />
+								{detailQuiz && score >= detailQuiz?.quiz_minGrade ?
+									<ButtonActionComponent type={"finish"} /> : !detailQuiz && video ? <ButtonActionComponent type={"finish"} /> : <></>
+								}
+							</div>
+						) : (
+							<div
+								className="d-flex justify-content-between"
+								style={{
+									position: "sticky",
+									bottom: 0,
+								}}
+							>
+								<ButtonActionComponent type={"back"} />
+								{detailQuiz && score >= detailQuiz?.quiz_minGrade ?
+									<ButtonActionComponent type={"next"} /> : !detailQuiz && video ? <ButtonActionComponent type={"next"} /> : <></>
+								}
+							</div>
+						)}
 				</Col>
 			</Fragment>
 		</UILoader>

@@ -1,5 +1,5 @@
 // ** React Imports
-import { Fragment, lazy } from "react"
+import { Fragment, lazy, useEffect } from "react"
 import { Navigate } from "react-router-dom"
 // ** Layouts
 import BlankLayout from "@layouts/BlankLayout"
@@ -10,6 +10,7 @@ import LayoutWrapper from "@src/@core/layouts/components/layout-wrapper"
 // ** Route Components
 import PublicRoute from "../../@core/components/routes/PublicRoute"
 import PrivateRoute from "../../@core/components/routes/PrivateRoute"
+import { useSelector, useDispatch } from "react-redux"
 
 // ** Utils
 import { isObjEmpty } from "@utils"
@@ -48,7 +49,7 @@ const Attendance = lazy(() => import("../../views/pages/Attendance/AttendanceInd
 const CorrectionRequest = lazy(() => import("../../views/pages/CorrectionRequest"))
 const LeaveRequest = lazy(() => import("../../views/pages/LeaveRequest/LeaveRequest"))
 const CompanyIndex = lazy(() => import("../../views/pages/Company/CompanyIndex"))
-const DaysOff = lazy(() =>  import("../../views/pages/DaysOff/DaysOffIndex"))
+const DaysOff = lazy(() => import("../../views/pages/DaysOff/DaysOffIndex"))
 const PayrollDeduction = lazy(() => import("../../views/pages/Payroll/PayrollDeduction"))
 const PayrollIndex = lazy(() => import("../../views/pages/Payroll/PayrolIndex"))
 const PayrollForm = lazy(() => import("../../views/pages/Payroll/PayrollForm"))
@@ -62,6 +63,10 @@ const Reimburse = lazy(() => import("../../views/pages/Reimburse/ReimburseIndex"
 const MealAllowance = lazy(() => import("../../views/pages/MealAllowance/MealIndex"))
 const LevelApproval = lazy(() => import("../../views/pages/LevelApproval/LevelIndex"))
 const WorkingManagement = lazy(() => import("../../views/pages/Working Management/WorkingIndex"))
+const FormBuilder = lazy(() => import("../../views/pages/FormBuilder/index"))
+const FormBuilderCreate = lazy(() => import("../../views/pages/FormBuilder/Form"))
+
+
 
 // ** Merge Routes
 const Routes = [
@@ -87,7 +92,7 @@ const Routes = [
       resource: "MENU ANNOUNCEMENT"
     }
   },
-    {
+  {
     path: "/penalty",
     element: <Penalty />,
     meta: {
@@ -279,6 +284,30 @@ const Routes = [
       resource: "WORKING MANAGEMENT"
     }
   },
+  {
+    path: "/form-builder",
+    element: <FormBuilder />,
+    meta: {
+      action: "read",
+      resource: "FORM BUILDER"
+    }
+  },
+  {
+    path: "/form-builder/create",
+    element: <FormBuilderCreate />,
+    meta: {
+      action: "read",
+      resource: "FORM BUILDER"
+    }
+  },
+  {
+    path: "/form-builder/:id",
+    element: <FormBuilderCreate />,
+    meta: {
+      action: "read",
+      resource: "FORM BUILDER"
+    }
+  },
   // {
   //   path: "/login",
   //   element: <Login />,
@@ -311,6 +340,8 @@ const Routes = [
       resource: "MENU HOME"
     }
   },
+
+
   ...LmsRoutes
 
   // {
@@ -332,10 +363,12 @@ const getRouteMeta = (route) => {
   }
 }
 
+
 // ** Return Filtered Array of Routes & Paths
 const MergeLayoutRoutes = (layout, defaultLayout) => {
   const LayoutRoutes = []
   // console.log(Routes, "MergeLayoutRoutes");
+
 
   if (Routes) {
     Routes.filter((route) => {
@@ -362,7 +395,7 @@ const MergeLayoutRoutes = (layout, defaultLayout) => {
             // eslint-disable-next-line multiline-ternary
             isObjEmpty(route.element.props) && isBlank === false
               ? // eslint-disable-next-line multiline-ternary
-                LayoutWrapper
+              LayoutWrapper
               : Fragment
 
           route.element = (
