@@ -12,6 +12,9 @@ import {
 } from "reactstrap";
 import { Archive, Edit, FileText, MoreVertical, Trash } from "react-feather";
 
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import Api from '../../../../sevices/Api'
 import Avatar from "../../../../@core/components/avatar";
 import avatar1 from "@src/assets/images/portrait/small/avatar-s-1.jpg";
 import avatar2 from "@src/assets/images/portrait/small/avatar-s-2.jpg";
@@ -47,6 +50,7 @@ const status = {
 };
 
 const uid = JSON.parse(localStorage.getItem("userData"))?.id
+const MySwal = withReactContent(Swal);
 
 
 export const data = [
@@ -2041,9 +2045,40 @@ export const columnsFormBuilder = [{
 	selector: (row) => row?.title,
 	cell: (row) => {
 
-		// console.log(neweee, 'nenew', uid)
+
+		console.log(row, 'nenew')
 		const location = () => {
 			window.location.href = `/form-builder/${row?.id}`
+		}
+
+		const handleDeleteForm = () => {
+			return MySwal.fire({
+				title: "Are you sure?",
+				text: "You won't be able to revert this!",
+				icon: "warning",
+				showCancelButton: true,
+				confirmButtonText: "Yes, delete it!",
+				customClass: {
+					confirmButton: "btn btn-primary",
+					cancelButton: "btn btn-outline-danger ms-1",
+				},
+				buttonsStyling: false,
+			}).then(function async(result) {
+				console.log(result, 'mm')
+				if (result.value) {
+					Api.delete(`/hris/form-builder/${row.id}`)
+
+					MySwal.fire({
+						icon: "success",
+						title: "Deleted!",
+						text: "Your form has been deleted.",
+						customClass: {
+							confirmButton: "btn btn-success",
+						},
+					});
+				}
+
+			})
 		}
 
 		return (
@@ -2052,7 +2087,7 @@ export const columnsFormBuilder = [{
 				<Button.Ripple className='btn-icon' color='warning' onClick={() => location()} >
 					<Edit size={16} />
 				</Button.Ripple>
-				<Button.Ripple className='btn-icon ms-1' color='danger' >
+				<Button.Ripple className='btn-icon ms-1' color='danger' onClick={() => handleDeleteForm()} >
 					<Trash size={16} />
 				</Button.Ripple>
 			</Fragment>

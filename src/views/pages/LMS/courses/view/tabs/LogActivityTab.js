@@ -23,7 +23,7 @@ import { useSelector } from "react-redux";
 const LogActivityTab = ({ courseData }) => {
 	const param = useParams();
 	const store = useSelector((store) => store.coursesSlice);
-	
+
 	const [searchValue, setSearchValue] = useState([]);
 	const [filteredData, setFilteredData] = useState([]);
 	const [currentPage, setCurrentPage] = useState(0);
@@ -32,7 +32,7 @@ const LogActivityTab = ({ courseData }) => {
 		enrolled: false,
 		passed: false,
 	});
-	
+
 	const [userCourse, setUserCourse] = useState([]);
 	const [finishCourse, setFinishCourse] = useState([]);
 	//** Fetch data
@@ -240,7 +240,7 @@ const LogActivityTab = ({ courseData }) => {
 		};
 	}, []);
 
-	useEffect(() => {}, [courseData.course_title]);
+	useEffect(() => { }, [courseData.course_title]);
 	return (
 		<Fragment>
 			<Row className="mb-1">
@@ -260,7 +260,7 @@ const LogActivityTab = ({ courseData }) => {
 								See Data
 							</Button.Ripple>
 						) : !loadData.enrolled &&
-						  userCourse.length > 0 ? (
+							userCourse.length > 0 ? (
 							<CardBody>
 								<Avatar
 									className="avatar-stats p-50 m-0"
@@ -290,7 +290,7 @@ const LogActivityTab = ({ courseData }) => {
 								See Data
 							</Button.Ripple>
 						) : !loadData.passed &&
-						  finishCourse.length > 0 ? (
+							finishCourse.length > 0 ? (
 							<CardBody>
 								<Avatar
 									className="avatar-stats p-50 m-0"

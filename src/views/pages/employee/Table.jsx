@@ -26,6 +26,7 @@ import "@styles/react/libs/tables/react-dataTable-component.scss"
 import { dateTimeFormat } from "../../../Helper/index"
 import { ChevronDown, Trash, Edit, Search } from "react-feather"
 
+
 const renderClient = (row) => {
   if (row.avatar) {
     return <Avatar className="me-1" img={row.avatar} width="32" height="32" />
@@ -185,7 +186,7 @@ const DataTableServerSide = ({ onDelete, onEdit, isRefresh }) => {
         previousLabel={''}
         nextLabel={''}
         breakLabel='...'
-        pageCount={employeeTotal || 1}
+        pageCount={employeeTotal - 1 || 1}
         marginPagesDisplayed={2}
         pageRangeDisplayed={2}
         activeClassName='active'

@@ -23,9 +23,10 @@ import {
   Clock,
   ShoppingBag,
   Coffee,
-  ThumbsUp
+  ThumbsUp,
+  Table
 } from "react-feather"
-import { MdScore } from "react-icons/md"
+import { MdOutlineDynamicForm, MdScore } from "react-icons/md"
 import { RiFilePaperLine } from "react-icons/ri"
 
 export default [
@@ -86,7 +87,13 @@ export default [
     icon: <Clock size={20} />,
     navLink: "/overtime-request"
   },
-
+  {
+    id: "digitalization",
+    title: "Digitalization",
+    icon: <MdOutlineDynamicForm size={20} />,
+    navLink: "/digitalization/:formName"
+  }
+  ,
   {
     header: "e-Learning"
   },
@@ -197,6 +204,12 @@ export default [
     id: "form-builder",
     title: "Form Builder",
     icon: <RiFilePaperLine size={20} />,
+    navLink: "/form-builder"
+  },
+  {
+    id: "table-builder",
+    title: "Table Builder",
+    icon: <Table size={20} />,
     navLink: "/form-builder"
   }
 ]

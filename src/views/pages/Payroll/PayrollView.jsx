@@ -33,8 +33,8 @@ export default function PayrollView() {
       console.log(data, "data view")
       setUser({ ...data.user })
       setInfo({ ...data })
-      const addj = data.items.filter(x => x.flag === 'addjusment')
-      const deductions = data.items.filter(x => x.flag !== 'addjusment')
+      const addj = data.items.filter(x => x.flag === 'addjusment' || x.flag === 'addjustment')
+      const deductions = data.items.filter(x => x.flag === 'deduction')
       console.log(addj, "addjustment")
       setAddjusments([...addj])
       setDeductions([...deductions])
@@ -53,7 +53,6 @@ export default function PayrollView() {
   useEffect(() => {
     fetchPayroll()
   }, [])
-
   console.log(info, "kakak")
   console.log(addjusments, 'addjustment')
 
@@ -105,7 +104,7 @@ export default function PayrollView() {
                   </div>
                   <div className="d-flex">
                     <div className="w-50 pb-1 text-xs">Department</div>
-                    <div className="w-50 pb-1 text-xs text-uppercase">: {user ? user.division.name : '-'}</div>
+                    <div className="w-50 pb-1 text-xs text-uppercase">: {user && user?.division?.name ? user?.division?.name : user?.departement ? user?.departement?.label : '-'}</div>
                   </div>
                   <div className="d-flex">
                     <div className="w-50 pb-1 text-xs">Designation</div>

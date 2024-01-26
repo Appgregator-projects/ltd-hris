@@ -33,10 +33,10 @@ const WorkingForm = ({ item, close, onSubmit }) => {
       setValue("type", item.type)
       setValue("productive_minutes", item.productive_minutes)
       if (item.details) {
-        setValue("productive_days", item.productive_days)
-        setValue("productive_detail", item.productive_detail)
-        setValue("off_days", item.off_days)
-        setValue("off_detail", item.off_detail)
+        setValue("productive", item.details.productive_days)
+        setValue("productive_detail", item.details.productive_detail)
+        setValue("off", item.details.off_days)
+        setValue("off_detail", item.details.off_detail)
       }
     }
   }, [item]);

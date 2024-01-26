@@ -24,6 +24,9 @@ const WorkingIndex = () => {
     item: null
   })
 
+  console.log(modal, 'po')
+
+
   const fetchWorkhours = async () => {
     try {
       const getData = await getCollectionFirebase("work_hours")
@@ -73,17 +76,17 @@ const WorkingIndex = () => {
           (item) => item.length > 0).reduce(
             (result, currentArray) => {
               currentArray.forEach((x) => {
-                  const { id } = x;
-                  if (!attachedId[id]) {
-                      result.push(x);
-                      attachedId[id] = true;
-                  }
+                const { id } = x;
+                if (!attachedId[id]) {
+                  result.push(x);
+                  attachedId[id] = true;
+                }
               });
-          
-              return result;
-          }, [])
 
-        const filterUser = users.filter(x => 
+              return result;
+            }, [])
+
+        const filterUser = users.filter(x =>
           !getAllAssignedUser.some(y => x.value === y.id)
         )
         setUserAssign(filterUser)
@@ -131,6 +134,10 @@ const WorkingIndex = () => {
     setToggleModal(true)
   }
 
+  const onDelete = async () => {
+
+  }
+
   const onSubmit = async (params) => {
     const itemPost = {
       name: params.name,
@@ -145,8 +152,20 @@ const WorkingIndex = () => {
     }
     let response = ""
     try {
-      if (modal.item) return postUpdate(params);
-      response = await addDocumentFirebase("work_hours", itemPost)
+      if (modal.mode === 'edit') {
+        // const data = {
+        //   name: params.name,
+        //   type: params.type,
+        //   details: {
+        //     off_days: params.off_days ? params.off_days : null,
+        //     off_detail: params.off_detail ? params.off_detail : null,
+        //     productive_days: params.productive_days ? params.productive_days : null,
+        //     productive_detail: params.productive_detail ? params.productive_detail : null,
+        //   }
+        // }
+        // console.log(data, 'll')
+        response = await setDocumentFirebase("work_hours", modal.item.id, itemPost)
+      } else { response = await addDocumentFirebase("work_hours", itemPost) }
       if (!response)
         return toast.error(`Error : ${params.name}`, {
           position: "top-center",
@@ -163,6 +182,7 @@ const WorkingIndex = () => {
       });
     }
   };
+
 
   const updateUser = async (item, itemPatch) => {
     let response = ""
@@ -282,6 +302,7 @@ const WorkingIndex = () => {
               <tbody>
                 {
                   working?.map((x, index) => {
+                    console.log(x.details, 'll')
                     return (
                       <tr key={x.id}>
                         <td className='pointer' onClick={() => { onDetail(x); fetchUserAssign(x) }}>{x.name}</td>

@@ -59,11 +59,11 @@ export default function IncomeForm({ isLoading, close, income, onSubmit }) {
                     invalid={errors.payroll_type && true} type='radio' name='payroll_type' value="gross" />
                   <Label check className='me-2'>Gross</Label>
                 </FormGroup>
-                <FormGroup check>
+                {/* <FormGroup check>
                   <Input  {...field}
                     invalid={errors.payroll_type && true} type='radio' name='payroll_type' value="gross_up" />
                   <Label check className='me-2'>Gross Up</Label>
-                </FormGroup>
+                </FormGroup> */}
               </>
             )} />
           {errors.payroll_type && <FormFeedback>{errors.payroll_type.message}</FormFeedback>}

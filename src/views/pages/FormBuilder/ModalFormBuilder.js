@@ -17,7 +17,8 @@ import { Plus, Save, Trash, Trash2 } from "react-feather";
 import Select from "react-select";
 import Api from "../../../sevices/Api";
 
-const ModalFormBuilder = ({ fields, setFields, forms, setForms, modal, toggle, values, setValues, edits }) => {
+const ModalFormBuilder = ({ fields, setFields, forms, setForms, modal, toggle, values, setValues, edits, id }) => {
+     console.log(values, 'id')
      const [element, setElement] = useState([])
      const [totalValues, setTotalValues] = useState(0)
 
@@ -50,15 +51,22 @@ const ModalFormBuilder = ({ fields, setFields, forms, setForms, modal, toggle, v
           setValues(newValues)
      }
 
-     const handleSaveModal = (mode) => {
+     const handleSaveModal = () => {
 
           // return console.log(mode, 'mod', edits, newForms, 'newForms')
-          if (mode === 'edit') {
+          if (id) {
                const newForms = forms
-               newForms[edits.index].values = values
-               newForms[edits.index].label = fields?.label ? fields.label : edits?.data?.label
-               newForms[edits.index].element = fields?.element ? fields.element : edits?.data?.element
-               setForms([...newForms])
+               if (newForms.length > 0) {
+                    console.log(newForms, 'xx')
+                    newForms[edits.index].values = values ? values : []
+                    newForms[edits.index].label = fields?.label ? fields.label : edits?.data?.label
+                    newForms[edits.index].element = fields?.element ? fields.element : edits?.data?.element
+                    setForms([...newForms])
+               } else {
+                    const arr = [{ ...fields, values: values, title: id }]
+                    const newAr = [...forms, ...arr]
+                    setForms(newAr)
+               }
 
           } else {
                const arr = [{ ...fields, values: values }]
@@ -119,6 +127,7 @@ const ModalFormBuilder = ({ fields, setFields, forms, setForms, modal, toggle, v
                                         />
                                    </Col>
                               </Row>
+
                               <Row className='mt-1'>
                                    <Col className="col12 col-md-12">
                                         <Label for="Label">Label</Label>
@@ -126,11 +135,13 @@ const ModalFormBuilder = ({ fields, setFields, forms, setForms, modal, toggle, v
                                              defaultValue={edits && edits.data && edits.data.label ? edits.data.label : ''}
                                              placeholder="Example: Email"
                                              type="text"
-                                             value={fields?.label}
+                                             value={fields?.element?.value === 10 ? 'Department' : fields?.label}
                                              onChange={(e) => setFields({ ...fields, label: e.target.value })}
+                                             disabled={fields?.element?.value === 10}
                                         />
                                    </Col>
                               </Row>
+
                               {fields && fields?.element?.value === 3 || fields?.element?.value === 9 || edits?.data?.element?.value === 3 || edits?.data?.element?.value === 9 ?
                                    <Fragment>
                                         <Row className='mt-1'>
@@ -169,7 +180,7 @@ const ModalFormBuilder = ({ fields, setFields, forms, setForms, modal, toggle, v
                          <Button
                               color="primary"
                               //   disabled={loading}
-                              onClick={() => handleSaveModal(edits?.index === undefined ? 'save' : 'edit')}
+                              onClick={() => handleSaveModal()}
                          >
                               Save
                          </Button>

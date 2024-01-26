@@ -11,78 +11,78 @@ import { DownloadCloud } from 'react-feather'
 import CardLoader from '../Components/CardLoader'
 import AsyncSelect from "react-select/async";
 
-const AssetForm = ({user,asset, onSubmit, close, fetch, load}) => {
-  console.log(load, "load")
+const AssetForm = ({ user, asset, onSubmit, close, fetch, load }) => {
+	console.log(load, "load")
 
-  const ItemSchema = yup.object().shape({
+	const ItemSchema = yup.object().shape({
 		name: yup.object().shape({
-      value: yup.string().required("Name is required"),
-      label: yup.string().required("Name is required"),
-    }),
-    asset: yup.object().shape({
-      value: yup.string().required("Asset is required"),
-      label: yup.string().required("Asset is required"),
-    }),
-  	})
+			value: yup.string().required("Name is required"),
+			label: yup.string().required("Name is required"),
+		}),
+		asset: yup.object().shape({
+			value: yup.string().required("Asset is required"),
+			label: yup.string().required("Asset is required"),
+		}),
+	})
 
-  const {
+	const {
 		setValue,
 		control,
 		handleSubmit,
 		formState: { errors }
 	} = useForm({ mode: 'onChange', resolver: yupResolver(ItemSchema) })
 	console.log(errors, "error")
-  
 
-  const onSubmitForm = (params) => {
+
+	const onSubmitForm = (params) => {
 		return onSubmit(params)
 	}
 
-  return (
-    <>
-      <Form onSubmit={handleSubmit(onSubmitForm)}>
+	return (
+		<>
+			<Form onSubmit={handleSubmit(onSubmitForm)}>
 				<Row>
 					<Col md='12' sm='12' className='mb-1'>
 						<Label className='form-label' for='name'>Name</Label>
 						<Controller
-								name='name'
-								defaultValue=''
-								control={control}
-								render={({ field }) => 
-                  <Select 
-                  name='name'
-                  className='react-select'
-                  classNamePrefix="select"
-                  id='label'
-                  placeholder="Select Employee"
-                  {...field}
-                  closeMenuOnSelect={true}
-                  options={user}
-                  invalid={errors.name && true}
-                  // onChange={(arg) => {setSelectUser(arg.value); console.log(arg, "arg name")}}
-                  />
+							name='name'
+							defaultValue=''
+							control={control}
+							render={({ field }) =>
+								<Select
+									name='name'
+									className='react-select'
+									classNamePrefix="select"
+									id='label'
+									placeholder="Select Employee"
+									{...field}
+									closeMenuOnSelect={true}
+									options={user}
+									invalid={errors.name && true}
+								// onChange={(arg) => {setSelectUser(arg.value); console.log(arg, "arg name")}}
+								/>
 							}
 						/>
-							{errors.name && <span style={{ color: "red" }}>Name is Required</span>}
+						{errors.name && <span style={{ color: "red" }}>Name is Required</span>}
 					</Col>
 					<Col md='12' sm='12' className='mb-1'>
 						<Label className='form-label' for='asset'>Assets</Label>
 						<Controller
-								name='asset'
-								defaultValue=''
-								control={control}
-								render={({ field }) => 
-                <AsyncSelect
-                  {...field}
-                  isClearable
-                  cacheOptions
-                  loadOptions={load}
-                  defaultOptions
-                  // onChange={(e) => selectedCustomer(e)}
-                />
+							name='asset'
+							defaultValue=''
+							control={control}
+							render={({ field }) =>
+								<AsyncSelect
+									{...field}
+									isClearable
+									cacheOptions
+									loadOptions={load}
+									defaultOptions
+								// onChange={(e) => selectedCustomer(e)}
+								/>
 							}
 						/>
-							{errors.asset && <span style={{ color: "red" }}>Asset is required</span>}
+						{errors.asset && <span style={{ color: "red" }}>Asset is required</span>}
 					</Col>
 					<Col>
 						<Button type="button" size="md" color='danger' onClick={close}>Cancel</Button>
@@ -90,8 +90,8 @@ const AssetForm = ({user,asset, onSubmit, close, fetch, load}) => {
 					</Col>
 				</Row>
 			</Form>
-    </>
-  )
+		</>
+	)
 }
 
 export default AssetForm

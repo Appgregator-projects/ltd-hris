@@ -25,7 +25,9 @@ import {
      ShoppingBag,
      Coffee,
      ThumbsUp,
+     Table,
 } from "react-feather"
+import { MdOutlineDynamicForm } from "react-icons/md";
 import { RiFilePaperLine, RiNumber9 } from "react-icons/ri";
 export const BankNameData = [
      {
@@ -268,6 +270,12 @@ export const dataSidebar = [
           icon: <Clock size={20} />,
           navLink: "/overtime-request"
      },
+     {
+          id: "digitalization",
+          title: "Digitalization",
+          icon: <MdOutlineDynamicForm size={20} />,
+          navLink: "/digitalization"
+     },
 
      {
           header: "e-Learning"
@@ -402,5 +410,11 @@ export const dataSidebar = [
           title: "Form Builder",
           icon: <RiFilePaperLine size={20} />,
           navLink: "/form-builder"
+     },
+     {
+          id: "table-builder",
+          title: "Table Builder",
+          icon: <Table size={20} />,
+          navLink: "/table-builder"
      }
 ]

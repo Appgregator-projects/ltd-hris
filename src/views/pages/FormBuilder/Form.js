@@ -49,7 +49,7 @@ const FormBuilderCreate = () => {
           setEdits({ data: data, index: index })
      }
 
-     const handleDeleteFields = (index) => {
+     const handleDeleteFields = (index, item) => {
           return MySwal.fire({
                title: "Are you sure?",
                text: "You won't be able to revert this!",
@@ -61,12 +61,30 @@ const FormBuilderCreate = () => {
                     cancelButton: "btn btn-outline-danger ms-1",
                },
                buttonsStyling: false,
-          }).then(function (result) {
+          }).then(function async(result) {
+               console.log(result, 'mm')
                if (result.value) {
-                    let newForms = [...forms]
-                    newForms.splice(index, 1)
-                    setForms(newForms)
+                    if (id) {
+                         console.log('here')
+                         Api.delete(`/hris/form-builder/${item.id}/fields`)
 
+                         MySwal.fire({
+                              icon: "success",
+                              title: "Deleted!",
+                              text: "Your field has been deleted.",
+                              customClass: {
+                                   confirmButton: "btn btn-success",
+                              },
+                         });
+                         let newForms = [...forms]
+                         newForms.splice(index, 1)
+                         setForms(newForms)
+
+                    } else {
+                         let newForms = [...forms]
+                         newForms.splice(index, 1)
+                         setForms(newForms)
+                    }
                }
 
           })
@@ -84,21 +102,28 @@ const FormBuilderCreate = () => {
           }
      }
 
+     console.log(forms, 'form')
+
 
      const handleSaveForms = async (params) => {
           // return console.log(params, 'cc')
           const form = { title: params.title, data: forms }
+          console.log(form, 'form')
+          const linkApi = '/hris/form-builder'
+          const endpoint = id ? `${linkApi}/${id}` : linkApi;
+          const action = id ? 'Edit' : 'Add';
 
-          const { status, data } = await Api.post('/hris/form-builder', form)
+          const { status, data } = await (id ? Api.put(endpoint, form) : Api.post(endpoint, form));
 
           if (!status) {
-               return toast.error(`Error : ${data}`, {
+               return toast.error(`Error: ${data}`, {
                     position: "top-center",
                });
           }
-          toast.success(`Success Add New Form!`, {
+
+          toast.success(`Success ${action} New Form!`, {
                position: 'top-center'
-          })
+          });
 
           navigate('/form-builder')
      }
@@ -157,7 +182,7 @@ const FormBuilderCreate = () => {
                                              <Button.Ripple className='btn-icon mt-1' outline color='warning' onClick={() => handleEditFields(item, index)} >
                                                   <Edit size={16} />
                                              </Button.Ripple>
-                                             <Button.Ripple className='btn-icon ms-1 mt-1' outline color='danger' onClick={() => handleDeleteFields(index)}>
+                                             <Button.Ripple className='btn-icon ms-1 mt-1' outline color='danger' onClick={() => handleDeleteFields(index, item)}>
                                                   <Trash size={16} />
                                              </Button.Ripple>
 
@@ -167,7 +192,7 @@ const FormBuilderCreate = () => {
 
                               ))}
 
-                              <ModalFormBuilder fields={fields} setFields={setFields} forms={forms} setForms={setForms} toggle={toggle} values={values} setValues={setValues} modal={modal} edits={edits} />
+                              <ModalFormBuilder fields={fields} setFields={setFields} forms={forms} setForms={setForms} toggle={toggle} values={values} setValues={setValues} modal={modal} edits={edits} id={id} />
                          </Row>
                     </Form>
                </Card>

@@ -20,6 +20,7 @@ import AuthRoutes from "./auth"
 import LmsRoutes from "./lms"
 import LoanIndex from "../../views/pages/Payroll/LoanIndex"
 
+
 const getLayout = {
   blank: <BlankLayout />,
   vertical: <VerticalLayout />,
@@ -65,7 +66,10 @@ const LevelApproval = lazy(() => import("../../views/pages/LevelApproval/LevelIn
 const WorkingManagement = lazy(() => import("../../views/pages/Working Management/WorkingIndex"))
 const FormBuilder = lazy(() => import("../../views/pages/FormBuilder/index"))
 const FormBuilderCreate = lazy(() => import("../../views/pages/FormBuilder/Form"))
-
+const DigitalizationIndex = lazy(() => import("../../views/pages/Digitalization/DigitalizationIndex"))
+const DigitalizationForm = lazy(() => import("../../views/pages/Digitalization/DigitalizationForm"))
+const TableBuilderIndex = lazy(() => import("../../views/pages/TableBuilder/TableBuilderIndex"))
+const TableBuilderCreate = lazy(() => import("../../views/pages/TableBuilder/TableBuilderCreate"))
 
 
 // ** Merge Routes
@@ -306,6 +310,46 @@ const Routes = [
     meta: {
       action: "read",
       resource: "FORM BUILDER"
+    }
+  },
+  {
+    path: "/digitalization",
+    element: <DigitalizationIndex />,
+    meta: {
+      action: "read",
+      resource: "DIGITALIZATION"
+    }
+  },
+  {
+    path: "/digitalization/:id",
+    element: <DigitalizationForm />,
+    meta: {
+      action: "read",
+      resource: "DIGITALIZATION"
+    }
+  },
+  {
+    path: "/table-builder",
+    element: <TableBuilderIndex />,
+    meta: {
+      action: "read",
+      resource: "TABLE BUILDER"
+    }
+  },
+  {
+    path: "/table-builder/create",
+    element: <TableBuilderCreate />,
+    meta: {
+      action: "read",
+      resource: "TABLE BUILDER"
+    }
+  },
+  {
+    path: "/table-builder/:id",
+    element: <TableBuilderCreate />,
+    meta: {
+      action: "read",
+      resource: "TABLE BUILDER"
     }
   },
   // {

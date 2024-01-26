@@ -41,12 +41,12 @@ export default function FormEmployee({
   const [isLoading, setIsLoading] = useState(false);
   const [file, setFile] = useState(null);
   // console.log(company, "company")
-  console.log(selectDepartment, "selectDepartment")
+  console.log(item, "item")
 
   const ItemSchema = yup.object().shape({
     name: yup.string().required("Name is required"),
     email: yup.string().email().required("Email is required"),
-    position: yup.string().required("Title is required"),
+    position: yup.string().required("Position is required"),
     dob: yup.string().required("Date of birthday is required"),
     join_date: yup.string().required("Join date is required"),
     id_number: yup.string().required("ID number is required"),
@@ -63,6 +63,10 @@ export default function FormEmployee({
     bank_Account: yup.string().required("Bank Account is required"),
     bank_Account_Name: yup.string().required("Bank Account Name is required"),
     bank_Account_Number: yup.string().required("Bank Account Number is required"),
+    work_day: yup.string().required("Work day is required"),
+    all_location: yup.string().required("Location is required"),
+    radius: yup.string().required("Radius is required")
+
   });
 
 
@@ -72,7 +76,7 @@ export default function FormEmployee({
     handleSubmit,
     formState: { errors },
   } = useForm({ mode: "onChange", resolver: yupResolver(ItemSchema) });
-  console.log(errors, "error");
+
 
   useEffect(() => {
     if (item) {
@@ -81,7 +85,7 @@ export default function FormEmployee({
       setValue("nip", item.nip);
       setValue("role_id", item.role_id);
       setValue("division", item.division);
-      setValue("position", item.title);
+      setValue("position", item.position);
       setValue("attachment", item.attachment)
       setValue("phone", item.phone);
       setValue("company_id", item.company_id)
@@ -101,6 +105,10 @@ export default function FormEmployee({
         setValue("bank_Account", item.employee_attribute.bank_Account)
         setValue("bank_Account_Name", item.employee_attribute.bank_Account_Name)
         setValue("bank_Account_Number", item.employee_attribute.bank_Account_Number)
+        setValue("work_day", item.employee_attribute.work_day);
+        setValue("all_location", item.employee_attribute.locations?.all_location)
+        setValue("radius", item.employee_attribute.locations?.radius)
+
       }
     }
     setValue("company_id", companyId)
@@ -122,11 +130,10 @@ export default function FormEmployee({
     // }
   }
 
-  console.log(selectDepartment, 'seles')
+
   const { getRootProps, getInputProps } = useDropzone({
     multiple: false,
     onDrop: async (acceptedFiles) => {
-      console.log(acceptedFiles, "acceptedFiles")
       try {
         const { size, name } = acceptedFiles[0];
         // return console.log(size,name,  "size upload")
@@ -153,30 +160,31 @@ export default function FormEmployee({
     const newDepartmentId = await arg.departement_id[arg.departement_id.length - 1];
     newArg.departement_id = newDepartmentId;
 
-    const stringBank = arg.bank_Account?.split(',')
-    const bankName = stringBank[0]
-    const bankId = stringBank[1]
+    // const stringBank = arg.bank_Account?.split(',')
+    // const bankName = stringBank[0]
+    // const bankId = stringBank[1]
 
-    newArg.bank_Account = bankName
+    // newArg.bank_Account = bankName
     newArg.company_id = parseInt(31)
-    newArg.join_date = moment(newArg.join_date).format('DD/MM/YYYY')
     newArg.profile_picture = attachment;
+    newArg.work_day = parseInt(newArg.work_day)
+    newArg.locations = { radius: newArg.radius, all_location: newArg.all_location }
 
-    const pushEmployeeAccurate = {
-      "departmentId": newDepartmentId,
-      "joinDate": moment(newArg.join_date).format('DD/MM/YYYY'),
-      "bankAccount": newArg.bank_Account_Number,
-      "mobilePhone": newArg.phone,
-      "name": newArg.name,
-      "salutation": newArg.gender === "Female" ? "MRS" : "MR",
-      "position": newArg.position,
-      "bankName": newArg.bank_Account_Name,
-      "nikNo": newArg.id_number,
-      "email": newArg.email,
-      "bankAccountName": bankName,
-      "bankCode": bankId,
-      "transDate": moment().format('DD/MM/YYYY')
-    }
+    // const pushEmployeeAccurate = {
+    //   "departmentId": newDepartmentId,
+    //   "joinDate": moment(newArg.join_date).format('DD/MM/YYYY'),
+    //   "bankAccount": newArg.bank_Account_Number,
+    //   "mobilePhone": newArg.phone,
+    //   "name": newArg.name,
+    //   "salutation": newArg.gender === "Female" ? "MRS" : "MR",
+    //   "position": newArg.position,
+    //   "bankName": newArg.bank_Account_Name,
+    //   "nikNo": newArg.id_number,
+    //   "email": newArg.email,
+    //   "bankAccountName": bankName,
+    //   "bankCode": bankId,
+    //   "transDate": moment().format('DD/MM/YYYY')
+    // }
     // return console.log(pushEmployeeAccurate, 'ACC')
 
 
@@ -187,7 +195,7 @@ export default function FormEmployee({
 
     console.log(newArg, 'arg')
 
-    return onSubmit(newArg, pushEmployeeAccurate, arg.company_id);
+    return onSubmit(newArg, arg.company_id);
   };
 
   return (
@@ -671,6 +679,74 @@ export default function FormEmployee({
           />
           {errors.level && <FormFeedback>{errors.level.message}</FormFeedback>}
         </Col>
+        <Col md="6" sm="12" className="mb-1">
+          <Label className="form-label" for="work_day">
+            Work Day
+          </Label>
+          <Controller
+            name="work_day"
+            defaultValue=""
+            control={control}
+            render={({ field }) => (
+              <Input
+                type="select"
+                {...field}
+                name="work_day"
+                value={item?.employee_attribute?.work_day}
+                invalid={errors.work_day && true}
+              >
+                <option value="">Select total work day</option>
+                <option value="20">20</option>
+                <option value="25">25</option>
+              </Input>
+            )}
+          />
+          {errors.work_day && <FormFeedback>{errors.work_day.message}</FormFeedback>}
+        </Col>
+        <Col md="6" sm="12" className="mb-1">
+          <Label className="form-label" for="all_location">
+            All Location
+          </Label>
+          <Controller
+            name="all_location"
+            defaultValue=""
+            control={control}
+            render={({ field }) => (
+              <Input
+                type="select"
+                {...field}
+                name="all_location"
+                value={item?.employee_attribute?.locations?.all_location}
+                invalid={errors.all_location && true}
+              >
+                <option value="">Select All Distance</option>
+                <option value="true">True</option>
+                <option value="false">False</option>
+              </Input>
+            )}
+          />
+          {errors.all_location && <FormFeedback>{errors.all_location.message}</FormFeedback>}
+        </Col>
+        <Col md="6" sm="12" className="mb-1">
+          <Label className="form-label" for="radius">
+            Distance Location (meter)
+          </Label>
+          <Controller
+            name="radius"
+            defaultValue=""
+            control={control}
+            render={({ field }) => (
+              <Input
+                type="number"
+                {...field}
+                name="radius"
+                placeholder="200"
+                invalid={errors.radius && true}
+              />
+            )}
+          />
+          {errors.radius && <FormFeedback>{errors.radius.message}</FormFeedback>}
+        </Col>
         <Col md="12" sm="12" className="my-2 fs-5 fw-bold">
           Bank
         </Col>
@@ -687,10 +763,11 @@ export default function FormEmployee({
                 type="select"
                 {...field}
                 name="bank_Account"
+
                 invalid={errors.bank_Account && true}>
                 <option value="">Select Bank Account</option>
                 {BankNameData.map((x) => (
-                  <option key={x.beneBankId} value={`${x.beneBankName},${x.beneBankId}`}>
+                  <option key={x.beneBankId} value={`${x.beneBankName}`}>
 
                     {x.beneBankName} ({x.beneSortBankName})
                   </option>

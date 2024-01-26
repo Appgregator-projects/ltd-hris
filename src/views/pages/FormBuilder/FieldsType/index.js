@@ -7,9 +7,10 @@ import UploadFile from "./UploadFile";
 import TextEditor from "./TextEditor";
 import Radio from "./Radio";
 import Checkbox from "./Checkbox";
+import Cascader from "./Cascaders";
 
 function ObjectClass(props) {
-     const number = parseInt(props["data"]['element']["value"]);
+     const number = props["data"]?.['element']?.["value"] ? parseInt(props["data"]?.['element']?.["value"]) : 0;
 
      switch (number) {
           case 1:
@@ -28,6 +29,8 @@ function ObjectClass(props) {
                return <TextEditor properties={props} />;
           case 9:
                return <Radio properties={props} />;
+          case 10:
+               return <Cascader properties={props} />;
           default:
                return <h1>No object match</h1>;
      }

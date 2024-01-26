@@ -1,7 +1,7 @@
 import { useRef } from "react"
 import { Button, Input, Label } from "reactstrap"
 
-export default function FormIncome({ onSubmit }) {
+export default function FormIncome({ onSubmit, type }) {
   const nameRef = useRef()
   const amountRef = useRef()
 
@@ -11,7 +11,7 @@ export default function FormIncome({ onSubmit }) {
       amount: amountRef.current.value
     }
 
-    return onSubmit(params)
+    return onSubmit(params, type)
   }
 
   return (
@@ -22,10 +22,10 @@ export default function FormIncome({ onSubmit }) {
       </div>
       <div className="mb-2">
         <Label>Amount</Label>
-        <Input defaultValue={0} innerRef={amountRef} />
+        <Input defaultValue={0} type="number" innerRef={amountRef} />
       </div>
       <div className="">
-        <Button onClick={handleSubmit}>Add</Button>
+        <Button color="primary" onClick={handleSubmit}>Add</Button>
       </div>
     </>
   )

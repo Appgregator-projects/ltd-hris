@@ -13,12 +13,23 @@ import { useParams, useNavigate, Link } from "react-router-dom"
 import { toast } from 'react-hot-toast'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
+
 import { add } from "lodash"
 const MySwal = withReactContent(Swal)
+import advancedFormat from 'dayjs/plugin/advancedFormat'
+dayjs.extend(advancedFormat);
+
+import monthSelectPlugin from "flatpickr/dist/plugins/monthSelect";
+import '@styles/react/libs/flatpickr/flatpickr.scss'
+import "flatpickr/dist/plugins/monthSelect/style.css";
+import Flatpickr from 'react-flatpickr'
+import "flatpickr/dist/flatpickr.min.css";
+import "@styles/react/libs/tables/react-dataTable-component.scss"
+import moment from "moment";
 
 export default function PayrollForm() {
   const { id } = useParams()
-  console.log(id, 'nid')
+
   const navigate = useNavigate()
 
   const [toggleModal, setToggleModal] = useState(false)
@@ -31,6 +42,7 @@ export default function PayrollForm() {
   const [userSelect, setUserSelect] = useState(null)
   const periodeRef = useRef()
   const currentMonth = dayjs().format('M')
+  const [picker, setPicker] = useState(dayjs().format('MMMM YYYY'))
   const [info, setInfo] = useState(null)
   const [loans, setLoans] = useState(null)
   const [type, setType] = useState("")
@@ -53,11 +65,10 @@ export default function PayrollForm() {
   const [totalAddjustment, setTotalAddjustment] = useState(0)
   const [totalDeduction, setTotalDeduction] = useState(0)
 
-  console.log(periode, 'userSelect')
-
   const fetchUser = async () => {
     try {
       const data = await Api.get(`/hris/employee?no_paginate=true`)
+      // const allDeductions = await Api.get()
       if (data) {
         const userData = data.map((x) => {
           return {
@@ -73,7 +84,7 @@ export default function PayrollForm() {
   }
 
   useEffect(() => {
-    periodeRef.current.value = currentMonth
+    // periodeRef.current.value = currentMonth
     fetchUser()
   }, [])
 
@@ -81,8 +92,9 @@ export default function PayrollForm() {
     try {
       if (!id) return
       const data = await Api.get(`/hris/payroll/${id}`)
-      const addj = data.items.filter(x => x.flag === 'addjusment')
-      const dedu = data.items.filter(x => x.flag !== 'addjusment')
+
+      const addj = data.items.filter(x => x.flag === 'addjusment' || x.flag === 'addjustment')
+      const dedu = data.items.filter(x => x.flag === 'deduction')
       if (addj.length) {
         setAddjustment([
           ...addj.map(x => {
@@ -91,7 +103,7 @@ export default function PayrollForm() {
           })
         ])
       }
-      console.log(dedu, 'ini ded')
+
 
       if (dedu.length) {
         setDeductions([
@@ -113,6 +125,25 @@ export default function PayrollForm() {
         value: data.user.id,
         label: data.user.email
       })
+
+      if (data.items.length === 0) {
+        return MySwal.fire({
+          title: "This user income is unset",
+          text: "Would you want to set this user income?",
+          icon: "info",
+          showCancelButton: true,
+          confirmButtonText: "Yes, set this income!",
+          customClass: {
+            confirmButton: "btn btn-primary",
+            cancelButton: "btn btn-outline-danger ms-1",
+          },
+          buttonsStyling: false,
+        }).then(async (result) => {
+          if (result.value) {
+            navigate(`/employee/${data.user.id}`)
+          }
+        });
+      }
     } catch (error) {
       throw error
     }
@@ -140,8 +171,12 @@ export default function PayrollForm() {
     }
   }
 
+
   useEffect(() => {
-    fetchBPJS()
+    if (!id) {
+
+      fetchBPJS()
+    }
   }, [])
 
   const calcualteSalary = (addjustmentArr = [], deductionArr = []) => {
@@ -154,6 +189,7 @@ export default function PayrollForm() {
 
 
   const calculateLoans = (item) => {
+
     if (item) {
       let sumLoans = 0
       const loans_per_month = item.map(x => (x.loan_amount / x.tenor))
@@ -171,18 +207,22 @@ export default function PayrollForm() {
   }
 
 
-  const deductionsMath = (item) => {
+  const deductionsMath = async (item) => {
     try {
       const income = item.income_list
-      console.log(income, 'income')
-      calculateLoans(item.loans)
+
+      if (!id) {
+        calculateLoans(item.loans)
+      }
       if (income.length) {
-        const salaryType = income[0].type
+        const salaryType = info.payroll_type
         setType(salaryType)
-        console.log(salaryType, 'salaryType')
+
         const basicSalary = income?.find(x => x.type === "Basic")
+
         if (basicSalary) {
           const BPJSEmployee = listDeductions?.map(x => {
+
             const top = parseInt(x.topper)
             const amount = Math.round(x.percent_employee / 100 * basicSalary.amount)
             return {
@@ -201,20 +241,66 @@ export default function PayrollForm() {
             }
           })
           setCompany(BPJSCompany)
-          // set all deduction 
-          const dataDeductions = deductions.map(x => {
-            x.amount = 0
-            const bpjsDedu = BPJSEmployee?.find(y => y.name === x.name)
-            if (bpjsDedu) {
-              x.amount = bpjsDedu ? bpjsDedu.amount : 0
+          let newDedu = []
+          await deductions.map((x) => {
+            const matchingBPJS = BPJSEmployee.find((y) => y.name === x.name);
+
+            if (matchingBPJS) {
+              const existingDeduIndex = newDedu.findIndex((item) => item.name === x.name);
+
+              if (existingDeduIndex !== -1) {
+                // Jika nama sudah ada di newDedu, update amount
+                newDedu[existingDeduIndex].amount += matchingBPJS.amount || 0;
+              } else {
+                // Jika nama belum ada di newDedu, tambahkan objek baru
+                newDedu.push({ name: x.name, amount: matchingBPJS.amount || 0 });
+              }
+            } else {
+              // Jika tidak ada nama yang cocok di BPJSEmployee, tambahkan objek baru dengan amount 0
+              const existingDeduIndex = newDedu.findIndex((item) => item.name === x.name);
+              if (existingDeduIndex === -1) {
+                newDedu.push({ name: x.name, amount: 0 });
+              }
             }
-            return x
+
+            return x;
+          });
+
+          // Tambahkan objek baru dari BPJSEmployee yang tidak ada di deductions
+          await BPJSEmployee.forEach((y) => {
+            const existingDeduIndex = newDedu.findIndex((item) => item.name === y.name);
+            if (existingDeduIndex === -1) {
+              newDedu.push({ name: y.name, amount: y.amount || 0 });
+            }
           })
+          if (!id) {
 
-          const indexLoans = deductions.findIndex(y => y.name === "Potongan Pinjaman")
-          deductions[indexLoans].amount = loans.amount
 
-          setDeductions([...dataDeductions])
+            const indexLoans = await newDedu.findIndex(y => y.name === "Potongan Pinjaman")
+            newDedu[indexLoans].amount = loans?.amount
+          }
+          const feePerDay = basicSalary.amount / info?.total_workday
+          const notAbsence = info?.total_workday - info?.total_attendance - info?.total_leave - info?.dayOff
+          const sumNotAbsence = feePerDay * notAbsence
+          const indexAbsensi = await newDedu.findIndex(y => y.name === "Potongan Absensi")
+          newDedu[indexAbsensi].amount = parseFloat(sumNotAbsence).toFixed(0)
+
+          setDeductions([...newDedu])
+
+          let newAddj = info.income_list
+          if (info.overtimes) {
+            newAddj.push({
+              label_allowance: 'Lembur',
+              amount: (parseInt(basicSalary.amount) / info.total_workday / 8) * info.overtimes
+            })
+          }
+          const newDeduAddj = newDedu.filter((x) => !x.name.includes('Potongan'));
+
+          newAddj = await info.payroll_type === 'gross' ? newAddj : [...newAddj, ...newDeduAddj]
+
+          setAddjustment([...newAddj])
+          calcualteSalary(newAddj, deductions)
+          setAllPayroll(newDedu)
         }
       } else {
         // toast.error("This user haven't income type to setting", {
@@ -237,24 +323,40 @@ export default function PayrollForm() {
           }
         });
       }
-      setAllPayroll()
+
     } catch (error) {
       throw error
     }
   }
 
-  const setAllPayroll = () => {
+
+  const setAllPayroll = (dedu) => {
     // return console.log(addjustment)
     try {
+      const newDedu = [...dedu, ...bpjs_company, ...bpjs_employee]
+      const filteredData = newDedu.reduce((result, currentObj) => {
+        const existingObjIndex = result.findIndex(obj => obj.name === currentObj.name);
 
-      setFinalDedu([...deductions, ...bpjs_company])
+        if (existingObjIndex !== -1) {
+          if (currentObj.amount !== 0) {
+            result[existingObjIndex] = currentObj;
+          }
+        } else {
+          result.push(currentObj);
+        }
+
+        return result;
+      }, []);
+
       if (type == "nett") {
-        const addjustmentNett = [...newData, ...bpjs_company, ...bpjs_employee]
+        const addjustmentNett = [...addjustment, ...bpjs_company]
         setFinalAddj(addjustmentNett)
+        setFinalDedu(filteredData)
         console.log(addjustmentNett, "nett")
       } else {
         const addjustmentGross = [...addjustment, ...bpjs_company]
         setFinalAddj(addjustmentGross)
+        setFinalDedu([...dedu, ...bpjs_company])
         console.log(addjustmentGross, "gross")
       }
       return console.log([...bpjs_employee, loans])
@@ -267,22 +369,29 @@ export default function PayrollForm() {
   const fetchAttendance = async (user = '') => {
     // return console.log(user, "user")
     const uid = user ? user : userSelect.value
-    if (uid && periodeRef.current.value) {
-      const periode = `${dayjs().format('YYYY')}-${periodeRef.current.value}`
+    if (uid && picker) {
+      // const periode = `${dayjs().format('YYYY')}-${periodeRef.current.value}`
+      const periode = picker
+
       try {
         const data = await Api.get(`/hris/payroll/by-user?user_id=${uid}&periode=${periode}`)
-
+        console.log(data, 'p')
         setInfo(data, user)
-        const p = `${dayjs(data.cut_off_start).format('DD-MMM')} - ${dayjs(data.cut_off_end).format('DD-MMM')} ${dayjs(data.cut_off_end).format('YYYY')}`
+        const p = `${dayjs(data.cut_off_start).format('DD MMM YYYY')} - ${dayjs(data.cut_off_end).format('DD MMM YYYY')}`;
+        const basicSalary = data?.income_list?.find(x => x.type === "Basic")
+
         setPeriode(p)
-        setAddjustment([...data.income_list])
-        deductionsMath(data, user)
-        calcualteSalary(data.income_list, deductions)
+        if (!id) {
+
+
+          deductionsMath(data, user)
+        }
       } catch (error) {
         throw error
       }
     }
   }
+
 
   useEffect(() => {
     if (userSelect?.value) {
@@ -290,19 +399,25 @@ export default function PayrollForm() {
     }
 
   }, [userSelect?.value])
-  console.log(info, "info")
 
   useEffect(() => {
-    if (info) {
+    if (userSelect?.value) {
+      fetchAttendance(userSelect?.value)
+    }
+  }, [picker])
+
+  useEffect(() => {
+    if (info && !id) {
       deductionsMath(info)
     }
   }, [info])
 
   useEffect(() => {
     if (info) {
-      calcualteSalary(info.income_list, deductions)
+      calcualteSalary(addjustment, deductions)
     }
   }, [deductions])
+
 
   const onSelectEmployee = (arg) => {
     setUserSelect({ ...arg })
@@ -334,30 +449,32 @@ export default function PayrollForm() {
 
       return item;
     });
+    const newDate = moment(picker[0]).format("LL").split(' ')
+    const realPeriode = `${newDate[0]} ${newDate[2]}`
 
     const params = {
       user: userSelect ? userSelect.value : null,
-      periode: periodeRef.current.value,
+      periode: realPeriode,
       type: type,
-      addjustment: newDataAddjustment,
-      deductions: finalDedu,
+      addjustment: id ? addjustment : newDataAddjustment,
+      deductions: id ? deductions : finalDedu,
       approved
     }
-    console.log(finalAddj, finalDedu, arg, params, "params")
+    // return console.log(params, 'pp', addjustment, 'addj', deductions, 'sess')
     if (!params.user || !params.periode || !params.deductions.length || !params.addjustment.length)
       return toast.error(`Error : Invalid form`, {
         position: "top-center"
       })
     const url = id ? `/hris/payroll/${id}` : '/hris/payroll'
     try {
-
       let data = null
       if (id) {
         data = await Api.put(url, params)
       } else {
         data = await Api.post(url, params)
       }
-      console.log(data, 'data');
+      console.log(data, 'par')
+
       if (typeof data.status !== 'undefined' && !data.status) {
         return toast.error(`Error : ${data.data}`, {
           position: "top-center"
@@ -409,11 +526,34 @@ export default function PayrollForm() {
 
   const handleInputDeduction = (e, index) => {
     const value = e.target.value
-    console.log(value, "value deduc")
+
     const old = deductions
     old[index].amount = value
     setDeductions([...old])
     calcualteSalary(addjustment, old)
+  }
+
+  const handleNewIncome = (params, type) => {
+    let newArr = []
+    if (type.toLowerCase().includes('addjustment')) {
+      newArr = addjustment
+      newArr.push(params)
+      setAddjustment(newArr)
+      calcualteSalary(newArr, deductions)
+
+    } else {
+      newArr = deductions
+      newArr.push(params)
+      setDeductions(newArr)
+      calcualteSalary(addjustment, newArr)
+    }
+    setAllPayroll(deductions)
+    setToggleModal(!toggleModal)
+    setModal({
+      title: "",
+      mode: "",
+      item: null
+    })
   }
 
   const onDeleteItem = (d, index) => {
@@ -442,7 +582,7 @@ export default function PayrollForm() {
       calcualteSalary(addjustment, deductions)
     })
   }
-  console.log(addjustment, 'add')
+
 
   return (
     <>
@@ -457,8 +597,25 @@ export default function PayrollForm() {
               <ChevronDown size={15} />
             </Button>
           </div>
-          <div className="col-3">
-            <Input
+          <div className="col-2">
+            <Flatpickr
+              id='range-picker'
+              className='form-control'
+              value={picker}
+              onChange={date => setPicker(date)}
+              options={{
+                plugins: [
+                  new monthSelectPlugin({
+                    shorthand: true,
+                    dateFormat: "F Y",
+                    altInput: true,
+                    altFormat: "m/y",
+                    theme: "light"
+                  })
+                ]
+              }}
+            />
+            {/* <Input
               id="exampleSelect"
               name="select"
               type="select"
@@ -474,7 +631,7 @@ export default function PayrollForm() {
                   </option>
                 ))
               }
-            </Input>
+            </Input> */}
           </div>
         </Col>
         <Col lg="8">
@@ -484,10 +641,10 @@ export default function PayrollForm() {
             </CardHeader>
             <CardBody>
               {
-                addjustment.map((x, index) => (
+                addjustment?.map((x, index) => (
                   <div key={index} className='invoice-total-item d-flex flex-row justify-content-between align-items-center mb-2'>
                     <div className="" style={{ width: '30%' }}>
-                      {x.type === 'Basic' ? 'Salary' : x.label_allowance}
+                      {id ? (x.label ? x.label : 'Salary') : (x.type === 'Basic' ? 'Salary' : x.label_allowance || x.name)}
                     </div>
                     <div className="w-50">
                       <Input value={parseInt(x?.amount)}
@@ -558,6 +715,10 @@ export default function PayrollForm() {
                     <p className='invoice-total-title'>{info ? info.total_leave : 0} Days</p>
                   </div>
                   <div className='invoice-total-item d-flex flex-row justify-content-between'>
+                    <p className='invoice-total-title'>Days Off</p>
+                    <p className='invoice-total-title'>{info ? info.dayOff : 0} Days</p>
+                  </div>
+                  <div className='invoice-total-item d-flex flex-row justify-content-between'>
                     <p className='invoice-total-title'>Lateness</p>
                     <p className='invoice-total-title'>{info ? info.total_late.length : 0} Days</p>
                   </div>
@@ -612,6 +773,10 @@ export default function PayrollForm() {
               disable={true}
               onSelect={onSelectEmployee}
             /> : <></>
+          }
+
+          {modal.mode === 'income' ?
+            <FormIncome onSubmit={handleNewIncome} type={modal.title} /> : <></>
           }
 
         </ModalBody>

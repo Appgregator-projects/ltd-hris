@@ -98,7 +98,7 @@ const UsersList = () => {
     fetchRole();
   }, []);
 
-
+  console.log(modal, 'modal')
 
   const fetchOffice = async () => {
     try {
@@ -152,9 +152,8 @@ const UsersList = () => {
     fetchDepartment();
   }, []);
 
-  const submitForm = async (params, accurate, companyId) => {
+  const submitForm = async (params, companyId) => {
     console.log(params, 'ooo`')
-    console.log(accurate, 'nia accurate')
     console.log(companyId, 'ni companyId')
     try {
       if (itemActive) return postEdit(params);
@@ -169,17 +168,24 @@ const UsersList = () => {
       params.user_id = uid
 
       console.log(params, 'params masuk')
-      const status = await Api.post(`/hris/employee`, params);
+      const { status, accurate, dataAccurate, data } = await Api.post(`/hris/employee`, params);
       console.log(status, 'aaa')
       dispatch(handlePreloader(false));
-      if (!status)
+      if (!status && !accurate) {
+        return toast.error(`Error : ${dataAccurate}`, {
+          position: "top-center",
+        });
+      } else if (!status) {
         return toast.error(`Error : ${data}`, {
           position: "top-center",
         });
+      }
+      else {
+        toast.success("Successfully added employee!", {
+          position: "top-center",
+        });
+      }
 
-      toast.success("Successfully added employee!", {
-        position: "top-center",
-      });
 
     } catch (error) {
       if (error.message.includes("email-already-in-use")) {
@@ -207,16 +213,18 @@ const UsersList = () => {
     try {
       params.id = itemActive.id;
       dispatch(handlePreloader(true));
-      const status = await Api.put(`/hris/employee/${params.id}`, params);
+      const { status, data } = await Api.put(`/hris/employee/${params.id}`, params);
       dispatch(handlePreloader(false));
-      if (!status)
+      if (!status) {
         return toast.error(`Error : ${data}`, {
           position: "top-center",
         });
-      setIsRefresh(true);
-      toast.success("Successfully updated employee!", {
-        position: "top-center",
-      });
+      } else {
+        setIsRefresh(true);
+        toast.success("Successfully updated employee!", {
+          position: "top-center",
+        });
+      }
     } catch (error) {
       dispatch(handlePreloader(false));
       toast.error(`Error : ${error.message}`, {
@@ -336,7 +344,13 @@ const UsersList = () => {
         <ModalBody>
           {modal.mode === "add" ?
             <FormEmployee
-              close={() => setToggleModal(!toggleModal)}
+              close={() => {
+                setToggleModal(!toggleModal), setModal({
+                  title: "",
+                  mode: "",
+                  item: null
+                })
+              }}
               onSubmit={submitForm}
               company={companies}
               department={department}
@@ -348,8 +362,14 @@ const UsersList = () => {
             /> : <></>}
           {modal.mode === "edit" ?
             <FormEmployee
-              close={() => setToggleModal(!toggleModal)}
-              onSubmit={submitForm}
+              close={() => {
+                setToggleModal(!toggleModal), setModal({
+                  title: "",
+                  mode: "",
+                  item: null
+                })
+              }}
+              onSubmit={postEdit}
               item={modal.item}
               company={companies}
               department={department}
