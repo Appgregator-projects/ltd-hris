@@ -31,14 +31,14 @@ const ExportComponent = ({ handlePrint, handleExport }) => {
                                    <FileText className='font-small-4 me-50' />
                                    <span className='align-middle'>CSV</span>
                               </DropdownItem>
-                              <DropdownItem className='w-100' onClick={() => handleExportType('excel')}>
+                              <DropdownItem className='w-100' onClick={() => handleExportType('xlsx')}>
                                    <Grid className='font-small-4 me-50' />
                                    <span className='align-middle'>Excel</span>
                               </DropdownItem>
-                              <DropdownItem className='w-100' onClick={() => handleExportType('pdf')}>
+                              {/* <DropdownItem className='w-100' onClick={() => handleExportType('pdf')}>
                                    <File className='font-small-4 me-50' />
                                    <span className='align-middle'>PDF</span>
-                              </DropdownItem>
+                              </DropdownItem> */}
                          </DropdownMenu>
                     </UncontrolledDropdown>
                </div>
