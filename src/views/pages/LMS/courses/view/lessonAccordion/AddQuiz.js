@@ -41,7 +41,6 @@ const defaultValues = {
 	quiz_minGrade: "",
 };
 const AddQuiz = ({ lesson, course, image, section }) => {
-	console.log(course, 'sec')
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const param = useParams();

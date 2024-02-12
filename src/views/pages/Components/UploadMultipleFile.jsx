@@ -25,6 +25,8 @@ import {
 
 import { useDropzone } from "react-dropzone";
 import { Fragment } from "react";
+import { useDispatch } from 'react-redux'
+import { getImage } from '../LMS/store/courses'
 
 // ** Styles
 import "@styles/react/libs/file-uploader/file-uploader.scss";
@@ -33,16 +35,25 @@ const UploadMultipleFile = () => {
 
      const [files, setFiles] = useState([]);
 
+     const dispatch = useDispatch()
+
      const { getRootProps, getInputProps } = useDropzone({
           accept: {
                "image/*": [".png", ".jpg", ".jpeg", ".gif"],
                "video/*": [".mp4", ".mkv", ".avi"],
+               "application/pdf": [],
+               "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [],
+               "application/vnd.ms-powerpoint": [],
+               "application/vnd.openxmlformats-officedocument.presentationml.presentation": [],
+               "application/msword": [],
+               "application/vnd.openxmlformats-officedocument.wordprocessingml.document": []
           },
           onDrop: (acceptedFiles) => {
                setFiles([
                     ...files,
                     ...acceptedFiles.map((file) => Object.assign(file)),
                ]);
+               dispatch(getImage([...files, ...acceptedFiles.map(file => Object.assign(file))]))
           },
      });
 
@@ -108,6 +119,8 @@ const UploadMultipleFile = () => {
           setFiles([]);
      };
 
+
+
      return (
           <Form>
                <Label>Upload Image</Label>
@@ -165,10 +178,10 @@ const UploadMultipleFile = () => {
                                         >
                                              Remove All
                                         </Button>
-                                        <Button color="primary">
+                                        {/* <Button color="primary">
                                              Upload
                                              Files
-                                        </Button>
+                                        </Button> */}
                                    </div>
                               </Fragment>
                          ) : null}

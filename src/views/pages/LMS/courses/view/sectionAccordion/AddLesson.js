@@ -29,11 +29,15 @@ import {
 import { useParams } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import ButtonSpinner from "../../../../components/ButtonSpinner";
+import UploadMultipleFile from "../../../../Components/UploadMultipleFile";
+import { useDispatch, useSelector } from "react-redux";
+import { Upload } from "../../../../../../Helper/firebaseStorage";
+import { auth } from "../../../../../../configs/firebase";
 
 const defaultValues = {
 	lesson_title: "",
 	lesson_description: "",
-	lesson_video: "",
+	// lesson_video: "",
 };
 
 const AddLesson = ({
@@ -48,7 +52,54 @@ const AddLesson = ({
 	const [show, setShow] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [URLvalid, setURLvalid] = useState(false);
+	const [lessonType, setLessonType] = useState('youtube')
+	const [loading, setLoading] = useState(false);
+	const [defProps, setDefProps] = useState("");
+	const [dataTask, setDataTask] = useState([]);
+	const [byteProgress, setByteProgress] = useState(0);
+	const [attachment, setAttachment] = useState([])
+	const store = useSelector((state) => state.coursesSlice);
+	console.log({ store })
+	const uploadFile = (fileName, file, title) => {
+		return new Promise((resolve, reject) => {
+			let reader = new FileReader();
+			reader.readAsDataURL(file);
+			reader.onprogress = (event) => {
+				if (event.lengthComputable) {
+					const percentLoaded = Math.round((event.loaded / event.total) * 100);
+					setByteProgress(percentLoaded);
+				}
+			};
+			reader.onload = async () => {
+				const baseURL = reader.result;
+				try {
+					const result = await Upload(fileName, title, baseURL, `lessons`);
+					resolve(result);
+				} catch (error) {
+					reject(error);
+				}
+			};
+		});
+	};
 
+	const handleUploadFiles = async (fileName) => {
+		setLoading(true);
+
+		const name = defProps.length !== 0 ? defProps.filter((e) => e.label === "Name") : '';
+		const fileNames = name ? `${name[0]?.value?.value}-${new Date()}` : `${auth.currentUser.uid}-${fileName}-${new Date()}`;
+		try {
+			const uploadPromises = store?.image?.map((file, index) => uploadFile(`${fileName}-[${index + 1}]`, file, fileName));
+			const results = await Promise.all(uploadPromises);
+			setAttachment(results)
+			return results
+
+		} catch (error) {
+			console.log(error, "ERROR UPLOAD");
+		} finally {
+			// handleData(parseInt(id));
+		}
+	}
+	console.log(attachment, 'att')
 	// ** Hooks
 	const {
 		control,
@@ -56,7 +107,8 @@ const AddLesson = ({
 		handleSubmit,
 		formState: { errors },
 		reset,
-	} = useForm({ defaultValues });
+	} = useForm({ defaultValues })
+
 
 	const onSubmit = async (data) => {
 		setIsLoading(true);
@@ -68,20 +120,29 @@ const AddLesson = ({
 			selected: false,
 			createdAt: new Date(),
 		};
+		// setIsLoading(false)
+		// return console.log({ newData })
 
-		if (Object.values(data).every((field) => field.length > 0)) {
-			if (data.lesson_video.includes("youtube.com")) {
-				const newString = data.lesson_video.split("?v=");
-				newData.lesson_video = newString[1];
-			} else if (data.lesson_video.includes("youtu.be")) {
-				const newString = data.lesson_video.split("be/");
-				newData.lesson_video = newString[1];
+		if (Object.values(data)[0].length > 0 &&
+			Object.values(data)[1].length > 0) {
+			console.log('first')
+			if (lessonType === 'youtube') {
+				if (data.lesson_video.includes("youtube.com")) {
+					const newString = data.lesson_video.split("?v=");
+					newData.lesson_video = newString[1];
+				} else if (data.lesson_video.includes("youtu.be")) {
+					const newString = data.lesson_video.split("be/");
+					newData.lesson_video = newString[1];
+				} else {
+					setError("lesson_video", {
+						type: "manual",
+					});
+
+					return setIsLoading(false);
+				}
 			} else {
-				setError("lesson_video", {
-					type: "manual",
-				});
-
-				return setIsLoading(false);
+				const files = await handleUploadFiles(data.lesson_title)
+				newData.lesson_video = files
 			}
 
 			let newSection = {
@@ -115,7 +176,7 @@ const AddLesson = ({
 			}
 		} else {
 			setIsLoading(false);
-
+			console.log('second')
 			for (const key in data) {
 				if (data[key].length === 0) {
 					setError(key, {
@@ -214,31 +275,53 @@ const AddLesson = ({
 								</FormFeedback>
 							)}
 						</Col>
-						<Col xs={12}>
-							<Label for="lesson_video" class="form-label">
-								Youtube URL
-							</Label>
-							<Controller
-								name="lesson_video"
-								control={control}
-								render={({ field }) => (
-									<Input
-										{...field}
-										id="lesson_video"
-										placeholder="https://youtu.be/SBmSRK3feww"
-										invalid={
-											errors.lesson_video &&
-											true
-										}
-									/>
-								)}
-							/>
-							{errors.lesson_video && (
-								<FormFeedback>
-									Please enter a valid Youtube URL
-								</FormFeedback>
-							)}
+						<Col>
+							<Label>Lesson Type</Label>
+							<div className='d-flex'>
+								<div className='form-check me-1'>
+									<Input type='radio' id='ex1-active' name='ex1' defaultChecked onChange={(e) => setLessonType('youtube')} />
+									<Label className='form-check-label' for='ex1-active'>
+										Youtube Video
+									</Label>
+								</div>
+								<div className='form-check'>
+									<Input type='radio' name='ex1' id='ex1-inactive' onChange={(e) => setLessonType('file')} />
+									<Label className='form-check-label' for='ex1-inactive'>
+										File
+									</Label>
+								</div>
+							</div>
 						</Col>
+						{lessonType === 'youtube' ?
+							<Col xs={12}>
+								<Label for="lesson_video" class="form-label">
+									Youtube URL
+								</Label>
+								<Controller
+									name="lesson_video"
+									control={control}
+									render={({ field }) => (
+										<Input
+											{...field}
+											id="lesson_video"
+											placeholder="https://youtu.be/SBmSRK3feww"
+										// invalid={
+										// 	errors.lesson_video &&
+										// 	true
+										// }
+										/>
+									)}
+								/>
+								{/* {errors.lesson_video && (
+									<FormFeedback>
+										Please enter a valid Youtube URL
+									</FormFeedback>
+								)} */}
+							</Col>
+							: <Col xs={12}>
+								<UploadMultipleFile />
+							</Col>
+						}
 						<Col xs={12} className="text-center mt-2 pt-50">
 							<ButtonSpinner
 								type={"submit"}

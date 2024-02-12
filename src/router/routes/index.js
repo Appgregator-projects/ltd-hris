@@ -19,6 +19,9 @@ import { isObjEmpty } from "@utils"
 import AuthRoutes from "./auth"
 import LmsRoutes from "./lms"
 import LoanIndex from "../../views/pages/Payroll/LoanIndex"
+import NotAuthorized from "../../views/NotAuthorized"
+import ImportComponent from "../../@core/components/import"
+import MigrationPayroll from "../../views/pages/Migration/MigrationPayroll"
 
 
 const getLayout = {
@@ -257,6 +260,14 @@ const Routes = [
     }
   },
   {
+    path: "/payroll/import/employee-income",
+    element: <ImportComponent />,
+    meta: {
+      action: "read",
+      resource: "PAYROLL_INDEX"
+    }
+  },
+  {
     path: "/loans",
     element: <LoanIndex />,
     meta: {
@@ -352,6 +363,14 @@ const Routes = [
       resource: "TABLE BUILDER"
     }
   },
+  {
+    path: "/migration-payroll",
+    element: <MigrationPayroll />,
+    meta: {
+      action: "read",
+      resource: "TABLE BUILDER"
+    }
+  },
   // {
   //   path: "/login",
   //   element: <Login />,
@@ -384,7 +403,14 @@ const Routes = [
       resource: "MENU HOME"
     }
   },
-
+  {
+    path: '/misc/not-authorized',
+    element: <NotAuthorized />,
+    meta: {
+      publicRoute: true,
+      layout: 'blank'
+    }
+  },
 
   ...LmsRoutes
 

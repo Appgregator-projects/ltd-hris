@@ -27,7 +27,7 @@ import {
   Table
 } from "react-feather"
 import { MdOutlineDynamicForm, MdScore } from "react-icons/md"
-import { RiFilePaperLine } from "react-icons/ri"
+import { RiBilibiliLine, RiBillFill, RiBillLine, RiFilePaperLine } from "react-icons/ri"
 
 export default [
   {
@@ -211,5 +211,14 @@ export default [
     title: "Table Builder",
     icon: <Table size={20} />,
     navLink: "/form-builder"
-  }
+  },
+  {
+    header: "migration"
+  },
+  {
+    id: "migration_payroll",
+    title: "Migration Payroll",
+    icon: <RiBillLine size={20} />,
+    navLink: "/migration-payroll"
+  },
 ]

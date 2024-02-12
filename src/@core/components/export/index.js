@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react'
-import { File, FileText, Grid, Printer, Share } from 'react-feather'
+import { Download, File, FileText, Grid, Printer, Share } from 'react-feather'
 import {
      DropdownToggle,
      UncontrolledDropdown, DropdownItem, DropdownMenu
@@ -19,7 +19,7 @@ const ExportComponent = ({ handlePrint, handleExport }) => {
                <div className='d-flex align-items-center table-header-actions'>
                     <UncontrolledDropdown className='me-1' size='sm'>
                          <DropdownToggle color='secondary' caret outline>
-                              <Share className='font-small-4 me-50' />
+                              <Download className='font-small-4 me-50' />
                               <span className='align-middle'>Export</span>
                          </DropdownToggle>
                          <DropdownMenu>

@@ -26,7 +26,12 @@ const MySwal = withReactContent(Swal);
 
 export default function EmployeeDetail() {
   const id = useParams()
-  // console.log(id, 'nid')
+  const userPermission = localStorage.getItem('userPermissions') ? Object.values(JSON.parse(localStorage?.getItem('userPermissions'))) : []
+  const abilityPayroll = userPermission?.filter(permission => {
+    return permission?.permission_name?.name?.includes("PAYROLL") && permission.read !== 0;
+  });
+
+  console.log(abilityPayroll, 'nid')
 
   const [toggleModal, setToggleModal] = useState(false)
   const [isRefresh, setIsRefresh] = useState(false)
@@ -393,10 +398,12 @@ export default function EmployeeDetail() {
             </CardBody>
           </Card>
         </Col>
-        <Col>
-          <Col>
-            <IncomeList onDelete={onDelete} onEditIncome={onEditIncome} income={income} />
-          </Col>
+        <Col xl='8' lg='8' xs={{ order: 1 }} md={{ order: 0, size: 7 }}>
+          {abilityPayroll.length > 0 ?
+            <Col>
+              <IncomeList onDelete={onDelete} onEditIncome={onEditIncome} income={income} />
+            </Col> : <></>
+          }
           <Col>
             <Card>
               <CardHeader>

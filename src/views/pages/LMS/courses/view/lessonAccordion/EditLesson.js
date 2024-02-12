@@ -1,5 +1,5 @@
 // ** React Imports
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 // ** Reactstrap Imports
 import {
@@ -56,15 +56,23 @@ const EditLesson = ({
 	const iconStyle = {
 		backgroundColor: "#FFFFFF",
 	};
-
 	// ** Hooks
 	const {
+		setValue,
 		control,
 		setError,
 		handleSubmit,
 		formState: { errors },
 		reset,
-	} = useForm({ defaultValues });
+	} = useForm({ mode: 'onChange' });
+
+	useEffect(() => {
+		if (lesson) {
+			setValue('lesson_title', lesson.lesson_title)
+			setValue('lesson_video', `https://www.youtube.com/watch?v=${lesson.lesson_video}`)
+			setValue('lesson_description', lesson.lesson_description)
+		}
+	}, [lesson])
 
 	const onSubmit = async (data) => {
 		let newData = {
@@ -164,6 +172,7 @@ const EditLesson = ({
 							</Label>
 							<Controller
 								name="lesson_title"
+								defaultValue=''
 								control={control}
 								render={({ field }) => (
 									<Input
@@ -193,6 +202,7 @@ const EditLesson = ({
 							<Controller
 								name="lesson_description"
 								control={control}
+								defaultValue=''
 								render={({ field }) => (
 									<Input
 										{...field}
@@ -218,6 +228,7 @@ const EditLesson = ({
 							</Label>
 							<Controller
 								name="lesson_video"
+								defaultValue=''
 								control={control}
 								render={({ field }) => (
 									<Input

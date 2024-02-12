@@ -51,12 +51,13 @@ const SectionAccordion = ({
 		<Accordion open={open} toggle={toggle}>
 			<AccordionItem>
 				<Row>
-					<Col className="pt-1">
-						<h5>
-							<List
-								size={25}
-								className="me-1 ms-1 handle"
-							/>
+					<Col className="pt-1 d-flex" lg={9} sm={2}>
+
+						<List
+							size={25}
+							className="me-1 ms-1 handle"
+						/>
+						<h5 className="text-wrap">
 							{data?.section_title}
 						</h5>
 					</Col>

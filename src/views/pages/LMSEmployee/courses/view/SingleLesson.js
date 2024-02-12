@@ -28,7 +28,7 @@ import Breadcrumbs from "@components/breadcrumbs";
 // ** Styles
 import "@styles/react/apps/app-users.scss";
 import { useNavigate, useParams } from "react-router-dom";
-import { Save, List, ChevronRight, ChevronLeft, Check } from "react-feather";
+import { Save, List, ChevronRight, ChevronLeft, Check, File, Search } from "react-feather";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 import { auth } from "../../../../../configs/firebase";
 import Swal from "sweetalert2";
@@ -67,7 +67,17 @@ const SingleLesson = () => {
 	const [score, setScore] = useState(0)
 	const [isLoading, setIsLoading] = useState(false);
 	const [video, setVideo] = useState(false)
+	const [isHovered, setIsHovered] = useState(null);
 
+	const cardHoverStyle = {
+		backgroundColor: "#F8F8F8", // Set the desired background color on hover
+		cursor: "pointer", // Optional: Change the cursor to a pointer on hover
+		boxShadow: "none",
+	};
+
+	const cardStyle = {
+		backgroundColor: "#FFFFFF", // Set the desired background color on hover
+	};
 	//Fetch data
 	const fetchDataLesson = async () => {
 		setIsLoading(true);
@@ -533,12 +543,32 @@ const SingleLesson = () => {
 							xs={{ order: 0 }}
 							md={{ order: 1, size: 7 }}
 						>
-							<YouTube
-								videoId={lesson.lesson_video}
-								opts={opts}
-								onReady={onReady}
-								onStateChange={onPlayerStateChange}
-							/>
+							{typeof lesson.lesson_video === 'string' ?
+								<YouTube
+									videoId={lesson.lesson_video}
+									opts={opts}
+									onReady={onReady}
+									onStateChange={onPlayerStateChange}
+								/>
+								: <Col className="d-flex flex-wrap">{lesson.lesson_video?.map((item, index) => (
+									<div className="d-flex justify-content-center me-1 mt-1">
+
+										<a href={item.url} target="_blank" key={index} onMouseEnter={() => setIsHovered(index)}
+											onMouseLeave={() => setIsHovered(null)} style={isHovered === index ? cardHoverStyle : cardStyle}>
+											<div className=" d-flex position-relative p-1">
+												<File size={50} className="text-end" />
+												{isHovered === index ?
+													<Search className="position-absolute top-0 end-0" size={15} />
+													: <></>}
+
+											</div>
+										</a>
+									</div>
+
+								))}
+								</Col>
+							}
+
 
 							{/* <iframe
 								width="100%"
@@ -797,7 +827,7 @@ const SingleLesson = () => {
 								bottom: 0,
 							}}
 						>
-							{detailQuiz && score >= detailQuiz?.quiz_minGrade ?
+							{detailQuiz && score >= detailQuiz?.quiz_minGrade || typeof lesson.lesson_video !== 'string' ?
 								<ButtonActionComponent type={"next"} /> : !detailQuiz && video ? <ButtonActionComponent type={"next"} /> : <></>
 							}
 						</div>
@@ -809,7 +839,7 @@ const SingleLesson = () => {
 								bottom: 0,
 							}}
 						>
-							{detailQuiz && score >= detailQuiz?.quiz_minGrade ?
+							{detailQuiz && score >= detailQuiz?.quiz_minGrade || typeof lesson.lesson_video !== 'string' ?
 								<ButtonActionComponent type={"finish"} /> : !detailQuiz && video ? <ButtonActionComponent type={"finish"} /> : <></>
 							}
 						</div>
@@ -824,7 +854,7 @@ const SingleLesson = () => {
 								}}
 							>
 								<ButtonActionComponent type={"back"} />
-								{detailQuiz && score >= detailQuiz?.quiz_minGrade ?
+								{detailQuiz && score >= detailQuiz?.quiz_minGrade || typeof lesson.lesson_video !== 'string' ?
 									<ButtonActionComponent type={"finish"} /> : !detailQuiz && video ? <ButtonActionComponent type={"finish"} /> : <></>
 								}
 							</div>
@@ -837,7 +867,7 @@ const SingleLesson = () => {
 								}}
 							>
 								<ButtonActionComponent type={"back"} />
-								{detailQuiz && score >= detailQuiz?.quiz_minGrade ?
+								{detailQuiz && score >= detailQuiz?.quiz_minGrade || typeof lesson.lesson_video !== 'string' ?
 									<ButtonActionComponent type={"next"} /> : !detailQuiz && video ? <ButtonActionComponent type={"next"} /> : <></>
 								}
 							</div>

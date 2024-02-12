@@ -53,7 +53,7 @@ const AddCourse = ({ type, id, image, fetchDataCourse, data }) => {
 
 	const dispatch = useDispatch();
 	const param = useParams();
-	
+
 	// ** States
 	const [show, setShow] = useState(false);
 	const [groupData, setGroupData] = useState({
@@ -67,12 +67,21 @@ const AddCourse = ({ type, id, image, fetchDataCourse, data }) => {
 
 	// ** Hooks
 	const {
+		setValue,
 		control,
 		setError,
 		handleSubmit,
 		formState: { errors },
 		reset,
-	} = useForm({ defaultValues });
+	} = useForm({ mode: 'onChange' });
+
+	useEffect(() => {
+		if (data) {
+			setValue('course_title', data.course_title)
+			setValue('course_description', data.course_description)
+			setValue('course_tag', data.course_tag)
+		}
+	}, [data])
 
 	const onSubmit = async (item) => {
 		if (Object.values(item).every((field) => field.length > 0)) {
@@ -282,7 +291,7 @@ const AddCourse = ({ type, id, image, fetchDataCourse, data }) => {
 											errors.course_title &&
 											true
 										}
-										
+
 									/>
 								)}
 							/>

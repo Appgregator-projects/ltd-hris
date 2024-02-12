@@ -298,7 +298,8 @@ export default function PayrollForm() {
 
           newAddj = await info.payroll_type === 'gross' ? newAddj : [...newAddj, ...newDeduAddj]
 
-          setAddjustment([...newAddj])
+          // console.log(newAddj, 'nkkajkajeka')
+          setAddjustment(newAddj)
           calcualteSalary(newAddj, deductions)
           setAllPayroll(newDedu)
         }
@@ -397,19 +398,48 @@ export default function PayrollForm() {
     if (userSelect?.value) {
       fetchAttendance(userSelect?.value)
     }
-
   }, [userSelect?.value])
 
   useEffect(() => {
     if (userSelect?.value) {
       fetchAttendance(userSelect?.value)
     }
+
   }, [picker])
 
   useEffect(() => {
     if (info && !id) {
       deductionsMath(info)
     }
+    // return () => {
+    //   setToggleModal(false)
+    //   setModal({
+    //     title: "User assign",
+    //     mode: "get",
+    //     item: null
+    //   })
+    //   setInfo(null)
+    //   setLoans(null)
+    //   setType('')
+    //   setPeriode('')
+    //   setAddjustment([{ name: 'Basic salary', amount: 0 }])
+    //   setFinalAddj([])
+    //   setFinalDedu([])
+    //   setDeductions([
+    //     { name: 'Pajak Penghasilan', amount: 0 },
+    //     { name: 'BPJS (JHT) Employee', amount: 0 },
+    //     { name: 'BPJS (JP) Employee', amount: 0 },
+    //     { name: 'BPJS Kesehatan Employee', amount: 0 },
+    //     { name: 'Potongan Absensi', amount: 0 },
+    //     { name: 'Potongan Keterlambatan', amount: 0 },
+    //     { name: 'Potongan Pinjaman', amount: 0 }
+    //   ])
+    //   setListDeductions([])
+    //   setEmployee([])
+    //   setCompany([])
+    //   setTotalAddjustment(0)
+    //   setTotalDeduction(0)
+    // }
   }, [info])
 
   useEffect(() => {
@@ -449,17 +479,35 @@ export default function PayrollForm() {
 
       return item;
     });
+
     const newDate = moment(picker[0]).format("LL").split(' ')
     const realPeriode = `${newDate[0]} ${newDate[2]}`
+
+    let newAddjustment = id ? addjustment : newDataAddjustment
+    newAddjustment = Object.values(newAddjustment.reduce((accumulator, currentValue) => {
+      accumulator[currentValue.name] = currentValue;
+      return accumulator;
+    }, {}));
+    newAddjustment = newAddjustment.filter((x) =>
+      x.amount !== 0
+    )
+
+    let newDeductions = id ? deductions : finalDedu
+    newDeductions = newDeductions.filter((x) =>
+      x.amount !== 0
+    )
+    // console.log(newAddjustment, newDeductions, 'ppp')
 
     const params = {
       user: userSelect ? userSelect.value : null,
       periode: realPeriode,
       type: type,
-      addjustment: id ? addjustment : newDataAddjustment,
-      deductions: id ? deductions : finalDedu,
+      addjustment: newAddjustment,
+      deductions: newDeductions,
       approved
     }
+    // console.log(params, 'par')
+
     // return console.log(params, 'pp', addjustment, 'addj', deductions, 'sess')
     if (!params.user || !params.periode || !params.deductions.length || !params.addjustment.length)
       return toast.error(`Error : Invalid form`, {
@@ -535,6 +583,7 @@ export default function PayrollForm() {
 
   const handleNewIncome = (params, type) => {
     let newArr = []
+    let filterArr = []
     if (type.toLowerCase().includes('addjustment')) {
       newArr = addjustment
       newArr.push(params)
@@ -648,7 +697,7 @@ export default function PayrollForm() {
                     </div>
                     <div className="w-50">
                       <Input value={parseInt(x?.amount)}
-                        className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputAddjustment(e, index)} />
+                        className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputAddjustment(e, index)} type="number" />
                     </div>
                     <div className="">
                       {addjustment.length > 1 ? <Button outline color="danger" size="sm" onClick={() => onDeleteItem('a', index)}>X</Button> : <></>}
@@ -674,7 +723,7 @@ export default function PayrollForm() {
                     </div>
                     <div className="w-50">
                       <Input value={x.amount}
-                        className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputDeduction(e, index)} />
+                        className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputDeduction(e, index)} type="number" min={0} />
                     </div>
                     <div className="">
                       {deductions.length > 1 ? <Button outline color="danger" size="sm" onClick={() => onDeleteItem('d', index)}>X</Button> : <></>}

@@ -13,6 +13,7 @@ import _axios from "../../../sevices/Api"
 import { useDispatch } from "react-redux"
 import { handleCompany } from "../../../redux/authentication"
 // import Api from '../../../../src/apis/services/Services';
+
 // import { handleCompany } from "../redux/authentication";
 
 const PrivateRoute = ({ children, route }) => {
@@ -71,18 +72,18 @@ const PrivateRoute = ({ children, route }) => {
     // getData()
     onAuthStateChanged(auth, async (userChange) => {
       if (userChange) {
-    
+
         user.access_token = userChange.accessToken;
 
         localStorage.setItem("userData", JSON.stringify(user));
-       
+
         const { status, data } = await _axios.get(`/hris/company`);
         if (status) {
 
           const selectedCompany = data[0];
           // console.log('thrid')
           setCompany(data)
-         
+
 
           // User is signed in, see docs for a list of available properties
           // https://firebase.google.com/docs/reference/js/auth.user
@@ -92,7 +93,7 @@ const PrivateRoute = ({ children, route }) => {
           if (company.length == 0) {
             await dispatch(handleCompany(selectedCompany));
           }
-        
+
         }
         // return selectedCompany;
       } else {
@@ -128,8 +129,8 @@ const PrivateRoute = ({ children, route }) => {
     // }
 
     if (user && !ability.can(action, resource)) {
-      return <Navigate to="/login" replace />
-      // return <Navigate to="/misc/not-authorized" replace />;
+      // return <Navigate to="/login" replace />
+      return <Navigate to="/misc/not-authorized" replace />;
     }
   }
 

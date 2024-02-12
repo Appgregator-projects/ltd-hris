@@ -21,7 +21,7 @@ import Api from "../../../sevices/Api";
 import { numberFormat } from "../../../Helper";
 import dayjs from "dayjs";
 import { Link } from "react-router-dom";
-import { Trash, Edit, Eye, CheckCircle, Plus, RefreshCcw, ChevronDown, Search } from "react-feather";
+import { Trash, Edit, Eye, CheckCircle, Plus, RefreshCcw, ChevronDown, Search, Upload } from "react-feather";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -44,6 +44,7 @@ import UILoader from '@components/ui-loader'
 import ExportComponent from "../../../@core/components/export";
 import { useReactToPrint } from "react-to-print";
 import { utils, writeFile } from 'xlsx'
+import ImportComponent from "../../../@core/components/import";
 
 const MySwal = withReactContent(Swal);
 
@@ -547,7 +548,19 @@ export default function PayrolIndex() {
               <span className="align-middle text-sm ms-25">Generate All Payroll</span>
             </Button.Ripple>
           </div>
-          <ExportComponent handlePrint={handlePrint} setExportType={setExportType} handleExport={handleExport} />
+          <div className="d-flex ">
+
+            <ExportComponent handlePrint={handlePrint} setExportType={setExportType} handleExport={handleExport} />
+            <Link
+              to={`/payroll/import/employee-income`}
+            // title="Detail"
+            >
+              <Button.Ripple size={'sm'} outline color='success' onClick={() => navigate}>
+                <Upload size={15} />
+                <span className="ms-1">Import Employee Income</span>
+              </Button.Ripple>
+            </Link>
+          </div>
         </Col>
         <Col lg="12">
           <Card>

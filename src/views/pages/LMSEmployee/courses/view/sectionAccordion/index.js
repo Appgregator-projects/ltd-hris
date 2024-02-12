@@ -41,15 +41,17 @@ const SectionAccordion = ({ data, dispatch, logActivity }) => {
 		<Accordion open={open} toggle={toggle}>
 			<AccordionItem>
 				<Row>
-					<Col className="pt-1">
-						<h5>
-							<List
-								size={25}
-								className="me-1 ms-1 handle"
-							/>
+					<Col className="pt-1 d-flex" lg={9} >
+
+						<List
+							size={25}
+							className="me-1 ms-1 handle"
+						/>
+						<h5 className="text-wrap">
 							{data?.section_title}
 						</h5>
 					</Col>
+
 
 					<Col className="d-flex justify-content-end">
 						<div className="p-1">

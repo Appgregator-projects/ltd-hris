@@ -28,7 +28,7 @@ import {
      Table,
 } from "react-feather"
 import { MdOutlineDynamicForm } from "react-icons/md";
-import { RiFilePaperLine, RiNumber9 } from "react-icons/ri";
+import { RiBillFill, RiBillLine, RiFilePaperLine, RiNumber9 } from "react-icons/ri";
 export const BankNameData = [
      {
           "beneBankBranchName": "KANTOR PUSAT",
@@ -416,5 +416,14 @@ export const dataSidebar = [
           title: "Table Builder",
           icon: <Table size={20} />,
           navLink: "/table-builder"
-     }
+     },
+     {
+          header: "migration"
+     },
+     {
+          id: "migration_payroll",
+          title: "Payroll",
+          icon: <RiBillLine size={20} />,
+          navLink: "/migration-payroll"
+     },
 ]

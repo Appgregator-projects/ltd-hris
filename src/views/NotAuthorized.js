@@ -8,7 +8,7 @@ import { Button } from "reactstrap";
 import { useSkin } from "@hooks/useSkin";
 
 // ** Utils
-import {} from "@utils";
+import { } from "@utils";
 
 // ** Illustrations Imports
 import illustrationsLight from "@src/assets/images/pages/not-authorized.svg";
@@ -25,7 +25,7 @@ const NotAuthorized = () => {
 
   return (
     <div className="misc-wrapper">
-      <Link className="brand-logo" to="/">
+      <Link className="brand-logo" to="/home">
         <svg viewBox="0 0 139 95" version="1.1" height="28">
           <defs>
             <linearGradient
@@ -92,20 +92,20 @@ const NotAuthorized = () => {
             </g>
           </g>
         </svg>
-        <h2 className="brand-text text-primary ms-1">Vuexy</h2>
+        <h2 className="brand-text text-primary ms-1">HRIS - LifetimeDesign </h2>
       </Link>
       <div className="misc-inner p-2 p-sm-3">
         <div className="w-100 text-center">
           <h2 className="mb-1">You are not authorized! 🔐</h2>
           <p className="mb-2">
-            The Webtrends Marketing Lab website in IIS uses the default IUSR
+            This page uses the default IUSR
             account credentials to access the web pages it serves.
           </p>
           <Button
             tag={Link}
             color="primary"
             className="btn-sm-block mb-1"
-            to={"/"}
+            to={"/home"}
           >
             Back to Home
           </Button>
