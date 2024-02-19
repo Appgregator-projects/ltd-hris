@@ -583,7 +583,7 @@ export default function FormEmployee({
                 <option value="contract">Contract</option>
                 <option value="fulltime">Fulltime</option>
                 <option value="non_active">Non Active</option>
-                <option value="non_active">Non Management</option>
+                <option value="non_management">Non Management</option>
               </Input>
             )}
           />

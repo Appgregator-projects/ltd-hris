@@ -27,7 +27,7 @@ import {
      ThumbsUp,
      Table,
 } from "react-feather"
-import { MdOutlineDynamicForm } from "react-icons/md";
+import { MdMoney, MdOutlineDynamicForm } from "react-icons/md";
 import { RiBillFill, RiBillLine, RiFilePaperLine, RiNumber9 } from "react-icons/ri";
 export const BankNameData = [
      {
@@ -332,9 +332,15 @@ export const dataSidebar = [
      },
      {
           id: "Payrolls",
-          title: "Payrolls",
+          title: "Management",
           icon: <CreditCard size={20} />,
           navLink: "/payroll"
+     },
+     {
+          id: "Payrolls-Non",
+          title: "Non Management",
+          icon: <MdMoney size={20} />,
+          navLink: "/payroll-non-management"
      },
      {
           id: "Loans",

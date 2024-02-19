@@ -22,6 +22,9 @@ import LoanIndex from "../../views/pages/Payroll/LoanIndex"
 import NotAuthorized from "../../views/NotAuthorized"
 import ImportComponent from "../../@core/components/import"
 import MigrationPayroll from "../../views/pages/Migration/MigrationPayroll"
+import PayrollNonManagementIndex from "../../views/pages/PayrollNonManagement/PayrollNonManagementIndex"
+import PayrollFormNonManagement from "../../views/pages/PayrollNonManagement/PayrollForm"
+import PayrollViewNonManagement from "../../views/pages/PayrollNonManagement/PayrollView"
 
 
 const getLayout = {
@@ -254,6 +257,46 @@ const Routes = [
   {
     path: "/payroll/:id/edit",
     element: <PayrollForm />,
+    meta: {
+      action: "read",
+      resource: "PAYROLL_FORM"
+    }
+  },
+  {
+    path: "/payroll/import/employee-income",
+    element: <ImportComponent />,
+    meta: {
+      action: "read",
+      resource: "PAYROLL_INDEX"
+    }
+  },
+  {
+    path: "/payroll-non-management",
+    element: <PayrollNonManagementIndex />,
+    meta: {
+      action: "read",
+      resource: "PAYROLL_INDEX"
+    }
+  },
+  {
+    path: "/payroll-form/non-management",
+    element: <PayrollFormNonManagement />,
+    meta: {
+      action: "read",
+      resource: "PAYROLL_FORM"
+    }
+  },
+  {
+    path: "/payroll/:id",
+    element: <PayrollViewNonManagement />,
+    meta: {
+      action: "read",
+      resource: "PAYROLL_FORM"
+    }
+  },
+  {
+    path: "/payroll/:id/edit",
+    element: <PayrollFormNonManagement />,
     meta: {
       action: "read",
       resource: "PAYROLL_FORM"

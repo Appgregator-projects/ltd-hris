@@ -27,7 +27,7 @@ import "flatpickr/dist/flatpickr.min.css";
 import "@styles/react/libs/tables/react-dataTable-component.scss"
 import moment from "moment";
 
-export default function PayrollForm() {
+export default function PayrollFormNonManagement() {
   const { id } = useParams()
 
   const navigate = useNavigate()

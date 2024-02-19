@@ -26,7 +26,7 @@ import {
   ThumbsUp,
   Table
 } from "react-feather"
-import { MdOutlineDynamicForm, MdScore } from "react-icons/md"
+import { MdMoney, MdOutlineDynamicForm, MdScore } from "react-icons/md"
 import { RiBilibiliLine, RiBillFill, RiBillLine, RiFilePaperLine } from "react-icons/ri"
 
 export default [
@@ -127,9 +127,15 @@ export default [
   },
   {
     id: "Payrolls",
-    title: "Payrolls",
+    title: "Management",
     icon: <CreditCard size={20} />,
     navLink: "/payroll"
+  },
+  {
+    id: "Payrolls-Non",
+    title: "Non Management",
+    icon: <MdMoney size={20} />,
+    navLink: "/payroll-non-management"
   },
   {
     id: "Loans",

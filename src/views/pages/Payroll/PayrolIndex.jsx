@@ -476,7 +476,7 @@ export default function PayrolIndex() {
         setIsLoading(true)
         const { status, data } = await Api.post("/hris/payroll/all", { periode: realPeriode })
         if (status) {
-          fetchPayroll({ page: currentPage, perPage: rowsPerPage, search: '', periodeStart: searchPicker.periodeStart, periodeEnd: searchPicker.periodeEnd, approved: status })
+          fetchPayroll({ page: currentPage, perPage: rowsPerPage, search: '', periodeStart: searchPicker.periodeStart, periodeEnd: searchPicker.periodeEnd, approved: '' })
 
           setIsLoading(false)
           return MySwal.fire({
