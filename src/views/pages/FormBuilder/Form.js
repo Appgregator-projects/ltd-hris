@@ -176,7 +176,9 @@ const FormBuilderCreate = () => {
                                    <div key={index}>
                                         <Col >
                                              <div>
-                                                  <GetObject data={item} />
+                                                  <GetObject data={[
+                                                            item,
+                                                       ]} />
                                              </div>
 
                                              <Button.Ripple className='btn-icon mt-1' outline color='warning' onClick={() => handleEditFields(item, index)} >

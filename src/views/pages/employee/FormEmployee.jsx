@@ -40,7 +40,7 @@ export default function FormEmployee({
   const [division, setDivisions] = useState([])
   const [isLoading, setIsLoading] = useState(false);
   const [file, setFile] = useState(null);
-  // console.log(company, "company")
+  console.log(company, "company")
   console.log(item, "item")
 
   const ItemSchema = yup.object().shape({
@@ -197,6 +197,8 @@ export default function FormEmployee({
 
     return onSubmit(newArg, arg.company_id);
   };
+
+  console.log(role,"ini role", department,"ini dept")
 
   return (
     <Form onSubmit={handleSubmit(onSubmitForm)}>

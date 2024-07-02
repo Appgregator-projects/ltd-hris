@@ -3,39 +3,32 @@ import {
      Table,
      Input,
 } from "reactstrap";
-import { TableData } from './TableData'
-const TableComponent = ({ id }) => {
-     const idForm = TableData.findIndex(x => parseInt(x.idForm) === parseInt(id))
 
-     console.log(idForm, id, TableData)
+const TableComponent = ({ thead, tbody, valueFormTable, tableData,id }) => {
+     console.log(tableData,"tabdat")
+     // const handleInputChange = (rowIndex, colIndex, value) => {
+     //      valueFormTable(rowIndex, colIndex, value);
+     // };
      return (
           <Fragment>
                <Table responsive>
                     <thead>
                          <tr>
-                              {idForm !== -1 && TableData?.[idForm]?.thead?.map((item, index) => (
+                              {thead?.map((item, index) => (
                                    <th key={index}>{item}</th>
                               ))}
                          </tr>
                     </thead>
                     <tbody>
-                         {idForm !== -1 && TableData?.[idForm]?.tbody ? TableData?.[idForm]?.tbody?.map((item, index) => (
-                              <tr>
-                                   <td key={index}>{item}</td>
-                                   <td><Input /></td>
-                                   <td><Input /></td>
-                                   {/* {TableData?.[idForm]?.thead?.map((item, index) => (
-                                        <>
-                                             <td><Input /></td>
-                                        </>
-                                   ))} */}
+                         {tbody?.map((item, rowIndex) => (
+                              <tr key={rowIndex}>
+                                   {item?.td?.map((x, colIndex)=>(     
+                                        <td key={colIndex}>{x ? x : <Input
+                                             onChange={(e) => valueFormTable(rowIndex, colIndex, e.target.value, id)}
+                                   />}</td>                               
+                              ))}
                               </tr>
-                         )) :
-                              (<tr>
-                                   {TableData?.[idForm]?.thead?.map((item, index) => (
-                                        <td><Input /></td>
-                                   ))}
-                              </tr>)
+                         )) 
                          }
                     </tbody>
                </Table>

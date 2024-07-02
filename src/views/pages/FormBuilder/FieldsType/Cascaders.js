@@ -3,7 +3,7 @@ import { Cascader } from "antd";
 import Api from "../../../../sevices/Api";
 import { Row, Col, Label, FormFeedback, Input, Button, Form, DropdownToggle, DropdownMenu, DropdownItem, UncontrolledDropdown, Dropdown, ButtonDropdown, InputGroup } from "reactstrap";
 
-const Cascaders = () => {
+const Cascaders = (props) => {
      const [department, setDepartment] = useState([]);
      const [nestedDepartement, setNestedDept] = useState([]);
 
@@ -68,13 +68,36 @@ const Cascaders = () => {
           }
      })
 
+     const { properties, edited, setEdited } = props
+
+     const submit = (data) => {
+          const valueProperti = props["properties"]["data"][1];
+          return valueProperti({
+               label: props["properties"]["data"][0]["label"],
+               value: data,
+               id: props["properties"]["data"][0]["id"],
+          });
+     };
+
+     const afterEdit = async (data) => {
+          const result = props["properties"]["editIsActive"];
+          return result({ data, props });
+     };
+
      return (
           <Fragment>
                <Row>
                     <Label>Department</Label>
                     <Col className=''>
                          <Cascader
-                              options={departementOptions} changeOnSelect />
+                              options={departementOptions} changeOnSelect 
+                              onChange={(e) =>
+                                   // console.log(e,"ni ee")
+                                   props["properties"]["editMode"] === true
+                                        ? afterEdit(e)
+                                        : submit(e)
+                              }
+                              />
                     </Col>
                </Row>
           </Fragment>

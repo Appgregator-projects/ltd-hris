@@ -6,7 +6,7 @@ const UploadFile = ({ properties }) => {
           <Fragment>
                <Row>
                     <Col className='col-3'>
-                         <Label>{properties?.data?.label}</Label>
+                         <Label>{properties?.data?.[0]?.label}</Label>
                          <Input type='file' />
                     </Col>
                </Row>

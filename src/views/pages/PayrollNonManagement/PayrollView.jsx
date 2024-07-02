@@ -88,7 +88,7 @@ export default function PayrollViewNonManagement() {
                 12430
               </CardText>
               <CardText className="text-center w-full text-md">
-                Payslip for {periode ? dayjs(periode).format('MMMM YYYY') : '-'}
+                Payslip for {periode ? dayjs(periode).format('DD MMMM YYYY') : '-'}
               </CardText>
             </CardHeader>
             <CardBody>

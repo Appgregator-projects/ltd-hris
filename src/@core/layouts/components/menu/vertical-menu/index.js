@@ -29,7 +29,7 @@ const Sidebar = (props) => {
 
 
   useEffect(() => {
-    if (hrAccess.length === 0) {
+    if (hrAccess?.length === 0) {
       setMenuData(props.menuData)
     } else {
       setMenuData(dataSidebar)

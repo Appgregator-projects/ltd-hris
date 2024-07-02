@@ -17,7 +17,7 @@ import {
      UncontrolledTooltip,
      InputGroup
 } from "reactstrap";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { Link } from "react-router-dom";
 import { Trash, Edit, Eye, CheckCircle, Plus, RefreshCcw, ChevronDown, Search, Upload } from "react-feather";
 import ReactPaginate from "react-paginate";
@@ -38,33 +38,133 @@ import { numberFormat } from "../../../Helper";
 
 const MySwal = withReactContent(Swal);
 
-const CustomPagination = () => {
-     return (
-          <ReactPaginate
-               previousLabel={''}
-               nextLabel={''}
-               breakLabel='...'
-               pageCount={payrollPaginate - 1 !== 0 ? payrollPaginate - 1 : 1}
-               marginPagesDisplayed={2}
-               pageRangeDisplayed={2}
-               activeClassName='active'
-               forcePage={currentPage !== 0 ? currentPage - 1 : 0}
-               onPageChange={page => handlePagination(page)}
-               pageClassName='page-item'
-               breakClassName='page-item'
-               nextLinkClassName='page-link'
-               pageLinkClassName='page-link'
-               breakLinkClassName='page-link'
-               previousLinkClassName='page-link'
-               nextClassName='page-item next-item'
-               previousClassName='page-item prev-item'
-               containerClassName={
-                    'pagination react-paginate separated-pagination pagination-sm justify-content-end pe-1 mt-1'
-               }
-          />
-     )
-}
 
+export const serverSideColumns = (onDelete, onApprove) => {
+     return [{
+          sortable: true,
+          name: "No",
+          maxWidth: '2px',
+          selector: (row, index) => (index + 1)
+     },
+     {
+          sortable: true,
+          name: "Employee",
+          minWidth: "200px",
+          selector: row => row.user ? (row?.user?.name ? row.user.name : row?.user?.email) : row.user_id
+     },
+     {
+          sortable: true,
+          name: "Periode",
+          minWidth: "200px",
+          selector: row => (row.periode ? dayjs(row.periode).format("DD-MMMM-YYYY") : "-")
+     },
+     {
+          sortable: true,
+          name: "Amount (IDR)",
+          minWidth: '200px',
+          selector: row => (numberFormat(row.total))
+     },
+     {
+          sortable: true,
+          name: "Status",
+          // minWidth: "250px",
+          selector: row => (
+               <Badge
+                    pill
+                    color={row.approved_at ? "light-success" : "light-info"}
+                    className="me-1"
+               >
+                    {row.approved_at ? "Approved" : "Waiting"}
+               </Badge>
+          )
+     },
+     {
+          sortable: false,
+          name: "Action",
+          minWidth: "100px",
+          selector: (row) => (
+               <div className="d-flex">
+                    <div className="pointer">
+                         {!row.approved_at ? (
+                              <>
+                                   <Trash
+                                        className="me-50"
+                                        size={15}
+                                        title="Delete"
+                                        onClick={() => onDelete(row.id)}
+                                        id={`payrol-delete-${row.id}`}
+                                   />
+                                   <UncontrolledTooltip
+                                        placement="top"
+                                        target={`payrol-delete-${row.id}`}
+                                   >
+                                        Delete
+                                   </UncontrolledTooltip>
+                              </>
+                         ) : (
+                              <></>
+                         )}
+                         <span className="align-middle"></span>
+                         <Link
+                              to={`/payroll-non-management/${row.id}`}
+                         // title="Detail"
+                         >
+                              <Eye
+                                   className="me-50"
+                                   size={15}
+                                   id={`paycheck-${row.id}`}
+                              />
+                         </Link>
+                         <UncontrolledTooltip
+                              placement="top"
+                              target={`paycheck-${row.id}`}
+                         >
+                              Detail
+                         </UncontrolledTooltip>
+                         <span className="align-middle"></span>
+                         {!row.approved_at ? (
+                              <Link to={`/payroll-non-management/${row.id}/edit`}>
+                                   <Edit
+                                        className="me-50"
+                                        size={15}
+                                        id={`payroll-edit-${row.id}`}
+                                   />
+                                   <UncontrolledTooltip
+                                        placement="top"
+                                        target={`payroll-edit-${row.id}`}
+                                   >
+                                        Edit
+                                   </UncontrolledTooltip>
+                              </Link>
+                         ) : (
+                              <></>
+                         )}
+                         {!row.approved_at ? (
+                              <>
+                                   <CheckCircle
+                                        className="me-50"
+                                        title="Approve"
+                                        size={15}
+                                        onClick={() => onApprove(row.id)}
+                                        id={`payrol-approve-${row.id}`}
+                                   />
+                                   <UncontrolledTooltip
+                                        placement="top"
+                                        target={`payrol-approve-${row.id}`}
+                                   >
+                                        Approve
+                                   </UncontrolledTooltip>
+                              </>
+                         ) : (
+                              <></>
+                         )}
+                    </div>
+               </div>
+          )
+     }
+     ]
+
+}
 export default function PayrollNonManagementIndex() {
      const componentPDF = useRef();
      const [payrolls, setPayrolls] = useState([]);
@@ -84,11 +184,50 @@ export default function PayrollNonManagementIndex() {
      const [modal, setModal] = useState({})
      const fetchPayroll = async (params) => {
           try {
-               // Implementation of fetchPayroll function
+               const { page, perPage, search, periodeStart, periodeEnd, approved } = params;
+               const queryString = `page=${page}&limit=${perPage}&search=${search}&employeeStatus=non-management` +
+                    `${periodeStart ? `&periodeStart=${periodeStart}` : ''}` +
+                    `${periodeEnd ? `&periodeEnd=${periodeEnd}` : ''}` +
+                    `${approved !== undefined ? `&approved=${approved}` : ''}`;
+
+               const { status, data } = await Api.get(`/hris/payroll?${queryString}`);
+               console.log(data, 'll')
+               // if (status) {
+               setPayrollPaginate(data.pagination ? data.pagination.totalPages : 0)
+               // setPayrolls([...data.rows]);
+               setPayrolls([...data.pagination.data.rows])
+               // }
           } catch (error) {
                throw error;
           }
      };
+
+     const CustomPagination = () => {
+          return (
+               <ReactPaginate
+                    previousLabel={''}
+                    nextLabel={''}
+                    breakLabel='...'
+                    pageCount={payrollPaginate - 1 !== 0 ? payrollPaginate - 1 : 1}
+                    marginPagesDisplayed={2}
+                    pageRangeDisplayed={2}
+                    activeClassName='active'
+                    forcePage={currentPage !== 0 ? currentPage - 1 : 0}
+                    onPageChange={page => handlePagination(page)}
+                    pageClassName='page-item'
+                    breakClassName='page-item'
+                    nextLinkClassName='page-link'
+                    pageLinkClassName='page-link'
+                    breakLinkClassName='page-link'
+                    previousLinkClassName='page-link'
+                    nextClassName='page-item next-item'
+                    previousClassName='page-item prev-item'
+                    containerClassName={
+                         'pagination react-paginate separated-pagination pagination-sm justify-content-end pe-1 mt-1'
+                    }
+               />
+          )
+     }
 
      const handlePicker = async (date) => {
           // Implementation of handlePicker function
@@ -99,7 +238,21 @@ export default function PayrollNonManagementIndex() {
      }
 
      const dataToRender = () => {
-          // Implementation of dataToRender function
+          const filters = {
+               q: searchValue
+          }
+
+          const isFiltered = Object.keys(filters).some(function (k) {
+               return filters[k].length > 0
+          })
+
+          if (payrolls.length > 0) {
+               return payrolls
+          } else if (payrolls.length === 0 && isFiltered) {
+               return []
+          } else {
+               return payrolls.slice(0, rowsPerPage)
+          }
      }
 
      const handlePagination = page => {
@@ -118,17 +271,128 @@ export default function PayrollNonManagementIndex() {
      }, []);
 
      const onDelete = (id) => {
-          // Implementation of onDelete function
+          return MySwal.fire({
+               title: "Are you sure?",
+               text: "You won't be able to revert this!",
+               icon: "warning",
+               showCancelButton: true,
+               confirmButtonText: "Yes, delete it!",
+               customClass: {
+                    confirmButton: "btn btn-primary",
+                    cancelButton: "btn btn-outline-danger ms-1",
+               },
+               buttonsStyling: false,
+          }).then(async (result) => {
+               if (result.isConfirmed) {
+                    try {
+                         const data = await Api.delete(`/hris/payroll/${id}`);
+                         if (typeof data.status !== "undefined")
+                              return toast.error(`Error : ${data.data}`, {
+                                   position: "top-center",
+                              });
+                         toast.success('Payroll has deleted', {
+                              position: "top-center",
+                         });
+                         return fetchPayroll({ page: currentPage, perPage: rowsPerPage, search: '', periodeStart: searchPicker.periodeStart, periodeEnd: searchPicker.periodeEnd, approved: status });
+                    } catch (error) {
+                         toast.error(`Error : ${error.message}`, {
+                              position: "top-center",
+                         });
+                    }
+               }
+          });
      };
-
      const onApprove = (id) => {
-          // Implementation of onApprove function
+          return MySwal.fire({
+               title: "Are you sure?",
+               text: "You won't be able to revert this!",
+               icon: "warning",
+               showCancelButton: true,
+               confirmButtonText: "Yes, approve it!",
+               customClass: {
+                    confirmButton: "btn btn-primary",
+                    cancelButton: "btn btn-outline-danger ms-1",
+               },
+               buttonsStyling: false,
+          }).then(async (result) => {
+               if (result.isConfirmed) {
+                    try {
+                         const data = await Api.patch(`/hris/payroll/${id}`);
+                         if (typeof data.status !== "undefined")
+                              return toast.error(`Error : ${data.data}`, {
+                                   position: "top-center",
+                              });
+                         toast.success(data, {
+                              position: "top-center",
+                         });
+                         return fetchPayroll({ page: currentPage, perPage: rowsPerPage, search: '', periodeStart: searchPicker.periodeStart, periodeEnd: searchPicker.periodeEnd, approved: status })
+                    } catch (error) {
+                         toast.error(`Error : ${error.message}`, {
+                              position: "top-center",
+                         });
+                    }
+               }
+          });
      };
 
      const onPeriode = () => {
+          setModal({
+               title: "Periode Payroll",
+               mode: "periode",
+          })
+          setToggleModal(true)
           // Implementation of onPeriode function
      }
 
+     const handlePeriode = () => {
+          const realPeriode = picker
+          MySwal.fire({
+               title: "Are you sure?",
+               text: `Generate payroll periode ${typeof (picker) !== "string" ? dayjs(picker[0]).format('DD MMM YYYY') : dayjs(realPeriode).format('DD MMM YYYY')}?`,
+               icon: "warning",
+               showCancelButton: true,
+               confirmButtonText: "Generate Payroll!",
+               customClass: {
+                    confirmButton: "btn btn-primary",
+                    cancelButton: "btn btn-outline-danger ms-1",
+               },
+               buttonsStyling: false,
+          }).then(async (result) => {
+               if (result.isConfirmed) {
+                    setModal({
+                         title: "",
+                         mode: "",
+                         item: null
+                    })
+                    setToggleModal(!toggleModal)
+                    setIsLoading(true)
+                    const { status, data } = await Api.post("/hris/payroll/all/non_management", { periode: realPeriode })
+                    if (status) {
+                         fetchPayroll({ page: currentPage, perPage: rowsPerPage, search: '', periodeStart: searchPicker.periodeStart, periodeEnd: searchPicker.periodeEnd, approved: '' })
+
+                         setIsLoading(false)
+                         return MySwal.fire({
+                              icon: "success",
+                              title: "Success!",
+                              text: `Payroll periode ${dayjs(realPeriode[0]).format('DD MMM YYYY')} has generated!`,
+                              customClass: {
+                                   confirmButton: "btn btn-success",
+                              },
+                         });
+
+
+                    } else {
+                         setIsLoading(false)
+                         return toast.error(`Error : ${data}`, {
+                              position: "top-center",
+                         });
+                    }
+               }
+          });
+          console.log(realPeriode)
+          // setToggleModal(!toggleModal)
+          // fetchAllAttendance(picker)
+     }
      const getInitials = (name) => {
           // Implementation of getInitials function
      }
@@ -155,7 +419,7 @@ export default function PayrollNonManagementIndex() {
                                    size="sm"
                                    color="primary"
                                    tag={Link}
-                                   to="/payroll-form/non-management"
+                                   to="/payroll-non-management/form"
                                    className="me-1"
                               >
                                    <Plus size={14} />
@@ -225,17 +489,10 @@ export default function PayrollNonManagementIndex() {
                                                             onChange={date => handlePicker(date)}
                                                             options={{
                                                                  mode: 'range',
-                                                                 plugins: [
-                                                                      new monthSelectPlugin({
-                                                                           shorthand: true,
-                                                                           dateFormat: "F Y",
-                                                                           altInput: true,
-                                                                           altFormat: "m/y",
-                                                                           theme: "light",
-
-                                                                      })
-                                                                 ]
+                                                                 // defaultDate: ['2020-02-01', '2020-02-15'],
+                                                                 dateFormat: 'd F Y'
                                                             }}
+
                                                        />
                                                   </Col>
                                                   <Col>
@@ -280,7 +537,7 @@ export default function PayrollNonManagementIndex() {
                                              pagination
                                              paginationServer
                                              className="react-dataTable"
-                                             // columns={serverSideColumns(onDelete, onApprove, exportType)}
+                                             columns={serverSideColumns(onDelete, onApprove, exportType)}
                                              sortIcon={<ChevronDown size={10} />}
                                              paginationComponent={CustomPagination}
                                              data={dataToRender()}
@@ -312,15 +569,9 @@ export default function PayrollNonManagementIndex() {
                                         value={picker}
                                         onChange={date => setPicker(date)}
                                         options={{
-                                             plugins: [
-                                                  new monthSelectPlugin({
-                                                       shorthand: true,
-                                                       dateFormat: "F Y",
-                                                       altInput: true,
-                                                       altFormat: "m/y",
-                                                       theme: "light"
-                                                  })
-                                             ]
+                                             mode: 'range',
+                                             // defaultDate: ['2020-02-01', '2020-02-15'],
+                                             dateFormat: 'd F Y'
                                         }}
                                    />
                               </>

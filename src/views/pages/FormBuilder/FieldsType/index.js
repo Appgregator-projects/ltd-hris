@@ -10,7 +10,7 @@ import Checkbox from "./Checkbox";
 import Cascader from "./Cascaders";
 
 function ObjectClass(props) {
-     const number = props["data"]?.['element']?.["value"] ? parseInt(props["data"]?.['element']?.["value"]) : 0;
+     const number = props["data"]?.[0]?.['element']?.["value"] ? parseInt(props["data"]?.[0]?.['element']?.["value"]) : 0;
 
      switch (number) {
           case 1:

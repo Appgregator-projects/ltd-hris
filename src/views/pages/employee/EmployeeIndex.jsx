@@ -28,12 +28,15 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { useDispatch } from "react-redux";
 import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
+import { MdOutlineImportExport } from "react-icons/md";
 const MySwal = withReactContent(Swal);
 
 // console.log(auth, 'ini auth siapa ya')
 
 const UsersList = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate()
 
   const [toggleModal, setToggleModal] = useState(false);
   const [itemActive, setItemActive] = useState(null);
@@ -300,6 +303,15 @@ const UsersList = () => {
               >
                 <UserPlus size={14} />
                 <span className="align-middle ms-25">Add Employee</span>
+              </Button.Ripple>
+              <Button.Ripple
+                size="sm"
+                color="primary"
+                onClick={()=>navigate("/import-employee")}
+                className="m-1"
+              >
+                <MdOutlineImportExport size={14} />
+                <span className="align-middle ms-25">Import Employee</span>
               </Button.Ripple>
             </Fragment>
           </Col>

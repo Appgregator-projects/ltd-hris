@@ -17,6 +17,7 @@ import withReactContent from "sweetalert2-react-content";
 import { useNavigate } from "react-router-dom";
 import { deleteDocumentFirebase, getCollectionFirebase } from "../../../../sevices/FirebaseApi";
 import SingleAvatarGroup from "../../../../@core/components/single-avatar-group";
+import { clientTypessense } from "../../../../apis/typesense";
 
 
 const MySwal = withReactContent(Swal);
@@ -30,13 +31,40 @@ const QuizPage = () => {
 
 	const fetchDataQuiz = async () => {
 		try {
-			const res = await getCollectionFirebase("quizzes");
+			
+			// setIsLoading(true)
+			const searchParameterDeals = {
+				q: searchValue !== "" ? searchValue : "*",
+				query_by: ["lesson_title", "section_title","quiz_title"],
+				// filter_by: dataQuery?.startDate && dataQuery?.endDate ? `table:==deals && createdAtInt:>=${Number(dataQuery.startDate)} && createdAtInt:<=${Number(dataQuery.endDate)}` : 'table:==deals',
+				per_page: 10,
+				// page: dataQuery.pages === 0 ? 1 : (dataQuery?.pages ? dataQuery.pages + 1 : currentPage + 1)
+			};
+			const resultTrash = await clientTypessense
+				.collections("quizzes")
+				.documents()
+				.search(searchParameterDeals)
+
+
+			const dataTrash = resultTrash.hits.map(
+				(item) => (
+					item.document
+				)
+			);
+			console.log(dataTrash,"dataTrash")
+			setQuizData(dataTrash)
+			// setTrash(dataTrash)
+			// setPagination({ totalPages: Math.ceil(resultTrash.found / (dataQuery?.limits ? dataQuery.limits : rowsPerPage)) })
+			// setIsLoading(false)
+			
+			// const res = await getCollectionFirebase("quizzes");
+			console.log(dataTrash)
 			const questions = []
-			if (res) {
+			if (dataTrash) {
 				const resGroup = await getCollectionFirebase("groups");
 				setGroupList(resGroup);
 
-				res.forEach(async (questionList) => {
+				dataTrash.forEach(async (questionList) => {
 					console.log(questionList, 'quei')
 					const questionArray = await getCollectionFirebase(`quizzes/${questionList.id}/question`)
 					questions.push({
@@ -44,12 +72,19 @@ const QuizPage = () => {
 						question: questionArray
 					})
 				})
-				setQuizData(res);
+				setQuizData(dataTrash);
 			}
 		} catch (error) {
 			throw error;
 		}
 	};
+	const handleKeyPress = (e) => {
+		if (e.key === "Enter") {
+			e.preventDefault();
+			handleFilter();
+		}
+	};
+
 
 	const handleConfirmText = (item) => {
 		return MySwal.fire({
@@ -99,6 +134,7 @@ const QuizPage = () => {
 	};
 
 	const handleFilter = () => {
+		fetchDataQuiz()
 
 	}
 
@@ -114,20 +150,20 @@ const QuizPage = () => {
 			<Row>
 				<Breadcrumbs title="Quiz" data={[{ title: "Quiz" }]} />
 				<Card>
-					<Col lg="12" className=" mt-2 d-flex justify-content-end">
+					<Col lg="12" className=" mt-2 d-flex justify-content-end" onKeyPress={handleKeyPress}>
 						<div>
 							<Label>Search</Label>
 							<InputGroup className="mb-1">
 								<Input
-									// onChange={(e) => setSearchValue(e.target.value)}
+									onChange={(e) => setSearchValue(e.target.value)}
 									className="dataTable-filter"
 									type="text"
 									bsSize="sm"
 									id="search-input"
-								// value={searchValue}
+								value={searchValue}
 								/>
 								<Button color="primary"
-								// onClick={handleFilter}
+								onClick={handleFilter}
 								>
 									<Search size={15}
 									/>
@@ -171,7 +207,7 @@ const QuizPage = () => {
 													)
 												}
 											>
-												{item.course.course_title}
+												{item?.course?.course_title}
 											</a>
 										</td>
 

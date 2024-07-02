@@ -26,6 +26,7 @@ import Flatpickr from 'react-flatpickr'
 import "flatpickr/dist/flatpickr.min.css";
 import "@styles/react/libs/tables/react-dataTable-component.scss"
 import moment from "moment";
+import UILoader from "../../../@core/components/ui-loader"
 
 export default function PayrollForm() {
   const { id } = useParams()
@@ -64,12 +65,15 @@ export default function PayrollForm() {
   const [bpjs_company, setCompany] = useState([])
   const [totalAddjustment, setTotalAddjustment] = useState(0)
   const [totalDeduction, setTotalDeduction] = useState(0)
+  const [isLoading, setIsLoading] = useState(false)
 
   const fetchUser = async () => {
     try {
-      const data = await Api.get(`/hris/employee?no_paginate=true`)
+      const allEmployee = await Api.get(`/hris/employee?no_paginate=true`)
+
       // const allDeductions = await Api.get()
-      if (data) {
+      if (allEmployee) {
+        const data = allEmployee.filter(item => item?.employee_attribute?.status !== 'non_management' && item?.employee_attribute?.status !== 'daily')
         const userData = data.map((x) => {
           return {
             value: x.id,
@@ -173,13 +177,13 @@ export default function PayrollForm() {
   }
 
 
-  const fetchTaxUser = async (item) => {
-    const { status, data } = await Api.get(`/hris/employee/${userSelect.value}`)
+  const fetchTaxUser = async (item, newAddj, newDedu) => {
+    const { status, data } = await Api.get(`/hris/employee/${userSelect?.value}`)
     const tarifEfektif = await Api.get('/hris/payroll/ter')
     const ter = tarifEfektif.data
-    console.log(ter)
     if (status) {
-      const user = data.employee_attribute
+      const user = data?.employee_attribute
+      console.log(user, 'user')
       const basicSalary = item?.income_list?.find(x => x.type === "Basic")
 
       //Tax 
@@ -190,7 +194,7 @@ export default function PayrollForm() {
       let newBruto = 0;
       let oldPph = 0
 
-      const maritalStatus = user.marital_status === 'Married' ? 'K' : user.marital_status === 'Single' ? 'TK' : 'TK'
+      const maritalStatus = user?.marital_status === 'Married' ? 'K' : user?.marital_status === 'Single' ? 'TK' : 'TK'
       const dependents = user?.dependents > 3 ? 3 : user?.dependents
       ptkpType = `${maritalStatus}/${dependents}`
 
@@ -244,19 +248,30 @@ export default function PayrollForm() {
         }
 
       }
-      console.log({ tax })
+
+
+
       const pph = { name: 'Pajak Penghasilan', amount: tax }
-      if (tax !== 0 && item?.payroll_type === 'gross') {
-        setDeductions([...deductions, pph])
-        setAddjustment([...addjustment, pph])
-      } else if (tax !== 0 && item?.payroll_type === 'nett') {
-        setDeductions([...deductions, pph])
+
+      const indexTax = await newDedu.findIndex(y => y.name === "Pajak Penghasilan")
+
+      newDedu[indexTax].amount = tax
+      const addj = await newAddj.findIndex(y => y.name === 'Pajak Penghasilan')
+      const addjust = addj !== -1 ? newAddj[addj].amount = tax : 0
+      let newstAddj = addj !== -1 ? addjust : [...newAddj, pph]
+
+      if (tax !== 0 && item?.payroll_type === 'nett') {
+        setAddjustment(newstAddj)
+        setDeductions(newDedu)
+      } else if (tax !== 0 && item?.payroll_type === 'gross') {
+        // setDeductions([...deductions, pph])
+        setDeductions(newDedu)
       }
       // console.log(data, 'employee attr')
     }
   }
 
-  // console.log(deductions, addjustment)
+
 
   useEffect(() => {
     if (!id) {
@@ -274,8 +289,8 @@ export default function PayrollForm() {
 
 
 
-  const calculateLoans = (item, fullItem) => {
-    console.log(fullItem, 'item loans')
+  const calculateLoans = (item, fullItem, newAddj, newDedu) => {
+
     if (item) {
       let sumLoans = 0
       const loans_per_month = item.map(x => (x.loan_amount / x.tenor))
@@ -283,24 +298,23 @@ export default function PayrollForm() {
         sumLoans += loans_per_month[i]
       }
       setLoans({ name: "Potongan Pinjaman", amount: sumLoans })
-      const indexLoans = deductions.findIndex(y => y.name === "Potongan Pinjaman")
-      deductions[indexLoans].amount = sumLoans
-      setDeductions(deductions)
-      fetchTaxUser(fullItem)
+      const indexLoans = newDedu.findIndex(y => y.name === "Potongan Pinjaman")
+      newDedu[indexLoans].amount = sumLoans
+      setDeductions(newDedu)
+      fetchTaxUser(fullItem, newAddj, newDedu)
     } else {
       setLoans()
     }
   }
-  console.log(deductions, 'deductions')
+
 
   const deductionsMath = async (item) => {
     try {
-      const income = item.income_list
 
-      if (!id) {
-        calculateLoans(item.loans, item)
-      }
-      if (income.length) {
+      const income = item?.income_list ? item?.income_list : []
+
+
+      if (income?.length > 0) {
         const salaryType = info?.payroll_type
         setType(salaryType)
 
@@ -371,7 +385,7 @@ export default function PayrollForm() {
           const indexAbsensi = await newDedu.findIndex(y => y.name === "Potongan Absensi")
           newDedu[indexAbsensi].amount = parseFloat(sumNotAbsence).toFixed(0)
 
-          setDeductions([...newDedu])
+          setDeductions(newDedu)
 
           let newAddj = item?.income_list
           if (item?.overtimes) {
@@ -393,16 +407,43 @@ export default function PayrollForm() {
             }
           }
 
+
+          if (!id) {
+            await calculateLoans(item.loans, item, newAddj, newDedu)
+          }
+
           const newDeduAddj = newDedu.filter((x) => !x.name.includes('Potongan'));
 
           newAddj = await item?.payroll_type === 'gross' ? newAddj : [...newAddj, ...newDeduAddj]
 
           // console.log(newAddj, 'nkkajkajeka')
           setAddjustment(newAddj)
-          calcualteSalary(newAddj, deductions,)
+          await calcualteSalary(newAddj, newDedu)
           setAllPayroll(newDedu)
+
         }
       } else {
+        setInfo(null)
+        setLoans(null)
+        setType('')
+        setPeriode('')
+        setAddjustment([{ name: 'Basic salary', amount: 0 }])
+        setFinalAddj([])
+        setFinalDedu([])
+        setDeductions([
+          { name: 'Pajak Penghasilan', amount: 0 },
+          { name: 'BPJS (JHT) Employee', amount: 0 },
+          { name: 'BPJS (JP) Employee', amount: 0 },
+          { name: 'BPJS Kesehatan Employee', amount: 0 },
+          { name: 'Potongan Absensi', amount: 0 },
+          { name: 'Potongan Keterlambatan', amount: 0 },
+          { name: 'Potongan Pinjaman', amount: 0 }
+        ])
+        setListDeductions([])
+        setEmployee([])
+        setCompany([])
+        setTotalAddjustment(0)
+        setTotalDeduction(0)
         // toast.error("This user haven't income type to setting", {
         //   position: "top-center",
         // });
@@ -467,6 +508,7 @@ export default function PayrollForm() {
   }
 
   const fetchAttendance = async (user = '') => {
+    setIsLoading(true)
     // return console.log(user, "user")
     const uid = user ? user : userSelect.value
     if (uid && picker) {
@@ -486,7 +528,10 @@ export default function PayrollForm() {
 
           deductionsMath(data, user)
         }
+        setIsLoading(false)
       } catch (error) {
+        setIsLoading(false)
+
         throw error
       }
     }
@@ -620,7 +665,7 @@ export default function PayrollForm() {
       } else {
         data = await Api.post(url, params)
       }
-      console.log(data, 'par')
+
 
       if (typeof data.status !== 'undefined' && !data.status) {
         return toast.error(`Error : ${data.data}`, {
@@ -734,36 +779,37 @@ export default function PayrollForm() {
 
   return (
     <>
-      <Row>
-        <Col lg="12" className="mb-2 d-flex">
-          <div className="mr-5" style={{ marginRight: '1rem' }}>
-            <Button
-              outline
-              onClick={onPickEmployee}
-            >
-              {userSelect ? userSelect.label : "Pick employee"}
-              <ChevronDown size={15} />
-            </Button>
-          </div>
-          <div className="col-2">
-            <Flatpickr
-              id='range-picker'
-              className='form-control'
-              value={picker}
-              onChange={date => setPicker(date)}
-              options={{
-                plugins: [
-                  new monthSelectPlugin({
-                    shorthand: true,
-                    dateFormat: "F Y",
-                    altInput: true,
-                    altFormat: "m/y",
-                    theme: "light"
-                  })
-                ]
-              }}
-            />
-            {/* <Input
+      <UILoader blocking={isLoading}>
+        <Row>
+          <Col lg="12" className="mb-2 d-flex">
+            <div className="mr-5" style={{ marginRight: '1rem' }}>
+              <Button
+                outline
+                onClick={onPickEmployee}
+              >
+                {userSelect ? userSelect.label : "Pick employee"}
+                <ChevronDown size={15} />
+              </Button>
+            </div>
+            <div className="col-2">
+              <Flatpickr
+                id='range-picker'
+                className='form-control'
+                value={picker}
+                onChange={date => setPicker(date)}
+                options={{
+                  plugins: [
+                    new monthSelectPlugin({
+                      shorthand: true,
+                      dateFormat: "F Y",
+                      altInput: true,
+                      altFormat: "m/y",
+                      theme: "light"
+                    })
+                  ]
+                }}
+              />
+              {/* <Input
               id="exampleSelect"
               name="select"
               type="select"
@@ -780,129 +826,130 @@ export default function PayrollForm() {
                 ))
               }
             </Input> */}
-          </div>
-        </Col>
-        <Col lg="8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Addjustments</CardTitle>
-            </CardHeader>
-            <CardBody>
-              {
-                addjustment?.map((x, index) => (
-                  <div key={index} className='invoice-total-item d-flex flex-row justify-content-between align-items-center mb-2'>
-                    <div className="" style={{ width: '30%' }}>
-                      {id ? (x.label ? x.label : 'Salary') : (x.type === 'Basic' ? 'Salary' : x.label_allowance || x.name)}
+            </div>
+          </Col>
+          <Col lg="8">
+            <Card>
+              <CardHeader>
+                <CardTitle>Addjustments</CardTitle>
+              </CardHeader>
+              <CardBody>
+                {
+                  addjustment?.map((x, index) => (
+                    <div key={index} className='invoice-total-item d-flex flex-row justify-content-between align-items-center mb-2'>
+                      <div className="" style={{ width: '30%' }}>
+                        {id ? (x.label ? x.label : 'Salary') : (x.type === 'Basic' ? 'Salary' : x.label_allowance || x.name)}
+                      </div>
+                      <div className="w-50">
+                        <Input value={parseInt(x?.amount)}
+                          className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputAddjustment(e, index)} type="number" />
+                      </div>
+                      <div className="">
+                        {addjustment.length > 1 ? <Button outline color="danger" size="sm" onClick={() => onDeleteItem('a', index)}>X</Button> : <></>}
+                      </div>
                     </div>
-                    <div className="w-50">
-                      <Input value={parseInt(x?.amount)}
-                        className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputAddjustment(e, index)} type="number" />
-                    </div>
-                    <div className="">
-                      {addjustment.length > 1 ? <Button outline color="danger" size="sm" onClick={() => onDeleteItem('a', index)}>X</Button> : <></>}
-                    </div>
-                  </div>
-                ))
-              }
-              <div className='invoice-total-item d-flex flex-row justify-content-end'>
-                <Button size="sm" onClick={onNewAddjustment}>Add</Button>
-              </div>
-            </CardBody>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Deductions</CardTitle>
-            </CardHeader>
-            <CardBody>
-              {
-                deductions?.map((x, index) => (
-                  <div key={index} className='invoice-total-item d-flex flex-row justify-content-between align-items-center mb-2'>
-                    <div className="" style={{ width: '30%' }}>
-                      {x.name}
-                    </div>
-                    <div className="w-50">
-                      <Input value={x.amount}
-                        className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputDeduction(e, index)} type="number" min={0} />
-                    </div>
-                    <div className="">
-                      {deductions.length > 1 ? <Button outline color="danger" size="sm" onClick={() => onDeleteItem('d', index)}>X</Button> : <></>}
-                    </div>
-                  </div>
-                ))
-                // loans && x.name == "Potongan Pinjaman"? loans : x.value
-              }
-              <div className='invoice-total-item d-flex flex-row justify-content-end'>
-                <Button size="sm" onClick={() => onNewAddjustment(false)}>Add</Button>
-              </div>
-            </CardBody>
-          </Card>
-        </Col>
-        <Col lg="4">
-          <Card>
-            <CardBody>
-              <Col className='d-flex justify-content-end' md='12'>
-                <div className='invoice-total-wrapper w-100'>
-                  <div className='invoice-total-item d-flex flex-row justify-content-between'>
-                    <p className='invoice-total-title'>Periode</p>
-                    <p className='invoice-total-title'>{periode}</p>
-                  </div>
-                  <div className='invoice-total-item d-flex flex-row justify-content-between'>
-                    <p className='invoice-total-title'>Total Workday</p>
-                    <p className='invoice-total-title'>{info ? info.total_workday : 0} Days</p>
-                  </div>
-                  <div className='invoice-total-item d-flex flex-row justify-content-between'>
-                    <p className='invoice-total-title'>Total Attendance</p>
-                    <p className='invoice-total-title'>{info ? info.total_attendance : 0} Days</p>
-                  </div>
-                  <div className='invoice-total-item d-flex flex-row justify-content-between'>
-                    <p className='invoice-total-title'>Absence</p>
-                    <p className='invoice-total-title'>{info ? info.total_absence : 0} Days</p>
-                  </div>
-                  <div className='invoice-total-item d-flex flex-row justify-content-between'>
-                    <p className='invoice-total-title'>Leave</p>
-                    <p className='invoice-total-title'>{info ? info.total_leave : 0} Days</p>
-                  </div>
-                  <div className='invoice-total-item d-flex flex-row justify-content-between'>
-                    <p className='invoice-total-title'>Days Off</p>
-                    <p className='invoice-total-title'>{info ? info.dayOff : 0} Days</p>
-                  </div>
-                  <div className='invoice-total-item d-flex flex-row justify-content-between'>
-                    <p className='invoice-total-title'>Lateness</p>
-                    <p className='invoice-total-title'>{info ? info.total_late.length : 0} Days</p>
-                  </div>
+                  ))
+                }
+                <div className='invoice-total-item d-flex flex-row justify-content-end'>
+                  <Button size="sm" onClick={onNewAddjustment}>Add</Button>
                 </div>
-              </Col>
-            </CardBody>
-          </Card>
-          <Card>
-            <CardBody>
-              <Col className='d-flex justify-content-end' md='12'>
-                <div className='invoice-total-wrapper w-100'>
-                  <div className='invoice-total-item d-flex flex-row justify-content-between'>
-                    <p className='invoice-total-title'>Total Addjustment</p>
-                    <p className='invoice-total-title'>Rp {numberFormat(totalAddjustment)}</p>
-                  </div>
-                  <div className='invoice-total-item d-flex flex-row justify-content-between'>
-                    <p className='invoice-total-title'>Total Deductions</p>
-                    <p className='invoice-total-title'>Rp {numberFormat(totalDeduction)}</p>
-                  </div>
-                  <div className='invoice-total-item d-flex flex-row justify-content-between'>
-                    <p className='invoice-total-title fw-bold'>TOTAL SALARY</p>
-                    <p className='invoice-total-title fw-bold'>Rp {numberFormat(totalAddjustment - totalDeduction)}</p>
-                  </div>
+              </CardBody>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Deductions</CardTitle>
+              </CardHeader>
+              <CardBody>
+                {
+                  deductions?.map((x, index) => (
+                    <div key={index} className='invoice-total-item d-flex flex-row justify-content-between align-items-center mb-2'>
+                      <div className="" style={{ width: '30%' }}>
+                        {x.name}
+                      </div>
+                      <div className="w-50">
+                        <Input value={x.amount}
+                          className="text-right" onKeyPress={mustNumber} onChange={(e) => handleInputDeduction(e, index)} type="number" min={0} />
+                      </div>
+                      <div className="">
+                        {deductions.length > 1 ? <Button outline color="danger" size="sm" onClick={() => onDeleteItem('d', index)}>X</Button> : <></>}
+                      </div>
+                    </div>
+                  ))
+                  // loans && x.name == "Potongan Pinjaman"? loans : x.value
+                }
+                <div className='invoice-total-item d-flex flex-row justify-content-end'>
+                  <Button size="sm" onClick={() => onNewAddjustment(false)}>Add</Button>
                 </div>
-              </Col>
-            </CardBody>
-          </Card>
-        </Col>
+              </CardBody>
+            </Card>
+          </Col>
+          <Col lg="4">
+            <Card>
+              <CardBody>
+                <Col className='d-flex justify-content-end' md='12'>
+                  <div className='invoice-total-wrapper w-100'>
+                    <div className='invoice-total-item d-flex flex-row justify-content-between'>
+                      <p className='invoice-total-title'>Periode</p>
+                      <p className='invoice-total-title'>{periode}</p>
+                    </div>
+                    <div className='invoice-total-item d-flex flex-row justify-content-between'>
+                      <p className='invoice-total-title'>Total Workday</p>
+                      <p className='invoice-total-title'>{info ? info.total_workday : 0} Days</p>
+                    </div>
+                    <div className='invoice-total-item d-flex flex-row justify-content-between'>
+                      <p className='invoice-total-title'>Total Attendance</p>
+                      <p className='invoice-total-title'>{info ? info.total_attendance : 0} Days</p>
+                    </div>
+                    <div className='invoice-total-item d-flex flex-row justify-content-between'>
+                      <p className='invoice-total-title'>Absence</p>
+                      <p className='invoice-total-title'>{info ? info.total_absence : 0} Days</p>
+                    </div>
+                    <div className='invoice-total-item d-flex flex-row justify-content-between'>
+                      <p className='invoice-total-title'>Leave</p>
+                      <p className='invoice-total-title'>{info ? info.total_leave : 0} Days</p>
+                    </div>
+                    <div className='invoice-total-item d-flex flex-row justify-content-between'>
+                      <p className='invoice-total-title'>Days Off</p>
+                      <p className='invoice-total-title'>{info ? info.dayOff : 0} Days</p>
+                    </div>
+                    <div className='invoice-total-item d-flex flex-row justify-content-between'>
+                      <p className='invoice-total-title'>Lateness</p>
+                      <p className='invoice-total-title'>{info ? info.total_late?.length : 0} Days</p>
+                    </div>
+                  </div>
+                </Col>
+              </CardBody>
+            </Card>
+            <Card>
+              <CardBody>
+                <Col className='d-flex justify-content-end' md='12'>
+                  <div className='invoice-total-wrapper w-100'>
+                    <div className='invoice-total-item d-flex flex-row justify-content-between'>
+                      <p className='invoice-total-title'>Total Addjustment</p>
+                      <p className='invoice-total-title'>Rp {numberFormat(totalAddjustment)}</p>
+                    </div>
+                    <div className='invoice-total-item d-flex flex-row justify-content-between'>
+                      <p className='invoice-total-title'>Total Deductions</p>
+                      <p className='invoice-total-title'>Rp {numberFormat(totalDeduction)}</p>
+                    </div>
+                    <div className='invoice-total-item d-flex flex-row justify-content-between'>
+                      <p className='invoice-total-title fw-bold'>TOTAL SALARY</p>
+                      <p className='invoice-total-title fw-bold'>Rp {numberFormat(totalAddjustment - totalDeduction)}</p>
+                    </div>
+                  </div>
+                </Col>
+              </CardBody>
+            </Card>
+          </Col>
 
-        <Col lg="8">
-          <div className="d-flex justify-content-end gap-2">
-            <Button color="dark" onClick={() => onSubmitForm(true)}>Submit & Approved</Button>
-            <Button color="success" onClick={() => onSubmitForm(false)}>Submit</Button>
-          </div>
-        </Col>
-      </Row>
+          <Col lg="8">
+            <div className="d-flex justify-content-end gap-2">
+              <Button color="dark" onClick={() => onSubmitForm(true)}>Submit & Approved</Button>
+              <Button color="success" onClick={() => onSubmitForm(false)}>Submit</Button>
+            </div>
+          </Col>
+        </Row >
+      </UILoader>
 
       <Modal
         isOpen={toggleModal}

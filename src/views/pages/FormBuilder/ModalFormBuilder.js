@@ -57,7 +57,7 @@ const ModalFormBuilder = ({ fields, setFields, forms, setForms, modal, toggle, v
           if (id) {
                const newForms = forms
                if (newForms.length > 0) {
-                    console.log(newForms, 'xx')
+                    console.log(newForms, 'xx', edits)
                     newForms[edits.index].values = values ? values : []
                     newForms[edits.index].label = fields?.label ? fields.label : edits?.data?.label
                     newForms[edits.index].element = fields?.element ? fields.element : edits?.data?.element

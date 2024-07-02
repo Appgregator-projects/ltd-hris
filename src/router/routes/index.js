@@ -25,6 +25,7 @@ import MigrationPayroll from "../../views/pages/Migration/MigrationPayroll"
 import PayrollNonManagementIndex from "../../views/pages/PayrollNonManagement/PayrollNonManagementIndex"
 import PayrollFormNonManagement from "../../views/pages/PayrollNonManagement/PayrollForm"
 import PayrollViewNonManagement from "../../views/pages/PayrollNonManagement/PayrollView"
+import ImportEmployee from "../../views/pages/employee/ImportEmployee"
 
 
 const getLayout = {
@@ -175,6 +176,14 @@ const Routes = [
     }
   },
   {
+    path: "/import-employee",
+    element: <ImportEmployee />,
+    meta: {
+      action: "read",
+      resource: "MENU EMPLOYEE"
+    }
+  },
+  {
     path: "/office",
     element: <Office />,
     meta: {
@@ -279,7 +288,7 @@ const Routes = [
     }
   },
   {
-    path: "/payroll-form/non-management",
+    path: "/payroll-non-management/form",
     element: <PayrollFormNonManagement />,
     meta: {
       action: "read",
@@ -287,7 +296,7 @@ const Routes = [
     }
   },
   {
-    path: "/payroll/:id",
+    path: "/payroll-non-management/:id",
     element: <PayrollViewNonManagement />,
     meta: {
       action: "read",
@@ -295,7 +304,7 @@ const Routes = [
     }
   },
   {
-    path: "/payroll/:id/edit",
+    path: "/payroll-non-management/:id/edit",
     element: <PayrollFormNonManagement />,
     meta: {
       action: "read",
