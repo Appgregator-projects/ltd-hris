@@ -27,7 +27,7 @@ import {
      ThumbsUp,
      Table,
 } from "react-feather"
-import { MdMoney, MdOutlineDynamicForm } from "react-icons/md";
+import { MdEmojiTransportation, MdMoney, MdOutlineDynamicForm } from "react-icons/md";
 import { RiBillFill, RiBillLine, RiFilePaperLine, RiNumber9 } from "react-icons/ri";
 export const BankNameData = [
      {
@@ -277,6 +277,13 @@ export const dataSidebar = [
           navLink: "/digitalization"
      },
 
+     {
+          id: "sppd",
+          title: "SPPD",
+          icon: <MdEmojiTransportation size={20} />,
+          navLink: "/sppd"
+     }
+     ,
      {
           header: "e-Learning"
      },

@@ -1,6 +1,7 @@
 // ** Redux Imports
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import Cookies from "js-cookie";
+import { serviceAccurateEmployeeHris } from "../apis/services/Services";
 
 const initialUser = () => {
   // const item = 
@@ -36,6 +37,14 @@ const intialCompany = () => {
   const company = { id: company_id, name: company_name };
   return company;
 };
+
+export const handleEmployee = createAsyncThunk(
+  "authentication/handleEmployee",
+  async () => {
+    const response = await serviceAccurateEmployeeHris();
+    return response;
+  }
+);
 
 export const authSlice = createSlice({
   name: "authentication",
@@ -106,6 +115,11 @@ export const authSlice = createSlice({
       localStorage.removeItem("userData");
       localStorage.removeItem('userPermissions')
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(handleEmployee.fulfilled, (state, action) => {
+      localStorage.setItem("employee", JSON.stringify(action.payload));
+    });
   },
 });
 

@@ -26,6 +26,11 @@ import PayrollNonManagementIndex from "../../views/pages/PayrollNonManagement/Pa
 import PayrollFormNonManagement from "../../views/pages/PayrollNonManagement/PayrollForm"
 import PayrollViewNonManagement from "../../views/pages/PayrollNonManagement/PayrollView"
 import ImportEmployee from "../../views/pages/employee/ImportEmployee"
+import SppdIndex from "../../views/pages/SPPD/SppdIndex"
+import SppdForm from "../../views/pages/SPPD/SppdForm"
+import PreviewCard from "../../views/pages/SPPD/DraftCard"
+import InvoicePreviewSPPD from "../../views/pages/SPPD/DraftInvoice"
+import Print from "../../views/pages/SPPD/PrintInvoice"
 
 
 const getLayout = {
@@ -389,6 +394,55 @@ const Routes = [
     meta: {
       action: "read",
       resource: "DIGITALIZATION"
+    }
+  },
+  {
+    path: "/sppd",
+    element: <SppdIndex />,
+    meta: {
+      action: "read",
+      resource: "DIGITALIZATION"
+    }
+  },
+  {
+    path: "/sppd/:type",
+    element: <SppdForm />,
+    meta: {
+      action: "read",
+      resource: "DIGITALIZATION"
+    }
+  },
+  {
+    path: "/sppd/:type/:id",
+    element: <SppdForm />,
+    meta: {
+      action: "read",
+      resource: "DIGITALIZATION"
+    }
+  },
+  {
+    path: "/sppd/draft/:id",
+    element: <InvoicePreviewSPPD />,
+    meta: {
+      action: "read",
+      resource: "DIGITALIZATION"
+    }
+  },
+  {
+    path: "/sppd/invoice/:id",
+    element: <InvoicePreviewSPPD />,
+    meta: {
+      action: "read",
+      resource: "DIGITALIZATION"
+    }
+  },
+  {
+    path: '/apps/invoice/print',
+    element: <Print />,
+    meta: {
+      action: "read",
+      resource: "DIGITALIZATION",
+      layout: "blank",
     }
   },
   {

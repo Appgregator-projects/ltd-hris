@@ -315,6 +315,21 @@ export const serviceExternalDataSource = async (data) => {
     return error.response;
   }
 };
+export const serviceAccurateEmployeeHrisDeals = async (value) => {
+  const configurationObject = {
+    method: "GET",
+    url: `${endpoint}/hris/employee?page=0&limit=10&search=${value}`,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+  try {
+    const response = await axios(configurationObject);
+    return response.data.data.rows;
+  } catch (error) {
+    return error.response;
+  }
+};
 
 export const servicePipelinesLists = async () => {
   const configurationObject = {
@@ -918,9 +933,8 @@ export const serviceAccurateDepartementsWithKeywords = async (
     method: "GET",
     url: `${endpoint}/api/v1/accurate/master-data/departement/${data}?sp.page=${parseInt(
       page
-    )}&sp.pageSize=${parseInt(limit)}&keywords=${
-      keywords === undefined ? "" : keywords
-    }`,
+    )}&sp.pageSize=${parseInt(limit)}&keywords=${keywords === undefined ? "" : keywords
+      }`,
     headers: {
       "Content-Type": "application/json",
     },
@@ -938,9 +952,8 @@ export const serviceAccurateVendors = async (data, page, limit, keywords) => {
     method: "GET",
     url: `${endpoint}/api/v1/accurate/master-data/vendor/${data}?sp.page=${parseInt(
       page
-    )}&sp.pageSize=${parseInt(limit)}&keywords=${
-      keywords === undefined ? "" : keywords
-    }`,
+    )}&sp.pageSize=${parseInt(limit)}&keywords=${keywords === undefined ? "" : keywords
+      }`,
     headers: {
       "Content-Type": "application/json",
     },
@@ -970,14 +983,14 @@ export const serviceAccurateContact = async (page, keywords) => {
 export const serviceAccurateEmployeeHris = async () => {
   const configurationObject = {
     method: "GET",
-    url: `${endpoint}/hris/employee`,
+    url: `${endpoint}/hris/employee?page=0&limit=100000&search=`,
     headers: {
       "Content-Type": "application/json",
     },
   };
   try {
     const response = await axios(configurationObject);
-    return response.data;
+    return response.data.data.rows;
   } catch (error) {
     return error.response;
   }
@@ -1011,9 +1024,8 @@ export const serviceAccurateProjectsWithKeywords = async (
     method: "GET",
     url: `${endpoint}/api/v1/accurate/master-data/project/${data}?sp.page=${parseInt(
       page
-    )}&sp.pageSize=${parseInt(limit)}&keywords=${
-      keywords === undefined ? "" : keywords
-    }`,
+    )}&sp.pageSize=${parseInt(limit)}&keywords=${keywords === undefined ? "" : keywords
+      }`,
     headers: {
       "Content-Type": "application/json",
     },
@@ -2033,9 +2045,8 @@ export const serviceAutomationRulesUpdate = async (data, id) => {
 export const serviceAutomationList = async (page, limit) => {
   const configurationObject = {
     method: "GET",
-    url: `${endpoint}/api/v1/crm/automation/stage/rules/?page=${
-      page - 1
-    }&limit=${limit}`,
+    url: `${endpoint}/api/v1/crm/automation/stage/rules/?page=${page - 1
+      }&limit=${limit}`,
     headers: {
       "Content-Type": "application/json",
     },
@@ -2050,9 +2061,8 @@ export const serviceAutomationList = async (page, limit) => {
 export const serviceAutomationListById = async (page, limit, Stageid) => {
   const configurationObject = {
     method: "GET",
-    url: `${endpoint}/api/v1/crm/automation/stage/rules/${Stageid}?page=${
-      page - 1
-    }&limit=${limit}`,
+    url: `${endpoint}/api/v1/crm/automation/stage/rules/${Stageid}?page=${page - 1
+      }&limit=${limit}`,
     headers: {
       "Content-Type": "application/json",
     },

@@ -26,7 +26,7 @@ import {
   ThumbsUp,
   Table
 } from "react-feather"
-import { MdMoney, MdOutlineDynamicForm, MdScore } from "react-icons/md"
+import { MdEmojiTransportation, MdMoney, MdOutlineDynamicForm, MdScore } from "react-icons/md"
 import { RiBilibiliLine, RiBillFill, RiBillLine, RiFilePaperLine } from "react-icons/ri"
 
 export default [
@@ -92,6 +92,13 @@ export default [
     title: "Digitalization",
     icon: <MdOutlineDynamicForm size={20} />,
     navLink: "/digitalization/:formName"
+  }
+  ,
+  {
+    id: "sppd",
+    title: "SPPD",
+    icon: <MdEmojiTransportation size={20} />,
+    navLink: "/sppd"
   }
   ,
   {

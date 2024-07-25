@@ -23,7 +23,7 @@ import { useDispatch } from "react-redux";
 import { handleLogin, handlePermission } from "@store/authentication";
 import themeConfig from "@configs/themeConfig";
 import { auth } from "../configs/firebase";
-import { handleCompany } from "../redux/authentication";
+import { handleCompany, handleEmployee } from "../redux/authentication";
 import ButtonSpinner from "./pages/components/ButtonSpinner";
 
 // ** API GET TOKEN
@@ -58,6 +58,7 @@ const Login = () => {
   };
 
   useEffect(() => {
+
     fetchCompany();
   }, []);
 
@@ -123,6 +124,7 @@ const Login = () => {
             handlePermission({ ...userAbility["data"] }
             ));
           dispatch(handleCompany(checkCompany));
+
           const userPermission = await localStorage.getItem('userPermissions') ? Object.values(JSON.parse(localStorage?.getItem('userPermissions'))) : []
           const hrPermissions = await userPermission?.filter(permission => {
             return permission?.permission_name?.name?.includes("HR") && permission.read !== 0 && !permission?.permission_name?.name?.includes("HRIS");
@@ -130,6 +132,7 @@ const Login = () => {
           // return console.log(hrPermissions, 'userPermissions')
           const detailUser = await Api.get(`/hris/employee/${token.uid}`)
           if (detailUser.status) {
+            dispatch(handleEmployee());
             dispatch(
               handleLogin({
                 token,

@@ -144,18 +144,22 @@ const DigitalizationForm = () => {
                               </Row>
 
                               <Row className='mt-1'>
-                                   {table.map((item, id) => {
-                                        return (
+                                   {[...table.filter(item => !item?.title?.includes("LAPORAN")),
+                                   ...table.filter(item => item?.title?.includes("LAPORAN"))]
+                                        .map((item, id) => (
                                              <div key={id} className='mb-2'>
                                                   <h5 className='mb-2'>{item?.title?.toUpperCase()}</h5>
-                                                  <TableComponent id={id} tbody={item?.tbody} thead={item?.thead}
+                                                  <TableComponent
+                                                       id={id}
+                                                       tbody={item?.tbody}
+                                                       thead={item?.thead}
                                                        valueFormTable={valueFormTable}
                                                        tableData={table}
                                                   />
                                                   <hr />
                                              </div>
-                                        )
-                                   })}
+                                        ))
+                                   }
                                    {/* <GetTable type={id} /> */}
                               </Row>
                          </Form>

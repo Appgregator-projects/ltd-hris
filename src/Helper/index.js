@@ -5,18 +5,18 @@ dayjs.extend(customParseFormat);
 // import { ref } from 'firebase/storage'
 import { storage } from "../configs/firebase"
 import {
-    ref,
-    uploadBytes,
-    getDownloadURL
-  } from "firebase/storage"
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "firebase/storage"
 
 const dateTimeFormat = (date) => {
-    return date ? dayjs(date).format('DD MMM YYYY HH:mm') : '-'
+  return date ? dayjs(date).format('DD MMM YYYY HH:mm') : '-'
 }
 
-const dateFormat = (date) => {  
+const dateFormat = (date) => {
   try {
-    if(!date) return '-'
+    if (!date) return '-'
     const arr = date.split('-')
     const rDate = `${arr[0]}-${arr[1]}-${arr[2].slice(0, 2)}`
     return rDate ? dayjs(rDate).format('DD MMM YYYY') : '-'
@@ -26,7 +26,7 @@ const dateFormat = (date) => {
 }
 
 const fileExtention = (filepath) => {
-    return filepath.split("?")[0].split("#")[0].split('.').pop()
+  return filepath.split("?")[0].split("#")[0].split('.').pop()
 }
 
 const upload = (file, name, dir = 'anggaran-new') => {
@@ -48,7 +48,7 @@ const readMore = (val, l = 24) => {
   val = val.replace(/\s{2,}/g, " ")
   const strLength = val.length
   if (strLength > l) {
-    val = `${val.slice(0, l)  }...`
+    val = `${val.slice(0, l)}...`
   }
   return val
     .toLowerCase()
@@ -79,13 +79,23 @@ const numberFormat = (value) => {
   return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
 
+const rupiah = (number) => {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(number);
+}
+
 export {
-    dateTimeFormat,
-    upload,
-    readMore,
-    dateFormat,
-    capitalize,
-    monthName,
-    mustNumber,
-    numberFormat
+  dateTimeFormat,
+  upload,
+  readMore,
+  dateFormat,
+  capitalize,
+  monthName,
+  mustNumber,
+  numberFormat,
+  rupiah
 }
