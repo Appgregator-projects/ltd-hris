@@ -74,7 +74,9 @@ export const authSlice = createSlice({
         role_name: action.payload.permissions[0].name,
         access_token: action.payload.access_token,
         avatar: action.payload.profile.token.picture,
-        hrAccess: action.payload.hrAccess
+        hrAccess: action.payload.hrAcces,
+        attributes: action.payload.attributes,
+        user: action.payload.user,
       };
       state.userData = params;
       state.accessToken = action.payload.access_token;

@@ -13,16 +13,28 @@ import withReactContent from 'sweetalert2-react-content';
 import { File, Plus, Trash } from 'react-feather';
 import FileUploaderMultiple from '../../../@core/components/multiple-file';
 import { Upload } from '../../../Helper/firebaseStorage';
+import InputPrice from '../../../@core/components/input-price';
 const MySwal = withReactContent(Swal);
 
 const reason = ['Tugas', 'Visit Project', 'Meeeting Client', 'Training', 'Lain-lain']
 const driver = ['yes', 'no']
 const transport = ['Mobil Pribadi', 'Mobil Operasional', 'Kereta', 'Kapal', 'Pesawat', 'Taxi Online', 'Taxi Lokal']
-const userData = JSON.parse(localStorage.getItem('userData'))
 
 const SppdForm = () => {
+     const parseCurrency = value => parseFloat(value?.replace(/\./g, ""));
+
+     const parseValue = value => {
+          if (typeof value === 'string') {
+               return value ? parseCurrency(value) : 0;
+          }
+          return value || 0;
+     };
+
+     const userData = JSON.parse(localStorage.getItem('userData'))
      const navigate = useNavigate()
      const { id, type } = useParams()
+
+     console.log({ type, id })
 
      function convertToRoman(num) {
           const roman = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
@@ -136,7 +148,8 @@ const SppdForm = () => {
      };
 
      const handleSelectOwner = (e, i) => {
-          const selectedEmployee = allEmployee?.filter((x) => x.id === e.value)[0]
+          console.log(allEmployee, "selectedEmployee")
+          const selectedEmployee = allEmployee?.filter((x) => x.id === e.value)?.[0]
 
           console.log(selectedEmployee, "selectedEmployee", e)
 
@@ -207,7 +220,7 @@ const SppdForm = () => {
           const totalRelization = realTotal + realizationTotal;
 
 
-          newData = { ...data, member, rundown, status: "Waiting in Head", realization: { ...real, other: realization }, accomodation: { ...accomodation, other: needs }, employee: { name: userData?.name, email: userData?.email, id: userData?.id }, amount: totalNeeds, createdAtInt: new Date().getTime() }
+          newData = { ...data, member, rundown, status: "Waiting in Head", realization: { ...real, other: realization }, accomodation: { ...accomodation, other: needs }, employee: { name: userData?.name, email: userData?.user?.email, id: userData?.id }, amount: totalNeeds, createdAtInt: new Date().getTime() }
 
           console.log(newData, "newData")
           try {
@@ -333,11 +346,11 @@ const SppdForm = () => {
                                    <Row className="mt-1">
                                         <Col>
                                              <Label>Tanggal Keberangkatan</Label>
-                                             <Input type='date' onChange={(e) => setData({ ...data, dateDeparture: e.target.value })} defaultValue={data?.dateDeparture} />
+                                             <Input type='date' onChange={(e) => setData({ ...data, dateDeparture: e.target.value })} defaultValue={data?.dateDeparture} disabled={type === 'edit' && data?.isRejected ? false : true} />
                                         </Col>
                                         <Col>
                                              <Label>Tanggal Kembali</Label>
-                                             <Input type='date' onChange={(e) => setData({ ...data, dateReturn: e.target.value })} defaultValue={data?.dateReturn} />
+                                             <Input type='date' onChange={(e) => setData({ ...data, dateReturn: e.target.value })} defaultValue={data?.dateReturn} disabled={type === 'edit' && data?.isRejected ? false : true} />
                                         </Col>
                                    </Row>
                                    <Row className="mt-1">
@@ -348,7 +361,7 @@ const SppdForm = () => {
                                                   reason?.map((item, index) => (
 
                                                        <div className='form-check form-check-inline' key={index}>
-                                                            <Input type='checkbox' onChange={(e) => handleChangeCheckbox(e, item, 'reason')} defaultChecked={data?.reason?.includes(item)} />
+                                                            <Input type='checkbox' onChange={(e) => handleChangeCheckbox(e, item, 'reason')} defaultChecked={data?.reason?.includes(item)} disabled={type === 'edit' && data?.isRejected ? false : true} />
                                                             <Label value={item}>
                                                                  {item}
                                                             </Label>
@@ -361,11 +374,11 @@ const SppdForm = () => {
                                    <Row className="mt-1">
                                         <Col>
                                              <Label>Alamat Tujuan 1</Label>
-                                             <Input onChange={(e) => setData({ ...data, address1: e.target.value })} defaultValue={data?.address1} />
+                                             <Input disabled={type === 'edit' && data?.isRejected ? false : true} onChange={(e) => setData({ ...data, address1: e.target.value })} defaultValue={data?.address1} />
                                         </Col>
                                         <Col>
                                              <Label>Alamat Tujuan 2</Label>
-                                             <Input onChange={(e) => setData({ ...data, address2: e.target.value })} defaultValue={data?.address2} />
+                                             <Input disabled={type === 'edit' && data?.isRejected ? false : true} onChange={(e) => setData({ ...data, address2: e.target.value })} defaultValue={data?.address2} />
                                         </Col>
                                    </Row>
                                    <Row className="mt-1">
@@ -375,7 +388,7 @@ const SppdForm = () => {
                                                   transport?.map((item, index) => (
 
                                                        <div className='form-check form-check-inline' key={index}>
-                                                            <Input type='checkbox' onChange={(e) => handleChangeCheckbox(e, item, 'transport')} defaultChecked={data?.transport?.includes(item)} />
+                                                            <Input disabled={type === 'edit' && data?.isRejected ? false : true} type='checkbox' onChange={(e) => handleChangeCheckbox(e, item, 'transport')} defaultChecked={data?.transport?.includes(item)} />
                                                             <Label value={item}>
                                                                  {item}
                                                             </Label>
@@ -394,6 +407,7 @@ const SppdForm = () => {
 
                                                        <div className='form-check form-check-inline' key={index}>
                                                             <Input
+                                                                 disabled={data?.status === "Waiting in HRGA" ? false : true}
                                                                  type='radio'
                                                                  name='radioGroup'
                                                                  checked={data?.driver === item}
@@ -411,15 +425,15 @@ const SppdForm = () => {
                                    <Row className="mt-1">
                                         <Col>
                                              <Label>Bank Account Number</Label>
-                                             <Input onChange={(e) => setData({ ...data, bankAccountNumber: e.target.value })} defaultValue={data?.bankAccountNumber} />
+                                             <Input disabled={type === 'edit' && data?.isRejected ? false : true} onChange={(e) => setData({ ...data, bankAccountNumber: e.target.value })} defaultValue={data?.bankAccountNumber} />
                                         </Col>
                                         <Col>
                                              <Label>Bank Account Name</Label>
-                                             <Input onChange={(e) => setData({ ...data, bankAccountName: e.target.value })} defaultValue={data?.bankAccountName} />
+                                             <Input disabled={type === 'edit' && data?.isRejected ? false : true} onChange={(e) => setData({ ...data, bankAccountName: e.target.value })} defaultValue={data?.bankAccountName} />
                                         </Col>
                                         <Col>
                                              <Label>Bank Name</Label>
-                                             <Input onChange={(e) => setData({ ...data, bankName: e.target.value })} defaultValue={data?.bankName} />
+                                             <Input disabled={type === 'edit' && data?.isRejected ? false : true} onChange={(e) => setData({ ...data, bankName: e.target.value })} defaultValue={data?.bankName} />
                                         </Col>
                                    </Row>
                               </Row>
@@ -428,17 +442,17 @@ const SppdForm = () => {
                               <TableRundown addNewRow={addNewRow} rundown={rundown} setRundown={setRundown} />
                          </Col>
                          <Col className="mt-5">
-                              <TableMember addNewRow={addNewRow} member={member} setMember={setMember} loadOption={loadOption} handleSelectOwner={handleSelectOwner} />
+                              <TableMember addNewRow={addNewRow} member={member} setMember={setMember} loadOption={loadOption} handleSelectOwner={handleSelectOwner} type={type} data={data} />
                          </Col>
                          {data?.status === "Waiting in HRGA" || data?.isRealization ?
                               <Col className="mt-5">
-                                   <TableNeeds addNewRow={addNewRow} needs={needs} setNeeds={setNeeds} accomodation={accomodation} setAccomodation={setAccomodation} />
+                                   <TableNeeds data={data} type={type} addNewRow={addNewRow} needs={needs} setNeeds={setNeeds} accomodation={accomodation} setAccomodation={setAccomodation} />
                               </Col>
                               : null}
                          {data?.status?.includes("Realization") ?
                               <Col className="mt-5">
-                                   <TableRealization addNewRow={addNewRow} realization={realization} setRealization={setRealization} real={real} setReal={setReal} />
-                                   <h4>Sisa Realisasi: {rupiah(totalRelization - totalNeeds)}</h4>
+                                   <TableRealization type={type} addNewRow={addNewRow} realization={realization} setRealization={setRealization} real={real} setReal={setReal} />
+                                   <h4>Sisa Realisasi: {rupiah(parseValue(totalRelization) - parseValue(totalNeeds))}</h4>
                               </Col>
                               : null}
 
@@ -462,7 +476,7 @@ const SppdForm = () => {
 
 }
 
-const TableRundown = ({ addNewRow, rundown, setRundown }) => {
+const TableRundown = ({ type, addNewRow, rundown, setRundown }) => {
      const handleChangeRundown = (newValue, index, type) => {
           const updatedRowData = [...rundown];
           updatedRowData[index][type] = newValue;
@@ -518,7 +532,7 @@ const TableRundown = ({ addNewRow, rundown, setRundown }) => {
      )
 }
 
-const TableMember = ({ addNewRow, member, loadOption, handleSelectOwner, setMember }) => {
+const TableMember = ({ addNewRow, member, loadOption, handleSelectOwner, setMember, type, data }) => {
      const handleChangeMember = (newValue, index, type) => {
           const updatedRowData = [...member];
           updatedRowData[index][type] = newValue;
@@ -553,48 +567,62 @@ const TableMember = ({ addNewRow, member, loadOption, handleSelectOwner, setMemb
                     </thead>
                     <tbody>
                          {member?.map((item, id) => {
-                              const defaultValue = {
-                                   label: item?.name,
-                                   value: item?.id, // Assuming 'id' is the value you need
-                              };
+                              console.log(item, 'item')
                               return (
                                    <tr key={id}>
                                         <td>{id + 1}</td>
                                         <td>
-                                             <AsyncSelect
-                                                  menuPosition={"absolute"}
-                                                  loadOptions={loadOption}
-                                                  defaultOptions
-                                                  onChange={(e) => handleSelectOwner(e, id)}
-                                                  defaultInputValue={item?.name}
-                                             />
+                                             {type === 'edit' ?
+                                                  <Input defaultValue={item?.name} disabled={type === 'edit' && data?.isRejected ? false : true} />
+                                                  :
+
+                                                  <AsyncSelect
+                                                       menuPosition={"absolute"}
+                                                       loadOptions={loadOption}
+                                                       defaultOptions
+                                                       onChange={(e) => handleSelectOwner(e, id)}
+                                                       defaultValue={{ value: item?.id, label: item?.name }}
+                                                  />
+                                             }
 
                                         </td>
                                         {/* <td><Input defaultValue={item?.name}/></td> */}
-                                        <td><Input defaultValue={item?.gender} onChange={(e) => handleChangeMember(e.target.value, id, 'gender')} /></td>
-                                        <td><Input defaultValue={item?.department} onChange={(e) => handleChangeMember(e.target.value, id, 'department')} /></td>
-                                        <td><Input defaultValue={item?.level} onChange={(e) => handleChangeMember(e.target.value, id, 'level')} /></td>
+                                        <td><Input defaultValue={item?.gender} onChange={(e) => handleChangeMember(e.target.value, id, 'gender')} disabled={type === 'edit' && data?.isRejected ? false : true} /></td>
+                                        <td><Input defaultValue={item?.department} onChange={(e) => handleChangeMember(e.target.value, id, 'department')} disabled={type === 'edit' && data?.isRejected ? false : true} /></td>
+                                        <td><Input defaultValue={item?.level} onChange={(e) => handleChangeMember(e.target.value, id, 'level')} disabled={type === 'edit' && data?.isRejected ? false : true} /></td>
                                    </tr>
                               )
                          })}
                     </tbody>
                </Table>
-               <CardText>
-                    <Button
-                         color="primary"
-                         outline
-                         className="mt-2"
-                         onClick={() => addNewRow('member')}
-                    >
-                         Add new member
-                    </Button>
-               </CardText>
+               {type !== 'edit' &&
+                    <CardText>
+                         <Button
+                              color="primary"
+                              outline
+                              className="mt-2"
+                              onClick={() => addNewRow('member')}
+                         >
+                              Add new member
+                         </Button>
+                    </CardText>
+               }
           </>
      )
 
 }
 
-const TableNeeds = ({ addNewRow, needs, setNeeds, accomodation, setAccomodation, setReal, real }) => {
+const TableNeeds = ({ type, addNewRow, needs, setNeeds, accomodation, setAccomodation, setReal, real, data }) => {
+
+     const parseCurrency = value => parseFloat(value?.replace(/\./g, ""));
+
+     const parseValue = value => {
+          if (typeof value === 'string') {
+               return value ? parseCurrency(value) : 0;
+          }
+          return value || 0;
+     };
+
      const handleChangeNeeds = (newValue, index, type) => {
           const updatedRowData = [...needs];
           updatedRowData[index][type] = newValue;
@@ -611,7 +639,7 @@ const TableNeeds = ({ addNewRow, needs, setNeeds, accomodation, setAccomodation,
 
      // Calculate the total sum for needs
      const needsTotal = needs.reduce((acc, item) => {
-          const price = item.price || 0;
+          const price = parseValue(item.price) || 0;
           const qty = item.qty || 0;
           const total = !isNaN(price * qty) ? price * qty : 0;
           return acc + total;
@@ -649,16 +677,20 @@ const TableNeeds = ({ addNewRow, needs, setNeeds, accomodation, setAccomodation,
                          <tr>
                               <td>Non Staff</td>
                               <td>
-                                   <Input
-                                        defaultValue={accomodation?.dinasNonStaff?.price || ''}
-                                        onChange={(e) => setAccomodation({
+
+                                   <InputPrice
+                                        inputValue={accomodation?.dinasNonStaff?.price || ''}
+                                        type={true}
+                                        onInputChange={(newValue) => setAccomodation({
                                              ...accomodation,
                                              dinasNonStaff: {
                                                   ...accomodation.dinasNonStaff,
-                                                  price: e.target.value
+                                                  price: newValue
                                              }
                                         })}
+                                        disabled={data?.status === "Waiting in HRGA" ? false : true}
                                    />
+
                               </td>
                               <td>
                                    <Input
@@ -670,27 +702,31 @@ const TableNeeds = ({ addNewRow, needs, setNeeds, accomodation, setAccomodation,
                                                   qty: e.target.value
                                              }
                                         })}
+                                        disabled={data?.status === "Waiting in HRGA" ? false : true}
                                    />
                               </td>
                               <td>
-                                   {rupiah(!isNaN(accomodation?.dinasNonStaff?.price * accomodation?.dinasNonStaff?.qty)
-                                        ? accomodation?.dinasNonStaff?.price * accomodation?.dinasNonStaff?.qty
+                                   {rupiah(!isNaN(parseValue(accomodation?.dinasNonStaff?.price) * accomodation?.dinasNonStaff?.qty)
+                                        ? parseValue(accomodation?.dinasNonStaff?.price) * accomodation?.dinasNonStaff?.qty
                                         : 0)}
                               </td>
                          </tr>
                          <tr>
                               <td>SPV</td>
                               <td>
-                                   <Input
-                                        defaultValue={accomodation?.dinasSpv?.price || ''}
-                                        onChange={(e) => setAccomodation({
+                                   <InputPrice
+                                        inputValue={accomodation?.dinasSpv?.price || ''}
+                                        type={true}
+                                        onInputChange={(newValue) => setAccomodation({
                                              ...accomodation,
                                              dinasSpv: {
                                                   ...accomodation.dinasSpv,
-                                                  price: e.target.value
+                                                  price: newValue
                                              }
                                         })}
+                                        disabled={data?.status === "Waiting in HRGA" ? false : true}
                                    />
+
                               </td>
                               <td>
                                    <Input
@@ -702,27 +738,31 @@ const TableNeeds = ({ addNewRow, needs, setNeeds, accomodation, setAccomodation,
                                                   qty: e.target.value
                                              }
                                         })}
+                                        disabled={data?.status === "Waiting in HRGA" ? false : true}
                                    />
                               </td>
                               <td>
-                                   {rupiah(!isNaN(accomodation?.dinasSpv?.price * accomodation?.dinasSpv?.qty)
-                                        ? accomodation?.dinasSpv?.price * accomodation?.dinasSpv?.qty
+                                   {rupiah(!isNaN(parseValue(accomodation?.dinasSpv?.price) * accomodation?.dinasSpv?.qty)
+                                        ? parseValue(accomodation?.dinasSpv?.price) * accomodation?.dinasSpv?.qty
                                         : 0)}
                               </td>
                          </tr>
                          <tr>
                               <td>Manager Additional breakfast (jika tidak include hotel)</td>
                               <td>
-                                   <Input
-                                        defaultValue={accomodation?.dinasManager?.price || ''}
-                                        onChange={(e) => setAccomodation({
+                                   <InputPrice
+                                        inputValue={accomodation?.dinasManager?.price || ''}
+                                        type={true}
+                                        onInputChange={(newValue) => setAccomodation({
                                              ...accomodation,
                                              dinasManager: {
                                                   ...accomodation.dinasManager,
-                                                  price: e.target.value
+                                                  price: newValue
                                              }
                                         })}
+                                        disabled={data?.status === "Waiting in HRGA" ? false : true}
                                    />
+
                               </td>
                               <td>
                                    <Input
@@ -734,11 +774,12 @@ const TableNeeds = ({ addNewRow, needs, setNeeds, accomodation, setAccomodation,
                                                   qty: e.target.value
                                              }
                                         })}
+                                        disabled={data?.status === "Waiting in HRGA" ? false : true}
                                    />
                               </td>
                               <td>
-                                   {rupiah(!isNaN(accomodation?.dinasManager?.price * accomodation?.dinasManager?.qty)
-                                        ? accomodation?.dinasManager?.price * accomodation?.dinasManager?.qty
+                                   {rupiah(!isNaN(parseValue(accomodation?.dinasManager?.price) * accomodation?.dinasManager?.qty)
+                                        ? parseValue(accomodation?.dinasManager?.price) * accomodation?.dinasManager?.qty
                                         : 0)}
                               </td>
                          </tr>
@@ -748,16 +789,19 @@ const TableNeeds = ({ addNewRow, needs, setNeeds, accomodation, setAccomodation,
                          <tr>
                               <td>Peserta Dinas</td>
                               <td>
-                                   <Input
-                                        defaultValue={accomodation?.hotelMember?.price || ''}
-                                        onChange={(e) => setAccomodation({
+                                   <InputPrice
+                                        inputValue={accomodation?.hotelMember?.price || ''}
+                                        type={true}
+                                        onInputChange={(newValue) => setAccomodation({
                                              ...accomodation,
                                              hotelMember: {
                                                   ...accomodation.hotelMember,
-                                                  price: e.target.value
+                                                  price: newValue
                                              }
                                         })}
+                                        disabled={data?.status === "Waiting in HRGA" ? false : true}
                                    />
+
                               </td>
                               <td>
                                    <Input
@@ -769,27 +813,31 @@ const TableNeeds = ({ addNewRow, needs, setNeeds, accomodation, setAccomodation,
                                                   qty: e.target.value
                                              }
                                         })}
+                                        disabled={data?.status === "Waiting in HRGA" ? false : true}
                                    />
                               </td>
                               <td>
-                                   {rupiah(!isNaN(accomodation?.hotelMember?.price * accomodation?.hotelMember?.qty)
-                                        ? accomodation?.hotelMember?.price * accomodation?.hotelMember?.qty
+                                   {rupiah(!isNaN(parseValue(accomodation?.hotelMember?.price) * accomodation?.hotelMember?.qty)
+                                        ? parseValue(accomodation?.hotelMember?.price) * accomodation?.hotelMember?.qty
                                         : 0)}
                               </td>
                          </tr>
                          <tr>
                               <td>Driver</td>
                               <td>
-                                   <Input
-                                        defaultValue={accomodation?.hotelDriver?.price || ''}
-                                        onChange={(e) => setAccomodation({
+                                   <InputPrice
+                                        inputValue={accomodation?.hotelDriver?.price || ''}
+                                        type={true}
+                                        onInputChange={(newValue) => setAccomodation({
                                              ...accomodation,
                                              hotelDriver: {
                                                   ...accomodation.hotelDriver,
-                                                  price: e.target.value
+                                                  price: newValue
                                              }
                                         })}
+                                        disabled={data?.status === "Waiting in HRGA" ? false : true}
                                    />
+
                               </td>
                               <td>
                                    <Input
@@ -801,11 +849,12 @@ const TableNeeds = ({ addNewRow, needs, setNeeds, accomodation, setAccomodation,
                                                   qty: e.target.value
                                              }
                                         })}
+                                        disabled={data?.status === "Waiting in HRGA" ? false : true}
                                    />
                               </td>
                               <td>
-                                   {rupiah(!isNaN(accomodation?.hotelDriver?.price * accomodation?.hotelDriver?.qty)
-                                        ? accomodation?.hotelDriver?.price * accomodation?.hotelDriver?.qty
+                                   {rupiah(!isNaN(parseValue(accomodation?.hotelDriver?.price) * accomodation?.hotelDriver?.qty)
+                                        ? parseValue(accomodation?.hotelDriver?.price) * accomodation?.hotelDriver?.qty
                                         : 0)}
                               </td>
                          </tr>
@@ -815,16 +864,19 @@ const TableNeeds = ({ addNewRow, needs, setNeeds, accomodation, setAccomodation,
                          <tr>
                               <td>Darat: Bensin, Toll, Parkir</td>
                               <td>
-                                   <Input
-                                        defaultValue={accomodation?.akomodasiDarat?.price || ''}
-                                        onChange={(e) => setAccomodation({
+                                   <InputPrice
+                                        inputValue={accomodation?.akomodasiDarat?.price || ''}
+                                        type={true}
+                                        onInputChange={(newValue) => setAccomodation({
                                              ...accomodation,
                                              akomodasiDarat: {
                                                   ...accomodation.akomodasiDarat,
-                                                  price: e.target.value
+                                                  price: newValue
                                              }
                                         })}
+                                        disabled={data?.status === "Waiting in HRGA" ? false : true}
                                    />
+
                               </td>
                               <td>
                                    <Input
@@ -836,27 +888,31 @@ const TableNeeds = ({ addNewRow, needs, setNeeds, accomodation, setAccomodation,
                                                   qty: e.target.value
                                              }
                                         })}
+                                        disabled={data?.status === "Waiting in HRGA" ? false : true}
                                    />
                               </td>
                               <td>
-                                   {rupiah(!isNaN(accomodation?.akomodasiDarat?.price * accomodation?.akomodasiDarat?.qty)
-                                        ? accomodation?.akomodasiDarat?.price * accomodation?.akomodasiDarat?.qty
+                                   {rupiah(!isNaN(parseValue(accomodation?.akomodasiDarat?.price) * accomodation?.akomodasiDarat?.qty)
+                                        ? parseValue(accomodation?.akomodasiDarat?.price) * accomodation?.akomodasiDarat?.qty
                                         : 0)}
                               </td>
                          </tr>
                          <tr>
                               <td>Tiket Kereta/ Kapal/ Pesawat</td>
                               <td>
-                                   <Input
-                                        defaultValue={accomodation?.akomodasiTiket?.price || ''}
-                                        onChange={(e) => setAccomodation({
+                                   <InputPrice
+                                        inputValue={accomodation?.akomodasiTiket?.price || ''}
+                                        type={true}
+                                        onInputChange={(newValue) => setAccomodation({
                                              ...accomodation,
                                              akomodasiTiket: {
                                                   ...accomodation.akomodasiTiket,
-                                                  price: e.target.value
+                                                  price: newValue
                                              }
                                         })}
+                                        disabled={data?.status === "Waiting in HRGA" ? false : true}
                                    />
+
                               </td>
                               <td>
                                    <Input
@@ -868,27 +924,32 @@ const TableNeeds = ({ addNewRow, needs, setNeeds, accomodation, setAccomodation,
                                                   qty: e.target.value
                                              }
                                         })}
+                                        disabled={data?.status === "Waiting in HRGA" ? false : true}
                                    />
                               </td>
                               <td>
-                                   {rupiah(!isNaN(accomodation?.akomodasiTiket?.price * accomodation?.akomodasiTiket?.qty)
-                                        ? accomodation?.akomodasiTiket?.price * accomodation?.akomodasiTiket?.qty
+                                   {rupiah(!isNaN(parseValue(accomodation?.akomodasiTiket?.price) * accomodation?.akomodasiTiket?.qty)
+                                        ? parseValue(accomodation?.akomodasiTiket?.price) * accomodation?.akomodasiTiket?.qty
                                         : 0)}
+
                               </td>
                          </tr>
                          <tr>
                               <td>Taxi/ Ojek</td>
                               <td>
-                                   <Input
-                                        defaultValue={accomodation?.akomodasiTaxi?.price || ''}
-                                        onChange={(e) => setAccomodation({
+                                   <InputPrice
+                                        inputValue={accomodation?.akomodasiTaxi?.price || ''}
+                                        type={true}
+                                        onInputChange={(newValue) => setAccomodation({
                                              ...accomodation,
                                              akomodasiTaxi: {
                                                   ...accomodation.akomodasiTaxi,
-                                                  price: e.target.value
+                                                  price: newValue
                                              }
                                         })}
+                                        disabled={data?.status === "Waiting in HRGA" ? false : true}
                                    />
+
                               </td>
                               <td>
                                    <Input
@@ -900,11 +961,12 @@ const TableNeeds = ({ addNewRow, needs, setNeeds, accomodation, setAccomodation,
                                                   qty: e.target.value
                                              }
                                         })}
+                                        disabled={data?.status === "Waiting in HRGA" ? false : true}
                                    />
                               </td>
                               <td>
-                                   {rupiah(!isNaN(accomodation?.akomodasiTaxi?.price * accomodation?.akomodasiTaxi?.qty)
-                                        ? accomodation?.akomodasiTaxi?.price * accomodation?.akomodasiTaxi?.qty
+                                   {rupiah(!isNaN(parseValue(accomodation?.akomodasiTaxi?.price) * accomodation?.akomodasiTaxi?.qty)
+                                        ? parseValue(accomodation?.akomodasiTaxi?.price) * accomodation?.akomodasiTaxi?.qty
                                         : 0)}
                               </td>
                          </tr>
@@ -916,25 +978,30 @@ const TableNeeds = ({ addNewRow, needs, setNeeds, accomodation, setAccomodation,
                                    <tr key={id}>
                                         <td>
                                              <Input
+                                                  disabled={data?.status === "Waiting in HRGA" ? false : true}
                                                   defaultValue={item.title || ''}
                                                   onChange={(e) => handleChangeNeeds(e.target.value, id, 'title')}
                                              />
                                         </td>
                                         <td>
-                                             <Input
-                                                  defaultValue={item.price || ''}
-                                                  onChange={(e) => handleChangeNeeds(e.target.value, id, 'price')}
+                                             <InputPrice
+                                                  inputValue={accomodation?.dinasManager?.price || ''}
+                                                  type={true}
+                                                  onInputChange={(newValue) => handleChangeNeeds(newValue, id, 'price')}
+                                                  disabled={data?.status === "Waiting in HRGA" ? false : true}
                                              />
+
                                         </td>
                                         <td>
                                              <Input
+                                                  disabled={data?.status === "Waiting in HRGA" ? false : true}
                                                   defaultValue={item.qty || ''}
                                                   onChange={(e) => handleChangeNeeds(e.target.value, id, 'qty')}
                                              />
                                         </td>
                                         <td>
-                                             {rupiah(!isNaN(item.price * item.qty)
-                                                  ? item.price * item.qty
+                                             {rupiah(!isNaN(parseValue(item.price) * item.qty)
+                                                  ? parseValue(item.price) * item.qty
                                                   : 0)}
                                         </td>
                                    </tr>
@@ -952,20 +1019,38 @@ const TableNeeds = ({ addNewRow, needs, setNeeds, accomodation, setAccomodation,
                          </tr>
                     </tfoot>
                </Table>
-               <CardText>
-                    <Button
-                         color="primary"
-                         outline
-                         onClick={() => addNewRow('needs')}
-                    >
-                         Add new accomodation
-                    </Button>
-               </CardText>
+               {data?.status === "Waiting in HRGA" ?
+                    <CardText>
+                         <Button
+                              color="primary"
+                              outline
+                              onClick={() => addNewRow('needs')}
+                         >
+                              Add new accomodation
+                         </Button>
+                    </CardText>
+                    :
+                    null}
           </>
      )
 }
 
-const TableRealization = ({ addNewRow, realization, real, setReal, setRealization }) => {
+const TableRealization = ({ type, addNewRow, realization, real, setReal, setRealization }) => {
+
+     console.log(real, 'ni reals')
+
+
+     const parseCurrency = value => parseFloat(value?.replace(/\./g, ""));
+
+     const parseValue = value => {
+          console.log(value, "yiha")
+          if (typeof value === 'string') {
+               return value ? parseCurrency(value) : 0;
+          }
+          return value || 0;
+     };
+
+
 
      const [show, setShow] = useState({})
      const [image, setImage] = useState([])
@@ -1100,9 +1185,10 @@ const TableRealization = ({ addNewRow, realization, real, setReal, setRealizatio
                          <tr>
                               <td>Non Staff</td>
                               <td>
-                                   <Input
-                                        defaultValue={real?.dinasNonStaff?.price || ''}
-                                        onChange={(e) => setReal({ ...real, dinasNonStaff: { ...real.dinasNonStaff, price: e.target.value } })}
+                                   <InputPrice
+                                        inputValue={real?.dinasNonStaff?.price || ''}
+                                        type={true}
+                                        onInputChange={(newValue) => setReal({ ...real, dinasNonStaff: { ...real.dinasNonStaff, price: newValue } })}
                                    />
                               </td>
                               <td>
@@ -1112,7 +1198,7 @@ const TableRealization = ({ addNewRow, realization, real, setReal, setRealizatio
                                    />
                               </td>
                               <td>
-                                   {rupiah(!isNaN(real?.dinasNonStaff?.price * real?.dinasNonStaff?.qty) ? real?.dinasNonStaff?.price * real?.dinasNonStaff?.qty : 0)}
+                                   {rupiah(!isNaN(parseValue(real?.dinasNonStaff?.price) * real?.dinasNonStaff?.qty) ? parseValue(real?.dinasNonStaff?.price) * real?.dinasNonStaff?.qty : 0)}
                               </td>
                               <td>
                                    {real?.dinasNonStaff?.attachment ?
@@ -1135,9 +1221,10 @@ const TableRealization = ({ addNewRow, realization, real, setReal, setRealizatio
                          <tr>
                               <td>SPV</td>
                               <td>
-                                   <Input
-                                        defaultValue={real?.dinasSpv?.price || ''}
-                                        onChange={(e) => setReal({ ...real, dinasSpv: { ...real.dinasSpv, price: e.target.value } })}
+                                   <InputPrice
+                                        inputValue={real?.dinasSpv?.price || ''}
+                                        type={true}
+                                        onInputChange={(newValue) => setReal({ ...real, dinasSpv: { ...real.dinasSpv, price: newValue } })}
                                    />
                               </td>
                               <td>
@@ -1147,20 +1234,20 @@ const TableRealization = ({ addNewRow, realization, real, setReal, setRealizatio
                                    />
                               </td>
                               <td>
-                                   {rupiah(!isNaN(real?.dinasSpv?.price * real?.dinasSpv?.qty) ? real?.dinasSpv?.price * real?.dinasSpv?.qty : 0)}
+                                   {rupiah(!isNaN(parseValue(real?.dinasSpv?.price) * real?.dinasSpv?.qty) ? parseValue(real?.dinasSpv?.price) * real?.dinasSpv?.qty : 0)}
                               </td>
                               <td>
                                    {real?.dinasSpv?.attachment ?
                                         <a
                                              className="text-primary"
-                                             onClick={() => setShow({ ...show, file: true, type: "dinasSpv", obj: real })}
+                                             onClick={() => setShow({ ...show, file: true, type: 'dinasSpv', obj: real })}
                                         >
                                              <Badge color="success">Show file</Badge>
                                         </a>
                                         :
                                         <a
                                              className="text-primary"
-                                             onClick={() => setShow({ ...show, upload: true, type: "dinasSpv", obj: real })}
+                                             onClick={() => setShow({ ...show, upload: true, type: 'dinasSpv', obj: real })}
                                         >
                                              <Badge color="primary">upload file</Badge>
                                         </a>
@@ -1170,9 +1257,10 @@ const TableRealization = ({ addNewRow, realization, real, setReal, setRealizatio
                          <tr>
                               <td>Manager Additional breakfast (jika tidak include hotel)</td>
                               <td>
-                                   <Input
-                                        defaultValue={real?.dinasManager?.price || ''}
-                                        onChange={(e) => setReal({ ...real, dinasManager: { ...real.dinasManager, price: e.target.value } })}
+                                   <InputPrice
+                                        inputValue={real?.dinasManager?.price || ''}
+                                        type={true}
+                                        onInputChange={(newValue) => setReal({ ...real, dinasManager: { ...real.dinasManager, price: newValue } })}
                                    />
                               </td>
                               <td>
@@ -1182,20 +1270,20 @@ const TableRealization = ({ addNewRow, realization, real, setReal, setRealizatio
                                    />
                               </td>
                               <td>
-                                   {rupiah(!isNaN(real?.dinasManager?.price * real?.dinasManager?.qty) ? real?.dinasManager?.price * real?.dinasManager?.qty : 0)}
+                                   {rupiah(!isNaN(parseValue(real?.dinasManager?.price) * real?.dinasManager?.qty) ? parseValue(real?.dinasManager?.price) * real?.dinasManager?.qty : 0)}
                               </td>
                               <td>
                                    {real?.dinasManager?.attachment ?
                                         <a
                                              className="text-primary"
-                                             onClick={() => setShow({ ...show, file: true, type: "dinasManager", obj: realization })}
+                                             onClick={() => setShow({ ...show, file: true, type: 'dinasManager', obj: real })}
                                         >
                                              <Badge color="success">Show file</Badge>
                                         </a>
                                         :
                                         <a
                                              className="text-primary"
-                                             onClick={() => setShow({ ...show, upload: true, type: "dinasManager", obj: realization })}
+                                             onClick={() => setShow({ ...show, upload: true, type: 'dinasManager', obj: real })}
                                         >
                                              <Badge color="primary">upload file</Badge>
                                         </a>
@@ -1208,9 +1296,10 @@ const TableRealization = ({ addNewRow, realization, real, setReal, setRealizatio
                          <tr>
                               <td>Peserta Dinas</td>
                               <td>
-                                   <Input
-                                        defaultValue={real?.hotelMember?.price || ''}
-                                        onChange={(e) => setReal({ ...real, hotelMember: { ...real.hotelMember, price: e.target.value } })}
+                                   <InputPrice
+                                        inputValue={real?.hotelMember?.price || ''}
+                                        type={true}
+                                        onInputChange={(newValue) => setReal({ ...real, hotelMember: { ...real.hotelMember, price: newValue } })}
                                    />
                               </td>
                               <td>
@@ -1220,20 +1309,20 @@ const TableRealization = ({ addNewRow, realization, real, setReal, setRealizatio
                                    />
                               </td>
                               <td>
-                                   {rupiah(!isNaN(real?.hotelMember?.price * real?.hotelMember?.qty) ? real?.hotelMember?.price * real?.hotelMember?.qty : 0)}
+                                   {rupiah(!isNaN(parseValue(real?.hotelMember?.price) * real?.hotelMember?.qty) ? parseValue(real?.hotelMember?.price) * real?.hotelMember?.qty : 0)}
                               </td>
                               <td>
                                    {real?.hotelMember?.attachment ?
                                         <a
                                              className="text-primary"
-                                             onClick={() => setShow({ ...show, file: true, type: "hotelMember", obj: real })}
+                                             onClick={() => setShow({ ...show, file: true, type: 'hotelMember', obj: real })}
                                         >
                                              <Badge color="success">Show file</Badge>
                                         </a>
                                         :
                                         <a
                                              className="text-primary"
-                                             onClick={() => setShow({ ...show, upload: true, type: "hotelMember", obj: real })}
+                                             onClick={() => setShow({ ...show, upload: true, type: 'hotelMember', obj: real })}
                                         >
                                              <Badge color="primary">upload file</Badge>
                                         </a>
@@ -1243,9 +1332,10 @@ const TableRealization = ({ addNewRow, realization, real, setReal, setRealizatio
                          <tr>
                               <td>Driver</td>
                               <td>
-                                   <Input
-                                        defaultValue={real?.hotelDriver?.price || ''}
-                                        onChange={(e) => setReal({ ...real, hotelDriver: { ...real.hotelDriver, price: e.target.value } })}
+                                   <InputPrice
+                                        inputValue={real?.hotelDriver?.price || ''}
+                                        type={true}
+                                        onInputChange={(newValue) => setReal({ ...real, hotelDriver: { ...real.hotelDriver, price: newValue } })}
                                    />
                               </td>
                               <td>
@@ -1255,20 +1345,20 @@ const TableRealization = ({ addNewRow, realization, real, setReal, setRealizatio
                                    />
                               </td>
                               <td>
-                                   {rupiah(!isNaN(real?.hotelDriver?.price * real?.hotelDriver?.qty) ? real?.hotelDriver?.price * real?.hotelDriver?.qty : 0)}
+                                   {rupiah(!isNaN(parseValue(real?.hotelDriver?.price) * real?.hotelDriver?.qty) ? parseValue(real?.hotelDriver?.price) * real?.hotelDriver?.qty : 0)}
                               </td>
                               <td>
                                    {real?.hotelDriver?.attachment ?
                                         <a
                                              className="text-primary"
-                                             onClick={() => setShow({ ...show, file: true, type: "hotelDriver", obj: real })}
+                                             onClick={() => setShow({ ...show, file: true, type: 'hotelDriver', obj: real })}
                                         >
                                              <Badge color="success">Show file</Badge>
                                         </a>
                                         :
                                         <a
                                              className="text-primary"
-                                             onClick={() => setShow({ ...show, upload: true, type: "hotelDriver", obj: real })}
+                                             onClick={() => setShow({ ...show, upload: true, type: 'hotelDriver', obj: real })}
                                         >
                                              <Badge color="primary">upload file</Badge>
                                         </a>
@@ -1281,9 +1371,10 @@ const TableRealization = ({ addNewRow, realization, real, setReal, setRealizatio
                          <tr>
                               <td>Darat: Bensin, Toll, Parkir</td>
                               <td>
-                                   <Input
-                                        defaultValue={real?.akomodasiDarat?.price || ''}
-                                        onChange={(e) => setReal({ ...real, akomodasiDarat: { ...real.akomodasiDarat, price: e.target.value } })}
+                                   <InputPrice
+                                        inputValue={real?.akomodasiDarat?.price || ''}
+                                        type={true}
+                                        onInputChange={(newValue) => setReal({ ...real, akomodasiDarat: { ...real.akomodasiDarat, price: newValue } })}
                                    />
                               </td>
                               <td>
@@ -1293,7 +1384,7 @@ const TableRealization = ({ addNewRow, realization, real, setReal, setRealizatio
                                    />
                               </td>
                               <td>
-                                   {rupiah(!isNaN(real?.akomodasiDarat?.price * real?.akomodasiDarat?.qty) ? real?.akomodasiDarat?.price * real?.akomodasiDarat?.qty : 0)}
+                                   {rupiah(!isNaN(parseValue(real?.akomodasiDarat?.price) * real?.akomodasiDarat?.qty) ? parseValue(real?.akomodasiDarat?.price) * real?.akomodasiDarat?.qty : 0)}
                               </td>
                               <td>
                                    {real?.akomodasiDarat?.attachment ?
@@ -1316,9 +1407,10 @@ const TableRealization = ({ addNewRow, realization, real, setReal, setRealizatio
                          <tr>
                               <td>Tiket Kereta/ Kapal/ Pesawat</td>
                               <td>
-                                   <Input
-                                        defaultValue={real?.akomodasiTiket?.price || ''}
-                                        onChange={(e) => setReal({ ...real, akomodasiTiket: { ...real.akomodasiTiket, price: e.target.value } })}
+                                   <InputPrice
+                                        inputValue={real?.akomodasiTiket?.price || ''}
+                                        type={true}
+                                        onInputChange={(newValue) => setReal({ ...real, akomodasiTiket: { ...real.akomodasiTiket, price: newValue } })}
                                    />
                               </td>
                               <td>
@@ -1328,7 +1420,7 @@ const TableRealization = ({ addNewRow, realization, real, setReal, setRealizatio
                                    />
                               </td>
                               <td>
-                                   {rupiah(!isNaN(real?.akomodasiTiket?.price * real?.akomodasiTiket?.qty) ? real?.akomodasiTiket?.price * real?.akomodasiTiket?.qty : 0)}
+                                   {rupiah(!isNaN(parseValue(real?.akomodasiTiket?.price) * real?.akomodasiTiket?.qty) ? parseValue(real?.akomodasiTiket?.price) * real?.akomodasiTiket?.qty : 0)}
                               </td>
                               <td>
                                    {real?.akomodasiTiket?.attachment ?
@@ -1351,9 +1443,10 @@ const TableRealization = ({ addNewRow, realization, real, setReal, setRealizatio
                          <tr>
                               <td>Taxi/ Ojek</td>
                               <td>
-                                   <Input
-                                        defaultValue={real?.akomodasiTaxi?.price || ''}
-                                        onChange={(e) => setReal({ ...real, akomodasiTaxi: { ...real.akomodasiTaxi, price: e.target.value } })}
+                                   <InputPrice
+                                        inputValue={real?.akomodasiTaxi?.price || ''}
+                                        type={true}
+                                        onInputChange={(newValue) => setReal({ ...real, akomodasiTaxi: { ...real.akomodasiTaxi, price: newValue } })}
                                    />
                               </td>
                               <td>
@@ -1363,7 +1456,7 @@ const TableRealization = ({ addNewRow, realization, real, setReal, setRealizatio
                                    />
                               </td>
                               <td>
-                                   {rupiah(!isNaN(real?.akomodasiTaxi?.price * real?.akomodasiTaxi?.qty) ? real?.akomodasiTaxi?.price * real?.akomodasiTaxi?.qty : 0)}
+                                   {rupiah(!isNaN(parseValue(real?.akomodasiTaxi?.price) * real?.akomodasiTaxi?.qty) ? parseValue(real?.akomodasiTaxi?.price) * real?.akomodasiTaxi?.qty : 0)}
                               </td>
                               <td>
                                    {real?.akomodasiTaxi?.attachment ?
@@ -1390,10 +1483,16 @@ const TableRealization = ({ addNewRow, realization, real, setReal, setRealizatio
                               return (
                                    <tr key={id}>
                                         <td><Input defaultValue={item.title || ''} onChange={(e) => handleChangeRealization(e.target.value, id, 'title')} /></td>
-                                        <td><Input defaultValue={item.price || ''} onChange={(e) => handleChangeRealization(e.target.value, id, 'price')} /></td>
+                                        <td>
+                                             <InputPrice
+                                                  inputValue={item?.price || ''}
+                                                  type={true}
+                                                  onInputChange={(newValue) => handleChangeRealization(newValue, id, 'price')}
+                                             />
+                                        </td>
                                         <td><Input defaultValue={item.qty || ''} onChange={(e) => handleChangeRealization(e.target.value, id, 'qty')} /></td>
                                         <td>
-                                             {rupiah(!isNaN(item.price * item.qty) ? item.price * item.qty : 0)}
+                                             {rupiah(!isNaN(parseValue(item.price) * item.qty) ? parseValue(item.price) * item.qty : 0)}
                                         </td>
                                         <td>
                                              {item?.attachment ?

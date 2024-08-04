@@ -75,6 +75,17 @@ const PreviewCard = ({ data, approvalHidden, currentItemStatus }) => {
      const totalRealization = realTotal + realizationTotal;
      const totalAccomodation = needsTotal + accomodationTotal
 
+
+     const parseCurrency = value => parseFloat(value?.replace(/\./g, ""));
+
+     const parseValue = value => {
+          if (typeof value === 'string') {
+               return value ? parseCurrency(value) : 0;
+          }
+          return value || 0;
+     };
+
+
      const output = [
           { value: "APPROVED", label: "APPROVED" },
           { value: "REJECTED", label: "REJECTED" },
@@ -332,7 +343,7 @@ const PreviewCard = ({ data, approvalHidden, currentItemStatus }) => {
                                    <tr>
                                         <td>Non Staff</td>
                                         <td>
-                                             {data?.accomodation?.dinasNonStaff?.price}
+                                             {rupiah(parseValue(data?.accomodation?.dinasNonStaff?.price))}
                                         </td>
                                         <td>
                                              {data?.accomodation?.dinasNonStaff?.qty}
@@ -344,7 +355,7 @@ const PreviewCard = ({ data, approvalHidden, currentItemStatus }) => {
                                    <tr>
                                         <td>SPV</td>
                                         <td>
-                                             {data?.accomodation?.dinasSpv?.price}
+                                             {rupiah(parseValue(data?.accomodation?.dinasSpv?.price))}
                                         </td>
                                         <td>
                                              {data?.accomodation?.dinasSpv?.qty}
@@ -356,7 +367,7 @@ const PreviewCard = ({ data, approvalHidden, currentItemStatus }) => {
                                    <tr>
                                         <td>Manager Additional breakfast (jika tidak include hotel)</td>
                                         <td>
-                                             {data?.accomodation?.dinasManager?.price}
+                                             {rupiah(parseValue(data?.accomodation?.dinasManager?.price))}
                                         </td>
                                         <td>
                                              {data?.accomodation?.dinasManager?.qty}
@@ -371,7 +382,7 @@ const PreviewCard = ({ data, approvalHidden, currentItemStatus }) => {
                                    <tr>
                                         <td>Peserta Dinas</td>
                                         <td>
-                                             {data?.accomodation?.hotelMember?.price}
+                                             {rupiah(parseValue(data?.accomodation?.hotelMember?.price))}
                                         </td>
                                         <td>
                                              {data?.accomodation?.hotelMember?.qty}
@@ -383,7 +394,7 @@ const PreviewCard = ({ data, approvalHidden, currentItemStatus }) => {
                                    <tr>
                                         <td>Driver</td>
                                         <td>
-                                             {data?.accomodation?.hotelDriver?.price}
+                                             {rupiah(parseValue(data?.accomodation?.hotelDriver?.price))}
                                         </td>
                                         <td>
                                              {data?.accomodation?.hotelDriver?.qty}
@@ -398,7 +409,7 @@ const PreviewCard = ({ data, approvalHidden, currentItemStatus }) => {
                                    <tr>
                                         <td>Darat: Bensin, Toll, Parkir</td>
                                         <td>
-                                             {data?.accomodation?.akomodasiDarat?.price}
+                                             {rupiah(parseValue(data?.accomodation?.akomodasiDarat?.price))}
                                         </td>
                                         <td>
                                              {data?.accomodation?.akomodasiDarat?.qty}
@@ -410,7 +421,7 @@ const PreviewCard = ({ data, approvalHidden, currentItemStatus }) => {
                                    <tr>
                                         <td>Tiket Kereta/ Kapal/ Pesawat</td>
                                         <td>
-                                             {data?.accomodation?.akomodasiTiket?.price}
+                                             {rupiah(parseValue(data?.accomodation?.akomodasiTiket?.price))}
                                         </td>
                                         <td>
                                              {data?.accomodation?.akomodasiTiket?.qty}
@@ -422,7 +433,7 @@ const PreviewCard = ({ data, approvalHidden, currentItemStatus }) => {
                                    <tr>
                                         <td>Taxi/ Ojek</td>
                                         <td>
-                                             {data?.accomodation?.akomodasiTaxi?.price}
+                                             {rupiah(parseValue(data?.accomodation?.akomodasiTaxi?.price))}
                                         </td>
                                         <td>
                                              {data?.accomodation?.akomodasiTaxi?.qty}
@@ -438,10 +449,10 @@ const PreviewCard = ({ data, approvalHidden, currentItemStatus }) => {
                                         return (
                                              <tr key={id}>
                                                   <td>{item?.title}</td>
-                                                  <td>{item?.price}</td>
+                                                  <td>{rupiah(parseValue(item?.price))}</td>
                                                   <td>{item?.qty}</td>
                                                   <td>
-                                                       {rupiah(!isNaN(item?.price * item?.qty) ? item?.price * item?.qty : 0)}
+                                                       {rupiah(!isNaN(parseValue(item?.price) * item?.qty) ? parseValue(item?.price) * item?.qty : 0)}
                                                   </td>
                                              </tr>
                                         )
@@ -494,7 +505,7 @@ const PreviewCard = ({ data, approvalHidden, currentItemStatus }) => {
                                         <tr>
                                              <td>Non Staff</td>
                                              <td>
-                                                  {data?.realization?.dinasNonStaff?.price}
+                                                  {rupiah(parseValue(data?.realization?.dinasNonStaff?.price))}
                                              </td>
                                              <td>
                                                   {data?.realization?.dinasNonStaff?.qty}
@@ -529,7 +540,7 @@ const PreviewCard = ({ data, approvalHidden, currentItemStatus }) => {
                                         <tr>
                                              <td>SPV</td>
                                              <td>
-                                                  {data?.realization?.dinasSpv?.price}
+                                                  {rupiah(parseValue(data?.realization?.dinasSpv?.price))}
                                              </td>
                                              <td>
                                                   {data?.realization?.dinasSpv?.qty}
@@ -564,7 +575,7 @@ const PreviewCard = ({ data, approvalHidden, currentItemStatus }) => {
                                         <tr>
                                              <td>Manager Additional breakfast (jika tidak include hotel)</td>
                                              <td>
-                                                  {data?.realization?.dinasManager?.price}
+                                                  {rupiah(parseValue(data?.realization?.dinasManager?.price))}
                                              </td>
                                              <td>
                                                   {data?.realization?.dinasManager?.qty}
@@ -602,7 +613,7 @@ const PreviewCard = ({ data, approvalHidden, currentItemStatus }) => {
                                         <tr>
                                              <td>Peserta Dinas</td>
                                              <td>
-                                                  {data?.realization?.hotelMember?.price}
+                                                  {rupiah(parseValue(data?.realization?.hotelMember?.price))}
                                              </td>
                                              <td>
                                                   {data?.realization?.hotelMember?.qty}
@@ -637,7 +648,7 @@ const PreviewCard = ({ data, approvalHidden, currentItemStatus }) => {
                                         <tr>
                                              <td>Driver</td>
                                              <td>
-                                                  {data?.realization?.hotelDriver?.price}
+                                                  {rupiah(parseValue(data?.realization?.hotelDriver?.price))}
                                              </td>
                                              <td>
                                                   {data?.realization?.hotelDriver?.qty}
@@ -675,7 +686,7 @@ const PreviewCard = ({ data, approvalHidden, currentItemStatus }) => {
                                         <tr>
                                              <td>Darat: Bensin, Toll, Parkir</td>
                                              <td>
-                                                  {data?.realization?.akomodasiDarat?.price}
+                                                  {rupiah(parseValue(data?.realization?.akomodasiDarat?.price))}
                                              </td>
                                              <td>
                                                   {data?.realization?.akomodasiDarat?.qty}
@@ -710,7 +721,7 @@ const PreviewCard = ({ data, approvalHidden, currentItemStatus }) => {
                                         <tr>
                                              <td>Tiket Kereta/ Kapal/ Pesawat</td>
                                              <td>
-                                                  {data?.realization?.akomodasiTiket?.price}
+                                                  {rupiah(parseValue(data?.realization?.akomodasiTiket?.price))}
                                              </td>
                                              <td>
                                                   {data?.realization?.akomodasiTiket?.qty}
@@ -745,7 +756,7 @@ const PreviewCard = ({ data, approvalHidden, currentItemStatus }) => {
                                         <tr>
                                              <td>Taxi/ Ojek</td>
                                              <td>
-                                                  {data?.realization?.akomodasiTaxi?.price}
+                                                  {rupiah(parseValue(data?.realization?.akomodasiTaxi?.price))}
                                              </td>
                                              <td>
                                                   {data?.realization?.akomodasiTaxi?.qty}
@@ -783,10 +794,10 @@ const PreviewCard = ({ data, approvalHidden, currentItemStatus }) => {
                                              return (
                                                   <tr key={id}>
                                                        <td>{item?.title}</td>
-                                                       <td>{item?.price}</td>
+                                                       <td>{rupiah(parseValue(item?.price))}</td>
                                                        <td>{item?.qty}</td>
                                                        <td>
-                                                            {rupiah(!isNaN(item?.price * item?.qty) ? item?.price * item?.qty : 0)}
+                                                            {rupiah(!isNaN(parseValue(item?.price) * item?.qty) ? parseValue(item?.price) * item?.qty : 0)}
                                                        </td>
                                                        {location.pathname.split('/')[2] === 'draft' ? <td>
                                                             {item?.attachment && item?.attachment?.length > 0 ? (
@@ -827,6 +838,9 @@ const PreviewCard = ({ data, approvalHidden, currentItemStatus }) => {
                                         </tr>
                                    </tfoot>
                               </Table>
+                              <Col className="mt-5">
+                                   <h4>Sisa Realisasi: {rupiah(parseValue(totalRealization) - parseValue(totalAccomodation))}</h4>
+                              </Col>
                               <Modal
                                    isOpen={show?.file}
                                    toggle={() => setShow({ file: false, index: null })}

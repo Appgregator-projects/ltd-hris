@@ -10,13 +10,6 @@ import { setDocumentFirebase } from "../../../sevices/FirebaseApi";
 
 
 let user = JSON.parse(localStorage.getItem("userData"));
-const allEmployee = JSON.parse(localStorage.getItem("employee"));
-const matchingEmployee = allEmployee?.find(employee => employee?.id === user?.id);
-
-// Gabungkan data employee ke user jika ditemukan
-if (matchingEmployee) {
-     user = { ...user, user: matchingEmployee, attributes: { level: matchingEmployee?.level } }
-}
 
 async function handleSubmit(data, type, id, approve, navigate) {
      let result = ''
@@ -24,7 +17,7 @@ async function handleSubmit(data, type, id, approve, navigate) {
 
      let objData = { ...data };
      if (objData?.isRealization) {
-          if (user?.attributes?.level === 'Manager' && user?.user?.departement_id !== 4) {
+          if (user?.attributes?.level === 'Manager' && user?.user?.departement_id !== 42) {
                objData = { ...objData, real_manager_id: user?.name, status: 'Waiting Realization in HRGA' }
           } else if (user?.user?.departement_id === 17 || user?.user?.departement_id === 26) {
                objData = { ...objData, real_hrga_id: user?.name, status: 'Waiting Realization in Finance' }
@@ -32,11 +25,11 @@ async function handleSubmit(data, type, id, approve, navigate) {
                objData = { ...objData, real_finance_id: user?.name, status: 'Approved' }
           }
      } else {
-          if (user?.attributes?.level === 'Manager' && user?.user?.departement_id !== 4) {
+          if (user?.attributes?.level === 'Manager' && user?.user?.departement_id !== 42) {
                objData = { ...objData, manager_id: user?.name, status: 'Waiting in HRGA', isRealization: false }
           } else if (user?.user?.departement_id === 17 || user?.user?.departement_id === 26) {
                objData = { ...objData, hrga_id: user?.name, status: 'Waiting in Finance', isRealization: false }
-          } else if (user?.user?.departement_id === 4) {
+          } else if (user?.user?.departement_id === 42) {
                objData = { ...objData, finance_id: user?.name, status: 'Waiting for Realization', isRealization: true }
           }
      }

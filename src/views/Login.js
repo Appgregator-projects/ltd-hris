@@ -131,8 +131,8 @@ const Login = () => {
           });
           // return console.log(hrPermissions, 'userPermissions')
           const detailUser = await Api.get(`/hris/employee/${token.uid}`)
+          dispatch(handleEmployee());
           if (detailUser.status) {
-            dispatch(handleEmployee());
             dispatch(
               handleLogin({
                 token,

@@ -1,25 +1,86 @@
 import React, { useEffect, useState } from 'react'
 import Breadcrumbs from "@components/breadcrumbs";
-import { Badge, Button, Card, CardBody, CardText, Col, DropdownItem, DropdownMenu, DropdownToggle, PopoverBody, PopoverHeader, Table, UncontrolledDropdown, UncontrolledPopover } from 'reactstrap';
-import { FileText, Info, MoreVertical, Plus } from 'react-feather';
+import { Badge, Button, Card, CardBody, CardText, Col, DropdownItem, DropdownMenu, DropdownToggle, Input, InputGroup, Label, PopoverBody, PopoverHeader, Row, Table, UncontrolledDropdown, UncontrolledPopover } from 'reactstrap';
+import { FileText, Info, MoreVertical, Plus, Search } from 'react-feather';
 import { useNavigate } from 'react-router-dom';
 import { getCollectionFirebase } from '../../../sevices/FirebaseApi';
 import { rupiah } from '../../../Helper';
 import moment from 'moment';
 import { BiPencil } from "react-icons/bi";
+import { clientTypessense } from '../../../apis/typesense';
+import { handleEmployee } from '../../../redux/authentication';
 
-const userData = JSON.parse(localStorage.getItem('userData'))
 
 
 const SppdIndex = () => {
+     const userData = JSON.parse(localStorage.getItem('userData'))
+     console.log(userData, "userDATASPPD")
      const navigate = useNavigate()
 
-     const [sppd, setSppd] = useState()
+     const [sppd, setSppd] = useState([])
+     const [search, setSearch] = useState([])
 
      const fetchSppd = async () => {
-          const result = await getCollectionFirebase('sppd')
+          let result = ''
+          const conditions = [
+               { field: 'createdBy', operator: '==', value: userData?.id }
+          ]
+
+          const sortBy = {
+               field: 'status',
+               direction: 'desc'
+          }
+
+          if (userData?.attributes?.level === 'Manager' || userData?.user?.departement_id === 17 || userData?.user?.departement_id === 26 || userData?.user?.departement_id === 42) {
+               result = await getCollectionFirebase("sppd", [], sortBy);
+          } else {
+               result = await getCollectionFirebase("sppd", conditions, sortBy)
+          }
           setSppd(result)
      }
+
+     const handleSearch = async () => {
+          let newReimburse = []
+          let reimburse = []
+
+          let searchParameters = {
+               q: search !== "" ? search : "*",
+               query_by: ["reason", "employee.name", "status", "nomorSurat", "address1", "address2"],
+               // filter_by: `pipelineId:${selectedPipeline.value}`,
+               per_page: 10,
+          };
+
+          if (userData?.attributes?.level === 'Manager' || userData?.user?.departement_id === 17 || userData?.user?.departement_id === 26 || userData?.user?.departement_id === 42) {
+               reimburse = await clientTypessense
+                    .collections(`sppd`)
+                    .documents()
+                    .search(searchParameters);
+
+               console.log(reimburse, "ni reim manager")
+          } else {
+               searchParameters = {
+                    ...searchParameters,
+                    filter_by: `createdBy:${userData?.id}`
+               }
+               reimburse = await clientTypessense
+                    .collections(`sppd`)
+                    .documents()
+                    .search(searchParameters);
+          }
+
+          newReimburse = reimburse?.hits?.map(
+               (item) => item.document
+          );
+          console.log(search, "ini data search", newReimburse)
+          setSppd(newReimburse)
+     };
+
+     const handleKeyPress = (e) => {
+          if (e.key === "Enter") {
+               e.preventDefault();
+               handleSearch();
+          }
+     };
 
      useEffect(() => {
           fetchSppd()
@@ -52,6 +113,24 @@ const SppdIndex = () => {
 
                <Card>
                     <CardBody>
+                         <Row>
+                              <Col className="col12 col-md-6" onKeyPress={(e) => handleKeyPress(e)}>
+                                   <Label className="form-label">Search</Label>
+                                   <InputGroup className="mb-2">
+                                        <Input
+                                             placeholder={`Search...`}
+                                             onChange={(e) => setSearch(e.target.value)}
+                                        />
+                                        <Button color="primary"
+                                             onClick={() => handleSearch()}
+                                        >
+                                             <Search size={15}
+                                             />
+                                        </Button>
+                                   </InputGroup>
+                              </Col>
+                         </Row>
+
                          <CardText>
                               <Table responsive>
                                    <thead>
