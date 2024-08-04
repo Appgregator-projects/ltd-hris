@@ -187,7 +187,7 @@ const SppdForm = () => {
 
 
      const calculateTotal = (category) => {
-          return category.price && category.qty && !isNaN(category.price * category.qty) ? category.price * category.qty : 0;
+          return category.price && category.qty && !isNaN(category.price * category.qty) ? parseValue(category.price) * category.qty : 0;
      };
 
 
@@ -195,16 +195,17 @@ const SppdForm = () => {
           let newData = { ...data }
 
           // console.log({member, real, realization,accomodation,needs, data})
-          const accomodationTotal = Object.values(accomodation).reduce((acc, category) => acc + calculateTotal(category), 0);
+          const accomodationTotal = Object.values(accomodation).reduce((acc, category) => parseValue(acc) + calculateTotal(parseValue(category)), 0);
 
           const needsTotal = needs.reduce((acc, item) => {
-               const price = item.price || 0;
+               const price = parseValue(item.price) || 0;
                const qty = item.qty || 0;
-               const total = !isNaN(price * qty) ? price * qty : 0;
-               return acc + total;
+               const total = !isNaN(price * qty) ? parseValue(price) * qty : 0;
+               return parseValue(acc) + parseValue(total);
           }, 0);
 
           const totalNeeds = accomodationTotal + needsTotal;
+          console.log({ accomodationTotal, needsTotal })
           // Calculate the total sum for accomodation
           const realTotal = Object.values(real).reduce((acc, category) => acc + calculateTotal(category), 0);
 
@@ -212,15 +213,19 @@ const SppdForm = () => {
           const realizationTotal = realization.reduce((acc, item) => {
                const price = item.price || 0;
                const qty = item.qty || 0;
-               const total = !isNaN(price * qty) ? price * qty : 0;
-               return acc + total;
+               const total = !isNaN(price * qty) ? parseValue(price) * qty : 0;
+               return acc + parseValue(total);
           }, 0);
 
           // Calculate the total sum of everything
           const totalRelization = realTotal + realizationTotal;
 
 
-          newData = { ...data, member, rundown, status: "Waiting in Head", realization: { ...real, other: realization }, accomodation: { ...accomodation, other: needs }, employee: { name: userData?.name, email: userData?.user?.email, id: userData?.id }, amount: totalNeeds, createdAtInt: new Date().getTime() }
+          newData = { ...data, member, rundown, status: "Waiting in Head", realization: { ...real, other: realization }, accomodation: { ...accomodation, other: needs }, amount: totalNeeds, createdAtInt: new Date().getTime() }
+
+          if (type === 'create') {
+               newData = { ...newData, employee: { name: userData?.name, email: userData?.user?.email, id: userData?.id } }
+          }
 
           console.log(newData, "newData")
           try {
@@ -301,7 +306,7 @@ const SppdForm = () => {
      const needsTotal = needs.reduce((acc, item) => {
           const price = item.price || 0;
           const qty = item.qty || 0;
-          const total = !isNaN(price * qty) ? price * qty : 0;
+          const total = !isNaN(price * qty) ? parseValue(price) * qty : 0;
           return acc + total;
      }, 0);
 
@@ -313,7 +318,7 @@ const SppdForm = () => {
      const realizationTotal = realization.reduce((acc, item) => {
           const price = item.price || 0;
           const qty = item.qty || 0;
-          const total = !isNaN(price * qty) ? price * qty : 0;
+          const total = !isNaN(price * qty) ? parseValue(price) * qty : 0;
           return acc + total;
      }, 0);
 
@@ -346,11 +351,11 @@ const SppdForm = () => {
                                    <Row className="mt-1">
                                         <Col>
                                              <Label>Tanggal Keberangkatan</Label>
-                                             <Input type='date' onChange={(e) => setData({ ...data, dateDeparture: e.target.value })} defaultValue={data?.dateDeparture} disabled={type === 'edit' && data?.isRejected ? false : true} />
+                                             <Input type='date' onChange={(e) => setData({ ...data, dateDeparture: e.target.value })} defaultValue={data?.dateDeparture} disabled={(type === 'edit' && data?.isRejected) || type === 'create' ? false : true} />
                                         </Col>
                                         <Col>
                                              <Label>Tanggal Kembali</Label>
-                                             <Input type='date' onChange={(e) => setData({ ...data, dateReturn: e.target.value })} defaultValue={data?.dateReturn} disabled={type === 'edit' && data?.isRejected ? false : true} />
+                                             <Input type='date' onChange={(e) => setData({ ...data, dateReturn: e.target.value })} defaultValue={data?.dateReturn} disabled={(type === 'edit' && data?.isRejected) || type === 'create' ? false : true} />
                                         </Col>
                                    </Row>
                                    <Row className="mt-1">
@@ -361,7 +366,7 @@ const SppdForm = () => {
                                                   reason?.map((item, index) => (
 
                                                        <div className='form-check form-check-inline' key={index}>
-                                                            <Input type='checkbox' onChange={(e) => handleChangeCheckbox(e, item, 'reason')} defaultChecked={data?.reason?.includes(item)} disabled={type === 'edit' && data?.isRejected ? false : true} />
+                                                            <Input type='checkbox' onChange={(e) => handleChangeCheckbox(e, item, 'reason')} defaultChecked={data?.reason?.includes(item)} disabled={(type === 'edit' && data?.isRejected) || type === 'create' ? false : true} />
                                                             <Label value={item}>
                                                                  {item}
                                                             </Label>
@@ -374,11 +379,11 @@ const SppdForm = () => {
                                    <Row className="mt-1">
                                         <Col>
                                              <Label>Alamat Tujuan 1</Label>
-                                             <Input disabled={type === 'edit' && data?.isRejected ? false : true} onChange={(e) => setData({ ...data, address1: e.target.value })} defaultValue={data?.address1} />
+                                             <Input disabled={(type === 'edit' && data?.isRejected) || type === 'create' ? false : true} onChange={(e) => setData({ ...data, address1: e.target.value })} defaultValue={data?.address1} />
                                         </Col>
                                         <Col>
                                              <Label>Alamat Tujuan 2</Label>
-                                             <Input disabled={type === 'edit' && data?.isRejected ? false : true} onChange={(e) => setData({ ...data, address2: e.target.value })} defaultValue={data?.address2} />
+                                             <Input disabled={(type === 'edit' && data?.isRejected) || type === 'create' ? false : true} onChange={(e) => setData({ ...data, address2: e.target.value })} defaultValue={data?.address2} />
                                         </Col>
                                    </Row>
                                    <Row className="mt-1">
@@ -388,7 +393,7 @@ const SppdForm = () => {
                                                   transport?.map((item, index) => (
 
                                                        <div className='form-check form-check-inline' key={index}>
-                                                            <Input disabled={type === 'edit' && data?.isRejected ? false : true} type='checkbox' onChange={(e) => handleChangeCheckbox(e, item, 'transport')} defaultChecked={data?.transport?.includes(item)} />
+                                                            <Input disabled={(type === 'edit' && data?.isRejected) || type === 'create' ? false : true} type='checkbox' onChange={(e) => handleChangeCheckbox(e, item, 'transport')} defaultChecked={data?.transport?.includes(item)} />
                                                             <Label value={item}>
                                                                  {item}
                                                             </Label>
@@ -407,7 +412,7 @@ const SppdForm = () => {
 
                                                        <div className='form-check form-check-inline' key={index}>
                                                             <Input
-                                                                 disabled={data?.status === "Waiting in HRGA" ? false : true}
+                                                                 disabled={(type === 'edit' && data?.isRejected) || type === 'create' ? false : true}
                                                                  type='radio'
                                                                  name='radioGroup'
                                                                  checked={data?.driver === item}
@@ -425,15 +430,15 @@ const SppdForm = () => {
                                    <Row className="mt-1">
                                         <Col>
                                              <Label>Bank Account Number</Label>
-                                             <Input disabled={type === 'edit' && data?.isRejected ? false : true} onChange={(e) => setData({ ...data, bankAccountNumber: e.target.value })} defaultValue={data?.bankAccountNumber} />
+                                             <Input disabled={(type === 'edit' && data?.isRejected) || type === 'create' ? false : true} onChange={(e) => setData({ ...data, bankAccountNumber: e.target.value })} defaultValue={data?.bankAccountNumber} />
                                         </Col>
                                         <Col>
                                              <Label>Bank Account Name</Label>
-                                             <Input disabled={type === 'edit' && data?.isRejected ? false : true} onChange={(e) => setData({ ...data, bankAccountName: e.target.value })} defaultValue={data?.bankAccountName} />
+                                             <Input disabled={(type === 'edit' && data?.isRejected) || type === 'create' ? false : true} onChange={(e) => setData({ ...data, bankAccountName: e.target.value })} defaultValue={data?.bankAccountName} />
                                         </Col>
                                         <Col>
                                              <Label>Bank Name</Label>
-                                             <Input disabled={type === 'edit' && data?.isRejected ? false : true} onChange={(e) => setData({ ...data, bankName: e.target.value })} defaultValue={data?.bankName} />
+                                             <Input disabled={(type === 'edit' && data?.isRejected) || type === 'create' ? false : true} onChange={(e) => setData({ ...data, bankName: e.target.value })} defaultValue={data?.bankName} />
                                         </Col>
                                    </Row>
                               </Row>
@@ -573,7 +578,7 @@ const TableMember = ({ addNewRow, member, loadOption, handleSelectOwner, setMemb
                                         <td>{id + 1}</td>
                                         <td>
                                              {type === 'edit' ?
-                                                  <Input defaultValue={item?.name} disabled={type === 'edit' && data?.isRejected ? false : true} />
+                                                  <Input defaultValue={item?.name} disabled={(type === 'edit' && data?.isRejected) || type === 'create' ? false : true} />
                                                   :
 
                                                   <AsyncSelect
@@ -587,9 +592,9 @@ const TableMember = ({ addNewRow, member, loadOption, handleSelectOwner, setMemb
 
                                         </td>
                                         {/* <td><Input defaultValue={item?.name}/></td> */}
-                                        <td><Input defaultValue={item?.gender} onChange={(e) => handleChangeMember(e.target.value, id, 'gender')} disabled={type === 'edit' && data?.isRejected ? false : true} /></td>
-                                        <td><Input defaultValue={item?.department} onChange={(e) => handleChangeMember(e.target.value, id, 'department')} disabled={type === 'edit' && data?.isRejected ? false : true} /></td>
-                                        <td><Input defaultValue={item?.level} onChange={(e) => handleChangeMember(e.target.value, id, 'level')} disabled={type === 'edit' && data?.isRejected ? false : true} /></td>
+                                        <td><Input defaultValue={item?.gender} onChange={(e) => handleChangeMember(e.target.value, id, 'gender')} disabled={(type === 'edit' && data?.isRejected) || type === 'create' ? false : true} /></td>
+                                        <td><Input defaultValue={item?.department} onChange={(e) => handleChangeMember(e.target.value, id, 'department')} disabled={(type === 'edit' && data?.isRejected) || type === 'create' ? false : true} /></td>
+                                        <td><Input defaultValue={item?.level} onChange={(e) => handleChangeMember(e.target.value, id, 'level')} disabled={(type === 'edit' && data?.isRejected) || type === 'create' ? false : true} /></td>
                                    </tr>
                               )
                          })}
@@ -631,7 +636,7 @@ const TableNeeds = ({ type, addNewRow, needs, setNeeds, accomodation, setAccomod
 
      // Calculate the total for each category
      const calculateTotal = (category) => {
-          return category.price && category.qty && !isNaN(category.price * category.qty) ? category.price * category.qty : 0;
+          return category.price && category.qty && !isNaN(category.price * category.qty) ? parseValue(category.price) * category.qty : 0;
      };
 
      // Calculate the total sum for accomodation
@@ -641,7 +646,7 @@ const TableNeeds = ({ type, addNewRow, needs, setNeeds, accomodation, setAccomod
      const needsTotal = needs.reduce((acc, item) => {
           const price = parseValue(item.price) || 0;
           const qty = item.qty || 0;
-          const total = !isNaN(price * qty) ? price * qty : 0;
+          const total = !isNaN(price * qty) ? parseValue(price) * qty : 0;
           return acc + total;
      }, 0);
 
@@ -1062,7 +1067,7 @@ const TableRealization = ({ type, addNewRow, realization, real, setReal, setReal
      };
      // Calculate the total for each category
      const calculateTotal = (category) => {
-          return category.price && category.qty && !isNaN(category.price * category.qty) ? category.price * category.qty : 0;
+          return category.price && category.qty && !isNaN(category.price * category.qty) ? parseValue(category.price) * category.qty : 0;
      };
 
      // Calculate the total sum for accomodation
@@ -1072,7 +1077,7 @@ const TableRealization = ({ type, addNewRow, realization, real, setReal, setReal
      const realizationTotal = realization.reduce((acc, item) => {
           const price = item.price || 0;
           const qty = item.qty || 0;
-          const total = !isNaN(price * qty) ? price * qty : 0;
+          const total = !isNaN(price * qty) ? parseValue(price) * qty : 0;
           return acc + total;
      }, 0);
 

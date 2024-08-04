@@ -325,6 +325,7 @@ export const serviceAccurateEmployeeHrisDeals = async (value) => {
   };
   try {
     const response = await axios(configurationObject);
+    console.log(response, "niresponnss")
     return response.data.data.rows;
   } catch (error) {
     return error.response;

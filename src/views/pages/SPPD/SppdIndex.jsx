@@ -223,7 +223,7 @@ const SppdIndex = () => {
                                                                            </span>
                                                                       </DropdownItem>
                                                                       {
-                                                                           item.isRejected && !item.isRealization && item?.employee?.id === userData?.id ?
+                                                                           item.isRejected && !item.isRealization && item?.employee?.id === userData?.id || (item?.createdBy === userData?.id && item?.isRejected) ?
                                                                                 <DropdownItem onClick={() => navigate(`/sppd/edit/${item?.id}`)}>
                                                                                      <BiPencil className="me-50" size={15} />{" "}
                                                                                      <span className="align-middle">

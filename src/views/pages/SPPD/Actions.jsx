@@ -9,18 +9,19 @@ import { setDocumentFirebase } from "../../../sevices/FirebaseApi";
 
 
 
-let user = JSON.parse(localStorage.getItem("userData"));
+
 
 async function handleSubmit(data, type, id, approve, navigate) {
+     let user = JSON.parse(localStorage.getItem("userData"));
      let result = ''
      let newData = {}
 
      let objData = { ...data };
      if (objData?.isRealization) {
           if (user?.attributes?.level === 'Manager' && user?.user?.departement_id !== 42) {
-               objData = { ...objData, real_manager_id: user?.name, status: 'Waiting Realization in HRGA' }
+               objData = { ...objData, manager_id: user?.name, status: 'Waiting in HRGA' }
           } else if (user?.user?.departement_id === 17 || user?.user?.departement_id === 26) {
-               objData = { ...objData, real_hrga_id: user?.name, status: 'Waiting Realization in Finance' }
+               objData = { ...objData, hrga_id: user?.name, status: 'Waiting Realization in Finance' }
           } else {
                objData = { ...objData, real_finance_id: user?.name, status: 'Approved' }
           }
@@ -36,7 +37,7 @@ async function handleSubmit(data, type, id, approve, navigate) {
 
      try {
           if ((approve.approval === 'Rejected')) {
-               newData = { ...objData, isRejected: true, status: "Waiting in Head", notes: approve.notes, manager_id: '', finance_id: '', hrga_id: '', rejected_by: user.namematchingEmployee }
+               newData = { ...objData, isRejected: true, status: "Waiting in Head", notes: approve.notes, manager_id: '', finance_id: '', hrga_id: '', rejected_by: user.name }
                result = await setDocumentFirebase(type, id, newData)
                console.log('1')
           }
@@ -69,6 +70,7 @@ const PreviewActions = ({
      itemData,
      data,
 }) => {
+     let user = JSON.parse(localStorage.getItem("userData"));
      const type = 'sppd'
      console.log(data, "data")
      const [approve, setApprove] = useState({ approval: 'Rejected', notes: '' })
